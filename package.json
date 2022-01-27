@@ -52,7 +52,7 @@
         "redux": "3.7.2",
         "redux-thunk": "2.2.0",
         "s3-deploy": "^0.10.0",
-        "three": "0.87.0",
+        "three": "0.137.0",
         "three-dom-label": "^0.1.7",
         "three-orbit-controls": "82.1.0",
         "tween.js": "16.6.0",
