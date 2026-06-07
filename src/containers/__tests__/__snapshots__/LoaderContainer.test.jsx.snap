@@ -1,9 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`Loader Container render() should render the loader container successfully 1`] = `
-<SplashScreen
-  enterScene={[Function]}
-  percent={0}
-  show={true}
-/>
-`;
