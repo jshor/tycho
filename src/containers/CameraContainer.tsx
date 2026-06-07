@@ -1,5 +1,7 @@
-import React from 'react';
-import { Scene, Object3D, PerspectiveCamera } from 'three';
+import React, { useRef, useEffect, useImperativeHandle } from 'react';
+import * as THREE from 'three';
+import { useThree, useFrame } from '@react-three/fiber';
+import { PerspectiveCamera } from '@react-three/drei';
 import CameraService from '../services/CameraService';
 import Controls from '../utils/Controls';
 import Ambience from '../utils/Ambience';
@@ -19,135 +21,136 @@ interface Props {
     scale?: number;
     zoom?: number;
     volume?: number;
-    scene?: Scene;
     isAutoOrbitEnabled?: boolean;
     orbitalData?: OrbitalData[];
-    domElement?: HTMLElement;
     action?: CameraAction;
 }
 
-export default class CameraContainer extends React.Component<Props> {
+export interface CameraContainerHandle {
+    controls: Controls | null;
+}
 
-    ambience: Ambience;
-    controls: Controls;
-    tweenBase: { stop(): void };
+const CameraContainer = React.forwardRef<CameraContainerHandle, Props>((props, ref) => {
+    const { ratio, targetId, scale, zoom, volume, isAutoOrbitEnabled, orbitalData, action } = props;
 
-    componentDidMount = () => {
-        this.ambience = new Ambience((this.refs as unknown as { camera: PerspectiveCamera }).camera);
-    }
+    const pivotRef = useRef<THREE.Group>(null);
+    const controlsRef = useRef<Controls>(null);
+    const ambienceRef = useRef<Ambience>(null);
+    const tweenBaseRef = useRef<{ stop(): void } | null>(null);
+    const prevTargetIdRef = useRef<string | undefined>(undefined);
 
-    componentWillUnmount = () => {
-        this.controls.dispose();
-        delete this.controls;
-    }
+    // gl.domElement is the canvas — use it directly instead of requiring a prop
+    const { scene, camera, gl } = useThree();
 
-    componentWillReceiveProps = (nextProps: Props) => {
-        this.maybeSetVolume(nextProps);
-        this.maybeCreateControls(nextProps);
-        this.maybeMoveCameraPivot(nextProps);
-        this.maybeUpdateControlsZoom(nextProps);
-        this.maybeUpdateAutoOrbit(nextProps);
-        this.maybePreventCameraCollision(nextProps);
-    }
+    useImperativeHandle(ref, () => ({
+        get controls() { return controlsRef.current; }
+    }));
 
-    update = () => {
-        if (this.controls) {
-            this.controls.update();
+    // Initialize ambience once the camera is available
+    useEffect(() => {
+        ambienceRef.current = new Ambience(camera);
+    }, [camera]);
+
+    // Create controls as soon as the camera and canvas are available
+    useEffect(() => {
+        if (controlsRef.current) {
+            controlsRef.current.dispose();
         }
-    }
+        controlsRef.current = new Controls(camera as THREE.PerspectiveCamera, gl.domElement);
+        return () => {
+            controlsRef.current?.dispose();
+            controlsRef.current = null;
+        };
+    }, [camera, gl.domElement]);
 
-    maybeSetVolume = ({ volume }: Props) => {
-        if (this.props.volume !== volume) {
-            this.ambience.setVolume(volume);
+    // Update volume
+    useEffect(() => {
+        if (volume !== undefined && isFinite(volume)) {
+            ambienceRef.current?.setVolume(volume);
         }
-    }
+    }, [volume]);
 
-    maybeCreateControls = ({ domElement }: Props) => {
-        if (this.props.domElement !== domElement) {
-            this.controls = new Controls((this.refs as unknown as { camera: PerspectiveCamera }).camera, domElement);
+    // Update zoom level
+    useEffect(() => {
+        if (zoom !== undefined) {
+            controlsRef.current?.zoom(zoom);
         }
-    }
+    }, [zoom]);
 
-    maybeMoveCameraPivot = ({ targetId }: Props) => {
-        if (this.props.targetId !== targetId) {
-            this.movePivot(targetId, !!this.props.targetId);
+    // Update auto-rotate
+    useEffect(() => {
+        if (controlsRef.current) {
+            controlsRef.current.autoRotate = !!isAutoOrbitEnabled;
         }
-    }
+    }, [isAutoOrbitEnabled]);
 
-    maybePreventCameraCollision = ({ targetId, scale }: Props) => {
-        if (this.props.targetId !== targetId || this.props.scale !== scale) {
-            this.controls.minDistance = CameraService
-                .getMinDistance(this.props.orbitalData, targetId, scale);
+    // Prevent camera collision when target or scale changes
+    useEffect(() => {
+        if (controlsRef.current) {
+            controlsRef.current.minDistance = CameraService.getMinDistance(orbitalData, targetId, scale);
         }
-    }
+    }, [targetId, scale, orbitalData]);
 
-    maybeUpdateControlsZoom = ({ zoom }: Props) => {
-        if (this.props.zoom !== zoom) {
-            this.controls.zoom(zoom);
-        }
-    }
+    // Move camera pivot when target changes
+    useEffect(() => {
+        const hadTarget = !!prevTargetIdRef.current;
+        prevTargetIdRef.current = targetId;
 
-    maybeUpdateAutoOrbit = ({ isAutoOrbitEnabled }: Props) => {
-        if (this.props.isAutoOrbitEnabled !== isAutoOrbitEnabled) {
-            this.controls.autoRotate = isAutoOrbitEnabled;
-        }
-    }
+        if (!targetId || !hadTarget) return;
 
-    movePivot = (targetId: string, animate: boolean) => {
-        const { scene } = this.props;
-        const pivot = (this.refs as unknown as { pivot: Object3D }).pivot;
+        const pivot = pivotRef.current;
         const target = scene.getObjectByName(targetId);
 
-        if (target && animate) {
-            this.setInteractivity(false);
-            this.startTween(target, pivot, scene);
+        if (target) {
+            setInteractivity(false);
+            const v = CameraService.getWorldPosition(target);
+            const w = CameraService.getWorldPosition(pivot);
+
+            CameraService.attachToWorld(scene, pivot, w);
+            cancelTween();
+            zoomInFull();
+            tweenBaseRef.current = CameraService.getPivotTween(w, v, target, pivot, endTween);
         }
-    }
+    }, [targetId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    cancelTween = () => {
-        if (this.tweenBase) {
-            this.tweenBase.stop();
-            delete this.tweenBase;
+    useFrame(() => {
+        controlsRef.current?.update();
+    });
+
+    const cancelTween = () => {
+        if (tweenBaseRef.current) {
+            tweenBaseRef.current.stop();
+            tweenBaseRef.current = null;
         }
-    }
+    };
 
-    endTween = () => this.setInteractivity(true)
+    const endTween = () => setInteractivity(true);
 
-    startTween = (target: Object3D, pivot: Object3D, scene: Scene) => {
-        const v = CameraService.getWorldPosition(target);
-        const w = CameraService.getWorldPosition(pivot);
+    const setInteractivity = (enabled: boolean) => {
+        action?.setUIControls(!!enabled);
+        action?.setPlaying(enabled);
+        if (controlsRef.current) {
+            controlsRef.current.enabled = !!enabled;
+        }
+    };
 
-        CameraService.attachToWorld(scene, pivot, w);
+    const zoomInFull = () => {
+        controlsRef.current?.tweenZoom(Constants.WebGL.Zoom.MIN, action?.changeZoom);
+    };
 
-        this.cancelTween();
-        this.zoomInFull();
+    return (
+        <group ref={pivotRef}>
+            <PerspectiveCamera
+                makeDefault
+                name="camera"
+                aspect={ratio}
+                fov={Constants.WebGL.Camera.FOV}
+                near={Constants.WebGL.Camera.NEAR}
+                far={Constants.WebGL.Camera.FAR}
+                position={CameraService.CAMERA_INITIAL_POSITION.toArray() as [number, number, number]}
+            />
+        </group>
+    );
+});
 
-        this.tweenBase = CameraService.getPivotTween(w, v, target, pivot, this.endTween);
-    }
-
-    setInteractivity = (enabled: boolean) => {
-        this.props.action.setUIControls(!!enabled);
-        this.props.action.setPlaying(enabled);
-        this.controls.enabled = !!enabled;
-    }
-
-    zoomInFull = () => {
-        this.controls.tweenZoom(Constants.WebGL.Zoom.MIN, this.props.action.changeZoom);
-    }
-
-    render() {
-        return (
-            <group ref="pivot">
-                <perspectiveCamera
-                    name="camera"
-                    ref="camera"
-                    aspect={this.props.ratio}
-                    fov={Constants.WebGL.Camera.FOV}
-                    near={Constants.WebGL.Camera.NEAR}
-                    far={Constants.WebGL.Camera.FAR}
-                    position={CameraService.CAMERA_INITIAL_POSITION}
-                />
-            </group>
-        );
-    }
-}
+export default CameraContainer;

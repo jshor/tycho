@@ -17,12 +17,12 @@ interface State {
 export default class DatePickerContainer extends React.Component<Props, State> {
 
     isOpen: boolean = false;
+    pickerRef = React.createRef<any>();
 
-    componentWillMount = () => {
-        this.setState({});
-    }
+    state: State = {};
 
-    componentWillReceiveProps = () => {
+    componentDidUpdate = (prevProps: Props) => {
+        if (prevProps.time === this.props.time) return;
         const { time } = this.props;
         const timeInstance = moment(time * 1000);
         const realTime = timeInstance.toDate();
@@ -38,7 +38,7 @@ export default class DatePickerContainer extends React.Component<Props, State> {
     getUXTime = (timeInstance: moment.Moment): string => {
         return timeInstance
             .format(Constants.UI.UX_DATE_FORMAT)
-            .replace(/ /g, ' ');
+            .replace(/ /g, ' ');
     }
 
     hidePicker = () => {
@@ -46,7 +46,7 @@ export default class DatePickerContainer extends React.Component<Props, State> {
     }
 
     showPicker = () => {
-        const picker: any = (this.refs as any).picker;
+        const picker = this.pickerRef.current;
 
         if (picker) {
             this.isOpen = true;
@@ -66,7 +66,7 @@ export default class DatePickerContainer extends React.Component<Props, State> {
                 uxTime={this.state.uxTime}>
                 <Datetime
                     value={this.state.realTime}
-                    ref="picker"
+                    ref={this.pickerRef}
                     className="date-picker__picker"
                     onBlur={this.hidePicker}
                     onChange={this.changeTime as any}

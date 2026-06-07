@@ -16,12 +16,12 @@ interface Props {
 
 export class SpinLabelContainer extends React.Component<Props> {
 
-    componentWillReceiveProps = (nextProps: Props) => {
-        this.maybeStopSpinPrompt(nextProps);
+    componentDidUpdate = (prevProps: Props) => {
+        this.maybeStopSpinPrompt(prevProps);
     }
 
-    maybeStopSpinPrompt = ({ touched }: Props) => {
-        if (this.props.touched !== touched && this.isVisible()) {
+    maybeStopSpinPrompt = (prevProps: Props) => {
+        if (prevProps.touched !== this.props.touched && this.isVisible()) {
             this.props.action.setCameraOrbit(false);
             this.props.action.setUIControls(true);
         }

@@ -1,15 +1,15 @@
+import React, { useEffect } from 'react';
 import TWEEN from 'tween.js';
 import { CubeTextureLoader } from 'three';
-import React from 'react';
+import { Canvas, useThree, useFrame } from '@react-three/fiber';
 import { connect } from 'react-redux';
-import React3 from 'react-three-renderer';
 import Scene from '../components/Scene';
 import Constants from '../constants';
 import * as AnimationActions from '../actions/AnimationActions';
 import * as UIControlsActions from '../actions/UIControlsActions';
 import * as LabelActions from '../actions/LabelActions';
 import ReduxService from '../services/ReduxService';
-import CameraContainer, { CameraAction } from './CameraContainer';
+import CameraContainer, { CameraContainerHandle, CameraAction } from './CameraContainer';
 import EventContainer from './EventContainer';
 import { OrbitalData } from '../types';
 
@@ -30,82 +30,91 @@ interface Props {
     action?: CameraAction;
 }
 
+function SkyboxSetup() {
+    const { scene } = useThree();
+    useEffect(() => {
+        const loader = new CubeTextureLoader();
+        scene.background = loader.load(Constants.WebGL.SKYBOX_TEXTURES);
+    }, [scene]);
+    return null;
+}
+
+function AnimationTick({ onAnimate }: { onAnimate: () => void }) {
+    useFrame(() => {
+        onAnimate();
+        (TWEEN as any).update();
+    });
+    return null;
+}
+
+interface CanvasContentProps {
+    props: Props;
+    cameraRef: React.RefObject<CameraContainerHandle>;
+    onAnimate: () => void;
+}
+
+function CanvasContent({ props, cameraRef, onAnimate }: CanvasContentProps) {
+    const { camera } = useThree();
+    const { orbitalData, time, scale, action, targetId, highlightedOrbitals, zoom, volume,
+            isAutoOrbitEnabled, speed, width, height, children } = props;
+
+    return (
+        <>
+            <SkyboxSetup />
+            <AnimationTick onAnimate={onAnimate} />
+            <CameraContainer
+                ref={cameraRef}
+                ratio={width / height}
+                targetId={targetId}
+                action={action}
+                speed={speed}
+                scale={scale}
+                zoom={zoom}
+                volume={volume}
+                isAutoOrbitEnabled={isAutoOrbitEnabled}
+                orbitalData={orbitalData}
+            />
+            <Scene
+                time={time}
+                orbitalData={orbitalData}
+                scale={scale}
+                action={action}
+                targetId={targetId}
+                highlightedOrbitals={highlightedOrbitals}
+                camera={camera}
+            >
+                {children}
+            </Scene>
+        </>
+    );
+}
+
 export class SceneContainer extends React.Component<Props> {
 
-    domElement: HTMLElement;
-
-    componentDidMount = () => {
-        this.forceUpdate();
-        this.renderSkybox();
-    }
+    cameraRef = React.createRef<CameraContainerHandle>();
 
     onAnimate = () => {
         this.props.onAnimate();
-        (this.refs as any).camera.update();
-        (TWEEN as any).update();
     }
 
     changeZoom = (ev: WheelEvent) => {
-        (this.refs as any).camera.controls.wheelZoom(ev, this.props.action.changeZoom);
-    }
-
-    setDomElement = (domElement: HTMLElement) => {
-        this.domElement = domElement;
-    }
-
-    renderScene = ({ camera }: any) => {
-        return (
-            <Scene
-                time={this.props.time}
-                orbitalData={this.props.orbitalData}
-                scale={this.props.scale}
-                action={this.props.action}
-                targetId={this.props.targetId}
-                children={this.props.children}
-                highlightedOrbitals={this.props.highlightedOrbitals}
-                cameraMatrix={camera.position.clone()}
-                camera={camera}
-            />
-        );
-    }
-
-    renderSkybox = () => {
-        const skybox = new CubeTextureLoader();
-        (this.refs as any).scene.background = skybox.load(Constants.WebGL.SKYBOX_TEXTURES);
+        this.cameraRef.current?.controls?.wheelZoom(ev, this.props.action.changeZoom);
     }
 
     render() {
         const { width, height } = this.props;
-        const { camera } = this.refs as any;
 
         return (
             <EventContainer onWheel={this.changeZoom as any}>
-                <React3
-                    onAnimate={this.onAnimate}
-                    mainCamera="camera"
-                    width={width}
-                    height={height}
-                    antialias={true}
-                    alpha={true}
-                    canvasRef={this.setDomElement}>
-                    <scene ref="scene">
-                        <CameraContainer
-                            ratio={width / height}
-                            targetId={this.props.targetId}
-                            action={this.props.action}
-                            speed={this.props.speed}
-                            scale={this.props.scale}
-                            scene={(this.refs as any).scene}
-                            zoom={this.props.zoom}
-                            volume={this.props.volume}
-                            isAutoOrbitEnabled={this.props.isAutoOrbitEnabled}
-                            orbitalData={this.props.orbitalData}
-                            domElement={this.domElement}
-                            ref="camera"
-                        />
-                        {camera && this.renderScene(camera.refs)}
-                    </scene>
-                </React3>
+                <Canvas
+                    style={{ width, height }}
+                    gl={{ antialias: true, alpha: true }}>
+                    <CanvasContent
+                        props={this.props}
+                        cameraRef={this.cameraRef}
+                        onAnimate={this.onAnimate}
+                    />
+                </Canvas>
             </EventContainer>
         );
     }

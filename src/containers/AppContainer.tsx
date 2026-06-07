@@ -4,7 +4,7 @@ import webglEnabled from 'webgl-detect';
 import Clock from '../utils/Clock';
 import ReduxService from '../services/ReduxService';
 import App from '../components/App';
-import NoWebGL from '../components/NoWebGL';
+// import NoWebGL from '../components/NoWebGL';
 import SplashScreen from '../components/SplashScreen';
 import * as DataActions from '../actions/DataActions';
 import * as AnimationActions from '../actions/AnimationActions';
@@ -23,20 +23,17 @@ interface Props {
 
 export class AppContainer extends React.Component<Props> {
 
-    clock: Clock;
+    clock: Clock = new Clock();
     lastTime: number = 0;
 
-    componentWillMount = () => {
-        this.clock = new Clock();
-        this.lastTime = 0;
-
+    componentDidMount = () => {
         this.props.action.requestOrbitalData();
         this.props.action.requestPageText();
         this.maybeUpdateTime(true);
     }
 
-    componentWillReceiveProps = (nextProps: Props) => {
-        this.maybeUpdateOffset(nextProps);
+    componentDidUpdate = (prevProps: Props) => {
+        this.maybeUpdateOffset(prevProps);
     }
 
     onAnimate = () => {
@@ -48,9 +45,9 @@ export class AppContainer extends React.Component<Props> {
         this.clock.update();
     }
 
-    maybeUpdateOffset = ({ timeOffset }: Props) => {
-        if (timeOffset !== this.props.timeOffset && this.props.playing) {
-            this.clock.setOffset(timeOffset);
+    maybeUpdateOffset = (prevProps: Props) => {
+        if (prevProps.timeOffset !== this.props.timeOffset && this.props.playing) {
+            this.clock.setOffset(this.props.timeOffset);
         }
     }
 
@@ -84,9 +81,9 @@ export class AppContainer extends React.Component<Props> {
         const { orbitalData, pageText } = this.props;
 
         if (orbitalData && pageText) {
-            if (!webglEnabled) {
-                return <NoWebGL pageText={this.props.pageText} />;
-            }
+            // if (!webglEnabled) {
+            //     return <NoWebGL pageText={this.props.pageText} />;
+            // }
             return <App
                 onAnimate={this.onAnimate}
                 title={this.props.targetName}

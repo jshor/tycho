@@ -14,8 +14,12 @@ interface Props {
 
 export class ModalContainer extends React.Component<Props> {
 
-    componentWillMount = () => {
+    componentDidMount = () => {
         window.addEventListener('keydown', this.onKeyPressed);
+    }
+
+    componentWillUnmount = () => {
+        window.removeEventListener('keydown', this.onKeyPressed);
     }
 
     onKeyPressed = (evt: KeyboardEvent) => {

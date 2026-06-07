@@ -22,10 +22,7 @@ export default class Rings extends React.Component<Props> {
 
         return (
             <mesh rotation={rotation}>
-                <planeGeometry
-                    width={size}
-                    height={size}
-                />
+                <planeGeometry args={[size, size]} />
                 <TextureContainer
                     transparent={true}
                     side={DoubleSide}

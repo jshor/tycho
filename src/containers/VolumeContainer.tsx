@@ -12,8 +12,8 @@ interface Props {
 
 export class VolumeContainer extends React.Component<Props> {
 
-    componentWillReceiveProps = ({ volume }: Props) => {
-        if (volume && !this.getVolume()) {
+    componentDidUpdate = (prevProps: Props) => {
+        if (this.props.volume && prevProps.volume !== this.props.volume && !this.getVolume()) {
             this.props.action.setVolume(0);
         }
     }

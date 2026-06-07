@@ -15,10 +15,10 @@ export default class TourLabelContainer extends React.Component<Props, State> {
 
     isCancelled: boolean = false;
 
-    componentWillMount = () => {
-        const { start, end } = this.props;
+    state: State = { modifier: 'hide' };
 
-        this.setState({ modifier: 'hide' });
+    componentDidMount = () => {
+        const { start, end } = this.props;
         this.setClassAsync('show', start);
         this.setClassAsync('hide', end);
     }

@@ -10,7 +10,7 @@ export default class Markdown extends React.Component<Props> {
     render() {
         return (
             <div className="markdown">
-                <ReactMarkdown source={this.props.text} />
+                <ReactMarkdown>{this.props.text}</ReactMarkdown>
             </div>
         );
     }

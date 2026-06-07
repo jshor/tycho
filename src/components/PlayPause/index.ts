@@ -1,2 +1,2 @@
-import './PlayPause.css';
+import './PlayPause.scss';
 export {default} from './PlayPause';
