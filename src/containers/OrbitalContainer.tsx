@@ -30,39 +30,44 @@ export class OrbitalContainer extends React.Component<Props, State> {
 
     ellipse: Ellipse;
 
-    componentWillMount = () => {
-        this.ellipse = new Ellipse(this.props as any);
-        this.setGroupRotations(this.props);
-        this.setPathOpacity(this.props);
-        this.setBodyState(this.props, this.ellipse);
-        this.setState({});
+    constructor(props: Props) {
+        super(props);
+        this.ellipse = new Ellipse(props as any);
+        this.state = {
+            eclipticGroupRotation: Service.getEclipticGroupRotation(props),
+            orbitalGroupRotation: Service.getOrbitalGroupRotation(props),
+            pathOpacity: Service.getPathOpacity(props, undefined, props.id === props.targetId),
+            bodyRotation: Service.getBodyRotation(props as any),
+            bodyPosition: Service.getBodyPosition(props as any, this.ellipse),
+            maxDistance: Service.getMaxViewDistance(props),
+        };
     }
 
-    componentWillReceiveProps = (nextProps: Props) => {
-        this.maybeUpdateBodyState(nextProps);
-        this.maybeUpdatePathOpacity(nextProps);
-        this.maybeUpdateScale(nextProps);
+    componentDidUpdate = (prevProps: Props) => {
+        this.maybeUpdateBodyState(prevProps);
+        this.maybeUpdatePathOpacity(prevProps);
+        this.maybeUpdateScale(prevProps);
     }
 
-    maybeUpdateBodyState = ({ time }: Props) => {
-        if (this.props.time !== time) {
+    maybeUpdateBodyState = (prevProps: Props) => {
+        if (prevProps.time !== this.props.time) {
             this.setBodyState(this.props, this.ellipse);
         }
     }
 
-    maybeUpdatePathOpacity = ({ highlightedOrbitals }: Props) => {
-        if (this.props.highlightedOrbitals !== highlightedOrbitals) {
-            this.setPathOpacity(this.props, highlightedOrbitals);
+    maybeUpdatePathOpacity = (prevProps: Props) => {
+        if (prevProps.highlightedOrbitals !== this.props.highlightedOrbitals) {
+            this.setPathOpacity(this.props, this.props.highlightedOrbitals);
         }
     }
 
-    maybeUpdateScale = ({ time, scale }: Props) => {
-        if (scale !== this.props.scale) {
+    maybeUpdateScale = (prevProps: Props) => {
+        if (prevProps.scale !== this.props.scale) {
             if (this.props.isSatellite) {
-                this.ellipse.setScale(scale);
+                this.ellipse.setScale(this.props.scale);
             }
             this.setBodyState(this.props, this.ellipse);
-            this.setState({ scaleLastUpdate: time });
+            this.setState({ scaleLastUpdate: this.props.time });
         }
     }
 

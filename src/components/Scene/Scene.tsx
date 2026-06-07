@@ -40,7 +40,7 @@ export default class Scene extends React.Component<Props> {
         return (
             <group>
                 {this.getOrbitalElements(this.props.orbitalData)}
-                <Sun camera={this.props.camera} />
+                <Sun />
             </group>
         );
     }

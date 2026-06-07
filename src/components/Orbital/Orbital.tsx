@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import * as THREE from 'three';
+import { Line } from '@react-three/drei';
 import Body from './Body';
 import Label from './Label';
 import { TextureMap, RingData } from '../../types';
@@ -7,7 +8,7 @@ import { TextureMap, RingData } from '../../types';
 interface Props {
     eclipticGroupRotation: THREE.Euler;
     orbitalGroupRotation: THREE.Euler;
-    pathVertices: THREE.Vector2[];
+    pathVertices: THREE.Vector3[];
     bodyPosition: THREE.Vector3;
     bodyRotation: THREE.Euler;
     radius: number;
@@ -26,38 +27,52 @@ interface Props {
     children?: React.ReactNode;
 }
 
-export default class Orbital extends React.Component<Props> {
+export default function Orbital(props: Props) {
+    const {
+        eclipticGroupRotation,
+        orbitalGroupRotation,
+        pathVertices,
+        bodyPosition,
+        bodyRotation,
+        atmosphere,
+        pathOpacity,
+        scaleLastUpdate,
+        id,
+        radius,
+        rings,
+        maps,
+        scale,
+        children,
+    } = props;
 
-    render() {
-        return (
-            <group ref="ecliptic" rotation={this.props.eclipticGroupRotation}>
-                <group ref="orbital" rotation={this.props.orbitalGroupRotation}>
-                    <group
-                        position={this.props.bodyPosition}
-                        name={this.props.id}>
-                        <Body
-                            rotation={this.props.bodyRotation}
-                            radius={this.props.radius}
-                            rings={this.props.rings}
-                            maps={this.props.maps}
-                            scale={this.props.scale}
-                        />
-                        <Label {...this.props} />
-                        {this.props.children}
-                    </group>
+    const lineColor = useMemo(
+        () => new THREE.Color(atmosphere ?? 0xffffff),
+        [atmosphere]
+    );
 
-                    <line key={`path-${this.props.id}-${this.props.scaleLastUpdate}`}>
-                        <lineBasicMaterial
-                            transparent={true}
-                            color={this.props.atmosphere}
-                            opacity={this.props.pathOpacity}
-                        />
-                        <geometry
-                            vertices={this.props.pathVertices}
-                        />
-                    </line>
+    return (
+        <group rotation={eclipticGroupRotation}>
+            <group rotation={orbitalGroupRotation}>
+                <group position={bodyPosition} name={id}>
+                    <Body
+                        rotation={bodyRotation}
+                        radius={radius}
+                        rings={rings}
+                        maps={maps}
+                        scale={scale}
+                    />
+                    <Label {...props} />
+                    {children}
                 </group>
+
+                <Line
+                    key={`path-${id}-${scaleLastUpdate}`}
+                    points={pathVertices}
+                    color={lineColor}
+                    opacity={pathOpacity ?? 1}
+                    transparent
+                />
             </group>
-        );
-    }
+        </group>
+    );
 }

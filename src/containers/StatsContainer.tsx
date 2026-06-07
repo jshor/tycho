@@ -24,15 +24,11 @@ interface State {
 
 export class StatsContainer extends React.Component<Props, State> {
 
-    componentWillMount = () => {
-        this.setState({});
-    }
+    state: State = {};
 
-    componentWillReceiveProps = (nextProps: Props) => {
-        const { targetId, time } = nextProps;
-
-        if (this.props.targetId !== targetId || this.props.time !== time) {
-            this.updateOrbitalStats(targetId, time);
+    componentDidUpdate = (prevProps: Props) => {
+        if (prevProps.targetId !== this.props.targetId || prevProps.time !== this.props.time) {
+            this.updateOrbitalStats(this.props.targetId, this.props.time);
         }
     }
 

@@ -30,19 +30,19 @@ export class TourContainer extends React.Component<Props> {
         }
     }
 
-    componentWillReceiveProps = (nextProps: Props) => {
-        this.maybeSkipTour(nextProps);
-        this.maybeStartTour(nextProps);
+    componentDidUpdate = (prevProps: Props) => {
+        this.maybeSkipTour(prevProps);
+        this.maybeStartTour(prevProps);
     }
 
-    maybeSkipTour = ({ isSkipped }: Props) => {
-        if (this.props.isSkipped !== isSkipped && isSkipped) {
+    maybeSkipTour = (prevProps: Props) => {
+        if (prevProps.isSkipped !== this.props.isSkipped && this.props.isSkipped) {
             this.skipTour();
         }
     }
 
-    maybeStartTour = ({ playing }: Props) => {
-        if (playing && !this.props.playing && !this.props.isComplete) {
+    maybeStartTour = (prevProps: Props) => {
+        if (this.props.playing && !prevProps.playing && !this.props.isComplete) {
             this.initializeTour();
         }
     }

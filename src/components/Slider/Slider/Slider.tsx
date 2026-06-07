@@ -44,14 +44,15 @@ export default class Slider extends React.Component<Props, State> {
             <ReactSlider
                 orientation={this.props.orientation}
                 className={this.getClassName('container')}
-                handleClassName={this.getClassName('handle')}
-                barClassName={this.getClassName('bar')}
+                thumbClassName={this.getClassName('handle')}
+                trackClassName={this.getClassName('bar')}
                 pearling={true}
+                invert={this.props.invert}
                 step={this.props.step}
                 min={this.props.min}
                 max={this.props.max}
                 value={this.props.value}
-                onChange={this.props.onChange}
+                onChange={this.props.onChange as any}
             />
         );
     }

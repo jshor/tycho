@@ -19,6 +19,7 @@ export default class Ambience extends AudioListener {
     }
 
     setVolume = (volume: number): void => {
+        if (!isFinite(volume)) return;
         if (volume) {
             this.sound.play();
         } else {

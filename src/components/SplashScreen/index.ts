@@ -1,3 +1,3 @@
-import './SplashScreen.css';
+import './SplashScreen.scss';
 
 export {default} from './SplashScreen';

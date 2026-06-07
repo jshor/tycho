@@ -22,12 +22,10 @@ export default class Body extends React.Component<Props> {
         return (
             <group>
                 <mesh rotation={this.props.rotation}>
-                    <TextureContainer textures={this.props.maps} />
                     <sphereGeometry
-                        widthSegments={Constants.WebGL.SPHERE_SEGMENTS}
-                        heightSegments={Constants.WebGL.SPHERE_SEGMENTS}
-                        radius={Scale(radius, scale)}
+                        args={[Scale(radius, scale), Constants.WebGL.SPHERE_SEGMENTS, Constants.WebGL.SPHERE_SEGMENTS]}
                     />
+                    <TextureContainer textures={this.props.maps} />
                 </mesh>
                 {rings && <Rings {...rings} scale={scale} />}
             </group>

@@ -1,11 +1,9 @@
 import * as THREE from 'three';
-import OrbitControls from 'three-orbit-controls';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import TWEEN from 'tween.js';
 import Constants from '../constants';
 
-const OrbitControlsBase: any = OrbitControls(THREE);
-
-export default class Controls extends OrbitControlsBase {
+export default class Controls extends OrbitControls {
 
     camera: THREE.Camera;
     level: number;

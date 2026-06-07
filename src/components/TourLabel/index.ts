@@ -1,3 +1,3 @@
-import './TourLabel.css';
+import './TourLabel.scss';
 
 export {default} from './TourLabel';

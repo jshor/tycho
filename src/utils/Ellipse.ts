@@ -20,7 +20,6 @@ export default class Ellipse {
     scale: number;
     ellipse: THREE.EllipseCurve;
     path: any;
-    geometry: any;
 
     constructor({ semimajor, semiminor, eccentricity, scale }: EllipseProps) {
         this.semimajor = semimajor;
@@ -32,14 +31,7 @@ export default class Ellipse {
     render = (): void => {
         this.ellipse = this.getEllipseCurve();
         this.path = this.getPath();
-        this.geometry = this.getGeometry();
         this.path.add(this.ellipse);
-    }
-
-    getGeometry = (): any => {
-        return (this.path as any).createPointsGeometry(
-            Constants.WebGL.Ellipse.POINTS
-        );
     }
 
     getPath = (): any => {
@@ -61,14 +53,9 @@ export default class Ellipse {
         );
     }
 
-    getVertices = (): THREE.Vector2[] => {
-        const points = Constants.WebGL.Ellipse.POINTS;
-        const path: any = new THREE.Path((this.ellipse as any).getPoints(points));
-        const geometry: any = path.createPointsGeometry(points);
-
-        path.add(this.ellipse);
-
-        return geometry.vertices;
+    getVertices = (): THREE.Vector3[] => {
+        return (this.ellipse.getPoints(Constants.WebGL.Ellipse.POINTS) as unknown as THREE.Vector2[])
+            .map((v: THREE.Vector2) => new THREE.Vector3(v.x, v.y, 0));
     }
 
     getPosition = (time: number, periapses: Periapses): THREE.Vector3 => {

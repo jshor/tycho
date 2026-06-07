@@ -22,8 +22,9 @@ interface State {
 
 export class LoaderContainer extends React.Component<Props, State> {
 
-    componentWillMount = () => {
-        this.setState({ hasEntered: false });
+    state: State = { hasEntered: false };
+
+    componentDidMount = () => {
         (DefaultLoadingManager as any).onProgress = this.onProgress;
     }
 
