@@ -1,8 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`Volume Container render() should successfully render the volume container 1`] = `
-<Volume
-  onClick={[Function]}
-  playing={false}
-/>
-`;
