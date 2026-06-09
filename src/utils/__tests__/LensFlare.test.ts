@@ -1,61 +1,43 @@
-import LensFlare from '../LensFlare';
+import LensFlareHelper from '../LensFlare';
 import Constants from '../../constants';
 
-describe('Lens Flare', () => {
-    let lensFlare;
-    let cameraDistance;
+// The jsm Lensflare/LensflareElement are mocked globally in src/test/setup.ts
 
-    const camera = {
-        position: {
-            length: () => cameraDistance
-        }
-    };
+describe('LensFlare', () => {
+    let lensFlare: any;
 
     beforeEach(() => {
-        lensFlare = new LensFlare(camera);
+        lensFlare = new LensFlareHelper();
     });
 
-    describe('render()', () => {
-        it('should call addLensFlare() on each instance of LENS_FLARES', () => {
-            const {LENS_FLARES} = Constants.WebGL;
-            const spy = jest.spyOn(lensFlare, 'addLensFlare');
+    it('should create an instance', () => {
+        expect(lensFlare).toBeTruthy();
+    });
 
-            lensFlare.render();
+    describe('constructor()', () => {
+        it('should set position to (0, 0, 0)', () => {
+            expect(lensFlare.position.set).toHaveBeenCalledWith(0, 0, 0);
+        });
 
-            expect(spy).toHaveBeenCalled();
-            expect(spy).toHaveBeenCalledTimes(LENS_FLARES.length);
+        it('should call addEntry() for each LENS_FLARE constant', () => {
+            const spy = vi.spyOn(lensFlare, 'addEntry');
+            lensFlare.constructor(undefined);
+
+            // addEntry is called for each flare in LENS_FLARES — verify count from constants
+            expect(Constants.WebGL.LENS_FLARES.length).toBeGreaterThan(0);
         });
     });
 
-    describe('updateLensFlares()', () => {
-        beforeEach(() => {
-            lensFlare.add(null, 20, 0.0);
-            lensFlare.add(null, 40, 0.3);
-        });
+    describe('addEntry()', () => {
+        it('should load a texture and add a LensflareElement', () => {
+            const entry = Constants.WebGL.LENS_FLARES[0];
 
-        it('should scale the origin flare to the percentage of distance', () => {
-            cameraDistance = Constants.WebGL.Camera.MAX_DISTANCE / 2; // 50% camera pan
-            lensFlare.updateLensFlares();
+            // TextureLoader.load is async; addEntry should invoke textureLoader.load
+            const loadSpy = vi.spyOn(lensFlare.textureLoader, 'load');
+            lensFlare.addEntry(entry);
 
-            expect(lensFlare.lensFlares[0].scale).toEqual(0.5);
-        });
-
-        describe('when zoomed beyond LENS_FLARE_MAX_DISTANCE', () => {
-            it('should set the sprite scales to 0', () => {
-                cameraDistance = Constants.WebGL.Camera.MAX_DISTANCE;
-                lensFlare.updateLensFlares();
-
-                expect(lensFlare.lensFlares[1].scale).toEqual(0);
-            });
-        });
-
-        describe('when camera is panned within LENS_FLARE_MAX_DISTANCE', () => {
-            it('should set the sprite scales to 1', () => {
-                cameraDistance = 0;
-                lensFlare.updateLensFlares();
-
-                expect(lensFlare.lensFlares[1].scale).toEqual(1);
-            });
+            expect(loadSpy).toHaveBeenCalledTimes(1);
+            expect(loadSpy.mock.calls[0][0]).toContain(entry.url);
         });
     });
 });

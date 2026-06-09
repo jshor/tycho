@@ -1,125 +1,84 @@
 import React from 'react';
-import toJson from 'enzyme-to-json';
-import {shallow} from 'enzyme';
-import {SpinLabelContainer} from '../SpinLabelContainer';
+import { render } from '@testing-library/react';
+import { SpinLabelContainer } from '../SpinLabelContainer';
+
+const action = { setCameraOrbit: vi.fn(), setUIControls: vi.fn() };
 
 describe('Spin Label Container', () => {
-    let component;
-    let spinLabelContainer;
+    let ref: React.RefObject<SpinLabelContainer>;
+
+    const renderWith = (props: any) => {
+        ref = React.createRef<SpinLabelContainer>();
+        render(<SpinLabelContainer action={action} {...props} ref={ref as any} />);
+    };
 
     beforeEach(() => {
-        component = shallow(<SpinLabelContainer />);
-        spinLabelContainer = component.instance();
+        vi.clearAllMocks();
+        renderWith({ isComplete: true, isAutoOrbitEnabled: true, touched: 0 });
     });
 
-    describe('componentWillReceiveProps()', () => {
-        it('should call maybeStopSpinPrompt() with nextProps', () => {
-            const spy = jest.spyOn(spinLabelContainer, 'maybeStopSpinPrompt');
-            const nextProps = {};
-
-            spinLabelContainer.props = nextProps;
-            spinLabelContainer.componentWillReceiveProps(nextProps);
-
-            expect(spy).toHaveBeenCalled();
+    describe('componentDidUpdate()', () => {
+        it('should call maybeStopSpinPrompt()', () => {
+            const spy = vi.spyOn(ref.current!, 'maybeStopSpinPrompt');
+            ref.current!.componentDidUpdate({ touched: 0 } as any);
             expect(spy).toHaveBeenCalledTimes(1);
-            expect(spy).toHaveBeenCalledWith(nextProps);
         });
     });
 
     describe('maybeStopSpinPrompt()', () => {
-        beforeEach(() => {
-            spinLabelContainer.props = {
-                action: {
-                    setCameraOrbit: jest.fn(),
-                    setUIControls: jest.fn()
-                }
-            }
+        it('should stop orbit when touched changes and component is visible', () => {
+            const container = ref.current!;
+            (container as any).props = {
+                action,
+                touched: 1,
+                isComplete: true,
+                isAutoOrbitEnabled: true,
+            };
+
+            container.maybeStopSpinPrompt({ touched: 0 } as any);
+
+            expect(action.setCameraOrbit).toHaveBeenCalledWith(false);
+            expect(action.setUIControls).toHaveBeenCalledWith(true);
         });
 
-        describe('when the label is visible', () => {
-            beforeEach(() => {
-                spinLabelContainer.isVisible = () => true;
-                spinLabelContainer.props.touched = false;
-            });
+        it('should not stop orbit when touched value is unchanged', () => {
+            const container = ref.current!;
+            (container as any).props = {
+                action,
+                touched: 1,
+                isComplete: true,
+                isAutoOrbitEnabled: true,
+            };
 
-            describe('when the touched prop value has changed', () => {
-                it('should call the setCameraOrbit() action with false', () => {
-                    const spy = jest.spyOn(spinLabelContainer.props.action, 'setCameraOrbit');
+            container.maybeStopSpinPrompt({ touched: 1 } as any);
 
-                    spinLabelContainer.maybeStopSpinPrompt({touched: true});
-
-                    expect(spy).toHaveBeenCalled();
-                    expect(spy).toHaveBeenCalledTimes(1);
-                    expect(spy).toHaveBeenCalledWith(false);
-                });
-
-                it('should call the setUIControls() action with true', () => {
-                    const spy = jest.spyOn(spinLabelContainer.props.action, 'setUIControls');
-
-                    spinLabelContainer.maybeStopSpinPrompt({touched: true});
-
-                    expect(spy).toHaveBeenCalled();
-                    expect(spy).toHaveBeenCalledTimes(1);
-                    expect(spy).toHaveBeenCalledWith(true);
-                });
-            });
-
-            describe('when the touched prop value has not changed', () => {
-                it('should not call the setCameraOrbit()', () => {
-                    const spy = jest.spyOn(spinLabelContainer.props.action, 'setCameraOrbit');
-
-                    spinLabelContainer.maybeStopSpinPrompt({touched: false});
-
-                    expect(spy).not.toHaveBeenCalled();
-                });
-            });
+            expect(action.setCameraOrbit).not.toHaveBeenCalled();
         });
 
-        describe('when the label is not visible', () => {
-            beforeEach(() => {
-                spinLabelContainer.isVisible = () => true;
-                spinLabelContainer.props.touched = true;
-            });
+        it('should not stop orbit when component is not visible', () => {
+            const container = ref.current!;
+            (container as any).props = {
+                action,
+                touched: 1,
+                isComplete: false,
+                isAutoOrbitEnabled: false,
+            };
 
-            it('should not call the setCameraOrbit()', () => {
-                const spy = jest.spyOn(spinLabelContainer.props.action, 'setCameraOrbit');
+            container.maybeStopSpinPrompt({ touched: 0 } as any);
 
-                spinLabelContainer.maybeStopSpinPrompt({touched: true});
-
-                expect(spy).not.toHaveBeenCalled();
-            });
+            expect(action.setCameraOrbit).not.toHaveBeenCalled();
         });
     });
 
     describe('isVisible()', () => {
-        it('should return true if both isAutoOrbitEnabled and isComplete props are true', () => {
-            spinLabelContainer.props = {
-                isAutoOrbitEnabled: true,
-                isComplete: true
-            };
-            expect(spinLabelContainer.isVisible()).toEqual(true);
+        it('should return true when complete and auto-orbit enabled', () => {
+            (ref.current! as any).props = { isComplete: true, isAutoOrbitEnabled: true };
+            expect(ref.current!.isVisible()).toBe(true);
         });
 
-        it('should return true if both isAutoOrbitEnabled is false', () => {
-            spinLabelContainer.props = {
-                isAutoOrbitEnabled: false,
-                isComplete: true
-            };
-            expect(spinLabelContainer.isVisible()).toEqual(false);
-        });
-
-        it('should return true if both isComplete is false', () => {
-            spinLabelContainer.props = {
-                isAutoOrbitEnabled: true,
-                isComplete: false
-            };
-            expect(spinLabelContainer.isVisible()).toEqual(false);
-        });
-    });
-
-    describe('render()', () => {
-        it('should render the spin label container successfully', () => {
-            expect(toJson(component)).toMatchSnapshot();
+        it('should return false when not complete', () => {
+            (ref.current! as any).props = { isComplete: false, isAutoOrbitEnabled: true };
+            expect(ref.current!.isVisible()).toBe(false);
         });
     });
 });

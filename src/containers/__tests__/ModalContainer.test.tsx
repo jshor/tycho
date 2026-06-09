@@ -1,110 +1,79 @@
 import React from 'react';
-import toJson from 'enzyme-to-json';
-import {shallow} from 'enzyme';
-import {ModalContainer} from '../ModalContainer';
+import { render } from '@testing-library/react';
+import { ModalContainer } from '../ModalContainer';
+
+const action = { toggleModal: vi.fn(), setUIControls: vi.fn() };
 
 describe('Modal Container', () => {
-    let component;
-    let modalContainer;
+    let ref: React.RefObject<ModalContainer>;
 
     beforeEach(() => {
-        component = shallow(
-            <ModalContainer
-                type="TEST_MODAL"
-                title="Test Modal"
-            />
-        );
-        modalContainer = component.instance();
+        vi.clearAllMocks();
+        ref = React.createRef<ModalContainer>();
+        render(<ModalContainer action={action} type="TEST_MODAL" ref={ref as any} />);
     });
 
-    describe('componentWillMount()', () => {
-        it('should add the onKeyPressed() method as a keydown event listener', () => {
-            const spy = jest.spyOn(window, 'addEventListener');
+    afterEach(() => {
+        window.removeEventListener('keydown', (ref.current as any)?.onKeyPressed);
+    });
 
-            modalContainer.componentWillMount();
-
-            expect(spy).toHaveBeenCalled();
-            expect(spy).toHaveBeenCalledTimes(1);
-            expect(spy).toHaveBeenCalledWith('keydown', modalContainer.onKeyPressed);
+    describe('componentDidMount()', () => {
+        it('should register a keydown listener on window', () => {
+            const spy = vi.spyOn(window, 'addEventListener');
+            ref.current!.componentDidMount!();
+            expect(spy).toHaveBeenCalledWith('keydown', expect.any(Function));
         });
     });
 
-    describe('onKeyPressed()', () => {
-        let spy;
+    describe('componentWillUnmount()', () => {
+        it('should remove the keydown listener', () => {
+            const spy = vi.spyOn(window, 'removeEventListener');
+            ref.current!.componentWillUnmount!();
+            expect(spy).toHaveBeenCalledWith('keydown', expect.any(Function));
+        });
+    });
 
-        beforeEach(() => {
-            modalContainer.props = {
-                action: {
-                    toggleModal: jest.fn(),
-                    setUIControls: jest.fn()
-                }
-            };
-            spy = jest.spyOn(modalContainer, 'closeModal');
+    describe('isModalActive()', () => {
+        it('should return true when activeModal matches type', () => {
+            (ref.current! as any).props = { activeModal: 'TEST_MODAL', type: 'TEST_MODAL' };
+            expect(ref.current!.isModalActive()).toBe(true);
         });
 
-        describe('when the modal is open', () => {
-            beforeEach(() => {
-                modalContainer.isModalActive = () => true;
-            });
-
-            it('should close the modal when the esc key is pressed', () => {
-                modalContainer.onKeyPressed({keyCode: 27});
-
-                expect(spy).toHaveBeenCalled();
-                expect(spy).toHaveBeenCalledTimes(1);
-            });
-
-            it('should not close the modal when a key other than escape is pressed', () => {
-                modalContainer.onKeyPressed({keyCode: 28});
-
-                expect(spy).not.toHaveBeenCalled();
-            });
-        });
-
-        describe('when the modal is closed', () => {
-            it('should not close any modal when the esc key is pressed', () => {
-                modalContainer.isModalActive = () => false;
-                modalContainer.onKeyPressed({keyCode: 27});
-
-                expect(spy).not.toHaveBeenCalled();
-            });
+        it('should return false when types differ', () => {
+            (ref.current! as any).props = { activeModal: 'OTHER_MODAL', type: 'TEST_MODAL' };
+            expect(ref.current!.isModalActive()).toBe(false);
         });
     });
 
     describe('closeModal()', () => {
-        beforeEach(() => {
-            modalContainer.props = {
-                action: {
-                    toggleModal: jest.fn(),
-                    setUIControls: jest.fn()
-                }
-            };
-        });
+        it('should toggle the modal closed and re-enable UI controls', () => {
+            (ref.current! as any).props = { action };
+            ref.current!.closeModal();
 
-        it('should call toggleModal action with false', () => {
-            const spy = jest.spyOn(modalContainer.props.action, 'toggleModal');
-
-            modalContainer.closeModal();
-
-            expect(spy).toHaveBeenCalled();
-            expect(spy).toHaveBeenCalledTimes(1)
-            expect(spy).toHaveBeenCalledWith(null);
-        });
-
-        it('should call setUIControls action with false', () => {
-            const spy = jest.spyOn(modalContainer.props.action, 'setUIControls');
-
-            modalContainer.closeModal();
-
-            expect(spy).toHaveBeenCalled();
-            expect(spy).toHaveBeenCalledTimes(1)
-            expect(spy).toHaveBeenCalledWith(true);
+            expect(action.toggleModal).toHaveBeenCalledWith(null);
+            expect(action.setUIControls).toHaveBeenCalledWith(true);
         });
     });
 
-    describe('render()', () => {
-        it('should render the app successfully', () => {
-            expect(toJson(component)).toMatchSnapshot();
+    describe('onKeyPressed()', () => {
+        it('should close the modal when Escape is pressed and modal is active', () => {
+            const container = ref.current!;
+            (container as any).props = { action, activeModal: 'TEST_MODAL', type: 'TEST_MODAL' };
+            const spy = vi.spyOn(container, 'closeModal');
+
+            container.onKeyPressed({ keyCode: 27 } as any);
+
+            expect(spy).toHaveBeenCalledTimes(1);
+        });
+
+        it('should not close the modal when Escape is pressed but modal is inactive', () => {
+            const container = ref.current!;
+            (container as any).props = { action, activeModal: null, type: 'TEST_MODAL' };
+            const spy = vi.spyOn(container, 'closeModal');
+
+            container.onKeyPressed({ keyCode: 27 } as any);
+
+            expect(spy).not.toHaveBeenCalled();
         });
     });
 });

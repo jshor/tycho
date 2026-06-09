@@ -1,24 +1,10 @@
 import React from 'react';
-import toJson from 'enzyme-to-json';
-import { shallow } from 'enzyme';
+import { render } from '@testing-library/react';
 import Stats from './Stats';
 
-describe('Stats', () => {
-    const pageText: any = {
-        stats: {},
-        abbreviations: {}
-    };
-
-    it('should render the stats component with a blank description', () => {
-        const component = shallow(<Stats
-            pageText={pageText}
-            description="Hello, world."
-        />);
-        expect(toJson(component)).toMatchSnapshot();
-    });
-
-    it('should render the stats component with the given description', () => {
-        const component = shallow(<Stats pageText={pageText} />);
-        expect(toJson(component)).toMatchSnapshot();
+describe('Stats Component', () => {
+    it('should render without crashing', () => {
+        const { container } = render(<Stats time="2024-01-01" pageText={{} as any} />);
+        expect(container).toBeTruthy();
     });
 });

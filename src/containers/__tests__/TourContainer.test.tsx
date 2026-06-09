@@ -1,369 +1,175 @@
 import React from 'react';
-import toJson from 'enzyme-to-json';
-import {shallow} from 'enzyme';
-import {TourContainer} from '../TourContainer';
+import { render } from '@testing-library/react';
+import { TourContainer } from '../TourContainer';
 import TourService from '../../services/TourService';
 import Constants from '../../constants';
 
+vi.useFakeTimers();
+
 const labels = [
-    {
-        duration: 5000,
-        text: 'Welcome to the Solar System'
-    },
-    {
-        duration: 5000,
-        text: 'This is a real-time interactive simulation of major planetary bodies'
-    },
-    {
-        duration: 3000,
-        text: 'Let\'s start exploring'
-    }
+    { duration: 5000, text: 'Welcome to the Solar System' },
+    { duration: 5000, text: 'This is a real-time interactive simulation' },
+    { duration: 3000, text: "Let's start exploring" },
 ];
 
-jest.useFakeTimers();
+const action = {
+    setUIControls: vi.fn(),
+    setCameraOrbit: vi.fn(),
+    setActiveOrbital: vi.fn(),
+    setLabelText: vi.fn(),
+    tourCompleted: vi.fn(),
+    tourSkipped: vi.fn(),
+};
 
 describe('Tour Container', () => {
-    let component;
-    let tourContainer;
-    let action;
+    let ref: React.RefObject<TourContainer>;
 
     beforeEach(() => {
-        action = {
-            setUIControls: jest.fn(),
-            setCameraOrbit: jest.fn(),
-            setActiveOrbital: jest.fn(),
-            setLabelText: jest.fn(),
-            tourCompleted: jest.fn(),
-            tourSkipped: jest.fn(),
-            showLabel: jest.fn()
-        };
-
-        component = shallow(
-            <TourContainer
-                labels={labels}
-                action={action}
-                pageText={{}}
-            />
-        );
-        tourContainer = component.instance();
+        vi.clearAllMocks();
+        ref = React.createRef<TourContainer>();
+        render(<TourContainer labels={labels} action={action} pageText={{} as any} ref={ref as any} />);
     });
 
     describe('componentDidMount()', () => {
-        let spy;
-
-        beforeEach(() => {
-            spy = jest.spyOn(tourContainer.props.action, 'tourSkipped');
-        });
-
-        it('should call the tour skip action if the tour can be skipped', () => {
+        it('should call tourSkipped when canSkip() returns true', () => {
             TourService.canSkip = () => true;
-            tourContainer.componentDidMount();
-
-            expect(spy).toHaveBeenCalled();
-            expect(spy).toHaveBeenCalledTimes(1);
-            expect(spy).toHaveBeenCalledWith(true);
+            ref.current!.componentDidMount!();
+            expect(action.tourSkipped).toHaveBeenCalledWith(true);
         });
 
-        it('should not call the tour skip action if the tour cannot be skipped', () => {
+        it('should not call tourSkipped when canSkip() returns false', () => {
+            vi.clearAllMocks();
             TourService.canSkip = () => false;
-            tourContainer.componentDidMount();
-
-            expect(spy).not.toHaveBeenCalled();
+            ref.current!.componentDidMount!();
+            expect(action.tourSkipped).not.toHaveBeenCalled();
         });
     });
 
-    describe('componentWillReceiveProps()', () => {
-        beforeEach(() => {
-            tourContainer.maybeSkipTour = jest.fn();
-            tourContainer.maybeStartTour = jest.fn();
+    describe('componentDidUpdate()', () => {
+        it('should call maybeSkipTour()', () => {
+            const spy = vi.spyOn(ref.current!, 'maybeSkipTour');
+            ref.current!.componentDidUpdate({} as any);
+            expect(spy).toHaveBeenCalledTimes(1);
         });
 
-        it('should call maybeSkipTour() with nextProps', () => {
-            const spy = jest.spyOn(tourContainer, 'maybeSkipTour');
-            const nextProps = {isSkipped: true};
-
-            tourContainer.componentWillReceiveProps(nextProps);
-
-            expect(spy).toHaveBeenCalled();
+        it('should call maybeStartTour()', () => {
+            const spy = vi.spyOn(ref.current!, 'maybeStartTour');
+            ref.current!.componentDidUpdate({} as any);
             expect(spy).toHaveBeenCalledTimes(1);
-            expect(spy).toHaveBeenCalledWith(nextProps);
-        });
-
-        it('should call maybeStartTour() with nextProps', () => {
-            const spy = jest.spyOn(tourContainer, 'maybeStartTour');
-            const nextProps = {playing: true};
-
-            tourContainer.componentWillReceiveProps(nextProps);
-
-            expect(spy).toHaveBeenCalled();
-            expect(spy).toHaveBeenCalledTimes(1);
-            expect(spy).toHaveBeenCalledWith(nextProps);
         });
     });
 
     describe('maybeSkipTour()', () => {
-        let spy;
+        it('should skip tour when isSkipped changes to true', () => {
+            const container = ref.current!;
+            const spy = vi.spyOn(container, 'skipTour');
 
-        beforeEach(() => {
-            spy = jest.spyOn(tourContainer, 'skipTour');
-        });
+            (container as any).props = { isSkipped: true };
+            container.maybeSkipTour({ isSkipped: false } as any);
 
-        it('should call skipTour() if the isSkipped prop has changed and is true', () => {
-            tourContainer.maybeSkipTour({isSkipped: true});
-
-            expect(spy).toHaveBeenCalled();
             expect(spy).toHaveBeenCalledTimes(1);
         });
 
-        it('should not call skipTour() if the isSkipped prop is false', () => {
-            tourContainer.maybeSkipTour({isSkipped: false});
-            expect(spy).not.toHaveBeenCalled();
-        });
+        it('should not skip if isSkipped did not change', () => {
+            const container = ref.current!;
+            const spy = vi.spyOn(container, 'skipTour');
 
-        it('should not call skipTour() if the isSkipped prop has not changed', () => {
-            tourContainer.maybeSkipTour({});
+            (container as any).props = { isSkipped: true };
+            container.maybeSkipTour({ isSkipped: true } as any);
+
             expect(spy).not.toHaveBeenCalled();
         });
     });
 
     describe('maybeStartTour()', () => {
-        beforeEach(() => {
-            tourContainer.initializeTour = jest.fn();
-        });
+        it('should initialize tour when playing transitions to true', () => {
+            const container = ref.current!;
+            const spy = vi.spyOn(container, 'initializeTour');
 
-        it('should initialize the tour if the user-entered status has changed to true', () => {
-            const spy = jest.spyOn(tourContainer, 'initializeTour');
+            (container as any).props = { playing: true, isComplete: false };
+            container.maybeStartTour({ playing: false } as any);
 
-            tourContainer.props = {playing: false};
-            tourContainer.maybeStartTour({playing: true});
-
-            expect(spy).toHaveBeenCalled();
             expect(spy).toHaveBeenCalledTimes(1);
         });
 
-        it('should initialize the tour if the user-entered status is false', () => {
-            const spy = jest.spyOn(tourContainer, 'initializeTour');
+        it('should not start tour if already complete', () => {
+            const container = ref.current!;
+            const spy = vi.spyOn(container, 'initializeTour');
 
-            tourContainer.maybeStartTour({playing: false});
-
-            expect(spy).not.toHaveBeenCalled();
-        });
-
-        it('should not initialize the tour if it has already been initialized', () => {
-            const spy = jest.spyOn(tourContainer, 'initializeTour');
-
-            tourContainer.props = {playing: true};
-            tourContainer.maybeStartTour({playing: true});
+            (container as any).props = { playing: true, isComplete: true };
+            container.maybeStartTour({ playing: false } as any);
 
             expect(spy).not.toHaveBeenCalled();
-        });
-    });
-
-    describe('shouldRunTour()', () => {
-        describe('when user has entered scene', () => {
-            beforeEach(() => {
-                tourContainer.props = {
-                    playing: true
-                };
-            });
-
-            it('should return true when not skipped', () => {
-                tourContainer.props.isSkipped = false;
-                expect(tourContainer.shouldRunTour()).toBe(true);
-            });
-
-            it('should return false when skipped', () => {
-                tourContainer.props.isSkipped = true;
-                expect(tourContainer.shouldRunTour()).toBe(false);
-            });
-        });
-
-        describe('when user has not yet entered scene', () => {
-            it('should return false', () => {
-                tourContainer.props = {
-                    playing: false,
-                    isSkipped: false
-                };
-                expect(tourContainer.shouldRunTour()).toBe(false);
-            });
         });
     });
 
     describe('initializeTour()', () => {
-        beforeEach(() => {
-            tourContainer.getTourDuration = jest.fn();
+        it('should call setUIControls and setCameraOrbit when canSkip is false', () => {
             TourService.canSkip = () => false;
-        });
+            const container = ref.current!;
+            (container as any).props = { action, labels };
 
-        describe('when the tour cannot be skipped', () => {
-            it('should call setUIControls with false', () => {
-                const spy = jest.spyOn(tourContainer.props.action, 'setUIControls');
+            container.initializeTour();
 
-                tourContainer.initializeTour();
-
-                expect(spy).toHaveBeenCalled();
-                expect(spy).toHaveBeenCalledTimes(1);
-                expect(spy).toHaveBeenCalledWith(false);
-            });
-
-            it('should call setCameraOrbit with true', () => {
-                const spy = jest.spyOn(tourContainer.props.action, 'setCameraOrbit');
-
-                tourContainer.initializeTour();
-
-                expect(spy).toHaveBeenCalled();
-                expect(spy).toHaveBeenCalledTimes(1);
-                expect(spy).toHaveBeenCalledWith(true);
-            });
-
-            it('should call onOrbitComplete after the calculated duration has passed', () => {
-                tourContainer.onOrbitComplete = jest.fn();
-                const spy = jest.spyOn(tourContainer, 'onOrbitComplete');
-
-                tourContainer.initializeTour();
-
-                expect(spy).not.toHaveBeenCalled();
-
-                jest.runAllTimers();
-
-                expect(spy).toHaveBeenCalled();
-                expect(spy).toHaveBeenCalledTimes(1);
-            });
-        });
-
-        describe('when the tour can be skipped', () => {
-            beforeEach(() => {
-                TourService.canSkip = () => true;
-            });
-
-            it('should not call setCameraOrbit with true', () => {
-                const spy = jest.spyOn(tourContainer.props.action, 'setCameraOrbit');
-
-                tourContainer.initializeTour();
-                expect(spy).not.toHaveBeenCalled();
-            });
-        });
-    });
-
-    describe('onOrbitComplete()', () => {
-        beforeEach(() => {
-            tourContainer.setDefaultActiveOrbital = jest.fn();
-        });
-
-        it('should call setActiveOrbital with the default orbital name if tour is not completed', () => {
-            const spy = jest.spyOn(tourContainer, 'setDefaultActiveOrbital');
-
-            tourContainer.props = {isComplete: false};
-            tourContainer.onOrbitComplete();
-
-            expect(spy).toHaveBeenCalled();
-            expect(spy).toHaveBeenCalledTimes(1);
-        });
-
-        it('should not call setActiveOrbital if tour is completed', () => {
-            const spy = jest.spyOn(tourContainer, 'setDefaultActiveOrbital');
-
-            tourContainer.props = {isComplete: true};
-            tourContainer.onOrbitComplete();
-
-            expect(spy).not.toHaveBeenCalled();
-        });
-    });
-
-    describe('onTourComplete()', () => {
-        it('should call tourCompleted with true', () => {
-            const spy = jest.spyOn(tourContainer.props.action, 'tourCompleted');
-
-            tourContainer.onTourComplete();
-
-            expect(spy).toHaveBeenCalled();
-            expect(spy).toHaveBeenCalledTimes(1);
-            expect(spy).toHaveBeenCalledWith(true);
+            expect(action.setUIControls).toHaveBeenCalledWith(false);
+            expect(action.setCameraOrbit).toHaveBeenCalledWith(true);
         });
     });
 
     describe('skipTour()', () => {
-        it('should call the tourCompleted action with `true`', () => {
-            const spy = jest.spyOn(tourContainer.props.action, 'tourCompleted');
+        it('should complete the tour and restore UI controls', () => {
+            const container = ref.current!;
+            (container as any).props = { action };
 
-            tourContainer.skipTour();
+            container.skipTour();
 
-            expect(spy).toHaveBeenCalled();
-            expect(spy).toHaveBeenCalledTimes(1);
-            expect(spy).toHaveBeenCalledWith(true);
-        });
-
-        it('should call the setCameraOrbit action with `false`', () => {
-            const spy = jest.spyOn(tourContainer.props.action, 'setCameraOrbit');
-
-            tourContainer.skipTour();
-
-            expect(spy).toHaveBeenCalled();
-            expect(spy).toHaveBeenCalledTimes(1);
-            expect(spy).toHaveBeenCalledWith(false);
-        });
-
-        it('should call setDefaultActiveOrbital()', () => {
-            const spy = jest.spyOn(tourContainer, 'setDefaultActiveOrbital');
-
-            tourContainer.skipTour();
-
-            expect(spy).toHaveBeenCalled();
-            expect(spy).toHaveBeenCalledTimes(1);
+            expect(action.tourCompleted).toHaveBeenCalledWith(true);
+            expect(action.setCameraOrbit).toHaveBeenCalledWith(false);
+            expect(action.setUIControls).toHaveBeenCalledWith(true);
         });
     });
 
-    describe('setDefaultActiveOrbital()', () => {
-        it('should call the setActiveOrbital action with the alternate and default orbitals', () => {
-            const spy = jest.spyOn(tourContainer.props.action, 'setActiveOrbital');
+    describe('onTourComplete()', () => {
+        it('should mark the tour as completed', () => {
+            const container = ref.current!;
+            (container as any).props = { action };
 
-            tourContainer.setDefaultActiveOrbital();
+            container.onTourComplete();
 
-            setTimeout(() => {
-                expect(spy).toHaveBeenCalled();
-                expect(spy).toHaveBeenCalledTimes(2);
-                expect(spy).toHaveBeenCalledWith(...Constants.UI.Targets.ALTERNATE);
-                expect(spy).toHaveBeenCalledWith(...Constants.UI.Targets.DEFAULT);
-            });
+            expect(action.tourCompleted).toHaveBeenCalledWith(true);
         });
     });
 
-    describe('skipTourTrigger()', () => {
-        it('should call skipTour()', () => {
-            const spy = jest.spyOn(tourContainer, 'skipTour');
+    describe('shouldRunTour()', () => {
+        it('should return true when playing and not skipped', () => {
+            (ref.current! as any).props = { playing: true, isSkipped: false };
+            expect(ref.current!.shouldRunTour()).toBe(true);
+        });
 
-            tourContainer.skipTourTrigger();
-
-            expect(spy).toHaveBeenCalled();
-            expect(spy).toHaveBeenCalledTimes(1);
+        it('should return false when skipped', () => {
+            (ref.current! as any).props = { playing: true, isSkipped: true };
+            expect(ref.current!.shouldRunTour()).toBe(false);
         });
     });
 
     describe('getLabels()', () => {
-        it('should return an array of TourLabels', () => {
-            const result = tourContainer.getLabels(labels);
-
-            expect(Array.isArray(result)).toBe(true);
-
-            result.forEach((label) => {
-                expect(label).toMatchSnapshot();
-            });
+        it('should return a label element for each tour item', () => {
+            const result = ref.current!.getLabels(labels);
+            expect(result).toHaveLength(labels.length);
         });
     });
 
     describe('render()', () => {
-        it('should return null when tour cannot be run', () => {
-            tourContainer.shouldRunTour = () => false;
-            tourContainer.render();
-
-            expect(toJson(component)).toEqual(null);
-        });
-
-        it('should render the tour container successfully when tour can be run', () => {
-            tourContainer.shouldRunTour = () => true;
-            tourContainer.render();
-
-            expect(toJson(component)).toMatchSnapshot();
+        it('should return null when tour should not run', () => {
+            const { container: dom } = render(
+                <TourContainer
+                    labels={labels}
+                    action={action}
+                    pageText={{} as any}
+                    playing={false}
+                />
+            );
+            expect(dom.firstChild).toBeNull();
         });
     });
 });

@@ -32,7 +32,7 @@ describe('Redux Service', () => {
 
     describe('mapDispatchToProps()', () => {
         const actions = {
-            test: jest.fn()
+            test: vi.fn()
         };
 
         it('should return a function', () => {

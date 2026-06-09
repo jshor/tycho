@@ -17,7 +17,7 @@ describe('Controls', () => {
             let spy;
 
             beforeEach(() => {
-                spy = jest.spyOn(controls, 'pan');
+                spy = vi.spyOn(controls, 'pan');
                 controls.level = 60;
 
                 controls.zoom(newLevel);
@@ -158,7 +158,7 @@ describe('Controls', () => {
 
     describe('updateTween()', () => {
         it('should statically zoom to the current tween level', () => {
-            const spy = jest.spyOn(controls, 'zoom');
+            const spy = vi.spyOn(controls, 'zoom');
             const level = 40;
 
             controls.tweenData = {level};
@@ -171,7 +171,7 @@ describe('Controls', () => {
 
     describe('endTween()', () => {
         it('should dispose of the tweenBase and tweenData objects', () => {
-            const spy = jest.spyOn(controls, 'endTween');
+            const spy = vi.spyOn(controls, 'endTween');
 
             controls.tweenBase = {};
             controls.tweenData = {};
@@ -184,9 +184,9 @@ describe('Controls', () => {
 
     describe('cancelTween()', () => {
         it('should stop the active tween', () => {
-            const stop = jest.fn();
+            const stop = vi.fn();
             controls.tweenBase = {stop};
-            const spy = jest.spyOn(controls.tweenBase, 'stop');
+            const spy = vi.spyOn(controls.tweenBase, 'stop');
 
             controls.cancelTween();
 
@@ -195,8 +195,8 @@ describe('Controls', () => {
         });
 
         it('should call endTween', () => {
-            const stop = jest.fn();
-            const spy = jest.spyOn(controls, 'endTween');
+            const stop = vi.fn();
+            const spy = vi.spyOn(controls, 'endTween');
 
             controls.tweenBase = {stop};
             controls.cancelTween();
@@ -208,10 +208,10 @@ describe('Controls', () => {
 
     describe('completeTween()', () => {
         it('should invoke the tweenDone callback assignment, if exists', () => {
-            controls.tweenDone = jest.fn();
+            controls.tweenDone = vi.fn();
             controls.tweenData = {};
 
-            const spy = jest.spyOn(controls, 'tweenDone');
+            const spy = vi.spyOn(controls, 'tweenDone');
 
             controls.completeTween();
 
@@ -220,7 +220,7 @@ describe('Controls', () => {
         });
 
         it('should call endTween()', () => {
-            const spy = jest.spyOn(controls, 'endTween');
+            const spy = vi.spyOn(controls, 'endTween');
 
             controls.tweenData = {};
             controls.completeTween();
@@ -232,7 +232,7 @@ describe('Controls', () => {
 
     describe('tweenZoom()', () => {
         it('should cancel any tween in progress', () => {
-            const spy = jest.spyOn(controls, 'cancelTween');
+            const spy = vi.spyOn(controls, 'cancelTween');
 
             controls.tweenZoom(50);
 
@@ -265,8 +265,8 @@ describe('Controls', () => {
         let spy;
 
         beforeEach(() => {
-            action = {changeZoom: jest.fn()};
-            spy = jest.spyOn(action, 'changeZoom');
+            action = {changeZoom: vi.fn()};
+            spy = vi.spyOn(action, 'changeZoom');
         });
 
         it('should call the given action callback with the calculated zoom, if changed', () => {

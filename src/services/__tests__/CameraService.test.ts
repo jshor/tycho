@@ -20,7 +20,7 @@ describe('Camera Service', () => {
             const y = 2;
             const z = 3;
             const pivot = new Object3D();
-            const spy = jest.spyOn(pivot.position, 'set');
+            const spy = vi.spyOn(pivot.position, 'set');
 
             CameraService.setPivotPosition(pivot, { x, y, z });
 
@@ -84,7 +84,7 @@ describe('Camera Service', () => {
     describe('attachToGyroscope()', () => {
         const target = new Object3D();
         const pivot = new Object3D();
-        const callback = jest.fn();
+        const callback = vi.fn();
 
         beforeEach(() => {
             CameraService.attachToGyroscope(target, pivot, callback);

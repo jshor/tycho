@@ -1,165 +1,58 @@
 import React from 'react';
-import toJson from 'enzyme-to-json';
-import { shallow } from 'enzyme';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import Label from './Label';
 
-jest.mock('three-dom-label', () => {
-    return function (settings) {
-        this.unmount = jest.fn();
-        this.setClass = jest.fn();
+// Label is now a functional component using @react-three/drei's Html (mocked globally).
 
-        Object.assign(this, settings);
-    }
-});
+const action = {
+    setActiveOrbital: vi.fn(),
+    addHighlightedOrbital: vi.fn(),
+    removeHighlightedOrbital: vi.fn(),
+};
 
 describe('Orbital Label Component', () => {
-    let component;
-    let label;
+    beforeEach(() => vi.clearAllMocks());
 
-    beforeEach(() => {
-        component = shallow(
-            <Label
-                action={{
-                    setActiveOrbital: jest.fn(),
-                    addHighlightedOrbital: jest.fn(),
-                    removeHighlightedOrbital: jest.fn()
-                }}
-                text="Test Planet"
-                id="testPlanet"
-            />
-        );
-        label = component.instance();
+    it('should render the label text', () => {
+        render(<Label text="Earth" id="Earth" action={action} />);
+        expect(screen.getByText('Earth')).toBeInTheDocument();
     });
 
-    describe('componentDidMount()', () => {
-        beforeEach(() => {
-            label.refs = {
-                group: {
-                    add: jest.fn()
-                }
-            };
-        });
-
-        it('should assign a new label', () => {
-            label.componentDidMount();
-            expect(label).toHaveProperty('label');
-        });
-
-        it('should add the label to the group', () => {
-            const spy = jest.spyOn(label.refs.group, 'add');
-
-            label.componentDidMount();
-
-            expect(spy).toHaveBeenCalled();
-            expect(spy).toHaveBeenCalledWith(label.label);
-            expect(spy).toHaveBeenCalledTimes(1);
-        });
+    it('should apply the inactive class when not the target', () => {
+        render(<Label text="Earth" id="Earth" action={action} targetId="Mars" />);
+        expect(screen.getByText('Earth').className).toContain('inactive');
     });
 
-    describe('componentWillUnmount()', () => {
-        beforeEach(() => {
-            label.label = { unmount: jest.fn() };
-        });
-
-        it('should unmount the DOM label', () => {
-            const spy = jest.spyOn(label.label, 'unmount');
-
-            label.componentWillUnmount();
-
-            expect(spy).toHaveBeenCalled();
-            expect(spy).toHaveBeenCalledTimes(1);
-        });
+    it('should apply the active class when it is the target', () => {
+        render(<Label text="Earth" id="Earth" action={action} targetId="Earth" />);
+        expect(screen.getByText('Earth').className).toContain('active');
     });
 
-    describe('componentWillReceiveProps()', () => {
-        it('should call maybeUpdateClassName() with nextProps', () => {
-            const targetId = 'testPlanet';
-            const nextProps = { targetId };
-            const spy = jest.spyOn(label, 'maybeUpdateClassName');
+    it('should call setActiveOrbital on click', async () => {
+        const user = userEvent.setup();
+        render(<Label text="Earth" id="Earth" action={action} />);
 
-            label.props = { targetId };
-            label.componentWillReceiveProps(nextProps);
+        await user.click(screen.getByText('Earth'));
 
-            expect(spy).toHaveBeenCalled();
-            expect(spy).toHaveBeenCalledTimes(1);
-            expect(spy).toHaveBeenCalledWith(nextProps);
-        });
+        expect(action.setActiveOrbital).toHaveBeenCalledWith('Earth', 'Earth');
     });
 
-    describe('maybeUpdateClassName()', () => {
-        let spy;
-        const id = 'Earth';
-        const targetId = 'Mars';
+    it('should call addHighlightedOrbital on mouse over', async () => {
+        const user = userEvent.setup();
+        render(<Label text="Earth" id="Earth" action={action} />);
 
-        beforeEach(() => {
-            label.props = { targetId };
-            label.label = {
-                setClass: jest.fn()
-            };
-            spy = jest.spyOn(label.label, 'setClass');
-        });
+        await user.hover(screen.getByText('Earth'));
 
-        describe('when the targetId has changed', () => {
-            it('should set the class suffix to \'inactive\' when the targetId does not match the label id', () => {
-                label.maybeUpdateClassName({id, targetId: 'Jupiter'});
-
-                expect(spy).toHaveBeenCalled();
-                expect(spy).toHaveBeenCalledTimes(1);
-                expect(spy).toHaveBeenCalledWith('label label--inactive');
-            });
-
-            it('should set the class suffix to \'active\' when the targetId matches the label id', () => {
-                label.maybeUpdateClassName({id, targetId: id});
-
-                expect(spy).toHaveBeenCalled();
-                expect(spy).toHaveBeenCalledTimes(1);
-                expect(spy).toHaveBeenCalledWith('label label--active');
-            });
-        });
-
-        describe('when the targetId has not changed', () => {
-            it('should not change the class name', () => {
-                label.maybeUpdateClassName({ id, targetId });
-
-                expect(spy).not.toHaveBeenCalled();
-            });
-        });
+        expect(action.addHighlightedOrbital).toHaveBeenCalledWith('Earth');
     });
 
-    describe('getLabel()', () => {
-        let result;
-        const text = 'Test Label';
-        const id = 'testPlanet';
+    it('should call removeHighlightedOrbital on mouse out', async () => {
+        const user = userEvent.setup();
+        render(<Label text="Earth" id="Earth" action={action} />);
 
-        beforeEach(() => {
-            const action = {
-                setActiveOrbital: jest.fn(),
-                addHighlightedOrbital: jest.fn(),
-                removeHighlightedOrbital: jest.fn()
-            };
+        await user.unhover(screen.getByText('Earth'));
 
-            label.props = { text, id, action };
-            result = label.getLabel();
-        });
-
-        it('should pass the text property to the label', () => {
-
-            expect(result).toHaveProperty('text');
-            expect(result.text).toEqual(text);
-        });
-
-        it('should pass the id property to the label', () => {
-            expect(result).toHaveProperty('id');
-            expect(result.id).toEqual(id);
-        });
-
-        it('should set the className to the \'inactive\' label class', () => {
-            expect(result).toHaveProperty('className');
-            expect(result.className).toEqual('label label--inactive');
-        });
-    });
-
-    it('should render the markdown container successfully', () => {
-        expect(toJson(component)).toMatchSnapshot();
+        expect(action.removeHighlightedOrbital).toHaveBeenCalledWith('Earth');
     });
 });

@@ -1,20 +1,18 @@
-import {EllipseCurve, CurvePath, Geometry, Vector3} from 'three';
+import { EllipseCurve, CurvePath, Vector3 } from 'three';
 import Ellipse from '../Ellipse';
 import data from './__fixtures__/orbitals.json';
 
 describe('Ellipse', () => {
-    let ellipse;
-    let mockData;
+    let ellipse: any;
 
     beforeEach(() => {
-        mockData = data[0];
-        ellipse = new Ellipse(mockData);
+        ellipse = new Ellipse(data[0] as any);
     });
 
     describe('constructor()', () => {
         it('should set the semimajor and semiminor axes', () => {
             expect(ellipse).toHaveProperty('semimajor');
-            expect(ellipse).toHaveProperty('semimajor');
+            expect(ellipse).toHaveProperty('semiminor');
             expect(typeof ellipse.semimajor).toBe('number');
             expect(typeof ellipse.semiminor).toBe('number');
         });
@@ -31,59 +29,55 @@ describe('Ellipse', () => {
             expect(ellipse.ellipse).toBeInstanceOf(EllipseCurve);
         });
 
-        it('should set the path property to a new instance of Path', () => {
+        it('should set the path property to a new instance of CurvePath', () => {
             expect(ellipse).toHaveProperty('path');
             expect(ellipse.path).toBeInstanceOf(CurvePath);
         });
 
-        it('should set the geometry property to the path points geometry', () => {
-            expect(ellipse).toHaveProperty('geometry');
-            expect(ellipse.geometry).toBeInstanceOf(Geometry);
-        });
-
-        it('should add the ellipse curve geometry to the path', () => {
-            const path = {
-                add: jest.fn(),
-                createPointsGeometry: jest.fn()
-            };
+        it('should add the ellipse curve to the path', () => {
+            const path = { add: vi.fn(), getPoint: vi.fn(() => ({ x: 0, y: 0 })) };
             const ellipseCurve = {};
-            const spy = jest.spyOn(path, 'add');
+            const spy = vi.spyOn(path, 'add');
 
             ellipse.getPath = () => path;
             ellipse.getEllipseCurve = () => ellipseCurve;
             ellipse.render();
 
-            expect(spy).toHaveBeenCalled();
             expect(spy).toHaveBeenCalledTimes(1);
             expect(spy).toHaveBeenCalledWith(ellipseCurve);
         });
     });
 
-    describe('getGeometry()', () => {
-        it('should return an instance of Geometry', () => {
-            const result = ellipse.getGeometry();
-            expect(result).toBeInstanceOf(Geometry);
-        });
-    });
-
     describe('getPath()', () => {
-        it('should return an instance of Path', () => {
-            const result = ellipse.getPath();
-            expect(result).toBeInstanceOf(CurvePath);
+        it('should return an instance of CurvePath', () => {
+            expect(ellipse.getPath()).toBeInstanceOf(CurvePath);
         });
     });
 
     describe('getEllipseCurve()', () => {
         it('should return an instance of EllipseCurve', () => {
-            const result = ellipse.getEllipseCurve();
-            expect(result).toBeInstanceOf(EllipseCurve);
+            expect(ellipse.getEllipseCurve()).toBeInstanceOf(EllipseCurve);
+        });
+    });
+
+    describe('getVertices()', () => {
+        it('should return an array of Vector3 instances', () => {
+            const vertices = ellipse.getVertices();
+
+            expect(Array.isArray(vertices)).toBe(true);
+            expect(vertices.length).toBeGreaterThan(0);
+            expect(vertices[0]).toBeInstanceOf(Vector3);
+        });
+
+        it('should return vertices with z = 0 (2D ellipse projected into 3D)', () => {
+            const vertices = ellipse.getVertices();
+            vertices.forEach((v: Vector3) => expect(v.z).toBe(0));
         });
     });
 
     describe('getPosition()', () => {
         it('should return an instance of Vector3', () => {
-            const result = ellipse.getPosition(0, {});
-            expect(result).toBeInstanceOf(Vector3);
+            expect(ellipse.getPosition(0, {})).toBeInstanceOf(Vector3);
         });
     });
 });

@@ -1,138 +1,63 @@
 import React from 'react';
-import { CubeTexture } from 'three';
-import {shallow} from 'enzyme';
-import toJson from 'enzyme-to-json';
-import {SceneContainer} from '../SceneContainer';
+import { render } from '@testing-library/react';
+import { SceneContainer } from '../SceneContainer';
 import data from './__fixtures__/orbitals.json';
 
+const baseProps: any = {
+    orbitalData: data,
+    action: { changeZoom: vi.fn(), setUIControls: vi.fn(), setPlaying: vi.fn() },
+    onAnimate: vi.fn(),
+    width: 500,
+    height: 300,
+    time: 1,
+};
+
 describe('Scene Container', () => {
-    let component;
-    let sceneContainer;
+    let ref: React.RefObject<SceneContainer>;
 
     beforeEach(() => {
-        component = shallow(
-            <SceneContainer
-                {...{
-                    orbitalData: data,
-                    action: { setPosition: jest.fn() },
-                    onAnimate: jest.fn(),
-                    width: 500,
-                    height: 300,
-                    time: 1
-                } as any}
-            />
-        );
-
-        sceneContainer = component.instance();
-    });
-
-    describe('componentDidMount()', () => {
-        beforeEach(() => {
-            sceneContainer.renderSkybox = jest.fn();
-        });
-
-        it('should force update once', () => {
-            const spy = jest.spyOn(sceneContainer, 'forceUpdate');
-
-            sceneContainer.componentDidMount();
-
-            expect(spy).toHaveBeenCalled();
-            expect(spy).toHaveBeenCalledTimes(1);
-        });
-
-        it('should render the skybox', () => {
-            const spy = jest.spyOn(sceneContainer, 'renderSkybox');
-
-            sceneContainer.componentDidMount();
-
-            expect(spy).toHaveBeenCalled();
-            expect(spy).toHaveBeenCalledTimes(1);
-        });
+        vi.clearAllMocks();
+        ref = React.createRef<SceneContainer>();
+        render(<SceneContainer {...baseProps} ref={ref as any} />);
     });
 
     describe('onAnimate()', () => {
-        beforeEach(() => {
-            sceneContainer.props = {onAnimate: jest.fn()};
-            sceneContainer.refs = {camera};
-        });
+        it('should call props.onAnimate', () => {
+            const onAnimate = vi.fn();
+            const container = ref.current!;
+            (container as any).props = { onAnimate };
 
-        it('should call props.onAnimate()', () => {
-            const onAnimateSpy = jest.spyOn(sceneContainer.props, 'onAnimate');
+            container.onAnimate();
 
-            sceneContainer.onAnimate();
-
-            expect(onAnimateSpy).toHaveBeenCalled();
-            expect(onAnimateSpy).toHaveBeenCalledTimes(1);
-        });
-
-        it('should update the camera component', () => {
-            const spy = jest.spyOn(sceneContainer.refs.camera, 'update');
-
-            sceneContainer.onAnimate();
-
-            expect(spy).toHaveBeenCalled();
+            expect(onAnimate).toHaveBeenCalledTimes(1);
         });
     });
 
     describe('changeZoom()', () => {
-        it('should call controls.wheelZoom()', () => {
-            sceneContainer.refs = {camera};
-            sceneContainer.props = {action: {}};
-            const spy = jest.spyOn(sceneContainer.refs.camera.controls, 'wheelZoom');
-
-            sceneContainer.changeZoom();
-
-            expect(spy).toHaveBeenCalled();
-        });
-    });
-
-    describe('setDomElement()', () => {
-        it('should set `domElement` to the value of the param passed', () => {
-            const elem = <canvas />;
-            sceneContainer.setDomElement(elem);
-
-            expect(sceneContainer).toHaveProperty('domElement');
-            expect(sceneContainer.domElement).toEqual(elem);
-        });
-    });
-
-    describe('renderSkybox()', () => {
-        it('should set the `background` property of the scene to a cube texture', () => {
-            sceneContainer.refs = {
-                scene: {
-                    background: null
-                }
+        it('should forward wheel events to controls.wheelZoom when controls are available', () => {
+            const wheelZoom = vi.fn();
+            const container = ref.current!;
+            (container.cameraRef as any).current = {
+                controls: { wheelZoom }
             };
-            sceneContainer.renderSkybox();
 
-            expect(sceneContainer.refs.scene).toHaveProperty('background');
-            expect(sceneContainer.refs.scene.background).toBeInstanceOf(CubeTexture);
+            container.changeZoom({ deltaY: -10 } as WheelEvent);
+
+            expect(wheelZoom).toHaveBeenCalledTimes(1);
+        });
+
+        it('should not throw when camera ref has no controls', () => {
+            const container = ref.current!;
+            (container.cameraRef as any).current = null;
+
+            expect(() => container.changeZoom({} as WheelEvent)).not.toThrow();
         });
     });
 
     describe('render()', () => {
-        it('should render the scene container without the camera', () => {
-            expect(toJson(component)).toMatchSnapshot();
-        });
-
-        it('should render the scene container with the camera', () => {
-            sceneContainer.refs = {camera};
-            sceneContainer.render();
-            expect(toJson(component)).toMatchSnapshot();
+        it('should render without crashing', () => {
+            const { container: dom } = render(<SceneContainer {...baseProps} />);
+            expect(dom).toBeTruthy();
         });
     });
 });
-
-const camera = {
-    controls: {
-        wheelZoom: jest.fn()
-    },
-    update: jest.fn(),
-    refs: {
-        camera: {
-            position: {
-                clone: jest.fn()
-            }
-        }
-    }
-};

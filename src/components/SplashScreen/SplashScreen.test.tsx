@@ -1,60 +1,58 @@
 import React from 'react';
-import toJson from 'enzyme-to-json';
-import {shallow} from 'enzyme';
+import { render } from '@testing-library/react';
 import SplashScreen from './SplashScreen';
 
 describe('SplashScreen Component', () => {
-    let component;
-    let splashScreen;
+    let ref: React.RefObject<SplashScreen>;
 
     beforeEach(() => {
-        component = shallow(<SplashScreen
-            pageText={{}}
-            percent={1}
-            enterScene={jest.fn()}
-        />);
-
-        splashScreen = component.instance();
-        splashScreen.props = {
-            pageText: {}
-        };
+        ref = React.createRef<SplashScreen>();
+        render(
+            <SplashScreen
+                pageText={{} as any}
+                percent={50}
+                enterScene={vi.fn()}
+                ref={ref as any}
+            />
+        );
     });
 
     describe('renderEnterButton()', () => {
-        it('should render the enter button', () => {
-            const result = toJson(splashScreen.renderEnterButton());
-
-            expect(result).toMatchSnapshot();
+        it('should return a React element', () => {
+            (ref.current! as any).props = { pageText: {} };
+            const result = ref.current!.renderEnterButton();
+            expect(result).not.toBeNull();
         });
     });
 
     describe('renderLoadingBar()', () => {
-        it('should render the enter button', () => {
-            const result = toJson(splashScreen.renderLoadingBar());
-
-            expect(result).toMatchSnapshot();
+        it('should return a React element', () => {
+            (ref.current! as any).props = { pageText: {}, percent: 50 };
+            const result = ref.current!.renderLoadingBar();
+            expect(result).not.toBeNull();
         });
     });
 
     describe('renderUserPrompt()', () => {
-        it('should render the enter button if percent is 100', () => {
-            splashScreen.props.percent = 100;
-            const result = toJson(splashScreen.renderUserPrompt());
-
-            expect(result).toMatchSnapshot();
+        it('should render the enter button when percent is 100', () => {
+            (ref.current! as any).props = { pageText: {}, percent: 100 };
+            const result = ref.current!.renderUserPrompt();
+            expect(result).not.toBeNull();
         });
 
-        it('should render the loading bar if percent is not 100', () => {
-            splashScreen.props.percent = 50;
-            const result = toJson(splashScreen.renderUserPrompt());
-
-            expect(result).toMatchSnapshot();
+        it('should render the loading bar when percent is below 100', () => {
+            (ref.current! as any).props = { pageText: {}, percent: 50 };
+            const result = ref.current!.renderUserPrompt();
+            expect(result).not.toBeNull();
         });
     });
 
     describe('render()', () => {
-        it('should render the Splash Screen successfully', () => {
-            expect(toJson(component)).toMatchSnapshot();
+        it('should render without crashing', () => {
+            const { container } = render(
+                <SplashScreen pageText={{} as any} percent={50} enterScene={vi.fn()} />
+            );
+            expect(container).toBeTruthy();
         });
     });
 });

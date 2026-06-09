@@ -1,72 +1,54 @@
 import React from 'react';
-import toJson from 'enzyme-to-json';
-import {shallow} from 'enzyme';
-import {DefaultLoadingManager} from 'three';
-import {LoaderContainer} from '../LoaderContainer';
+import { render } from '@testing-library/react';
+import { DefaultLoadingManager } from 'three';
+import { LoaderContainer } from '../LoaderContainer';
+
+const action = {
+    setPercentLoaded: vi.fn(),
+    setTextureLoaded: vi.fn(),
+    setPlaying: vi.fn(),
+    setVolume: vi.fn(),
+};
 
 describe('Loader Container', () => {
-    let component;
-    let loaderContainer;
+    let ref: React.RefObject<LoaderContainer>;
 
     beforeEach(() => {
-        component = shallow(<LoaderContainer
-            action={{
-                setPercentLoaded: jest.fn(),
-                setTextureLoaded: jest.fn(),
-                setPlaying: jest.fn(),
-                setVolume: jest.fn()
-            }}
-        />);
-        loaderContainer = component.instance();
+        vi.clearAllMocks();
+        ref = React.createRef<LoaderContainer>();
+        render(<LoaderContainer action={action} ref={ref as any} />);
     });
 
     describe('componentDidMount()', () => {
-        it('should assign `onProgress` to the DefaultLoadingManager', () => {
-            expect(DefaultLoadingManager.onProgress).toEqual(loaderContainer.onProgress);
+        it('should register a progress handler on DefaultLoadingManager', () => {
+            expect((DefaultLoadingManager as any).onProgress).toBe(ref.current!.onProgress);
         });
     });
 
     describe('onProgress()', () => {
-        const url = 'myImage.jpg';
-        const count = 5;
-        const total = 8;
+        it('should dispatch setPercentLoaded and setTextureLoaded', () => {
+            (ref.current! as any).props = { action };
+            ref.current!.onProgress('tex.png', 2, 4);
 
-        it('should call the setPercentLoaded() action', () => {
-            const spy = jest.spyOn(loaderContainer.props.action, 'setPercentLoaded');
-
-            loaderContainer.onProgress(url, count, total);
-
-            expect(spy).toHaveBeenCalled();
-            expect(spy).toHaveBeenCalledTimes(1);
-            expect(spy).toHaveBeenCalledWith(count, total);
-        });
-
-        it('should call the setTextureLoaded() action', () => {
-            const spy = jest.spyOn(loaderContainer.props.action, 'setTextureLoaded');
-
-            loaderContainer.onProgress(url, count, total);
-
-            expect(spy).toHaveBeenCalled();
-            expect(spy).toHaveBeenCalledTimes(1);
-            expect(spy).toHaveBeenCalledWith(url);
+            expect(action.setPercentLoaded).toHaveBeenCalledWith(2, 4);
+            expect(action.setTextureLoaded).toHaveBeenCalledWith('tex.png');
         });
     });
 
     describe('enterScene()', () => {
-        it('should call the setPlaying() action with true', () => {
-            const spy = jest.spyOn(loaderContainer.props.action, 'setPlaying');
+        it('should start playing and set volume to 1', () => {
+            (ref.current! as any).props = { action };
+            ref.current!.enterScene();
 
-            loaderContainer.enterScene();
-
-            expect(spy).toHaveBeenCalled();
-            expect(spy).toHaveBeenCalledTimes(1);
-            expect(spy).toHaveBeenCalledWith(true);
+            expect(action.setPlaying).toHaveBeenCalledWith(true);
+            expect(action.setVolume).toHaveBeenCalledWith(1);
         });
-    });
 
-    describe('render()', () => {
-        it('should render the loader container successfully', () => {
-            expect(toJson(component)).toMatchSnapshot();
+        it('should set hasEntered state to true', () => {
+            (ref.current! as any).props = { action };
+            ref.current!.enterScene();
+
+            expect(ref.current!.state.hasEntered).toBe(true);
         });
     });
 });
