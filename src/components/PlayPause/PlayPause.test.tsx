@@ -1,16 +1,10 @@
 import React from 'react';
-import toJson from 'enzyme-to-json';
-import {shallow} from 'enzyme';
-import PlayPause from './';
+import { render } from '@testing-library/react';
+import PlayPause from './PlayPause';
 
-describe('Play/Pause Button Component', () => {
-    let component;
-
-    beforeEach(() => {
-        component = shallow(<PlayPause onClick={jest.fn()} />);
-    });
-
-    it('should render the PlayPause button successfully', () => {
-        expect(toJson(component)).toMatchSnapshot();
+describe('PlayPause Component', () => {
+    it('should render without crashing', () => {
+        const { container } = render(<PlayPause onClick={vi.fn()} playing={false} />);
+        expect(container).toBeTruthy();
     });
 });

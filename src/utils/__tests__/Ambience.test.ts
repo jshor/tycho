@@ -3,11 +3,11 @@ import {Camera} from 'three';
 import Ambience from '../Ambience';
 
 const mockSound = {
-    setBuffer: jest.fn(),
-    setLoop: jest.fn(),
-    play: jest.fn(),
-    pause: jest.fn(),
-    setVolume: jest.fn()
+    setBuffer: vi.fn(),
+    setLoop: vi.fn(),
+    play: vi.fn(),
+    pause: vi.fn(),
+    setVolume: vi.fn()
 };
 
 describe('Ambience Utility', () => {
@@ -36,7 +36,7 @@ describe('Ambience Utility', () => {
         });
 
         it('should call setBuffer with the given buffer', () => {
-            const spy = jest.spyOn(ambience.sound, 'setBuffer');
+            const spy = vi.spyOn(ambience.sound, 'setBuffer');
 
             ambience.loaded(buffer);
 
@@ -45,7 +45,7 @@ describe('Ambience Utility', () => {
         });
 
         it('should call setLoop with `true`', () => {
-            const spy = jest.spyOn(ambience.sound, 'setLoop');
+            const spy = vi.spyOn(ambience.sound, 'setLoop');
 
             ambience.loaded(buffer);
 
@@ -61,7 +61,7 @@ describe('Ambience Utility', () => {
 
         describe('when the volume level is truthy', () => {
             it('should play the audio', () => {
-                const spy = jest.spyOn(ambience.sound, 'play');
+                const spy = vi.spyOn(ambience.sound, 'play');
 
                 ambience.setVolume(1);
 
@@ -72,7 +72,7 @@ describe('Ambience Utility', () => {
 
         describe('when the volume level is falsey', () => {
             it('should pause the audio', () => {
-                const spy = jest.spyOn(ambience.sound, 'pause');
+                const spy = vi.spyOn(ambience.sound, 'pause');
 
                 ambience.setVolume(0);
 
@@ -82,7 +82,7 @@ describe('Ambience Utility', () => {
         });
 
         it('should call `setVolume` with the given volume level', () => {
-            const spy = jest.spyOn(ambience.sound, 'setVolume');
+            const spy = vi.spyOn(ambience.sound, 'setVolume');
             const volume = 0.5;
 
             ambience.setVolume(volume);

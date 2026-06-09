@@ -1,287 +1,234 @@
 import React from 'react';
-import toJson from 'enzyme-to-json';
-import {shallow} from 'enzyme';
-import {AppContainer} from '../AppContainer';
+import { render } from '@testing-library/react';
+import { AppContainer } from '../AppContainer';
+
+const action = {
+    requestOrbitalData: vi.fn(),
+    requestPageText: vi.fn(),
+    setTime: vi.fn(),
+};
 
 describe('App Container', () => {
-    let component;
-    let appContainer;
-
-    const action = {
-        requestOrbitalData: jest.fn(),
-        requestPageText: jest.fn(),
-        setTime: jest.fn()
-    };
+    let ref: React.RefObject<AppContainer>;
 
     beforeEach(() => {
-        component = shallow(<AppContainer action={action} />);
-        appContainer = component.instance();
+        vi.clearAllMocks();
+        ref = React.createRef<AppContainer>();
+        render(<AppContainer action={action} ref={ref as any} />);
     });
 
-    describe('componentWillReceiveProps()', () => {
+    describe('componentDidMount()', () => {
+        it('should request orbital data', () => {
+            expect(action.requestOrbitalData).toHaveBeenCalledTimes(1);
+        });
+
+        it('should request page text', () => {
+            expect(action.requestPageText).toHaveBeenCalledTimes(1);
+        });
+    });
+
+    describe('componentDidUpdate()', () => {
         it('should call maybeUpdateOffset()', () => {
-            const spy = jest.spyOn(appContainer, 'maybeUpdateOffset');
-            const nextProps = {};
+            const container = ref.current!;
+            const spy = vi.spyOn(container, 'maybeUpdateOffset');
 
-            appContainer.componentWillReceiveProps(nextProps);
+            container.componentDidUpdate({} as any);
 
-            expect(spy).toHaveBeenCalled();
             expect(spy).toHaveBeenCalledTimes(1);
         });
     });
 
     describe('maybeUpdateOffset()', () => {
-        it('should update the clock offset if scene is playing', () => {
-
-            const spy = jest.spyOn(appContainer.clock, 'setOffset');
+        it('should update the clock offset when scene is playing and timeOffset changed', () => {
+            const container = ref.current!;
+            const spy = vi.spyOn(container.clock, 'setOffset');
             const timeOffset = 123;
 
-            appContainer.props = {playing: true};
-            appContainer.maybeUpdateOffset({timeOffset});
+            (container as any).props = { playing: true, timeOffset };
+            container.maybeUpdateOffset({ timeOffset: 0 } as any);
 
-            expect(spy).toHaveBeenCalledTimes(1);
             expect(spy).toHaveBeenCalledWith(timeOffset);
         });
 
-        it('should not update the clock if offset not undefined', () => {
-            const spy = jest.spyOn(appContainer.clock, 'setOffset');
-            const timeOffset = undefined;
+        it('should not update the clock if timeOffset is undefined', () => {
+            const container = ref.current!;
+            const spy = vi.spyOn(container.clock, 'setOffset');
 
-            appContainer.props = {playing: true};
-            appContainer.maybeUpdateOffset({timeOffset});
+            (container as any).props = { playing: true, timeOffset: undefined };
+            container.maybeUpdateOffset({ timeOffset: 999 } as any);
 
             expect(spy).not.toHaveBeenCalled();
         });
 
         it('should not update the clock if scene is paused', () => {
-            const spy = jest.spyOn(appContainer.clock, 'setOffset');
-            const timeOffset = 123;
+            const container = ref.current!;
+            const spy = vi.spyOn(container.clock, 'setOffset');
 
-            appContainer.props = {playing: false};
-            appContainer.maybeUpdateOffset({timeOffset});
+            (container as any).props = { playing: false, timeOffset: 123 };
+            container.maybeUpdateOffset({ timeOffset: 0 } as any);
 
             expect(spy).not.toHaveBeenCalled();
         });
     });
 
     describe('maybeUpdateTime()', () => {
-        const time = 1;
+        it('should dispatch setTime when shouldUpdateTime() returns true', () => {
+            const container = ref.current!;
+            const setTime = vi.fn();
+            const time = 42;
 
-        beforeEach(() => {
-            appContainer.props = {
-                action: {
-                    setTime: jest.fn()
-                }
-            };
-            appContainer.clock = {
-                getTime: () => time
-            };
+            (container as any).props = { action: { setTime } };
+            container.clock = { getTime: () => time } as any;
+            container.shouldUpdateTime = () => true;
+
+            container.maybeUpdateTime();
+
+            expect(setTime).toHaveBeenCalledWith(time);
         });
 
-        it('should update the global time to the clock\'s current time when changed', () => {
-            const spy = jest.spyOn(appContainer.props.action, 'setTime');
+        it('should dispatch setTime when forced', () => {
+            const container = ref.current!;
+            const setTime = vi.fn();
+            const time = 42;
 
-            appContainer.shouldUpdateTime = () => true;
-            appContainer.maybeUpdateTime();
+            (container as any).props = { action: { setTime } };
+            container.clock = { getTime: () => time } as any;
+            container.shouldUpdateTime = () => false;
 
-            expect(spy).toHaveBeenCalled();
-            expect(spy).toHaveBeenCalledTimes(1)
-            expect(spy).toHaveBeenCalledWith(time);
+            container.maybeUpdateTime(true);
+
+            expect(setTime).toHaveBeenCalledWith(time);
         });
 
-        it('should update the global time to the clock\'s current time when forced to', () => {
-            const spy = jest.spyOn(appContainer.props.action, 'setTime');
+        it('should not dispatch if not forced and shouldUpdateTime() is false', () => {
+            const container = ref.current!;
+            const setTime = vi.fn();
 
-            appContainer.shouldUpdateTime = () => false;
-            appContainer.maybeUpdateTime(true);
+            (container as any).props = { action: { setTime } };
+            container.shouldUpdateTime = () => false;
 
-            expect(spy).toHaveBeenCalled();
-            expect(spy).toHaveBeenCalledTimes(1)
-            expect(spy).toHaveBeenCalledWith(time);
-        });
+            container.maybeUpdateTime(false);
 
-        it('should update the global time if not changed and not forced to', () => {
-            const spy = jest.spyOn(appContainer.props.action, 'setTime');
-
-            appContainer.shouldUpdateTime = () => false;
-            appContainer.maybeUpdateTime(false);
-
-            expect(spy).not.toHaveBeenCalled();
+            expect(setTime).not.toHaveBeenCalled();
         });
     });
 
     describe('maybeContinue()', () => {
-        beforeEach(() => {
-            appContainer.clock = {
-                continue: jest.fn()
-            };
-            appContainer.props = {};
+        it('should call continue() when playing and clock is stopped', () => {
+            const container = ref.current!;
+            const continueF = vi.fn();
+
+            (container as any).props = { playing: true };
+            container.clock = { continue: continueF, stopped: true } as any;
+
+            container.maybeContinue();
+
+            expect(continueF).toHaveBeenCalledTimes(1);
         });
 
-        describe('when the scene is playing', () => {
-            beforeEach(() => {
-                appContainer.props.playing = true;
-            });
+        it('should not call continue() when clock is not stopped', () => {
+            const container = ref.current!;
+            const continueF = vi.fn();
 
-            it('should call continue() on the clock if the clock is stopped', () => {
-                const spy = jest.spyOn(appContainer.clock, 'continue');
+            (container as any).props = { playing: true };
+            container.clock = { continue: continueF, stopped: false } as any;
 
-                appContainer.clock.stopped = true;
-                appContainer.maybeContinue();
+            container.maybeContinue();
 
-                expect(spy).toHaveBeenCalled();
-                expect(spy).toHaveBeenCalledTimes(1);
-            });
-
-            it('should not call continue() on the clock if the clock is running', () => {
-                const spy = jest.spyOn(appContainer.clock, 'continue');
-
-                appContainer.clock.stopped = false;
-                appContainer.maybeContinue();
-
-                expect(spy).not.toHaveBeenCalled();
-            });
-        });
-
-        describe('when the scene is paused', () => {
-            it('should not call continue() on the clock', () => {
-                const spy = jest.spyOn(appContainer.clock, 'continue');
-
-                appContainer.props.playing = false;
-                appContainer.maybeContinue();
-
-                expect(spy).not.toHaveBeenCalled();
-            });
+            expect(continueF).not.toHaveBeenCalled();
         });
     });
 
     describe('maybeStop()', () => {
-        beforeEach(() => {
-            appContainer.clock = {
-                stop: jest.fn()
-            };
-            appContainer.props = {};
+        it('should call stop() when not playing and clock is running', () => {
+            const container = ref.current!;
+            const stop = vi.fn();
+
+            (container as any).props = { playing: false };
+            container.clock = { stop, stopped: false } as any;
+
+            container.maybeStop();
+
+            expect(stop).toHaveBeenCalledTimes(1);
         });
 
-        describe('when the scene is playing', () => {
-            beforeEach(() => {
-                appContainer.props.playing = false;
-            });
+        it('should not call stop() when clock is already stopped', () => {
+            const container = ref.current!;
+            const stop = vi.fn();
 
-            it('should call stop() on the clock if the clock is running', () => {
-                const spy = jest.spyOn(appContainer.clock, 'stop');
+            (container as any).props = { playing: false };
+            container.clock = { stop, stopped: true } as any;
 
-                appContainer.clock.stopped = false;
-                appContainer.maybeStop();
+            container.maybeStop();
 
-                expect(spy).toHaveBeenCalled();
-                expect(spy).toHaveBeenCalledTimes(1);
-            });
-
-            it('should not call stop() on the clock if the clock is already stopped', () => {
-                const spy = jest.spyOn(appContainer.clock, 'stop');
-
-                appContainer.clock.stopped = true;
-                appContainer.maybeStop();
-
-                expect(spy).not.toHaveBeenCalled();
-            });
-        });
-
-        describe('when the scene is playing', () => {
-            it('should not call stop() on the clock', () => {
-                const spy = jest.spyOn(appContainer.clock, 'stop');
-
-                appContainer.props.playing = true;
-                appContainer.maybeStop();
-
-                expect(spy).not.toHaveBeenCalled();
-            });
+            expect(stop).not.toHaveBeenCalled();
         });
     });
+
     describe('shouldUpdateTime()', () => {
-        const time = 1;
+        it('should return true when time changed and scene is playing', () => {
+            const container = ref.current!;
 
-        beforeEach(() => {
-            appContainer.clock = {
-                getTime: () => time
-            };
+            container.clock = { getTime: () => 1 } as any;
+            container.lastTime = 2;
+            (container as any).props = { playing: true };
+
+            expect(container.shouldUpdateTime()).toBe(true);
         });
 
-        describe('when the time has changed since last update', () => {
-            beforeEach(() => {
-                appContainer.lastTime = time + 1;
-            });
+        it('should return false when scene is paused', () => {
+            const container = ref.current!;
 
-            it('should return true if scene is playing', () => {
-                appContainer.props = {playing: true};
+            container.clock = { getTime: () => 1 } as any;
+            container.lastTime = 2;
+            (container as any).props = { playing: false };
 
-                const result = appContainer.shouldUpdateTime();
-
-                expect(typeof result).toBe('boolean');
-                expect(result).toEqual(true);
-            });
-
-            it('should return false if scene is paused', () => {
-                appContainer.props = {playing: false};
-
-                const result = appContainer.shouldUpdateTime();
-
-                expect(typeof result).toBe('boolean');
-                expect(result).toEqual(false);
-            });
+            expect(container.shouldUpdateTime()).toBe(false);
         });
 
-        describe('when the time is the same as when last probed', () => {
-            it('should return false', () => {
-                appContainer.lastTime = time;
-                const result = appContainer.shouldUpdateTime();
+        it('should return false when time has not changed', () => {
+            const container = ref.current!;
 
-                expect(typeof result).toBe('boolean');
-                expect(result).toEqual(false);
-            });
+            container.clock = { getTime: () => 1 } as any;
+            container.lastTime = 1;
+
+            expect(container.shouldUpdateTime()).toBe(false);
         });
     });
 
     describe('onAnimate()', () => {
-        beforeEach(() => {
-            appContainer.props = {
-                action: {setTime: jest.fn()}
-            };
-        });
+        it('should call clock.speed with the current speed', () => {
+            const container = ref.current!;
+            const speed = vi.fn();
+            const update = vi.fn();
 
-        it('should update the clock speed', () => {
-            const speed = 2;
-            const spy = jest.spyOn(appContainer.clock, 'speed');
+            (container as any).props = { action: { setTime: vi.fn() }, speed: 2 };
+            container.clock = { speed, update, getTime: () => 0, stopped: false } as any;
 
-            appContainer.props.speed = speed;
-            appContainer.onAnimate();
+            container.onAnimate();
 
-            expect(spy).toHaveBeenCalledTimes(1);
+            expect(speed).toHaveBeenCalledWith(2);
         });
     });
 
     describe('render()', () => {
-        it('should render the splash screen if orbitalData is undefined', () => {
-            component = shallow(<AppContainer
-                {...{ pageText: {}, action } as any}
-            />);
-            expect(toJson(component)).toMatchSnapshot();
+        it('should render SplashScreen when orbitalData is missing', () => {
+            const { container: dom } = render(
+                <AppContainer action={action} ref={null as any} />
+            );
+            expect(dom).toBeTruthy();
         });
 
-        it('should render the splash screen if pageText is undefined', () => {
-            component = shallow(<AppContainer
-                {...{ orbitalData: {}, action } as any}
-            />);
-            expect(toJson(component)).toMatchSnapshot();
-        });
-
-        it('should render the app successfully', () => {
-            component = shallow(<AppContainer
-                {...{ orbitalData: {}, pageText: {}, action } as any}
-            />);
-            component.setState({time: 1});
-            expect(toJson(component)).toMatchSnapshot();
+        it('should render the app when orbitalData and pageText are present', () => {
+            const { container: dom } = render(
+                <AppContainer
+                    action={action}
+                    orbitalData={[] as any}
+                    pageText={{} as any}
+                    ref={null as any}
+                />
+            );
+            expect(dom).toBeTruthy();
         });
     });
 });

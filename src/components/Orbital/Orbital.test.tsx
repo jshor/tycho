@@ -1,37 +1,26 @@
 import React from 'react';
-import toJson from 'enzyme-to-json';
-import { shallow } from 'enzyme';
+import { render } from '@testing-library/react';
 import Orbital from './Orbital';
+import { Euler, Vector3 } from 'three';
 
 describe('Orbital Component', () => {
-    let component: any;
-    let updatePosition: any;
+    const props: any = {
+        eclipticGroupRotation: new Euler(0, 0, 0),
+        orbitalGroupRotation: new Euler(0, 0, 0),
+        pathVertices: [new Vector3(0, 0, 0), new Vector3(1, 0, 0)],
+        bodyPosition: new Vector3(0, 0, 0),
+        bodyRotation: new Euler(0, 0, 0),
+        radius: 100,
+        id: 'Earth',
+        text: 'Earth',
+        action: {
+            setActiveOrbital: vi.fn(),
+            addHighlightedOrbital: vi.fn(),
+            removeHighlightedOrbital: vi.fn(),
+        },
+    };
 
-    beforeEach(() => {
-        const position = {};
-        const rotation = {};
-
-        updatePosition = jest.fn();
-
-        component = shallow(<Orbital
-            {...{
-                updatePosition,
-                eclipticGroupRotation: rotation,
-                orbitalGroupRotation: rotation,
-                pathVertices: [],
-                bodyPosition: position,
-                bodyRotation: rotation,
-                radius: 1,
-                id: 'testOrbital',
-                text: 'Test Orbital',
-                action: {}
-            } as any}
-        />);
-    });
-
-    describe('render()', () => {
-        it('should render the orbital successfully', () => {
-            expect(toJson(component)).toMatchSnapshot();
-        });
+    it('should render without crashing', () => {
+        expect(() => render(<Orbital {...props} />)).not.toThrow();
     });
 });

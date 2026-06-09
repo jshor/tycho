@@ -115,6 +115,7 @@ const CameraContainer = React.forwardRef<CameraContainerHandle, Props>((props, r
 
     useFrame(() => {
         controlsRef.current?.update();
+        controlsRef.current?.faceTarget();
     });
 
     const cancelTween = () => {

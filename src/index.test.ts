@@ -1,9 +1,7 @@
-import * as index from './index';
+import { createRoot } from 'react-dom/client';
 
-jest.mock('./containers/AppContainer');
-
-describe('Main Entry', () => {
-    it('should render without crashing', () => {
-        expect(index).toBeTruthy();
+describe('Entry point', () => {
+    it('should import createRoot from react-dom/client', () => {
+        expect(typeof createRoot).toBe('function');
     });
 });

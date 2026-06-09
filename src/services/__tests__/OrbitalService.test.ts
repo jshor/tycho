@@ -6,7 +6,7 @@ import fixture from './__fixtures__/planets.json';
 
 describe('Orbital Service', () => {
 
-    afterEach(() => jest.resetAllMocks());
+    afterEach(() => vi.resetAllMocks());
 
     describe('getEclipticGroupRotation()', () => {
         const params: any = {
@@ -91,13 +91,13 @@ describe('Orbital Service', () => {
 
     describe('getBodyPosition()', () => {
         it('should call getPosition() on the ellipse instance with periapses and time props', () => {
-            const getPosition = jest.fn();
+            const getPosition = vi.fn();
             const props: any = {
                 time: 0,
                 periapses: {}
             };
             const ellipse: any = { getPosition };
-            const spy = jest.spyOn(ellipse, 'getPosition');
+            const spy = vi.spyOn(ellipse, 'getPosition');
 
             OrbitalService.getBodyPosition(props, ellipse);
 
@@ -162,7 +162,7 @@ describe('Orbital Service', () => {
         });
 
         it('should convert a coordinate to radians if defined', () => {
-            const spy = jest.spyOn(MathService, 'toRadians');
+            const spy = vi.spyOn(MathService, 'toRadians');
             const x = 5;
 
             OrbitalService.toEuler({ x });

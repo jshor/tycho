@@ -24,7 +24,7 @@ describe('Tour Service', () => {
     });
 
     describe('setSkip()', () => {
-        const spy = jest.spyOn(Cookie, 'set');
+        const spy = vi.spyOn(Cookie, 'set');
 
         TourService.setSkip();
 

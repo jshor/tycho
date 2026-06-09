@@ -30,8 +30,8 @@ describe('Clock', () => {
         it('should be a number', () => {
             const clock = new Clock();
 
-            jest.useFakeTimers();
-            jest.runAllTimers();
+            vi.useFakeTimers();
+            vi.runAllTimers();
 
             expect(typeof clock.getTime()).toBe('number');
         });
@@ -39,8 +39,8 @@ describe('Clock', () => {
 
     describe('update()', () => {
         beforeEach(() => {
-            jest.useFakeTimers();
-            jest.runAllTimers();
+            vi.useFakeTimers();
+            vi.runAllTimers();
         });
 
         it('should update the elapsed time when 1 sec has passed', () => {
@@ -74,7 +74,7 @@ describe('Clock', () => {
             const input = 5;
             const scale = 6;
             const clock = new Clock();
-            const spy = jest.spyOn(clock, 'start');
+            const spy = vi.spyOn(clock, 'start');
 
             clock.scale = scale;
             clock.speed(input);
@@ -87,7 +87,7 @@ describe('Clock', () => {
         it('should not change the scale if unchanged', () => {
             const input = 5;
             const clock = new Clock();
-            const spy = jest.spyOn(clock, 'start');
+            const spy = vi.spyOn(clock, 'start');
 
             clock.scale = Math.pow(10, input);
             clock.speed(input);
@@ -114,7 +114,7 @@ describe('Clock', () => {
         });
 
         it('should call clock.start()', () => {
-            const spy = jest.spyOn(clock.clock, 'start');
+            const spy = vi.spyOn(clock.clock, 'start');
 
             clock.start();
 
@@ -138,7 +138,7 @@ describe('Clock', () => {
         });
 
         it('should call clock.start()', () => {
-            const spy = jest.spyOn(clock.clock, 'start');
+            const spy = vi.spyOn(clock.clock, 'start');
 
             clock.continue();
 
@@ -171,7 +171,7 @@ describe('Clock', () => {
         });
 
         it('should call clock.stop()', () => {
-            const spy = jest.spyOn(clock.clock, 'stop');
+            const spy = vi.spyOn(clock.clock, 'stop');
 
             clock.stop();
 
@@ -194,12 +194,12 @@ describe('Clock', () => {
             beforeEach(() => {
                 clock = new Clock();
                 clock.tween = {
-                    stop: jest.fn()
+                    stop: vi.fn()
                 };
             });
 
             it('should stop the Tween in progress', () => {
-                const spy = jest.spyOn(clock.tween, 'stop');
+                const spy = vi.spyOn(clock.tween, 'stop');
 
                 clock.stopTween();
 
@@ -215,7 +215,7 @@ describe('Clock', () => {
             });
 
             it('should start the clock', () => {
-                const spy = jest.spyOn(clock.clock, 'start');
+                const spy = vi.spyOn(clock.clock, 'start');
 
                 clock.stopTween();
 
@@ -251,8 +251,8 @@ describe('Clock', () => {
             const offset = 1470323035;
             clock.offset = offset;
 
-            jest.useFakeTimers();
-            jest.runAllTimers();
+            vi.useFakeTimers();
+            vi.runAllTimers();
 
             expect(clock.offset).toEqual(offset);
         });

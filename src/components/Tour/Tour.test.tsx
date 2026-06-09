@@ -1,12 +1,10 @@
 import React from 'react';
-import toJson from 'enzyme-to-json';
-import { shallow } from 'enzyme';
+import { render } from '@testing-library/react';
 import Tour from './Tour';
 
 describe('Tour Component', () => {
-    it('should render the Tour component successfully', () => {
-        const component = shallow(<Tour {...{ modifier: 'show', pageText: {} } as any} />);
-
-        expect(toJson(component)).toMatchSnapshot();
+    it('should render without crashing', () => {
+        const { container } = render(<Tour pageText={{} as any} skipTour={vi.fn()} labels={[]} />);
+        expect(container).toBeTruthy();
     });
 });

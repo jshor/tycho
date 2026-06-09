@@ -1,143 +1,94 @@
 import React from 'react';
-import toJson from 'enzyme-to-json';
-import {shallow} from 'enzyme';
-import {VolumeContainer} from '../VolumeContainer';
-import Cookie from 'js-cookie';
-
-jest.mock('js-cookie');
+import { render } from '@testing-library/react';
+import Cookies from 'js-cookie';
+import { VolumeContainer } from '../VolumeContainer';
 
 describe('Volume Container', () => {
-    let component;
-    let container;
+    let ref: React.RefObject<VolumeContainer>;
+    const setVolume = vi.fn();
 
     beforeEach(() => {
-        component = shallow(<VolumeContainer
-            action={{
-                setVolume: jest.fn()
-            }}
-        />);
-        container = component.instance();
+        vi.clearAllMocks();
+        ref = React.createRef<VolumeContainer>();
+        render(<VolumeContainer action={{ setVolume }} ref={ref as any} />);
     });
 
-    describe('componentWillReceiveProps()', () => {
-        describe('when the cookie-defined volume is 0', () => {
-            beforeEach(() => {
-                container.getVolume = () => 0;
-            });
+    describe('componentDidUpdate()', () => {
+        it('should call setVolume(0) when new volume is truthy but cookie is 0', () => {
+            const container = ref.current!;
+            container.getVolume = () => 0;
 
-            it('should not change the volume if the new value is 0', () => {
-                const spy = jest.spyOn(container.props.action, 'setVolume');
+            (container as any).props = { action: { setVolume }, volume: 1 };
+            container.componentDidUpdate({ volume: 0 } as any);
 
-                container.componentWillReceiveProps({volume: 0});
-
-                expect(spy).not.toHaveBeenCalled();
-            });
-
-            it('should change the volume if the new value is not 0', () => {
-                const spy = jest.spyOn(container.props.action, 'setVolume');
-                const volume = 1;
-
-                container.componentWillReceiveProps({volume});
-
-                expect(spy).toHaveBeenCalled();
-                expect(spy).toHaveBeenCalledTimes(1);
-                expect(spy).toHaveBeenCalledWith(0);
-            });
+            expect(setVolume).toHaveBeenCalledWith(0);
         });
 
-        describe('when the cookie-defined volume is 1', () => {
-            it('should not change the volume', () => {
-                const spy = jest.spyOn(container.props.action, 'setVolume');
+        it('should not call setVolume when new and prev volume are the same', () => {
+            const container = ref.current!;
+            container.getVolume = () => 0;
 
-                container.getVolume = () => 1;
-                container.componentWillReceiveProps({volume: 1});
+            (container as any).props = { action: { setVolume }, volume: 1 };
+            container.componentDidUpdate({ volume: 1 } as any);
 
-                expect(spy).not.toHaveBeenCalled();
-            });
+            expect(setVolume).not.toHaveBeenCalled();
+        });
+
+        it('should not call setVolume when cookie volume is truthy', () => {
+            const container = ref.current!;
+            container.getVolume = () => 1;
+
+            (container as any).props = { action: { setVolume }, volume: 1 };
+            container.componentDidUpdate({ volume: 0 } as any);
+
+            expect(setVolume).not.toHaveBeenCalled();
         });
     });
 
     describe('setVolume()', () => {
-        it('should set the volume cookie to the given level', () => {
-            const spy = jest.spyOn(Cookie, 'set');
-            const level = 1;
+        it('should store the volume level in a cookie', () => {
+            const spy = vi.spyOn(Cookies, 'set');
+            ref.current!.setVolume(1);
 
-            container.setVolume(level);
-
-            expect(spy).toHaveBeenCalled();
-            expect(spy).toHaveBeenCalledTimes(1);
-            expect(spy).toHaveBeenCalledWith('volume', level, {expires: 365});
+            expect(spy).toHaveBeenCalledWith('volume', '1', { expires: 365 });
         });
     });
 
     describe('getVolume()', () => {
-        it('should return 1 if the volume cookie value is \'1\'', () => {
-            jest.spyOn(Cookie, 'get').mockReturnValue('1');
+        it('should parse the cookie value as a number', () => {
+            vi.spyOn(Cookies, 'get').mockReturnValue('1');
+            expect(ref.current!.getVolume()).toBe(1);
+        });
 
-            const volume = container.getVolume();
-
-            expect(typeof volume).toBe('number');
-            expect(volume).toEqual(1);
+        it('should return 1 when the cookie is not set', () => {
+            vi.spyOn(Cookies, 'get').mockReturnValue(undefined);
+            expect(ref.current!.getVolume()).toBe(1);
         });
     });
 
     describe('triggerVolume()', () => {
-        describe('when the volume is set to 0', () => {
-            beforeEach(() => {
-                container.getVolume = () => 0;
-            });
+        it('should set volume to 1 when currently 0', () => {
+            const container = ref.current!;
+            const spy = vi.spyOn(container, 'setVolume');
+            container.getVolume = () => 0;
+            (container as any).props = { action: { setVolume } };
 
-            it('should call setVolume with 1', () => {
-                const spy = jest.spyOn(container, 'setVolume');
+            container.triggerVolume();
 
-                container.triggerVolume();
-
-                expect(spy).toHaveBeenCalled();
-                expect(spy).toHaveBeenCalledTimes(1);
-                expect(spy).toHaveBeenCalledWith(1);
-            });
-
-            it('should call action.setVolume with 1', () => {
-                const spy = jest.spyOn(container.props.action, 'setVolume');
-
-                container.triggerVolume();
-
-                expect(spy).toHaveBeenCalled();
-                expect(spy).toHaveBeenCalledTimes(1);
-                expect(spy).toHaveBeenCalledWith(1);
-            });
+            expect(spy).toHaveBeenCalledWith(1);
+            expect(setVolume).toHaveBeenCalledWith(1);
         });
 
-        describe('when the volume is set to 1', () => {
-            beforeEach(() => {
-                container.getVolume = () => 1;
-            });
+        it('should set volume to 0 when currently 1', () => {
+            const container = ref.current!;
+            const spy = vi.spyOn(container, 'setVolume');
+            container.getVolume = () => 1;
+            (container as any).props = { action: { setVolume } };
 
-            it('should call setVolume with 0', () => {
-                const spy = jest.spyOn(container, 'setVolume');
+            container.triggerVolume();
 
-                container.triggerVolume();
-
-                expect(spy).toHaveBeenCalled();
-                expect(spy).toHaveBeenCalledTimes(1);
-                expect(spy).toHaveBeenCalledWith(0);
-            });
-
-            it('should call action.setVolume with 0', () => {
-                const spy = jest.spyOn(container.props.action, 'setVolume');
-
-                container.triggerVolume();
-
-                expect(spy).toHaveBeenCalled();
-                expect(spy).toHaveBeenCalledTimes(1);
-                expect(spy).toHaveBeenCalledWith(0);
-            });
-        });
-    });
-
-    describe('render()', () => {
-        it('should successfully render the volume container', () => {
-            expect(toJson(component)).toMatchSnapshot();
+            expect(spy).toHaveBeenCalledWith(0);
+            expect(setVolume).toHaveBeenCalledWith(0);
         });
     });
 });

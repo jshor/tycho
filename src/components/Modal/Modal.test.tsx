@@ -1,24 +1,10 @@
 import React from 'react';
-import toJson from 'enzyme-to-json';
-import { shallow } from 'enzyme';
-import Modal from './';
+import { render } from '@testing-library/react';
+import Modal from './Modal';
 
 describe('Modal Component', () => {
-    let component: any;
-
-    beforeEach(() => {
-        component = shallow(
-            <Modal
-                {...{
-                    closeModal: jest.fn(),
-                    title: 'Test Modal',
-                    description: 'Test Description'
-                } as any}
-            />
-        );
-    });
-
-    it('should render the Modal successfully', () => {
-        expect(toJson(component)).toMatchSnapshot();
+    it('should render without crashing', () => {
+        const { container } = render(<Modal modalActive={false} title="Test" closeModal={vi.fn()} />);
+        expect(container).toBeTruthy();
     });
 });

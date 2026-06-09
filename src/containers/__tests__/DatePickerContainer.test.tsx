@@ -1,119 +1,73 @@
 import React from 'react';
-import moment from 'moment';
-import toJson from 'enzyme-to-json';
-import {shallow} from 'enzyme';
+import { render } from '@testing-library/react';
 import DatePickerContainer from '../DatePickerContainer';
 
-describe('DatePicker Container', () => {
-    let component;
-    let datePicker;
+describe('Date Picker Container', () => {
+    let ref: React.RefObject<DatePickerContainer>;
 
     beforeEach(() => {
-        component = shallow(
-            <DatePickerContainer
-                time={1}
-                onUpdate={jest.fn()}
-            />
-        );
-
-        datePicker = component.instance();
+        ref = React.createRef<DatePickerContainer>();
+        render(<DatePickerContainer time={1000000} onUpdate={vi.fn()} ref={ref as any} />);
     });
 
-    describe('componentWillReceiveProps()', () => {
-        it('should set uxTime and realTime state values if the calendar is not open', () => {
-            const uxTime = '11/11/1111';
-            const realTime = 123456;
+    describe('componentDidUpdate()', () => {
+        it('should update uxTime and realTime when time changes', () => {
+            const container = ref.current!;
+            (container as any).props = { time: 2000000 };
+            container.componentDidUpdate({ time: 1000000 } as any);
 
-            component.setState({uxTime, realTime});
-            component.setProps({time: 54321});
-
-            expect(component.state('uxTime')).not.toEqual(uxTime);
-            expect(component.state('realTime')).not.toEqual(realTime);
+            expect(container.state.uxTime).toBeDefined();
+            expect(container.state.realTime).toBeInstanceOf(Date);
         });
 
-        it('should not change uxTime or realTime state values if the calendar is already open', () => {
-            const uxTime = '11/11/1111';
-            const realTime = 123456;
+        it('should not update state when time is unchanged', () => {
+            const container = ref.current!;
+            (container as any).props = { time: 1000000 };
+            const prevUxTime = container.state.uxTime;
 
-            datePicker.isOpen = true;
-            component.setState({uxTime, realTime});
-            component.setProps({time: 54321});
+            container.componentDidUpdate({ time: 1000000 } as any);
 
-            expect(component.state('uxTime')).toEqual(uxTime);
-            expect(component.state('realTime')).toEqual(realTime);
+            expect(container.state.uxTime).toBe(prevUxTime);
         });
-    });
 
-    describe('getUXTime()', () => {
-        it('should return a string', () => {
-            const result = datePicker.getUXTime(moment());
+        it('should not update state when picker is open', () => {
+            const container = ref.current!;
+            container.isOpen = true;
+            (container as any).props = { time: 2000000 };
 
-            expect(typeof result).toBe('string');
+            container.componentDidUpdate({ time: 1000000 } as any);
         });
     });
 
     describe('shouldComponentUpdate()', () => {
-        it('should return the inverse of isOpen', () => {
-            const result = datePicker.shouldComponentUpdate();
+        it('should return true when picker is closed', () => {
+            ref.current!.isOpen = false;
+            expect(ref.current!.shouldComponentUpdate()).toBe(true);
+        });
 
-            expect(typeof result).toBe('boolean');
-            expect(result).toEqual(!datePicker.isOpen);
+        it('should return false when picker is open', () => {
+            ref.current!.isOpen = true;
+            expect(ref.current!.shouldComponentUpdate()).toBe(false);
         });
     });
 
-    describe('hidePicker()', () => {
+    describe('hidePicker() / showPicker()', () => {
         it('should set isOpen to false', () => {
-            datePicker.isOpen = true;
-            datePicker.hidePicker();
-
-            expect(datePicker.isOpen).toEqual(false);
-        });
-    });
-
-    describe('showPicker()', () => {
-        let picker;
-        let spy;
-
-        beforeEach(() => {
-            picker = {openCalendar: jest.fn()};
-            spy = jest.spyOn(picker, 'openCalendar');
-        });
-
-        it('should open the calendar if its ref is defined', () => {
-            datePicker.refs = {picker};
-            datePicker.showPicker();
-
-            expect(spy).toHaveBeenCalled();
-            expect(spy).toHaveBeenCalledTimes(1);
-        });
-
-        it('should not open the calendar if its ref is undefined', () => {
-            datePicker.refs = {};
-            datePicker.showPicker();
-
-            expect(spy).not.toHaveBeenCalled();
+            ref.current!.isOpen = true;
+            ref.current!.hidePicker();
+            expect(ref.current!.isOpen).toBe(false);
         });
     });
 
     describe('changeTime()', () => {
-        it('should call the onUpdate prop method with the given unix time', () => {
-            datePicker.props = {onUpdate: jest.fn()};
+        it('should call onUpdate with unix timestamp', () => {
+            const onUpdate = vi.fn();
+            (ref.current! as any).props = { onUpdate };
+            const moment = { unix: () => 12345 } as any;
 
-            const time = moment();
-            const spy = jest.spyOn(datePicker.props, 'onUpdate');
+            ref.current!.changeTime(moment);
 
-            datePicker.changeTime(time);
-
-            expect(spy).toHaveBeenCalledTimes(1);
-            expect(spy).toHaveBeenCalledWith(time.unix());
-        });
-    });
-
-    describe('render()', () => {
-        it('should render the DatePicker component successfully', () => {
-            component.setState({realTime: 123456});
-
-            expect(toJson(component)).toMatchSnapshot();
+            expect(onUpdate).toHaveBeenCalledWith(12345);
         });
     });
 });

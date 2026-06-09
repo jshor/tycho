@@ -5,11 +5,14 @@ import Constants from '../constants';
 
 export default class Controls extends OrbitControls {
 
+    static LOCAL_FOCUS: THREE.Vector3 = new THREE.Vector3(0, 0, 0);
+
     camera: THREE.Camera;
     level: number;
     tweenData: { level: number };
     tweenBase: any;
     tweenDone: ((level: number) => void) | undefined;
+    lookMatrix: THREE.Matrix4 = new THREE.Matrix4();
 
     constructor(camera: THREE.Camera, domElement: HTMLElement) {
         super(camera, domElement);
@@ -21,6 +24,19 @@ export default class Controls extends OrbitControls {
         this.level = Constants.WebGL.Zoom.MAX;
         this.minDistance = Constants.WebGL.Camera.MIN_DISTANCE;
         this.maxDistance = Constants.WebGL.Camera.MAX_DISTANCE;
+    }
+
+    /**
+     * Reorients the camera to look at its pivot's origin of its orbital space
+     * (i.e., within its own local coordinate system, not the solar one).
+     */
+    faceTarget = (): void => {
+        const { position, up, quaternion } = this.camera;
+
+        if (position.lengthSq() > 0) {
+            this.lookMatrix.lookAt(position, Controls.LOCAL_FOCUS, up);
+            quaternion.setFromRotationMatrix(this.lookMatrix);
+        }
     }
 
     zoom = (level: number): void => {

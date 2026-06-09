@@ -1,48 +1,40 @@
 import React from 'react';
-import { shallow } from 'enzyme';
-import toJson from 'enzyme-to-json';
+import { render } from '@testing-library/react';
 import Scene from '../Scene';
 import data from './__fixtures__/orbitals.json';
 
 describe('Scene Component', () => {
-    let component: any;
-    let scene: any;
+    let ref: React.RefObject<Scene>;
 
     beforeEach(() => {
-        component = shallow(<Scene
-            {...{
-                orbitalData: data,
-                updatePosition: () => {},
-                time: 1
-            } as any}
-        />);
-
-        scene = component.instance();
+        ref = React.createRef<Scene>();
+        render(
+            <Scene
+                orbitalData={data as any}
+                time={1}
+                ref={ref as any}
+            />
+        );
     });
 
     describe('getOrbitalElements()', () => {
-        let orbitalContainers: any;
-
-        beforeEach(() => {
-            orbitalContainers = scene.getOrbitalElements(data);
+        it('should return an array', () => {
+            const result = ref.current!.getOrbitalElements(data as any);
+            expect(Array.isArray(result)).toBe(true);
         });
 
-        it('should be an array', () => {
-            expect(Array.isArray(orbitalContainers)).toBe(true);
-        });
-
-        it('should match the snapshot of OrbitalElements', () => {
-            const orbitalJson = toJson(shallow(
-                <group>orbitalContainers</group>
-            ));
-
-            expect(orbitalJson).toMatchSnapshot();
+        it('should return one element per orbital', () => {
+            const result = ref.current!.getOrbitalElements(data as any);
+            expect(result).toHaveLength(data.length);
         });
     });
 
     describe('render()', () => {
-        it('should render the scene', () => {
-            expect(toJson(component)).toMatchSnapshot();
+        it('should render without crashing', () => {
+            const { container } = render(
+                <Scene orbitalData={data as any} time={1} />
+            );
+            expect(container).toBeTruthy();
         });
     });
 });

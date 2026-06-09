@@ -1,42 +1,23 @@
 import React from 'react';
-import {shallow} from 'enzyme';
-import toJson from 'enzyme-to-json';
-import {PlayPauseContainer} from '../PlayPauseContainer';
+import { render } from '@testing-library/react';
+import { PlayPauseContainer } from '../PlayPauseContainer';
 
-describe('Orbital Container', () => {
-    let component;
-    let playPauseContainer;
+describe('Play Pause Container', () => {
+    let ref: React.RefObject<PlayPauseContainer>;
 
     beforeEach(() => {
-        component = shallow(<PlayPauseContainer />);
-
-        playPauseContainer = component.instance();
+        ref = React.createRef<PlayPauseContainer>();
+        render(<PlayPauseContainer ref={ref as any} />);
     });
 
     describe('togglePlayer()', () => {
-        it('should call setPlayer with the inverse of the playing prop value', () => {
-            const playing = true;
+        it('should call setPlaying with the inverse of the current playing value', () => {
+            const setPlaying = vi.fn();
+            (ref.current! as any).props = { action: { setPlaying }, playing: true };
 
-            playPauseContainer.props = {
-                action: {
-                    setPlaying: jest.fn()
-                },
-                playing
-            };
+            ref.current!.togglePlayer();
 
-            const spy = jest.spyOn(playPauseContainer.props.action, 'setPlaying');
-
-            playPauseContainer.togglePlayer();
-
-            expect(spy).toHaveBeenCalled();
-            expect(spy).toHaveBeenCalledTimes(1);
-            expect(spy).toHaveBeenCalledWith(!playing);
-        });
-    });
-
-    describe('render()', () => {
-        it('should render the PlayPause container successfully', () => {
-            expect(toJson(component)).toMatchSnapshot();
+            expect(setPlaying).toHaveBeenCalledWith(false);
         });
     });
 });

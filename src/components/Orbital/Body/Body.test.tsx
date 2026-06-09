@@ -1,37 +1,14 @@
 import React from 'react';
-import toJson from 'enzyme-to-json';
-import {shallow} from 'enzyme';
-import {Euler} from 'three';
-import Body from './';
-import Rings from '../Rings';
+import { render } from '@testing-library/react';
+import Body from './Body';
 
 describe('Body Component', () => {
-    let component;
-    const radius = 100;
-    const rotation = new Euler(1, 1, 1);
-
-    beforeEach(() => {
-        component = shallow(<Body
-            radius={radius}
-            rotation={rotation}
-        />);
+    it('should render without crashing', () => {
+        expect(() => render(<Body radius={1000} scale={1} />)).not.toThrow();
     });
 
-    it('should render the rings if the rings prop is defined', () => {
-        component = shallow(<Body
-            radius={radius}
-            rotation={rotation}
-            rings={{
-                outerRadius: 1234,
-                barycenterTilt: 20,
-                maps: []
-            }}
-        />);
-
-        expect(component.find(Rings).exists()).toBe(true);
-    });
-
-    it('should render the body successfully', () => {
-        expect(toJson(component)).toMatchSnapshot();
+    it('should render with rings', () => {
+        const rings = { outerRadius: 2000, barycenterTilt: 27, maps: [], scale: 1 };
+        expect(() => render(<Body radius={1000} scale={1} rings={rings} />)).not.toThrow();
     });
 });

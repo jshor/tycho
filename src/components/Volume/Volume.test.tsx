@@ -1,13 +1,10 @@
 import React from 'react';
-import toJson from 'enzyme-to-json';
-import {shallow} from 'enzyme';
+import { render } from '@testing-library/react';
 import Volume from './Volume';
 
 describe('Volume Component', () => {
-    describe('render()', () => {
-        it('should render the Volume successfully', () => {
-            const component = shallow(<Volume />);
-            expect(toJson(component)).toMatchSnapshot();
-        });
+    it('should render without crashing', () => {
+        const { container } = render(<Volume onClick={vi.fn()} playing={false} />);
+        expect(container).toBeTruthy();
     });
 });

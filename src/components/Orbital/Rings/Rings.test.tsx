@@ -1,22 +1,10 @@
 import React from 'react';
-import toJson from 'enzyme-to-json';
-import {shallow} from 'enzyme';
-import Rings from './';
+import { render } from '@testing-library/react';
+import Rings from './Rings';
 
 describe('Rings Component', () => {
-    let component;
-
-    beforeEach(() => {
-        component = shallow(
-            <Rings
-                outerRadius={1200}
-                barycenterTilt={20}
-                maps={[]}
-            />
-        );
-    });
-
-    it('should render the rings successfully', () => {
-        expect(toJson(component)).toMatchSnapshot();
+    it('should render without crashing', () => {
+        const props: any = { outerRadius: 2000, barycenterTilt: 27, maps: [], scale: 1 };
+        expect(() => render(<Rings {...props} />)).not.toThrow();
     });
 });

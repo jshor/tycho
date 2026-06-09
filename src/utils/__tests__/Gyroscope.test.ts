@@ -10,7 +10,7 @@ describe('Gyroscope', () => {
 
     describe('updateMatrixWorld()', () => {
         it('should call maybeAutoUpdateMatrix()', () => {
-            const spy = jest.spyOn(gyroscope, 'assignMatrixWorld');
+            const spy = vi.spyOn(gyroscope, 'assignMatrixWorld');
 
             gyroscope.updateMatrixWorld();
 
@@ -24,7 +24,7 @@ describe('Gyroscope', () => {
             });
 
             it('should call assignMatrixWorld()', () => {
-                const spy = jest.spyOn(gyroscope, 'assignMatrixWorld');
+                const spy = vi.spyOn(gyroscope, 'assignMatrixWorld');
 
                 gyroscope.updateMatrixWorld(force);
 
@@ -39,7 +39,7 @@ describe('Gyroscope', () => {
             });
 
             it('should call updateChildrenMatrixWorlds with force = true', () => {
-                const spy = jest.spyOn(gyroscope, 'updateChildrenMatrixWorlds');
+                const spy = vi.spyOn(gyroscope, 'updateChildrenMatrixWorlds');
 
                 gyroscope.updateMatrixWorld(force);
 
@@ -59,9 +59,9 @@ describe('Gyroscope', () => {
 
         describe('when both the force and the matrixWorldNeedsUpdate flags are false', () => {
             it('should not call assignMatrixWorld()', () => {
-                const spy = jest.spyOn(gyroscope, 'assignMatrixWorld');
+                const spy = vi.spyOn(gyroscope, 'assignMatrixWorld');
 
-                gyroscope.maybeAutoUpdateMatrix = jest.fn();
+                gyroscope.maybeAutoUpdateMatrix = vi.fn();
                 gyroscope.matrixWorldNeedsUpdate = false;
                 gyroscope.updateMatrixWorld(false);
 
@@ -74,7 +74,7 @@ describe('Gyroscope', () => {
         let spy;
 
         beforeEach(() => {
-            spy = jest.spyOn(gyroscope, 'updateMatrix');
+            spy = vi.spyOn(gyroscope, 'updateMatrix');
         });
 
         it('should call updateMatrix() if the matrixAutoUpdate flag is true', () => {
@@ -96,7 +96,7 @@ describe('Gyroscope', () => {
     describe('updateChildrenMatrixWorlds()', () => {
         it('should call updateMatrixWorld() on its children', () => {
             const child = new THREE.Object3D();
-            const spy = jest.spyOn(child, 'updateMatrixWorld');
+            const spy = vi.spyOn(child, 'updateMatrixWorld');
 
             gyroscope.add(child);
             gyroscope.updateChildrenMatrixWorlds();

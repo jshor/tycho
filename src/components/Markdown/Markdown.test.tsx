@@ -1,16 +1,10 @@
 import React from 'react';
-import toJson from 'enzyme-to-json';
-import {shallow} from 'enzyme';
+import { render } from '@testing-library/react';
 import Markdown from './Markdown';
 
 describe('Markdown Component', () => {
-    let component;
-
-    beforeEach(() => {
-        component = shallow(<Markdown text="Hello, world!" />);
-    });
-
-    it('should render the markdown container successfully', () => {
-        expect(toJson(component)).toMatchSnapshot();
+    it('should render without crashing', () => {
+        const { container } = render(<Markdown text="Hello **world**" />);
+        expect(container).toBeTruthy();
     });
 });

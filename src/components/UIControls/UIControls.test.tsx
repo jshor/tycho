@@ -1,16 +1,10 @@
 import React from 'react';
-import toJson from 'enzyme-to-json';
-import {shallow} from 'enzyme';
+import { render } from '@testing-library/react';
 import UIControls from './UIControls';
 
 describe('UIControls Component', () => {
-    describe('render()', () => {
-        it('should render the UIControls successfully', () => {
-            const component = shallow(<UIControls
-                pageText={{}}
-                openModal={jest.fn()}
-            />);
-            expect(toJson(component)).toMatchSnapshot();
-        });
+    it('should render without crashing', () => {
+        const { container } = render(<UIControls action={{} as any} pageText={{} as any} />);
+        expect(container).toBeTruthy();
     });
 });

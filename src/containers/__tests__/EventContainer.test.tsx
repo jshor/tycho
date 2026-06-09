@@ -1,58 +1,39 @@
 import React from 'react';
-import toJson from 'enzyme-to-json';
-import {shallow} from 'enzyme';
-import {EventContainer} from '../EventContainer';
+import { render } from '@testing-library/react';
+import { EventContainer } from '../EventContainer';
 
 describe('Event Container', () => {
-    let eventContainer;
-    let component;
+    let ref: React.RefObject<EventContainer>;
 
     beforeEach(() => {
-        component = shallow(<EventContainer />);
-        eventContainer = component.instance();
+        vi.clearAllMocks();
+        ref = React.createRef<EventContainer>();
+        render(<EventContainer ref={ref as any} />);
     });
 
-    describe('Time-broadcasting Events', () => {
-        const now = Date.now();
+    describe('onTouched()', () => {
+        it('should call setTouched with the current timestamp', () => {
+            const now = 12345;
+            const setTouched = vi.fn();
+            vi.spyOn(Date, 'now').mockReturnValue(now);
 
-        beforeEach(() => {
-            Date.now = () => now;
-            eventContainer.props = {
-                action: {
-                    setTouched: jest.fn(),
-                    setReleased: jest.fn()
-                }
-            }
-        });
+            (ref.current! as any).props = { action: { setTouched } };
+            ref.current!.onTouched();
 
-        describe('onTouched()', () => {
-            it('should call the global setTouched() action with current timestamp', () => {
-                const spy = jest.spyOn(eventContainer.props.action, 'setTouched');
-
-                eventContainer.onTouched();
-
-                expect(spy).toHaveBeenCalled();
-                expect(spy).toHaveBeenCalledTimes(1);
-                expect(spy).toHaveBeenCalledWith(now);
-            });
-        });
-
-        describe('onReleased()', () => {
-            it('should call the global setReleased() action with current timestamp', () => {
-                const spy = jest.spyOn(eventContainer.props.action, 'setReleased');
-
-                eventContainer.onReleased();
-
-                expect(spy).toHaveBeenCalled();
-                expect(spy).toHaveBeenCalledTimes(1);
-                expect(spy).toHaveBeenCalledWith(now);
-            });
+            expect(setTouched).toHaveBeenCalledWith(now);
         });
     });
 
-    describe('render()', () => {
-        it('should render the events container succesfully', () => {
-            expect(toJson(component)).toMatchSnapshot();
+    describe('onReleased()', () => {
+        it('should call setReleased with the current timestamp', () => {
+            const now = 12345;
+            const setReleased = vi.fn();
+            vi.spyOn(Date, 'now').mockReturnValue(now);
+
+            (ref.current! as any).props = { action: { setReleased } };
+            ref.current!.onReleased();
+
+            expect(setReleased).toHaveBeenCalledWith(now);
         });
     });
 });

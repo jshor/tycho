@@ -4,7 +4,7 @@ import orbitalFixtures from './__fixtures__/orbitals.json';
 import pageTextFixtures from './__fixtures__/pageText.json';
 
 const mockJsonFetch = (jsonData: any) => {
-    return jest.fn()
+    return vi.fn()
         .mockImplementation(() => {
             return new Promise((resolve) => {
                 resolve({
