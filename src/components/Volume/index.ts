@@ -1,2 +1,2 @@
-import './Volume.css';
+import './Volume.scss';
 export {default} from './Volume';

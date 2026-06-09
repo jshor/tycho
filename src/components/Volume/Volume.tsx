@@ -1,13 +1,12 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
 
-export default class Volume extends React.Component {
+interface Props {
+    playing?: boolean;
+    onClick?: () => void;
+}
 
-    static propTypes = {
-        playing: PropTypes.bool,
-        onClick: PropTypes.func
-    }
+export default class Volume extends React.Component<Props> {
 
     render() {
         return (

@@ -1,14 +1,14 @@
 import React from 'react';
 import cx from 'classnames';
-import PropTypes from 'prop-types';
 
-export default class Modal extends React.Component {
+interface Props {
+    modalActive?: boolean;
+    closeModal: () => void;
+    title?: string;
+    children?: React.ReactNode;
+}
 
-    static propTypes = {
-        modalActive: PropTypes.bool,
-        closeModal: PropTypes.func.isRequired,
-        title: PropTypes.string
-    }
+export default class Modal extends React.Component<Props> {
 
     render() {
         return (

@@ -1,27 +1,24 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import Constants from '../../constants';
-import LensFlare from '../../utils/LensFlare';
+import React, { useEffect, useRef } from 'react';
+import * as THREE from 'three';
+import Constants from '../../constants/index';
+import LensFlareHelper from '../../utils/LensFlare';
 
-export default class Sun extends React.Component {
+export default function Sun() {
+    const groupRef = useRef<THREE.Group>(null);
 
-    static propTypes = {
-        camera: PropTypes.object
-    }
+    useEffect(() => {
+        if (groupRef.current) {
+            groupRef.current.add(new LensFlareHelper());
+        }
+    }, []);
 
-    componentDidMount = () => {
-        this.refs.sun.add(new LensFlare(this.props.camera));
-    }
-
-    render() {
-        return (
-            <group ref="sun">
-                <pointLight
-                    color={Constants.WebGL.Sunlight.COLOR}
-                    intensity={Constants.WebGL.Sunlight.INTENSITY}
-                    distance={Constants.WebGL.Sunlight.DISTANCE}
-                />
-            </group>
-        );
-    }
+    return (
+        <group ref={groupRef}>
+            <pointLight
+                color={Constants.WebGL.Sunlight.COLOR}
+                intensity={Constants.WebGL.Sunlight.INTENSITY}
+                distance={Constants.WebGL.Sunlight.DISTANCE}
+            />
+        </group>
+    );
 }

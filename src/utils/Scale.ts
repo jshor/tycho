@@ -1,12 +1,7 @@
-import Constants from '../constants';
+import { UNIT_SCALE } from '../constants/WebGL';
 
-/**
- * Scales a number by the WEBGL_SCALE constant.
- *
- * @param {Number} radius - radius to scale
- * @param {Number} scale = 1 - scaling factor
- * @returns {Number} 
- */
-export default (radius, scale = 1) => {
-    return (scale * radius) / Constants.WebGL.UNIT_SCALE;
-}
+const Scale = (radius: number, scale: number = 1): number => {
+    return (scale * radius) / UNIT_SCALE;
+};
+
+export default Scale;

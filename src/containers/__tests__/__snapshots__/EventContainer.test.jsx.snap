@@ -1,8 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`Event Container render() should render the events container succesfully 1`] = `
-<div
-  onMouseDown={[Function]}
-  onTouchStart={[Function]}
-/>
-`;

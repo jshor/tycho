@@ -29,16 +29,24 @@ export const Zoom = {
 export const Camera = {
     NEAR: 0.001,
     FAR: 15000,
-    FOV: 50,
-    X: 12000,
-    Y: 12000,
-    Z: 12000,
-    MAX_DISTANCE: 12000,
+    FOV: 10,
+    X: 90000,
+    Y: 90000,
+    Z: 90000,
+    MAX_DISTANCE: 90000,
     MIN_DISTANCE: 0.001,
-    SATELLITE_LABEL_RANGE: 7
+    SATELLITE_LABEL_RANGE: 1000,
+    /** Closest the camera may zoom to a focused body: this many kilometers above
+     *  its surface (converted to scene units with the current size scale). */
+    MIN_SURFACE_ALTITUDE_KM: 5
 };
 
-export const ScrollScale = [
+export interface ScrollScaleEntry {
+    distance: number;
+    scale: number;
+}
+
+export const ScrollScale: ScrollScaleEntry[] = [
     {
         distance: 0.2,
         scale: 0.005
@@ -53,7 +61,13 @@ export const ScrollScale = [
     }
 ];
 
-export const SKYBOX_TEXTURES = [
+export interface LensFlareEntry {
+    url: string;
+    distance: number;
+    diameter: number;
+}
+
+export const SKYBOX_TEXTURES: string[] = [
     '/static/textures/skybox/space.jpg',
     '/static/textures/skybox/space.jpg',
     '/static/textures/skybox/space.jpg',
@@ -62,7 +76,7 @@ export const SKYBOX_TEXTURES = [
     '/static/textures/skybox/space.jpg'
 ];
 
-export const LENS_FLARES = [
+export const LENS_FLARES: LensFlareEntry[] = [
     {
         url: '0.png',
         distance: 0.0,

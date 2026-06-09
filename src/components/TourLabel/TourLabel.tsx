@@ -1,12 +1,11 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
-export default class TourLabel extends React.Component {
+interface Props {
+    modifier?: string;
+    text?: string;
+}
 
-    static propTypes = {
-        modifier: PropTypes.string,
-        text: PropTypes.string
-    }
+export default class TourLabel extends React.Component<Props> {
 
     render() {
         return (
@@ -21,4 +20,3 @@ export default class TourLabel extends React.Component {
         );
     }
 }
-

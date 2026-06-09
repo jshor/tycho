@@ -1,18 +1,17 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
-import PropTypes from 'prop-types';
 
-export default class Markdown extends React.Component {
+interface Props {
+    text: string;
+}
 
-    static propTypes = {
-        text: PropTypes.string.isRequired
-    }
+export default class Markdown extends React.Component<Props> {
 
     render() {
         return (
             <div className="markdown">
-                <ReactMarkdown source={this.props.text} />
+                <ReactMarkdown>{this.props.text}</ReactMarkdown>
             </div>
-        )
+        );
     }
 }

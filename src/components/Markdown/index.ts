@@ -1,2 +1,2 @@
-import './Markdown.css';
+import './Markdown.scss';
 export {default} from './Markdown';

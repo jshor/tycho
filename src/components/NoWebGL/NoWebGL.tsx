@@ -1,26 +1,27 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import { PageText } from '../../types';
 
-export default class NoWebGL extends React.Component {
+interface Props {
+    pageText: PageText;
+}
 
-    static propTypes = {
-        pageText: PropTypes.object.isRequired
-    };
+export default class NoWebGL extends React.Component<Props> {
 
     render() {
+        const { webgl } = this.props.pageText;
         return (
             <div className="no-webgl">
                 <div className="no-webgl__body">
-                    <span className="no-webgl__title">{this.props.pageText.webgl.noWebGl}</span>
+                    <span className="no-webgl__title">{webgl.noWebGl}</span>
                     <p>
-                        {this.props.pageText.webgl.required}<br />
+                        {webgl.required}<br />
                         <a
-                            href={this.props.pageText.webgl.enableInstructionsUrl}
+                            href={webgl.enableInstructionsUrl}
                             target="_blank"
                             className="no-webgl__anchor">
-                            {this.props.pageText.webgl.clickHere}
+                            {webgl.clickHere}
                         </a>&nbsp;
-                        {this.props.pageText.webgl.learn}
+                        {webgl.learn}
                     </p>
                 </div>
             </div>

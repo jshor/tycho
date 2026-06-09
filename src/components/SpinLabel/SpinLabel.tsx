@@ -1,23 +1,15 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
-export default class SpinLabel extends React.Component {
+interface Props {
+    show?: boolean;
+    count?: number;
+}
 
-    static propTypes = {
-        show: PropTypes.bool,
-        count: PropTypes.number
-    }
+export default class SpinLabel extends React.Component<Props> {
 
-    /**
-     * Generates an array of n divs with the provided modifier.
-     *
-     * @param {String} modifier - BEM class modifier
-     * @param {Number} count - number of arrows to provide
-     * @return {<div />[]} array of divs with the expected class
-     */
-    createArrowSet = (modifier, count) => {
+    createArrowSet = (modifier: string, count: number) => {
         const base = 'spin__arrow';
-        const arrows = [];
+        const arrows: React.ReactNode[] = [];
 
         for (let i = 0; i < count; i++) {
             arrows.push(
@@ -50,4 +42,3 @@ export default class SpinLabel extends React.Component {
         );
     }
 }
-

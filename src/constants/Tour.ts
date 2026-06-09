@@ -1,4 +1,6 @@
-export const LABELS = [
+import { TourLabelItem } from '../types';
+
+export const LABELS: TourLabelItem[] = [
     {
         duration: 2500,
         text: 'Welcome to the Solar System'

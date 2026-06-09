@@ -1,13 +1,12 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
 
-export default class PlayPause extends React.Component {
+interface Props {
+    onClick: () => void;
+    playing?: boolean;
+}
 
-    static propTypes = {
-        onClick: PropTypes.func.isRequired,
-        playing: PropTypes.bool
-    }
+export default class PlayPause extends React.Component<Props> {
 
     render() {
         return (

@@ -1,12 +1,12 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
-export default class DatePicker extends React.Component {
+interface Props {
+    onClick: () => void;
+    uxTime?: string;
+    children?: React.ReactNode;
+}
 
-    static propTypes = {
-        onClick: PropTypes.func.isRequired,
-        uxTime: PropTypes.string
-    }
+export default class DatePicker extends React.Component<Props> {
 
     render() {
         return (

@@ -1,3 +1,3 @@
-import './SpinLabel.css';
+import './SpinLabel.scss';
 
 export {default} from './SpinLabel';

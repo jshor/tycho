@@ -1,14 +1,13 @@
 import React from 'react';
 import Slider from '../Slider';
-import PropTypes from 'prop-types';
-import Constants from '../../../constants';
+import Constants from '../../../constants/index';
 
-export default class ZoomSlider extends React.Component {
+interface Props {
+    value?: number;
+    onChange?: (value: number) => void;
+}
 
-    static propTypes = {
-        value: PropTypes.number,
-        onChange: PropTypes.func
-    }
+export default class ZoomSlider extends React.Component<Props> {
 
     render() {
         return (

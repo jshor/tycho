@@ -1,9 +1,20 @@
 import React from 'react';
 import cx from 'classnames';
 import ScaleSlider from '../Slider/ScaleSlider';
-import Constants from '../../constants';
+import Constants from '../../constants/index';
+import { PageText } from '../../types';
 
-export default class Settings extends React.Component {
+interface Props {
+    settingsActive?: boolean;
+    speed?: number;
+    scale?: number;
+    pageText?: PageText;
+    toggleSetting?: () => void;
+    changeSpeed?: (speed: number) => void;
+    changeScale?: (scale: number) => void;
+}
+
+export default class Settings extends React.Component<Props> {
     render() {
         return (
             <div className={cx({
@@ -12,7 +23,7 @@ export default class Settings extends React.Component {
             })}>
                 <div className="settings-panel__header">
                     <div className="settings-panel__title">
-                        {this.props.pageText.settings}
+                        {this.props.pageText && this.props.pageText.settings}
                     </div>
                     <div
                         className={cx({
@@ -32,7 +43,7 @@ export default class Settings extends React.Component {
                 })}>
                     <ScaleSlider
                         value={this.props.speed}
-                        label={this.props.pageText.speedScale}
+                        label={this.props.pageText && this.props.pageText.speedScale}
                         onChange={this.props.changeSpeed}
                         min={Constants.UI.Sliders.Speed.MIN}
                         max={Constants.UI.Sliders.Speed.MAX}
@@ -40,7 +51,7 @@ export default class Settings extends React.Component {
                     <br />
                     <ScaleSlider
                         value={this.props.scale}
-                        label={this.props.pageText.planetScale}
+                        label={this.props.pageText && this.props.pageText.planetScale}
                         onChange={this.props.changeScale}
                         min={Constants.UI.Sliders.Scale.MIN}
                         max={Constants.UI.Sliders.Scale.MAX}

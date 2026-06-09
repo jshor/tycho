@@ -1,9 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`Modal Container render() should render the app successfully 1`] = `
-<Modal
-  closeModal={[Function]}
-  modalActive={false}
-  title="Test Modal"
-/>
-`;

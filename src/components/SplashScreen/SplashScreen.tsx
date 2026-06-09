@@ -1,37 +1,28 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
+import { PageText } from '../../types';
 
-export default class SplashScreen extends React.Component {
+interface Props {
+    show?: boolean;
+    pageText?: PageText;
+    percent?: number;
+    enterScene?: () => void;
+}
 
-    static propTypes = {
-        show: PropTypes.bool,
-        pageText: PropTypes.object,
-        enterScene: PropTypes.func
-    }
+export default class SplashScreen extends React.Component<Props> {
 
-    /**
-     * Renders the enter button.
-     *
-     * @return {HTMLElement}
-     */
     renderEnterButton = () => {
         return (
             <div className="splash-screen__button">
                 <a
                     className="splash-screen__button-anchor"
                     onClick={this.props.enterScene}>
-                    {this.props.pageText.start}
+                    {this.props.pageText && this.props.pageText.start}
                 </a>
             </div>
         );
     }
 
-    /**
-     * Renders the loading bar.
-     *
-     * @return {HTMLElement}
-     */
     renderLoadingBar = () => {
         return (
             <div className="splash-screen__loading">
@@ -43,12 +34,6 @@ export default class SplashScreen extends React.Component {
         );
     }
 
-    /**
-     * Renders the element to display.
-     * Displays loading bar if loading, or the start bar otherwise.
-     *
-     * @return {HTMLElement}
-     */
     renderUserPrompt = () => {
         if (this.props.percent === 100) {
             return this.renderEnterButton();

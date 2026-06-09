@@ -1,38 +1,40 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import Markdown from '../Markdown';
+import { PageText } from '../../types';
 
-export default class Stats extends React.Component {
+interface Props {
+    description?: string;
+    velocity?: string;
+    magnitude?: string;
+    trueAnomaly?: string;
+    time?: string;
+    pageText?: PageText;
+}
 
-    static propTypes = {
-        description: PropTypes.string,
-        velocity: PropTypes.string,
-        magnitude: PropTypes.string,
-        trueAnomaly: PropTypes.string,
-        time: PropTypes.string
-    }
+export default class Stats extends React.Component<Props> {
 
     render() {
+        const { pageText } = this.props;
         return (
             <div className="stats">
                 <Markdown text={this.props.description || ''} />
 
                 <div className="stats__footer">
                     <div className="stats__info">
-                        <span>{this.props.pageText.stats.currentEarthTime}</span><br />
-                        <span>{this.props.pageText.stats.velocityAtVector}</span><br />
-                        <span>{this.props.pageText.stats.distanceToSun}</span><br />
-                        <span>{this.props.pageText.stats.trueAnomaly}</span><br />
+                        <span>{pageText && pageText.stats && pageText.stats.currentEarthTime}</span><br />
+                        <span>{pageText && pageText.stats && pageText.stats.velocityAtVector}</span><br />
+                        <span>{pageText && pageText.stats && pageText.stats.distanceToSun}</span><br />
+                        <span>{pageText && pageText.stats && pageText.stats.trueAnomaly}</span><br />
                     </div>
                     <div className="stats__info">
                         <span>{this.props.time}</span><br />
                         <span>
                             {this.props.velocity}&nbsp;
-                            {this.props.pageText.abbreviations.kilometers}/
-                            {this.props.pageText.abbreviations.seconds}
+                            {pageText && pageText.abbreviations && pageText.abbreviations.kilometers}/
+                            {pageText && pageText.abbreviations && pageText.abbreviations.seconds}
                         </span><br />
-                        <span>{this.props.magnitude} {this.props.pageText.abbreviations.kilometers}</span><br />
-                        <span>{this.props.trueAnomaly} {this.props.pageText.abbreviations.theta}</span>
+                        <span>{this.props.magnitude} {pageText && pageText.abbreviations && pageText.abbreviations.kilometers}</span><br />
+                        <span>{this.props.trueAnomaly} {pageText && pageText.abbreviations && pageText.abbreviations.theta}</span>
                     </div>
                 </div>
             </div>

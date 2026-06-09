@@ -1,7 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`Spin Label Container render() should render the spin label container successfully 1`] = `
-<SpinLabel
-  count={4}
-/>
-`;
