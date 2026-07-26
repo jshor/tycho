@@ -1,3 +1,3 @@
-import './Tour.scss';
+import './Tour.scss'
 
-export {default} from './Tour';
+export { default } from './Tour'

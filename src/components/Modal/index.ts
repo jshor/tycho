@@ -1,2 +1,2 @@
-import './Modal.scss';
-export {default} from './Modal';
+import './Modal.scss'
+export { default } from './Modal'

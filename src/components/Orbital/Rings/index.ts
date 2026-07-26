@@ -1,1 +1,1 @@
-export {default} from './Rings';
+export { default } from './Rings'

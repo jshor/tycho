@@ -1,53 +1,52 @@
 @import 'globals.scss';
 
 .date-picker {
-    display: inline-flex;
-    min-width: 250px;
-    padding: $base-spacing;
-    z-index: $z-index-top;
+  display: inline-flex;
+  min-width: 250px;
+  padding: $base-spacing;
+  z-index: $z-index-top;
 
-    &__display {
-        font-size: $font-size-medium;
-        color: $brand-primary;
-        transition: text-shadow $transition-speed;
-        cursor: pointer;
+  &__display {
+    font-size: $font-size-medium;
+    color: $brand-primary;
+    transition: text-shadow $transition-speed;
+    cursor: pointer;
 
+    &:hover {
+      text-shadow: $text-shadow;
+    }
+  }
+
+  &__picker {
+    display: flex;
+    justify-content: flex-end;
+    color: $brand-primary;
+    font-size: $font-size-tiny;
+    margin-top: $base-spacing / 2;
+
+    .rdtPicker {
+      background: $brand-secondary;
+      margin-top: $font-size-medium;
+
+      th,
+      td {
         &:hover {
-            text-shadow: $text-shadow;
+          background-color: $brand-tertiary !important;
         }
+      }
+
+      .rdtPrev,
+      .rdtNext {
+        border-color: $brand-secondary;
+      }
+
+      .rdtCounter .rdtBtn:hover {
+        background-color: $brand-secondary;
+      }
     }
+  }
 
-    &__picker {
-        display: flex;
-        justify-content: flex-end;
-        color: $brand-primary;
-        font-size: $font-size-tiny;
-        margin-top: $base-spacing / 2;
-
-        .rdtPicker {
-            background: $brand-secondary;
-            margin-top: $font-size-medium;
-
-            th,
-            td {
-                &:hover {
-                    background-color: $brand-tertiary !important;
-                }
-            }
-
-            .rdtPrev,
-            .rdtNext {
-                border-color: $brand-secondary;
-            }
-
-            .rdtCounter .rdtBtn:hover {
-                background-color: $brand-secondary;
-            }
-        }
-    }
-
-    &__input {
-        display: none;
-    }
+  &__input {
+    display: none;
+  }
 }
-

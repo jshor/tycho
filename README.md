@@ -94,11 +94,11 @@ Tests use [Jest](https://facebook.github.io/jest/), [enzyme](https://github.com/
 
 #### Testing Guidelines
 
-* The importance of code coverage should not supercede the importance of writing good quality tests. 
-* Methods for containers should contain a corresponding unit test, and is ideally written as a pure function.
-* For exceptions, such as when a local state is updated, there should be a corresponding integration test.
-* Components should be [snapshot tested](https://facebook.github.io/jest/docs/en/snapshot-testing.html#content).
-* [TDD](https://en.wikipedia.org/wiki/Test-driven_development) and [BDD](https://en.wikipedia.org/wiki/Behavior-driven_development).
+- The importance of code coverage should not supercede the importance of writing good quality tests.
+- Methods for containers should contain a corresponding unit test, and is ideally written as a pure function.
+- For exceptions, such as when a local state is updated, there should be a corresponding integration test.
+- Components should be [snapshot tested](https://facebook.github.io/jest/docs/en/snapshot-testing.html#content).
+- [TDD](https://en.wikipedia.org/wiki/Test-driven_development) and [BDD](https://en.wikipedia.org/wiki/Behavior-driven_development).
 
 ## Application Architecture
 
@@ -175,32 +175,32 @@ Runs the compilation script for the orbital data json.
 
 ### `yarn ephemeris`
 
-Takes all orbital JSONs, probes the [NASA/JPL HORIZONS database]() for ephemeris data, and updates each JSON accordingly. For more information on this script, and on the prerequisite data format, please see [this wiki page](https://github.com/jshor/tycho2/wiki/Orbital-JSONs#nasa-jpl-horizons).
+Takes all orbital JSONs, probes the [NASA/JPL HORIZONS database](<>) for ephemeris data, and updates each JSON accordingly. For more information on this script, and on the prerequisite data format, please see [this wiki page](https://github.com/jshor/tycho2/wiki/Orbital-JSONs#nasa-jpl-horizons).
 
 ## Supported Language Features and Polyfills
 
 This project supports a superset of the latest JavaScript standard.<br>
 In addition to [ES6](https://github.com/lukehoban/es6features) syntax features, it also supports:
 
-* [Exponentiation Operator](https://github.com/rwaldron/exponentiation-operator) (ES2016).
-* [Async/await](https://github.com/tc39/ecmascript-asyncawait) (ES2017).
-* [Object Rest/Spread Properties](https://github.com/sebmarkbage/ecmascript-rest-spread) (stage 3 proposal).
-* [Dynamic import()](https://github.com/tc39/proposal-dynamic-import) (stage 3 proposal).
-* [Class Fields and Static Properties](https://github.com/tc39/proposal-class-public-fields) (stage 2 proposal).
-* [JSX](https://facebook.github.io/react/docs/introducing-jsx.html).
+- [Exponentiation Operator](https://github.com/rwaldron/exponentiation-operator) (ES2016).
+- [Async/await](https://github.com/tc39/ecmascript-asyncawait) (ES2017).
+- [Object Rest/Spread Properties](https://github.com/sebmarkbage/ecmascript-rest-spread) (stage 3 proposal).
+- [Dynamic import()](https://github.com/tc39/proposal-dynamic-import) (stage 3 proposal).
+- [Class Fields and Static Properties](https://github.com/tc39/proposal-class-public-fields) (stage 2 proposal).
+- [JSX](https://facebook.github.io/react/docs/introducing-jsx.html).
 
 Learn more about [different proposal stages](https://babeljs.io/docs/plugins/#presets-stage-x-experimental-presets-).
 
 The following ES6 **[polyfills](https://en.wikipedia.org/wiki/Polyfill)** are available:
 
-* [`Object.assign()`](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Object/assign) via [`object-assign`](https://github.com/sindresorhus/object-assign).
-* [`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) via [`promise`](https://github.com/then/promise).
-* [`fetch()`](https://developer.mozilla.org/en/docs/Web/API/Fetch_API) via [`whatwg-fetch`](https://github.com/github/fetch).
+- [`Object.assign()`](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Object/assign) via [`object-assign`](https://github.com/sindresorhus/object-assign).
+- [`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) via [`promise`](https://github.com/then/promise).
+- [`fetch()`](https://developer.mozilla.org/en/docs/Web/API/Fetch_API) via [`whatwg-fetch`](https://github.com/github/fetch).
 
 ## Credits
 
-* Project developed by [Josh Shor](http://josh.so)
-* Planetary ephemerides courtesy of [NASA](https://jpl.nasa.gov/) and the [Jet Propulsion Laboratory](https://www.nasa.gov/).
-* Orbital textures by [James Hastings-Trew](http://planetpixelemporium.com/).
-* Ambient music: [*Ultra Deep Field*](https://soundcloud.com/stellardrone/stellardrone-ultra-deep-field) by [Stellardrone](https://soundcloud.com/stellardrone).
-* Special thanks to the open source community for [React.js](https://facebook.github.io/react/)/[Redux](http://redux.js.org/), [THREE.js](https://threejs.org), and [react-three-renderer](https://github.com/toxicFork/react-three-renderer). 
+- Project developed by [Josh Shor](http://josh.so)
+- Planetary ephemerides courtesy of [NASA](https://jpl.nasa.gov/) and the [Jet Propulsion Laboratory](https://www.nasa.gov/).
+- Orbital textures by [James Hastings-Trew](http://planetpixelemporium.com/).
+- Ambient music: [_Ultra Deep Field_](https://soundcloud.com/stellardrone/stellardrone-ultra-deep-field) by [Stellardrone](https://soundcloud.com/stellardrone).
+- Special thanks to the open source community for [React.js](https://facebook.github.io/react/)/[Redux](http://redux.js.org/), [THREE.js](https://threejs.org), and [react-three-renderer](https://github.com/toxicFork/react-three-renderer).

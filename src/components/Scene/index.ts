@@ -1,1 +1,1 @@
-export {default} from './Scene';
+export { default } from './Scene'

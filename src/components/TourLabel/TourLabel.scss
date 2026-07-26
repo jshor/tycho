@@ -1,26 +1,26 @@
 @import 'globals.scss';
 
 .tour-label {
-    position: absolute;
-    top: 0;
-    width: 100%;
-    text-align: center;
-    z-index: $z-index-top;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  text-align: center;
+  z-index: $z-index-top;
 
-    &__text {
-        background-color: $opaque-backdrop;
-        color: $brand-primary;
-        padding: $base-spacing;
-        transition: opacity $transition-speed;
-        font-size: $font-size-medium;
-        opacity: 0;
+  &__text {
+    background-color: $opaque-backdrop;
+    color: $brand-primary;
+    padding: $base-spacing;
+    transition: opacity $transition-speed;
+    font-size: $font-size-medium;
+    opacity: 0;
 
-        &--show {
-            opacity: 1;
-        }
-
-        &--hide {
-            opacity: 0;
-        }
+    &--show {
+      opacity: 1;
     }
+
+    &--hide {
+      opacity: 0;
+    }
+  }
 }

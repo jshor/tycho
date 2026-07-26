@@ -1,43 +1,51 @@
 @import 'globals.scss';
 
 .play-pause {
-    display: inline-flex;
-    cursor: pointer;
+  display: inline-flex;
+  cursor: pointer;
 
-    &__button {
-        width: $icon-size;
-        height: $icon-size;
-        background-color: $brand-primary;
-        color: $brand-secondary;
-        border-radius: 50%;
-        margin-right: $base-spacing;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+  &__button {
+    width: $icon-size;
+    height: $icon-size;
+    background-color: $brand-primary;
+    color: $brand-secondary;
+    border-radius: 50%;
+    margin-right: $base-spacing;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-        &:hover {
-            box-shadow: $text-shadow;
-        }
-
-        &--playing {
-            &::before {
-                content: '\2759\2759';
-            }
-        }
-
-        &--paused {
-            animation: glowing-box $transition-speed infinite;
-            
-            &::before {
-                content: '\25B6';
-            }
-        }
+    &:hover {
+      box-shadow: $text-shadow;
     }
+
+    &--playing {
+      &::before {
+        content: '\2759\2759';
+      }
+    }
+
+    &--paused {
+      animation: glowing-box $transition-speed infinite;
+
+      &::before {
+        content: '\25B6';
+      }
+    }
+  }
 }
 
 @keyframes glowing-box {
-  0%   { box-shadow: 0 }
-  40%  { box-shadow: $text-shadow }
-  60%  { box-shadow: $text-shadow }
-  100% { box-shadow: 0 }
+  0% {
+    box-shadow: 0;
+  }
+  40% {
+    box-shadow: $text-shadow;
+  }
+  60% {
+    box-shadow: $text-shadow;
+  }
+  100% {
+    box-shadow: 0;
+  }
 }

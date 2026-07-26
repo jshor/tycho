@@ -1,1 +1,1 @@
-export {default} from './Orbital';
+export { default } from './Orbital'

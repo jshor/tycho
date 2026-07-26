@@ -1,56 +1,47 @@
-import React from 'react';
-import { connect } from 'react-redux';
-import SpinLabel from '../components/SpinLabel';
-import ReduxService from '../services/ReduxService';
-import * as TourActions from '../actions/TourActions';
-import * as UIControlsActions from '../actions/UIControlsActions';
-import Constants from '../constants';
+import React from 'react'
+import { connect } from 'react-redux'
+import SpinLabel from '../components/SpinLabel'
+import ReduxService from '../services/ReduxService'
+import * as TourActions from '../actions/TourActions'
+import * as UIControlsActions from '../actions/UIControlsActions'
+import Constants from '../constants'
 
 interface Props {
-    isComplete?: boolean;
-    isAutoOrbitEnabled?: boolean;
-    touched?: number;
-    released?: number;
-    action?: Record<string, any>;
+  isComplete?: boolean
+  isAutoOrbitEnabled?: boolean
+  touched?: number
+  released?: number
+  action?: Record<string, any>
 }
 
 export class SpinLabelContainer extends React.Component<Props> {
+  componentDidUpdate = (prevProps: Props) => {
+    this.maybeStopSpinPrompt(prevProps)
+  }
 
-    componentDidUpdate = (prevProps: Props) => {
-        this.maybeStopSpinPrompt(prevProps);
+  maybeStopSpinPrompt = (prevProps: Props) => {
+    if (prevProps.touched !== this.props.touched && this.isVisible()) {
+      this.props.action.setCameraOrbit(false)
+      this.props.action.setUIControls(true)
     }
+  }
 
-    maybeStopSpinPrompt = (prevProps: Props) => {
-        if (prevProps.touched !== this.props.touched && this.isVisible()) {
-            this.props.action.setCameraOrbit(false);
-            this.props.action.setUIControls(true);
-        }
-    }
+  isVisible = (): boolean => {
+    const { isComplete, isAutoOrbitEnabled } = this.props
+    return isComplete && isAutoOrbitEnabled
+  }
 
-    isVisible = (): boolean => {
-        const { isComplete, isAutoOrbitEnabled } = this.props;
-        return isComplete && isAutoOrbitEnabled;
-    }
-
-    render() {
-        return (
-            <SpinLabel
-                show={this.isVisible()}
-                count={Constants.UI.SPIN_LABEL_ARROW_COUNT}
-            />
-        );
-    }
+  render() {
+    return <SpinLabel show={this.isVisible()} count={Constants.UI.SPIN_LABEL_ARROW_COUNT} />
+  }
 }
 
 export default connect(
-    ReduxService.mapStateToProps(
-        'tour.isComplete',
-        'tour.isAutoOrbitEnabled',
-        'event.touched',
-        'event.released'
-    ),
-    ReduxService.mapDispatchToProps(
-        TourActions,
-        UIControlsActions
-    )
-)(SpinLabelContainer as React.ComponentType<any>) as any;
+  ReduxService.mapStateToProps(
+    'tour.isComplete',
+    'tour.isAutoOrbitEnabled',
+    'event.touched',
+    'event.released'
+  ),
+  ReduxService.mapDispatchToProps(TourActions, UIControlsActions)
+)(SpinLabelContainer as React.ComponentType<any>) as any

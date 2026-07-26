@@ -1,55 +1,54 @@
-import React from 'react';
-import { connect } from 'react-redux';
-import * as Actions from '../actions/UIControlsActions';
-import ReduxService from '../services/ReduxService';
-import UIControls from '../components/UIControls';
-import { PageText } from '../types';
+import React from 'react'
+import { connect } from 'react-redux'
+import * as Actions from '../actions/UIControlsActions'
+import ReduxService from '../services/ReduxService'
+import UIControls from '../components/UIControls'
+import { PageText } from '../types'
 
 interface Props {
-    time?: number;
-    speed?: number;
-    zoom?: number;
-    scale?: number;
-    controlsEnabled?: boolean;
-    settingsActive?: boolean;
-    targetName?: string;
-    pageText?: PageText;
-    action?: Record<string, any>;
+  time?: number
+  speed?: number
+  zoom?: number
+  scale?: number
+  controlsEnabled?: boolean
+  settingsActive?: boolean
+  targetName?: string
+  pageText?: PageText
+  action?: Record<string, any>
 }
 
 export class UIControlsContainer extends React.Component<Props> {
+  toggleSettings = () => {
+    this.props.action.toggleSettings(!this.props.settingsActive)
+  }
 
-    toggleSettings = () => {
-        this.props.action.toggleSettings(!this.props.settingsActive);
-    }
+  openModal = (type: string) => {
+    this.props.action.toggleModal(type)
+    this.props.action.setUIControls(false)
+  }
 
-    openModal = (type: string) => {
-        this.props.action.toggleModal(type);
-        this.props.action.setUIControls(false);
-    }
-
-    render() {
-        return (
-            <UIControls
-                openModal={this.openModal}
-                toggleSetting={this.toggleSettings}
-                {...this.props}
-                {...this.props.action}
-            />
-        );
-    }
+  render() {
+    return (
+      <UIControls
+        openModal={this.openModal}
+        toggleSetting={this.toggleSettings}
+        {...this.props}
+        {...this.props.action}
+      />
+    )
+  }
 }
 
 export default connect(
-    ReduxService.mapStateToProps(
-        'uiControls.speed',
-        'uiControls.zoom',
-        'uiControls.scale',
-        'uiControls.controlsEnabled',
-        'uiControls.settingsActive',
-        'label.targetName',
-        'data.pageText',
-        'animation.time'
-    ),
-    ReduxService.mapDispatchToProps(Actions)
-)(UIControlsContainer as React.ComponentType<any>) as any;
+  ReduxService.mapStateToProps(
+    'uiControls.speed',
+    'uiControls.zoom',
+    'uiControls.scale',
+    'uiControls.controlsEnabled',
+    'uiControls.settingsActive',
+    'label.targetName',
+    'data.pageText',
+    'animation.time'
+  ),
+  ReduxService.mapDispatchToProps(Actions)
+)(UIControlsContainer as React.ComponentType<any>) as any

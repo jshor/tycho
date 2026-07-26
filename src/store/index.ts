@@ -1,20 +1,16 @@
-import { createStore, applyMiddleware, compose, Store } from 'redux';
-import thunk from 'redux-thunk';
-import rootReducer from '../reducers';
-import { RootState } from '../types';
+import { createStore, applyMiddleware, compose, Store } from 'redux'
+import thunk from 'redux-thunk'
+import rootReducer from '../reducers'
+import { RootState } from '../types'
 
 declare global {
-    interface Window {
-        __REDUX_DEVTOOLS_EXTENSION_COMPOSE__?: typeof compose;
-    }
+  interface Window {
+    __REDUX_DEVTOOLS_EXTENSION_COMPOSE__?: typeof compose
+  }
 }
 
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
 
 export default (initialState?: Partial<RootState>): Store<RootState> => {
-    return createStore(
-        rootReducer,
-        initialState as any,
-        composeEnhancers(applyMiddleware(thunk))
-    );
-};
+  return createStore(rootReducer, initialState as any, composeEnhancers(applyMiddleware(thunk)))
+}

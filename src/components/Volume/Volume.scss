@@ -1,96 +1,96 @@
 @import 'globals.scss';
 
 .volume {
-    position: relative;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    flex-direction: row;
-    transform: rotateX(-180deg);
+  position: relative;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  flex-direction: row;
+  transform: rotateX(-180deg);
 
-    &__bar {
-        width: 8px;
-        margin: 0 1px;
+  &__bar {
+    width: 8px;
+    margin: 0 1px;
 
-        &:nth-of-type(1) {
-            height: 32px;
-        }
+    &:nth-of-type(1) {
+      height: 32px;
+    }
 
-        &:nth-of-type(2) {
-            height: 25px;
-        }
+    &:nth-of-type(2) {
+      height: 25px;
+    }
 
-        &:nth-of-type(3) {
-            height: 10px;
-        }
+    &:nth-of-type(3) {
+      height: 10px;
+    }
 
-        &:nth-of-type(4) {
-            height: 18px;
-        }
+    &:nth-of-type(4) {
+      height: 18px;
+    }
 
+    &::before {
+      content: ' ';
+      height: 100%;
+      display: block;
+      background-color: $brand-primary;
+      pointer-events: none;
+      transition: height 1s;
+      animation-play-state: paused;
+    }
+  }
+
+  &--playing:hover {
+    .volume__bar {
+      &:nth-of-type(1) {
         &::before {
-            content: " ";
-            height: 100%;
-            display: block;
-            background-color: $brand-primary;
-            pointer-events: none;
-            transition: height 1s;
-            animation-play-state: paused;
+          animation: animated-bar 1s infinite;
         }
-    }
+      }
 
-    &--playing:hover {
-        .volume__bar {
-            &:nth-of-type(1) {
-                &::before {
-                    animation: animated-bar 1s infinite;
-                }
-            }
-
-            &:nth-of-type(2) {
-                &::before {
-                    animation: animated-bar 0.75s infinite;
-                }
-            }
-
-            &:nth-of-type(3) {
-                &::before {
-                    animation: animated-bar 0.75s infinite;
-                }
-            }
-
-            &:nth-of-type(4) {
-                &::before {
-                    animation: animated-bar 0.5s infinite;
-                }
-            }
+      &:nth-of-type(2) {
+        &::before {
+          animation: animated-bar 0.75s infinite;
         }
-    }
+      }
 
-    &--muted {
-        .volume__bar {
-            &::before {
-                height: 4px;
-                animation-play-state: paused;
-            }
+      &:nth-of-type(3) {
+        &::before {
+          animation: animated-bar 0.75s infinite;
         }
+      }
+
+      &:nth-of-type(4) {
+        &::before {
+          animation: animated-bar 0.5s infinite;
+        }
+      }
     }
+  }
+
+  &--muted {
+    .volume__bar {
+      &::before {
+        height: 4px;
+        animation-play-state: paused;
+      }
+    }
+  }
 }
 
 @keyframes animated-bar {
-    0% {
-        height: 100%;
-    }
-    25% {
-        height: 90%;
-    }
-    50% {
-        height: 50%;
-    }
-    75% {
-        height: 70%;
-    }
-    100% {
-        height: 100%;
-    }
+  0% {
+    height: 100%;
+  }
+  25% {
+    height: 90%;
+  }
+  50% {
+    height: 50%;
+  }
+  75% {
+    height: 70%;
+  }
+  100% {
+    height: 100%;
+  }
 }

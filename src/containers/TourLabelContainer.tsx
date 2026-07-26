@@ -1,46 +1,40 @@
-import React from 'react';
-import TourLabel from '../components/TourLabel';
+import React from 'react'
+import TourLabel from '../components/TourLabel'
 
 interface Props {
-    text?: string;
-    start?: number;
-    end?: number;
+  text?: string
+  start?: number
+  end?: number
 }
 
 interface State {
-    modifier: string;
+  modifier: string
 }
 
 export default class TourLabelContainer extends React.Component<Props, State> {
+  isCancelled: boolean = false
 
-    isCancelled: boolean = false;
+  state: State = { modifier: 'hide' }
 
-    state: State = { modifier: 'hide' };
+  componentDidMount = () => {
+    const { start, end } = this.props
+    this.setClassAsync('show', start)
+    this.setClassAsync('hide', end)
+  }
 
-    componentDidMount = () => {
-        const { start, end } = this.props;
-        this.setClassAsync('show', start);
-        this.setClassAsync('hide', end);
-    }
+  componentWillUnmount = () => {
+    this.isCancelled = true
+  }
 
-    componentWillUnmount = () => {
-        this.isCancelled = true;
-    }
+  setClassAsync = (modifier: string, timeout: number) => {
+    setTimeout(() => {
+      if (!this.isCancelled) {
+        this.setState({ modifier })
+      }
+    }, timeout)
+  }
 
-    setClassAsync = (modifier: string, timeout: number) => {
-        setTimeout(() => {
-            if (!this.isCancelled) {
-                this.setState({ modifier });
-            }
-        }, timeout);
-    }
-
-    render() {
-        return (
-            <TourLabel
-                modifier={this.state.modifier}
-                text={this.props.text}
-            />
-        );
-    }
+  render() {
+    return <TourLabel modifier={this.state.modifier} text={this.props.text} />
+  }
 }

@@ -1,3 +1,3 @@
-import './Slider.scss';
+import './Slider.scss'
 
-export {default} from './Slider';
+export { default } from './Slider'

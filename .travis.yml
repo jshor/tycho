@@ -5,7 +5,7 @@ node_js:
 
 cache:
   directories:
-  - node_modules
+    - node_modules
 
 script:
   - npm install
@@ -13,4 +13,4 @@ script:
   - npm run test:coverage
 
 after_success:
-- cat ./coverage/lcov.info | ./node_modules/.bin/codacy-coverage
+  - cat ./coverage/lcov.info | ./node_modules/.bin/codacy-coverage

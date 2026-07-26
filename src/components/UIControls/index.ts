@@ -1,3 +1,3 @@
-import './UIControls.scss';
+import './UIControls.scss'
 
-export {default} from './UIControls';
+export { default } from './UIControls'

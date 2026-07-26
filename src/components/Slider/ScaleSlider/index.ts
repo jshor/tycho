@@ -1,1 +1,1 @@
-export {default} from './ScaleSlider';
+export { default } from './ScaleSlider'

@@ -1,95 +1,95 @@
 @import 'globals.scss';
 
 .uicontrols {
+  opacity: 0;
+  transition: opacity $transition-speed;
+  z-index: $z-index-top;
+
+  &--enabled {
+    opacity: 1;
+  }
+
+  &--disabled {
     opacity: 0;
+  }
+
+  &__button {
+    width: $icon-size;
+    height: $icon-size;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: $base-spacing;
+    cursor: pointer;
+
+    &--about-modal {
+      background-color: $brand-primary;
+      color: $brand-secondary;
+      font-weight: bold;
+      border-radius: 50%;
+      font-style: italic;
+
+      &:before {
+        content: 'i';
+      }
+
+      &:hover {
+        box-shadow: $text-shadow;
+      }
+    }
+  }
+
+  &__control {
+    position: absolute;
+    opacity: 0.5;
     transition: opacity $transition-speed;
-    z-index: $z-index-top;
 
-    &--enabled {
-        opacity: 1;
+    &:hover {
+      opacity: 1;
     }
 
-    &--disabled {
-        opacity: 0;
+    &--datetime {
+      display: flex;
+      align-items: center;
+      top: 0;
+      right: 0;
     }
 
-    &__button {
-        width: $icon-size;
-        height: $icon-size;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: $base-spacing;
-        cursor: pointer;
-
-        &--about-modal {
-            background-color: $brand-primary;
-            color: $brand-secondary;
-            font-weight: bold;
-            border-radius: 50%;
-            font-style: italic;
-
-            &:before {
-                content: 'i';
-            }
-
-            &:hover {
-                box-shadow: $text-shadow;
-            }
-        }
+    &--target-label {
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 3em 0;
+      text-align: center;
+      pointer-events: none;
     }
 
-    &__control {
-        position: absolute;
-        opacity: 0.5;
-        transition: opacity $transition-speed;
+    &--stats-modal {
+      opacity: 1;
+      pointer-events: auto;
+      font-size: $font-size-medium;
+      transition: text-shadow $transition-speed;
+      color: $brand-primary;
+      cursor: pointer;
 
-        &:hover {
-            opacity: 1;
-        }
-
-        &--datetime {
-            display: flex;
-            align-items: center;
-            top: 0;
-            right: 0;
-        }
-
-        &--target-label {
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 3em 0;
-            text-align: center;
-            pointer-events: none;
-        }
-
-        &--stats-modal {
-            opacity: 1;
-            pointer-events: auto;
-            font-size: $font-size-medium;
-            transition: text-shadow $transition-speed;
-            color: $brand-primary;
-            cursor: pointer;
-
-            &:hover {
-                text-shadow: $text-shadow;
-            }
-        }
-
-        &--scales {
-            bottom: 0;
-            right: 0;
-            pointer-events: none;
-        }
-
-        &--left-bar {
-            left: 0;
-            top: 0;
-            bottom: 0;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
+      &:hover {
+        text-shadow: $text-shadow;
+      }
     }
+
+    &--scales {
+      bottom: 0;
+      right: 0;
+      pointer-events: none;
+    }
+
+    &--left-bar {
+      left: 0;
+      top: 0;
+      bottom: 0;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+  }
 }

@@ -1,94 +1,94 @@
 import 'web-audio-mock'
-import {Camera} from 'three';
-import Ambience from '../Ambience';
+import { Camera } from 'three'
+import Ambience from '../Ambience'
 
 const mockSound = {
-    setBuffer: vi.fn(),
-    setLoop: vi.fn(),
-    play: vi.fn(),
-    pause: vi.fn(),
-    setVolume: vi.fn()
-};
+  setBuffer: vi.fn(),
+  setLoop: vi.fn(),
+  play: vi.fn(),
+  pause: vi.fn(),
+  setVolume: vi.fn()
+}
 
 describe('Ambience Utility', () => {
-    const camera = new Camera();
-    let ambience;
+  const camera = new Camera()
+  let ambience
+
+  beforeEach(() => {
+    ambience = new Ambience(camera)
+  })
+
+  it('should render correctly', () => {
+    expect(ambience).toBeTruthy()
+  })
+
+  describe('constructor', () => {
+    it('should attach itself to the camera', () => {
+      expect(camera.children).toContain(ambience)
+    })
+  })
+
+  describe('loaded()', () => {
+    const buffer = { loaded: true }
 
     beforeEach(() => {
-        ambience = new Ambience(camera);
-    });
+      ambience.sound = mockSound
+    })
 
-    it('should render correctly', () => {
-        expect(ambience).toBeTruthy();
-    });
+    it('should call setBuffer with the given buffer', () => {
+      const spy = vi.spyOn(ambience.sound, 'setBuffer')
 
-    describe('constructor', () => {
-        it('should attach itself to the camera', () => {
-            expect(camera.children).toContain(ambience);
-        });
-    });
+      ambience.loaded(buffer)
 
-    describe('loaded()', () => {
-        const buffer = {loaded: true};
+      expect(spy).toHaveBeenCalled()
+      expect(spy).toHaveBeenCalledWith(buffer)
+    })
 
-        beforeEach(() => {
-            ambience.sound = mockSound;
-        });
+    it('should call setLoop with `true`', () => {
+      const spy = vi.spyOn(ambience.sound, 'setLoop')
 
-        it('should call setBuffer with the given buffer', () => {
-            const spy = vi.spyOn(ambience.sound, 'setBuffer');
+      ambience.loaded(buffer)
 
-            ambience.loaded(buffer);
+      expect(spy).toHaveBeenCalled()
+      expect(spy).toHaveBeenCalledWith(true)
+    })
+  })
 
-            expect(spy).toHaveBeenCalled();
-            expect(spy).toHaveBeenCalledWith(buffer);
-        });
+  describe('setVolume()', () => {
+    beforeEach(() => {
+      ambience.sound = mockSound
+    })
 
-        it('should call setLoop with `true`', () => {
-            const spy = vi.spyOn(ambience.sound, 'setLoop');
+    describe('when the volume level is truthy', () => {
+      it('should play the audio', () => {
+        const spy = vi.spyOn(ambience.sound, 'play')
 
-            ambience.loaded(buffer);
+        ambience.setVolume(1)
 
-            expect(spy).toHaveBeenCalled();
-            expect(spy).toHaveBeenCalledWith(true);
-        });
-    });
+        expect(spy).toHaveBeenCalled()
+        expect(spy).toHaveBeenCalledTimes(1)
+      })
+    })
 
-    describe('setVolume()', () => {
-        beforeEach(() => {
-            ambience.sound = mockSound;
-        });
+    describe('when the volume level is falsey', () => {
+      it('should pause the audio', () => {
+        const spy = vi.spyOn(ambience.sound, 'pause')
 
-        describe('when the volume level is truthy', () => {
-            it('should play the audio', () => {
-                const spy = vi.spyOn(ambience.sound, 'play');
+        ambience.setVolume(0)
 
-                ambience.setVolume(1);
+        expect(spy).toHaveBeenCalled()
+        expect(spy).toHaveBeenCalledTimes(1)
+      })
+    })
 
-                expect(spy).toHaveBeenCalled();
-                expect(spy).toHaveBeenCalledTimes(1);
-            });
-        });
+    it('should call `setVolume` with the given volume level', () => {
+      const spy = vi.spyOn(ambience.sound, 'setVolume')
+      const volume = 0.5
 
-        describe('when the volume level is falsey', () => {
-            it('should pause the audio', () => {
-                const spy = vi.spyOn(ambience.sound, 'pause');
+      ambience.setVolume(volume)
 
-                ambience.setVolume(0);
-
-                expect(spy).toHaveBeenCalled();
-                expect(spy).toHaveBeenCalledTimes(1);
-            });
-        });
-
-        it('should call `setVolume` with the given volume level', () => {
-            const spy = vi.spyOn(ambience.sound, 'setVolume');
-            const volume = 0.5;
-
-            ambience.setVolume(volume);
-
-            expect(spy).toHaveBeenCalled();
-            expect(spy).toHaveBeenCalledWith(volume);
-        });
-    });
-});
+      expect(spy).toHaveBeenCalled()
+      expect(spy).toHaveBeenCalledWith(volume)
+    })
+  })
+})

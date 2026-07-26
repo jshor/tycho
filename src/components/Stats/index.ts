@@ -1,2 +1,2 @@
-import './Stats.scss';
-export {default} from './Stats';
+import './Stats.scss'
+export { default } from './Stats'

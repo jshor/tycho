@@ -1,2 +1,2 @@
-import './NoWebGL.scss';
-export {default} from './NoWebGL';
+import './NoWebGL.scss'
+export { default } from './NoWebGL'

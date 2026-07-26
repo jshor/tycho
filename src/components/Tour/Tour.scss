@@ -1,62 +1,62 @@
 @import 'globals.scss';
 
 .tour {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 1s;
+
+  &--show {
+    display: flex;
+    opacity: 1;
+    z-index: $z-index-top;
+  }
+
+  &--hide {
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  &--skip {
+    display: none;
+  }
+
+  &__labels {
+    width: 100%;
+    align-items: justify;
+    text-align: center;
+    position: relative;
+  }
+
+  &__theater-bar {
     position: absolute;
-    top: 0;
     left: 0;
     right: 0;
-    bottom: 0;
+    height: 10%;
+    background-color: $brand-secondary;
+    transition: height 0.5s;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: opacity 1s;
-
-    &--show {
-        display: flex;
-        opacity: 1;
-        z-index: $z-index-top;
-    }
 
     &--hide {
-        pointer-events: none;
-        opacity: 0;
+      height: 0;
+      overflow: hidden;
     }
+  }
 
-    &--skip {
-        display: none;
+  &__skip-link {
+    font-style: italic;
+    color: $brand-primary;
+    cursor: pointer;
+
+    &:hover {
+      text-shadow: $text-shadow;
     }
-
-    &__labels {
-        width: 100%;
-        align-items: justify;
-        text-align: center;
-        position: relative;
-    }
-
-    &__theater-bar {
-        position: absolute;
-        left: 0;
-        right: 0;
-        height: 10%;
-        background-color: $brand-secondary;
-        transition: height 0.5s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        &--hide {
-            height: 0;
-            overflow: hidden;
-        }
-    }
-
-    &__skip-link {
-        font-style: italic;
-        color: $brand-primary;
-        cursor: pointer;
-
-        &:hover {
-            text-shadow: $text-shadow;
-        }
-    }
+  }
 }

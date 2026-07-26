@@ -6,65 +6,65 @@ $slider-handle-width: 32px;
 $slider-track-width: 4px;
 
 .slider {
-    flex: 1;
-    margin: auto;
+  flex: 1;
+  margin: auto;
+
+  &--horizontal {
+    height: $slider-track-width + $slider-handle-width;
+  }
+
+  &--vertical {
+    width: $slider-track-width + $slider-handle-width;
+  }
+
+  &__label {
+    box-sizing: border-box;
+    display: block;
+    margin: $base-spacing 0;
+    color: $brand-primary;
+  }
+
+  &__container {
+    background-color: $brand-primary;
+    color: $brand-primary;
 
     &--horizontal {
-        height: $slider-track-width + $slider-handle-width;
+      width: 100%;
+      height: $slider-track-width;
+      margin-top: $slider-handle-width / 2;
+      cursor: ew-resize;
     }
 
     &--vertical {
-        width: $slider-track-width + $slider-handle-width;
+      height: 100%;
+      width: $slider-track-width;
+      margin-left: $slider-handle-width / 2;
+      cursor: ns-resize;
+    }
+  }
+
+  &__handle {
+    text-align: center;
+    background-color: $brand-primary;
+    font-size: 0;
+    cursor: pointer;
+
+    &--horizontal {
+      width: $slider-handle-height;
+      height: $slider-handle-width;
+      margin-top: -(($slider-handle-width / 2) - ($slider-track-width / 2));
+      cursor: ew-resize;
     }
 
-    &__label {
-        box-sizing: border-box;
-        display: block;
-        margin: $base-spacing 0;
-        color: $brand-primary;
+    &--vertical {
+      width: $slider-handle-width;
+      height: $slider-handle-height;
+      margin-left: -(($slider-handle-width / 2) - ($slider-track-width / 2));
+      cursor: ns-resize;
     }
+  }
 
-    &__container {
-        background-color: $brand-primary;
-        color: $brand-primary;
-
-        &--horizontal {
-            width: 100%;
-            height: $slider-track-width;
-            margin-top: $slider-handle-width / 2;
-            cursor: ew-resize;
-        }
-
-        &--vertical {
-            height: 100%;
-            width: $slider-track-width;
-            margin-left: $slider-handle-width / 2;
-            cursor: ns-resize;
-        }
-    }
-
-    &__handle {
-        text-align: center;
-        background-color: $brand-primary;
-        font-size: 0;
-        cursor: pointer;
-
-        &--horizontal {
-            width: $slider-handle-height;
-            height: $slider-handle-width;
-            margin-top: -( ($slider-handle-width / 2) - ($slider-track-width / 2));
-            cursor: ew-resize;
-        }
-
-        &--vertical {
-            width: $slider-handle-width;
-            height: $slider-handle-height;
-            margin-left: -( ($slider-handle-width / 2) - ($slider-track-width / 2));
-            cursor: ns-resize;
-        }
-    }
-
-    &__bar {
-        position: relative;
-    }
+  &__bar {
+    position: relative;
+  }
 }

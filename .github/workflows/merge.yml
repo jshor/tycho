@@ -32,8 +32,8 @@ jobs:
         run: yarn lint
       - name: Run tests
         run: yarn test:coverage
-    #   - name: Report coverage
-    #     run: yarn codecov
+      #   - name: Report coverage
+      #     run: yarn codecov
       - name: Create CNAME Record
         run: echo "tycho.io" > build/CNAME
       - name: Deploy to GitHub Pages

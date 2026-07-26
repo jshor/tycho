@@ -3,64 +3,64 @@
 $min-width: 600px;
 
 .modal {
-    line-height: $font-line-height;
-    background-color: $opaque-backdrop;
-    color: $brand-primary;
+  line-height: $font-line-height;
+  background-color: $opaque-backdrop;
+  color: $brand-primary;
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  overflow: hidden;
+  box-sizing: border-box;
+  top: 0;
+  right: -999px;
+  bottom: 0;
+  width: 40%;
+  min-width: $min-width;
+  opacity: 0;
+  padding: $base-spacing;
+  transition-property: background-color, opacity, right;
+  transition-duration: $transition-speed;
+  z-index: $z-index-top;
+
+  @media screen and (max-width: $min-width) {
+    width: 100%;
+    min-width: 100%;
+  }
+
+  &--open {
+    right: 0;
+    opacity: 1;
+  }
+
+  &__header {
+    border-bottom: $dotted-border;
+    font-size: $font-size-large;
+    padding: ($base-spacing / 2) 0;
+  }
+
+  &__content {
     display: flex;
-    flex-direction: column;
-    position: absolute;
-    overflow: hidden;
-    box-sizing: border-box;
-    top: 0;
-    right: -999px;
-    bottom: 0;
-    width: 40%;
-    min-width: $min-width;
-    opacity: 0;
-    padding: $base-spacing;
-    transition-property: background-color, opacity, right;
-    transition-duration: $transition-speed;
-    z-index: $z-index-top;
+    font-size: $font-size-tiny;
+    line-height: $font-line-height;
 
-    @media screen and (max-width: $min-width) {
-        width: 100%;
-        min-width: 100%;
+    p {
+      text-indent: 50px;
     }
 
-    &--open {
-        right: 0;
-        opacity: 1;
+    a {
+      color: $brand-primary;
+      &:hover {
+        text-decoration: none;
+      }
     }
+  }
 
-    &__header {
-        border-bottom: $dotted-border;
-        font-size: $font-size-large;
-        padding: ($base-spacing / 2) 0;
+  &__close {
+    float: right;
+    cursor: pointer;
+    transition: all $transition-speed;
+    &:hover {
+      text-shadow: $text-shadow;
     }
-
-    &__content {
-        display: flex;
-        font-size: $font-size-tiny;
-        line-height: $font-line-height;
-
-        p {
-            text-indent: 50px;
-        }
-
-        a {
-            color: $brand-primary;
-            &:hover {
-                text-decoration: none;
-            }
-        }
-    }
-
-    &__close {
-        float: right;
-        cursor: pointer;
-        transition: all $transition-speed;
-        &:hover {
-            text-shadow: $text-shadow;
-        }
-    }
+  }
 }

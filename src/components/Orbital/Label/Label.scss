@@ -1,27 +1,35 @@
 @import 'globals.scss';
 
 .label {
-    &--active {
-        animation: glowing-text $transition-speed infinite;
-        pointer-events: none;
-        font-size: $font-size-medium;
-    }
+  &--active {
+    animation: glowing-text $transition-speed infinite;
+    pointer-events: none;
+    font-size: $font-size-medium;
+  }
 
-    &--inactive {
-        color: $brand-primary;
-        cursor: pointer;
-        transition: font-size $transition-speed;
+  &--inactive {
+    color: $brand-primary;
+    cursor: pointer;
+    transition: font-size $transition-speed;
 
-        &:hover {
-            text-shadow: $text-shadow;
-            font-size: $font-size-medium;
-        }
+    &:hover {
+      text-shadow: $text-shadow;
+      font-size: $font-size-medium;
     }
+  }
 }
 
 @keyframes glowing-text {
-  0%   { text-shadow: 0 }
-  40%  { text-shadow: $text-shadow }
-  60%  { text-shadow: $text-shadow }
-  100% { text-shadow: 0 }
+  0% {
+    text-shadow: 0;
+  }
+  40% {
+    text-shadow: $text-shadow;
+  }
+  60% {
+    text-shadow: $text-shadow;
+  }
+  100% {
+    text-shadow: 0;
+  }
 }

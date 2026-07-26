@@ -6,72 +6,72 @@ $button-spacing: 15px;
 $button-transition-speed: 0.25s;
 
 .splash-screen {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    display: flex;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  background-color: $brand-primary;
+  background: url('/static/img/bg-stars-large.png');
+  background-size: cover;
+  font-size: $font-size-medium;
+  transition: opacity $button-transition-speed;
+  opacity: 1;
+  z-index: $z-index-top;
+
+  &--hide {
+    opacity: 0;
+    pointer-events: none;
+    z-index: $z-index-bottom;
+  }
+
+  &__hero {
+    width: 50vw;
+    height: 20vw;
+    background-image: url('/static/img/logo-gradient-light.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center center;
+  }
+
+  &__content {
+    height: $button-height;
+  }
+
+  &__loading {
+    width: 500px;
+    height: 4px;
+    background-color: #808080;
+  }
+
+  &__loading-bar {
     background-color: $brand-primary;
-    background: url('/static/img/bg-stars-large.png');
-    background-size: cover;
-    font-size: $font-size-medium;
-    transition: opacity $button-transition-speed;
-    opacity: 1;
-    z-index: $z-index-top;
+    height: 4px;
+  }
 
-    &--hide {
-        opacity: 0;
-        pointer-events: none;
-        z-index: $z-index-bottom;
+  &__button {
+    position: relative;
+    width: $button-width;
+    height: $button-height;
+    margin: 0 $button-spacing;
+    perspective: 1000px;
+  }
+
+  &__button-anchor {
+    color: $brand-primary;
+    border: 3px solid $brand-primary;
+    padding: 0.35em 2em;
+    background-color: transparent;
+    transition: 0.25s all;
+    cursor: pointer;
+
+    &:hover {
+      background-color: $brand-primary;
+      color: $brand-secondary;
     }
-
-    &__hero {
-        width: 50vw;
-        height: 20vw;
-        background-image: url('/static/img/logo-gradient-light.svg');
-        background-size: contain;
-        background-repeat: no-repeat;
-        background-position: center center;
-    }
-
-    &__content {
-        height: $button-height;
-    }
-
-    &__loading {
-        width: 500px;
-        height: 4px;
-        background-color: #808080;
-    }
-
-    &__loading-bar {
-        background-color: $brand-primary;
-        height: 4px;
-    }
-
-    &__button {
-        position: relative;
-        width: $button-width;
-        height: $button-height;
-        margin: 0 $button-spacing;
-        perspective: 1000px;
-    }
-
-    &__button-anchor {
-        color: $brand-primary;
-        border: 3px solid $brand-primary;
-        padding: 0.35em 2em;
-        background-color: transparent;
-        transition: 0.25s all;
-        cursor: pointer;
-
-        &:hover {
-            background-color: $brand-primary;
-            color: $brand-secondary;
-        }
-    }
+  }
 }

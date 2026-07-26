@@ -1,14 +1,20 @@
-[{
-	"id": "Mars",
-	"radius": 4
-}, {
-	"id": "Earth",
-	"radius": 5,
-	"satellites": [{
-		"id": "Moon",
-		"radius": 2
-	}]
-}, {
-	"id": "Venus",
-	"radius": 3
-}]
+[
+  {
+    "id": "Mars",
+    "radius": 4
+  },
+  {
+    "id": "Earth",
+    "radius": 5,
+    "satellites": [
+      {
+        "id": "Moon",
+        "radius": 2
+      }
+    ]
+  },
+  {
+    "id": "Venus",
+    "radius": 3
+  }
+]

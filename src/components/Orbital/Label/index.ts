@@ -1,2 +1,2 @@
-import './Label.scss';
-export {default} from './Label';
+import './Label.scss'
+export { default } from './Label'

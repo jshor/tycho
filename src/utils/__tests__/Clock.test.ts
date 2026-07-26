@@ -1,260 +1,259 @@
-import Clock from '../Clock';
-import moment from 'moment';
+import Clock from '../Clock'
+import moment from 'moment'
 
 describe('Clock', () => {
-    describe('getOffset()', () => {
-        it('should return the offset passed in', () => {
-            const time = 1470323035;
-            const clock = new Clock();
-            const offset = clock.getOffset(time);
-
-            expect(typeof offset).toBe('number');
-            expect(offset).toBe(time);
-        });
-
-        it('should return the current unix time as offset', () => {
-            // because unix time changes within seconds, record the moment
-            // before the clock was initialized and ensure that the offset
-            // time not greater than the pre-start time
-            const start = moment().unix();
-            const clock = new Clock();
-            const offset = clock.getOffset();
+  describe('getOffset()', () => {
+    it('should return the offset passed in', () => {
+      const time = 1470323035
+      const clock = new Clock()
+      const offset = clock.getOffset(time)
+
+      expect(typeof offset).toBe('number')
+      expect(offset).toBe(time)
+    })
+
+    it('should return the current unix time as offset', () => {
+      // because unix time changes within seconds, record the moment
+      // before the clock was initialized and ensure that the offset
+      // time not greater than the pre-start time
+      const start = moment().unix()
+      const clock = new Clock()
+      const offset = clock.getOffset()
+
+      expect(typeof offset).toBe('number')
+      expect(offset).toBeGreaterThanOrEqual(start)
+    })
+  })
 
-            expect(typeof offset).toBe('number');
-            expect(offset).toBeGreaterThanOrEqual(start);
-        });
+  describe('getTime()', () => {
+    it('should be a number', () => {
+      const clock = new Clock()
+
+      vi.useFakeTimers()
+      vi.runAllTimers()
+
+      expect(typeof clock.getTime()).toBe('number')
+    })
+  })
+
+  describe('update()', () => {
+    beforeEach(() => {
+      vi.useFakeTimers()
+      vi.runAllTimers()
+    })
 
-    });
+    it('should update the elapsed time when 1 sec has passed', () => {
+      let clock = new Clock()
 
-    describe('getTime()', () => {
-        it('should be a number', () => {
-            const clock = new Clock();
+      clock.elapsedTime = 0
+      clock.clock.getElapsedTime = () => 1
 
-            vi.useFakeTimers();
-            vi.runAllTimers();
+      clock.update()
 
-            expect(typeof clock.getTime()).toBe('number');
-        });
-    });
+      expect(clock).toHaveProperty('elapsedTime')
+      expect(clock.elapsedTime).toEqual(1)
+    })
 
-    describe('update()', () => {
-        beforeEach(() => {
-            vi.useFakeTimers();
-            vi.runAllTimers();
-        });
+    it('should not update elapsedTime if no time has passed', () => {
+      const elapsedTime = 1470323035
+      let clock = new Clock()
 
-        it('should update the elapsed time when 1 sec has passed', () => {
-            let clock = new Clock();
+      clock.elapsedTime = elapsedTime
+      clock.clock.getElapsedTime = () => elapsedTime
 
-            clock.elapsedTime = 0;
-            clock.clock.getElapsedTime = () => 1;
+      clock.update()
 
-            clock.update();
+      expect(clock).toHaveProperty('elapsedTime')
+      expect(clock.elapsedTime).toEqual(elapsedTime)
+    })
+  })
 
-            expect(clock).toHaveProperty('elapsedTime');
-            expect(clock.elapsedTime).toEqual(1);
-        });
+  describe('speed()', () => {
+    it('should set `scale` to 10^<input> if changed', () => {
+      const input = 5
+      const scale = 6
+      const clock = new Clock()
+      const spy = vi.spyOn(clock, 'start')
 
-        it('should not update elapsedTime if no time has passed', () => {
-            const elapsedTime = 1470323035;
-            let clock = new Clock();
+      clock.scale = scale
+      clock.speed(input)
 
-            clock.elapsedTime = elapsedTime;
-            clock.clock.getElapsedTime = () => elapsedTime;
+      expect(clock.scale).toBe(Math.pow(10, input))
+      expect(spy).toHaveBeenCalled()
+      expect(spy).toHaveBeenCalledTimes(1)
+    })
 
-            clock.update();
+    it('should not change the scale if unchanged', () => {
+      const input = 5
+      const clock = new Clock()
+      const spy = vi.spyOn(clock, 'start')
 
-            expect(clock).toHaveProperty('elapsedTime');
-            expect(clock.elapsedTime).toEqual(elapsedTime);
-        });
-    });
+      clock.scale = Math.pow(10, input)
+      clock.speed(input)
 
-    describe('speed()', () => {
-        it('should set `scale` to 10^<input> if changed', () => {
-            const input = 5;
-            const scale = 6;
-            const clock = new Clock();
-            const spy = vi.spyOn(clock, 'start');
+      expect(clock.scale).toBe(Math.pow(10, input))
+      expect(spy).not.toHaveBeenCalled()
+    })
 
-            clock.scale = scale;
-            clock.speed(input);
+    it('should fallback to an exponent of 0 if param undefined', () => {
+      const clock = new Clock()
 
-            expect(clock.scale).toBe(Math.pow(10, input));
-            expect(spy).toHaveBeenCalled();
-            expect(spy).toHaveBeenCalledTimes(1);
-        });
+      clock.speed()
 
-        it('should not change the scale if unchanged', () => {
-            const input = 5;
-            const clock = new Clock();
-            const spy = vi.spyOn(clock, 'start');
+      expect(clock.scale).toBeDefined()
+      expect(clock.scale).toBe(1)
+    })
+  })
 
-            clock.scale = Math.pow(10, input);
-            clock.speed(input);
+  describe('start()', () => {
+    let clock
 
-            expect(clock.scale).toBe(Math.pow(10, input));
-            expect(spy).not.toHaveBeenCalled();
-        });
+    beforeEach(() => {
+      clock = new Clock()
+    })
 
-        it('should fallback to an exponent of 0 if param undefined', () => {
-            const clock = new Clock();
+    it('should call clock.start()', () => {
+      const spy = vi.spyOn(clock.clock, 'start')
 
-            clock.speed();
+      clock.start()
 
-            expect(clock.scale).toBeDefined();
-            expect(clock.scale).toBe(1);
-        });
-    });
+      expect(spy).toHaveBeenCalled()
+      expect(spy).toHaveBeenCalledTimes(1)
+    })
 
-    describe('start()', () => {
-        let clock;
+    it('should set stopped = false', () => {
+      clock.start()
 
-        beforeEach(() => {
-            clock = new Clock();
-        });
+      expect(clock).toHaveProperty('stopped')
+      expect(clock.stopped).toEqual(false)
+    })
+  })
 
-        it('should call clock.start()', () => {
-            const spy = vi.spyOn(clock.clock, 'start');
+  describe('continue()', () => {
+    let clock
 
-            clock.start();
+    beforeEach(() => {
+      clock = new Clock()
+    })
 
-            expect(spy).toHaveBeenCalled();
-            expect(spy).toHaveBeenCalledTimes(1);
-        });
+    it('should call clock.start()', () => {
+      const spy = vi.spyOn(clock.clock, 'start')
 
-        it('should set stopped = false', () => {
-            clock.start();
+      clock.continue()
 
-            expect(clock).toHaveProperty('stopped');
-            expect(clock.stopped).toEqual(false);
-        });
-    });
+      expect(spy).toHaveBeenCalled()
+      expect(spy).toHaveBeenCalledTimes(1)
+    })
 
-    describe('continue()', () => {
-        let clock;
+    it("should not reset the clock's `elapsedTime`", () => {
+      const elapsedTime = 1234
 
-        beforeEach(() => {
-            clock = new Clock();
-        });
+      clock.clock.elapsedTime = elapsedTime
+      clock.continue()
 
-        it('should call clock.start()', () => {
-            const spy = vi.spyOn(clock.clock, 'start');
+      expect(clock.clock.elapsedTime).toEqual(elapsedTime)
+    })
 
-            clock.continue();
+    it('should set stopped = false', () => {
+      clock.continue()
 
-            expect(spy).toHaveBeenCalled();
-            expect(spy).toHaveBeenCalledTimes(1);
-        });
+      expect(clock).toHaveProperty('stopped')
+      expect(clock.stopped).toEqual(false)
+    })
+  })
 
-        it('should not reset the clock\'s `elapsedTime`', () => {
-            const elapsedTime = 1234;
+  describe('stop()', () => {
+    let clock
 
-            clock.clock.elapsedTime = elapsedTime;
-            clock.continue();
+    beforeEach(() => {
+      clock = new Clock()
+    })
 
-            expect(clock.clock.elapsedTime).toEqual(elapsedTime);
-        });
+    it('should call clock.stop()', () => {
+      const spy = vi.spyOn(clock.clock, 'stop')
 
-        it('should set stopped = false', () => {
-            clock.continue();
+      clock.stop()
 
-            expect(clock).toHaveProperty('stopped');
-            expect(clock.stopped).toEqual(false);
-        });
-    });
+      expect(spy).toHaveBeenCalled()
+      expect(spy).toHaveBeenCalledTimes(1)
+    })
 
-    describe('stop()', () => {
-        let clock;
+    it('should set stopped = true', () => {
+      clock.stop()
 
-        beforeEach(() => {
-            clock = new Clock();
-        });
+      expect(clock).toHaveProperty('stopped')
+      expect(clock.stopped).toEqual(true)
+    })
+  })
 
-        it('should call clock.stop()', () => {
-            const spy = vi.spyOn(clock.clock, 'stop');
+  describe('stopTween()', () => {
+    describe('when an instance of Tween is defined', () => {
+      let clock
 
-            clock.stop();
+      beforeEach(() => {
+        clock = new Clock()
+        clock.tween = {
+          stop: vi.fn()
+        }
+      })
 
-            expect(spy).toHaveBeenCalled();
-            expect(spy).toHaveBeenCalledTimes(1);
-        });
+      it('should stop the Tween in progress', () => {
+        const spy = vi.spyOn(clock.tween, 'stop')
 
-        it('should set stopped = true', () => {
-            clock.stop();
+        clock.stopTween()
 
-            expect(clock).toHaveProperty('stopped');
-            expect(clock.stopped).toEqual(true);
-        });
-    });
+        expect(spy).toHaveBeenCalled()
+        expect(spy).toHaveBeenCalledTimes(1)
+      })
 
-    describe('stopTween()', () => {
-        describe('when an instance of Tween is defined', () => {
-            let clock;
+      it('should set the offset to the destination offset', () => {
+        clock.destinationOffset = 1000
+        clock.stopTween()
 
-            beforeEach(() => {
-                clock = new Clock();
-                clock.tween = {
-                    stop: vi.fn()
-                };
-            });
+        expect(clock.offset).toEqual(1000)
+      })
 
-            it('should stop the Tween in progress', () => {
-                const spy = vi.spyOn(clock.tween, 'stop');
+      it('should start the clock', () => {
+        const spy = vi.spyOn(clock.clock, 'start')
 
-                clock.stopTween();
+        clock.stopTween()
 
-                expect(spy).toHaveBeenCalled();
-                expect(spy).toHaveBeenCalledTimes(1);
-            });
+        expect(spy).toHaveBeenCalled()
+        expect(spy).toHaveBeenCalledTimes(1)
+      })
 
-            it('should set the offset to the destination offset', () => {
-                clock.destinationOffset = 1000;
-                clock.stopTween();
+      it('should dispose of the Tween instance', () => {
+        clock.stopTween()
 
-                expect(clock.offset).toEqual(1000);
-            });
+        expect(clock.tween).not.toBeDefined()
+        expect(clock).not.toHaveProperty('tween')
+      })
+    })
+  })
 
-            it('should start the clock', () => {
-                const spy = vi.spyOn(clock.clock, 'start');
+  describe('updateTweenOffset()', () => {
+    it('should update the current offset time with current tween offset', () => {
+      const clock = new Clock()
 
-                clock.stopTween();
+      clock.offset = 100
+      clock.tweenData = { offset: 200 }
+      clock.updateTweenOffset()
 
-                expect(spy).toHaveBeenCalled();
-                expect(spy).toHaveBeenCalledTimes(1);
-            });
+      expect(clock.offset).toEqual(clock.tweenData.offset)
+    })
+  })
 
-            it('should dispose of the Tween instance', () => {
-                clock.stopTween();
+  describe('setOffset()', () => {
+    it('should update the offset of Clock', () => {
+      const clock = new Clock()
 
-                expect(clock.tween).not.toBeDefined();
-                expect(clock).not.toHaveProperty('tween');
-            });
-        });
-    });
+      const offset = 1470323035
+      clock.offset = offset
 
-    describe('updateTweenOffset()', () => {
-        it('should update the current offset time with current tween offset', () => {
-            const clock = new Clock();
+      vi.useFakeTimers()
+      vi.runAllTimers()
 
-            clock.offset = 100;
-            clock.tweenData = {offset: 200};
-            clock.updateTweenOffset();
-
-            expect(clock.offset).toEqual(clock.tweenData.offset);
-        });
-    });
-
-    describe('setOffset()', () => {
-        it('should update the offset of Clock', () => {
-            const clock = new Clock();
-
-            const offset = 1470323035;
-            clock.offset = offset;
-
-            vi.useFakeTimers();
-            vi.runAllTimers();
-
-            expect(clock.offset).toEqual(offset);
-        });
-    });
-});
+      expect(clock.offset).toEqual(offset)
+    })
+  })
+})

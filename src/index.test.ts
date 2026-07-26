@@ -1,7 +1,7 @@
-import { createRoot } from 'react-dom/client';
+import { createRoot } from 'react-dom/client'
 
 describe('Entry point', () => {
-    it('should import createRoot from react-dom/client', () => {
-        expect(typeof createRoot).toBe('function');
-    });
-});
+  it('should import createRoot from react-dom/client', () => {
+    expect(typeof createRoot).toBe('function')
+  })
+})

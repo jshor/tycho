@@ -1,19 +1,19 @@
 @import 'globals.scss';
 
 .stats {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  &__info {
+    flex: 1;
+    line-height: $font-line-height;
+  }
+
+  &__footer {
+    padding-top: $base-spacing;
+    margin-top: $base-spacing;
+    border-top: $dotted-border;
     display: flex;
-    flex-direction: column;
-    width: 100%;
-
-    &__info {
-        flex: 1;
-        line-height: $font-line-height;
-    }
-
-    &__footer {
-        padding-top: $base-spacing;
-        margin-top: $base-spacing;
-        border-top: $dotted-border;
-        display: flex;
-    }
+  }
 }

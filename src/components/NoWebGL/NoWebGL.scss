@@ -1,34 +1,34 @@
 @import 'globals.scss';
 
 .no-webgl {
+  color: $brand-primary;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+
+  &__body {
+    margin-top: $base-spacing;
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+  }
+
+  &__title {
+    font-size: 3em;
+  }
+
+  &__anchor {
     color: $brand-primary;
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
+    text-decoration: underline;
 
-    &__body {
-        margin-top: $base-spacing;
-        max-width: 500px;
-        width: 100%;
-        text-align: center;
+    &:hover {
+      text-decoration: none;
     }
-
-    &__title {
-        font-size: 3em;
-    }
-
-    &__anchor {
-        color: $brand-primary;
-        text-decoration: underline;
-
-        &:hover {
-            text-decoration: none;
-        }
-    }
+  }
 }

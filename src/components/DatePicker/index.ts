@@ -1,3 +1,3 @@
-import './DatePicker.scss';
+import './DatePicker.scss'
 
-export {default} from './DatePicker';
+export { default } from './DatePicker'

@@ -1,68 +1,24 @@
 {
-    "extends": "react-app",
-    "rules": {
-        "indent": [
-            "warn",
-            4,
-            {
-                "SwitchCase": 1,
-                "ObjectExpression": 1
-            }
-        ],
-        "linebreak-style": [
-            "error",
-            "unix"
-        ],
-        "quotes": [
-            "error",
-            "single"
-        ],
-        "no-invalid-this": "off",
-        "no-console": "off",
-        "no-var": "off",
-        "prefer-const": 1,
-        "max-nested-callbacks": [
-            "error",
-            6
-        ],
-        "vars-on-top": "off",
-        "no-underscore-dangle": "off",
-        "func-style": "off",
-        "prefer-template": "error",
-        "no-loop-func": "error",
-        "prefer-arrow-callback": "error",
-        "arrow-spacing": [
-            "error",
-            {
-                "before": true,
-                "after": true
-            }
-        ],
-        "no-dupe-class-members": "error",
-        "no-duplicate-imports": "error",
-        "one-var": [
-            "error",
-            "never"
-        ],
-        "comma-style": [
-            "error",
-            "last"
-        ],
-        "object-curly-spacing": [
-            "warn",
-            "always"
-        ],
-        "jsx-a11y/href-no-hash": "off",
-        "jsx-a11y/anchor-is-valid": [
-            "warn",
-            {
-                "aspects": [
-                    "invalidHref"
-                ]
-            }
-        ]
-    },
-    "globals": {
-        "jest": true
-    }
+  "extends": ["react-app", "prettier"],
+  "rules": {
+    "no-invalid-this": "off",
+    "no-console": "off",
+    "no-var": "off",
+    "prefer-const": 1,
+    "max-nested-callbacks": ["error", 6],
+    "vars-on-top": "off",
+    "no-underscore-dangle": "off",
+    "func-style": "off",
+    "prefer-template": "error",
+    "no-loop-func": "error",
+    "prefer-arrow-callback": "error",
+    "no-dupe-class-members": "error",
+    "no-duplicate-imports": "error",
+    "one-var": ["error", "never"],
+    "jsx-a11y/href-no-hash": "off",
+    "jsx-a11y/anchor-is-valid": ["warn", { "aspects": ["invalidHref"] }]
+  },
+  "globals": {
+    "jest": true
+  }
 }
