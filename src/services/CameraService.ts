@@ -3,7 +3,7 @@ import { Vector3, Object3D, Scene as ThreeScene } from 'three';
 import Constants from '../constants';
 import OrbitalService from './OrbitalService';
 import Gyroscope from '../utils/Gyroscope';
-import Scale from '../utils/Scale';
+import Scale, { getVisibleRadius } from '../utils/Scale';
 import { OrbitalData } from '../types';
 
 export default class CameraService {
@@ -18,7 +18,9 @@ export default class CameraService {
         const target = OrbitalService.getTargetByName(orbitals, targetId);
 
         if (target) {
-            return Scale(target.radius, scale) + Constants.WebGL.Camera.MIN_DISTANCE;
+            // flooor the radius so the camera stops outside the inflated body of a small
+            // orbital (see getVisibleRadius) instead of clipping it
+            return Scale(getVisibleRadius(target.radius), scale) + Constants.WebGL.Camera.MIN_DISTANCE;
         }
         return 0;
     }

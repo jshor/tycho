@@ -46,12 +46,12 @@ const CameraContainer = React.forwardRef<CameraContainerHandle, Props>((props, r
         get controls() { return controlsRef.current; }
     }));
 
-    // Initialize ambience once the camera is available
+    // initialize ambience once the camera is available
     useEffect(() => {
         ambienceRef.current = new Ambience(camera);
     }, [camera]);
 
-    // Create controls as soon as the camera and canvas are available
+    // create controls as soon as the camera and canvas are available
     useEffect(() => {
         if (controlsRef.current) {
             controlsRef.current.dispose();
@@ -63,21 +63,21 @@ const CameraContainer = React.forwardRef<CameraContainerHandle, Props>((props, r
         };
     }, [camera, gl.domElement]);
 
-    // Update volume
+    // update volume
     useEffect(() => {
         if (volume !== undefined && isFinite(volume)) {
             ambienceRef.current?.setVolume(volume);
         }
     }, [volume]);
 
-    // Update zoom level
+    // update zoom level
     useEffect(() => {
         if (zoom !== undefined) {
             controlsRef.current?.zoom(zoom);
         }
     }, [zoom]);
 
-    // Update auto-rotate
+    // update auto-rotate
     useEffect(() => {
         if (controlsRef.current) {
             controlsRef.current.autoRotate = !!isAutoOrbitEnabled;
@@ -116,6 +116,10 @@ const CameraContainer = React.forwardRef<CameraContainerHandle, Props>((props, r
     useFrame(() => {
         controlsRef.current?.update();
         controlsRef.current?.faceTarget();
+
+        // update the matrix world so that face targets know where to look at the next frame
+        // this is necessary to ensure that the labels are always facing the camera correctly
+        scene.updateMatrixWorld();
     });
 
     const cancelTween = () => {

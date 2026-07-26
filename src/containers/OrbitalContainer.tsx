@@ -7,6 +7,7 @@ import { OrbitalData, TextureMap, RingData } from '../types';
 
 interface Props extends OrbitalData {
     targetId?: string;
+    parentId?: string;
     time?: number;
     scale?: number;
     active?: boolean;
@@ -116,6 +117,8 @@ export class OrbitalContainer extends React.Component<Props, State> {
                 action={this.props.action}
                 children={this.props.children}
                 targetId={this.props.targetId}
+                parentId={this.props.parentId}
+                isSatellite={this.props.isSatellite}
                 scale={this.props.scale}
                 id={this.props.id}
             />

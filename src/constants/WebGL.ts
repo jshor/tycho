@@ -8,6 +8,9 @@ export const PLANET_SIZE_SCALE = 1;
 
 export const UNIT_SCALE = 1000000;
 
+/** Minimum threshold (in km) that the camera may be in to inflate the size of a body for visibility. */
+export const MINIMUM_RADIUS = 1000;
+
 export const Ellipse = {
     POINTS: 512,
     START: -Math.PI / 2,

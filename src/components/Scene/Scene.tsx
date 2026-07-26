@@ -17,7 +17,7 @@ interface Props {
 
 export default class Scene extends React.Component<Props> {
 
-    getOrbitalElements = (orbitals: OrbitalData[], isSatellite?: boolean) => {
+    getOrbitalElements = (orbitals: OrbitalData[], isSatellite?: boolean, parentId?: string) => {
         return orbitals.map((orbital) => (
             <OrbitalContainer
                 {...orbital}
@@ -28,9 +28,10 @@ export default class Scene extends React.Component<Props> {
                 camera={this.props.camera}
                 targetId={this.props.targetId}
                 highlightedOrbitals={this.props.highlightedOrbitals}
-                isSatellite={isSatellite}>
+                isSatellite={isSatellite}
+                parentId={parentId}>
                 {orbital.satellites && this.getOrbitalElements(
-                    orbital.satellites, !isSatellite
+                    orbital.satellites, !isSatellite, orbital.id
                 )}
             </OrbitalContainer>
         ));

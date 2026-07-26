@@ -1,7 +1,7 @@
 import React from 'react';
 import * as THREE from 'three';
 import Constants from '../../../constants';
-import Scale from '../../../utils/Scale';
+import Scale, { getVisibleRadius } from '../../../utils/Scale';
 import TextureContainer from '../../../containers/TextureContainer';
 import Rings from '../../Orbital/Rings';
 import { TextureMap, RingData } from '../../../types';
@@ -23,7 +23,7 @@ export default class Body extends React.Component<Props> {
             <group>
                 <mesh rotation={this.props.rotation}>
                     <sphereGeometry
-                        args={[Scale(radius, scale), Constants.WebGL.SPHERE_SEGMENTS, Constants.WebGL.SPHERE_SEGMENTS]}
+                        args={[Scale(getVisibleRadius(radius), scale), Constants.WebGL.SPHERE_SEGMENTS, Constants.WebGL.SPHERE_SEGMENTS]}
                     />
                     <TextureContainer textures={this.props.maps} />
                 </mesh>

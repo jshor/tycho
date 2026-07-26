@@ -2,6 +2,8 @@ import { Vector3, Object3D, Scene } from 'three';
 import TWEEN from 'tween.js';
 import CameraService from '../CameraService';
 import Gyroscope from '../../utils/Gyroscope';
+import Scale from '../../utils/Scale';
+import Constants from '../../constants';
 import fixture from './__fixtures__/planets.json';
 
 describe('Camera Service', () => {
@@ -54,8 +56,17 @@ describe('Camera Service', () => {
     });
 
     describe('getMinDistance()', () => {
-        it('should return the min distance required for a given planet', () => {
-            expect(CameraService.getMinDistance(fixture as any, 'Earth', 1)).toEqual(0.001005);
+        const { MINIMUM_RADIUS } = Constants.WebGL;
+        const { MIN_DISTANCE } = Constants.WebGL.Camera;
+
+        it('should floor a small orbital to the minimum radius so the camera clears its inflated body', () => {
+            expect(CameraService.getMinDistance(fixture as any, 'Earth', 1))
+                .toBeCloseTo(Scale(MINIMUM_RADIUS, 1) + MIN_DISTANCE);
+        });
+
+        it('should still apply the scale factor after flooring', () => {
+            expect(CameraService.getMinDistance(fixture as any, 'Earth', 2))
+                .toBeCloseTo(Scale(MINIMUM_RADIUS, 2) + MIN_DISTANCE);
         });
 
         it('should return 0 if the target distance is not available', () => {

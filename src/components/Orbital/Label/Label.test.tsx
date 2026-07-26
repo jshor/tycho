@@ -3,8 +3,6 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Label from './Label';
 
-// Label is now a functional component using @react-three/drei's Html (mocked globally).
-
 const action = {
     setActiveOrbital: vi.fn(),
     addHighlightedOrbital: vi.fn(),
@@ -19,14 +17,24 @@ describe('Orbital Label Component', () => {
         expect(screen.getByText('Earth')).toBeInTheDocument();
     });
 
-    it('should apply the inactive class when not the target', () => {
-        render(<Label text="Earth" id="Earth" action={action} targetId="Mars" />);
-        expect(screen.getByText('Earth').className).toContain('inactive');
+    it('should hide a satellite label when its parent orbital is not focused', () => {
+        render(<Label text="Moon" id="Moon" action={action} isSatellite parentId="Earth" targetId="Mars" />);
+        expect(screen.queryByText('Moon')).not.toBeInTheDocument();
     });
 
-    it('should apply the active class when it is the target', () => {
-        render(<Label text="Earth" id="Earth" action={action} targetId="Earth" />);
-        expect(screen.getByText('Earth').className).toContain('active');
+    it('should show a satellite label when its parent orbital is focused', () => {
+        render(<Label text="Moon" id="Moon" action={action} isSatellite parentId="Earth" targetId="Earth" />);
+        expect(screen.getByText('Moon')).toBeInTheDocument();
+    });
+
+    it('should show a satellite label when the satellite itself is focused', () => {
+        render(<Label text="Moon" id="Moon" action={action} isSatellite parentId="Earth" targetId="Moon" />);
+        expect(screen.getByText('Moon')).toBeInTheDocument();
+    });
+
+    it('should always show a non-satellite (planet) label', () => {
+        render(<Label text="Earth" id="Earth" action={action} targetId="Mars" />);
+        expect(screen.getByText('Earth')).toBeInTheDocument();
     });
 
     it('should call setActiveOrbital on click', async () => {
@@ -38,7 +46,7 @@ describe('Orbital Label Component', () => {
         expect(action.setActiveOrbital).toHaveBeenCalledWith('Earth', 'Earth');
     });
 
-    it('should call addHighlightedOrbital on mouse over', async () => {
+    it('should highlight the orbital on pointer over', async () => {
         const user = userEvent.setup();
         render(<Label text="Earth" id="Earth" action={action} />);
 
@@ -47,7 +55,7 @@ describe('Orbital Label Component', () => {
         expect(action.addHighlightedOrbital).toHaveBeenCalledWith('Earth');
     });
 
-    it('should call removeHighlightedOrbital on mouse out', async () => {
+    it('should remove the highlight on pointer out', async () => {
         const user = userEvent.setup();
         render(<Label text="Earth" id="Earth" action={action} />);
 

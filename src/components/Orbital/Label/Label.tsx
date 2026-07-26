@@ -1,26 +1,255 @@
-import React from 'react';
-import { Html } from '@react-three/drei';
+import React, { useMemo, useRef, useState } from 'react';
+import { Text } from '@react-three/drei';
+import { useThree, useFrame, ThreeEvent } from '@react-three/fiber';
+import * as THREE from 'three';
+import Constants from '../../../constants';
 
 interface Props {
+    /** The text to display in the label. */
     text: string;
+    /** The unique identifier for the label. */
     id: string;
+    /** The action associated with the label. */
     action: Record<string, any>;
+    /** The target identifier for the label. */
     targetId?: string;
+    /** The parent identifier for the label. */
+    parentId?: string;
+    /** Whether the label is for a satellite. */
+    isSatellite?: boolean;
+    /** The identifier for the barycenter of the label. */
+    maxDistance?: number;
 }
 
-export default function Label({ text, id, action, targetId }: Props) {
-    const isActive = id === targetId;
-    const className = `label label--${isActive ? 'active' : 'inactive'}`;
+/** The THREE.js material used for the label text. */
+const LABEL_MATERIAL = new THREE.MeshBasicMaterial({
+    color: 0xffffff,
+    side: THREE.DoubleSide,
+    transparent: true,
+    depthTest: false,
+    depthWrite: false
+});
+
+/** The glow effect when the text is hovered. */
+const GLOW = {
+    COLOR: '#ffffff',
+    WIDTH: '2%',
+    BLUR: '60%',
+    OPACITY: 0.85
+};
+
+/** An opaque, black background to prevent the labels from looking smushed together. */
+const BACKGROUND_MATERIAL = new THREE.MeshBasicMaterial({
+    color: 0x000000,
+    side: THREE.FrontSide,
+    transparent: true,
+    opacity: Constants.UI.HOVER_OPACITY_OFF,
+    depthTest: false,
+    depthWrite: false
+});
+
+/** Padding for the background overlay (in px?). */
+const BACKGROUND_PADDING = 0.3;
+
+/**
+ * Finds the first ancestor of a given `Object3D` having the given name.
+ */
+const findAncestorByName = (from: THREE.Object3D, name: string): THREE.Object3D | null => {
+    for (let node: THREE.Object3D | null = from; node; node = node.parent) {
+        if (node.name === name) {
+            return node;
+        }
+    }
+    return null;
+};
+
+/**
+ * A 3D text label that always faces the camera and scales to maintain a constant size on screen.
+ */
+export function CameraFacingText({
+    children,
+    fontSize = 1,
+    barycenterId,
+    maxDistance,
+    onClick,
+    onPointerOver,
+    onPointerOut,
+    ...props
+}: any) {
+    const ref = useRef<any>(null);
+    const groupRef = useRef<THREE.Group>(null);
+    const backgroundRef = useRef<THREE.Mesh>(null);
+    const { camera, size } = useThree();
+    const isVisible = useRef(true);
+    const [hovered, setHovered] = useState(false);
+    const textPosition = useMemo(() => new THREE.Vector3(), []);
+    const barycenterPosition = useMemo(() => new THREE.Vector3(), []);
+    const cameraPosition = useMemo(() => new THREE.Vector3(), []);
+    const cameraQuaternion = useMemo(() => new THREE.Quaternion(), []);
+    const cameraScale = useMemo(() => new THREE.Vector3(), []);
+    const parentQuaternion = useMemo(() => new THREE.Quaternion(), []);
+    const parentScale = useMemo(() => new THREE.Vector3(), []);
+
+    useFrame(() => {
+        const text = ref.current;
+        const group = groupRef.current;
+
+        if (!text || !group?.parent) return;
+
+        // re-orients the label to face the camera and scales it to maintain a constant size on screen
+        camera.matrixWorld.decompose(cameraPosition, cameraQuaternion, cameraScale);
+
+        if (barycenterId && maxDistance !== undefined && isFinite(maxDistance)) {
+            const barycenter = findAncestorByName(group.parent, barycenterId);
+
+            if (barycenter) {
+                barycenter.getWorldPosition(barycenterPosition);
+
+                const withinRange = cameraPosition.distanceTo(barycenterPosition) <= maxDistance;
+
+                isVisible.current = withinRange;
+                group.visible = withinRange;
+
+                if (!withinRange) {
+                    // nothing to orient or scale while hidden
+                    if (hovered) {
+                        setHovered(false);
+                    }
+                    return;
+                }
+            }
+        }
+
+        group.parent.updateWorldMatrix(true, false);
+        group.getWorldPosition(textPosition);
+
+        const distance = cameraPosition.distanceTo(textPosition);
+        const fov = THREE.MathUtils.degToRad((camera as THREE.PerspectiveCamera).fov);
+        const visibleHeight = 2 * distance * Math.tan(fov / 2);
+        const visibleWidth = visibleHeight * (size.width / size.height);
+        const worldSize = (fontSize * visibleWidth) / size.width;
+
+        group.renderOrder = 1000000 - distance;
+
+        // cancel scaling inherited from nested parents
+        group.parent.getWorldScale(parentScale);
+        group.scale.set(
+            worldSize / parentScale.x,
+            worldSize / parentScale.y,
+            worldSize / parentScale.z
+        );
+
+        // face the camera, to make the label's world orientation equal the camera's (parallel to the
+        // image plane, upright), compensating for the rotated orbital groups it is nested under
+        group.parent.getWorldQuaternion(parentQuaternion);
+        group.quaternion
+            .copy(parentQuaternion)
+            .invert()
+            .multiply(cameraQuaternion);
+
+        // apply the background overlay to fit within the block bounds
+        const background = backgroundRef.current;
+        const bounds = text.textRenderInfo?.blockBounds;
+
+        if (background && bounds) {
+            const [minX, minY, maxX, maxY] = bounds;
+            const padding = fontSize * BACKGROUND_PADDING;
+
+            background.scale.set(
+                (maxX - minX) + padding * 2,
+                (maxY - minY) + padding * 2,
+                1
+            );
+            background.position.set((minX + maxX) / 2, (minY + maxY) / 2, 0);
+        }
+    });
+
+    /**
+     * Label click event handler.
+     */
+    const handleClick = (event: ThreeEvent<MouseEvent>) => {
+        if (!isVisible.current) return;
+
+        event.stopPropagation();
+        onClick?.(event);
+    };
+
+    /**
+     * Label hover event handler.
+     */
+    const handlePointerOver = (event: ThreeEvent<PointerEvent>) => {
+        if (!isVisible.current) return;
+
+        event.stopPropagation();
+        setHovered(true);
+        onPointerOver?.(event);
+    };
+
+    /**
+     * Label mouseout event handler.
+     */
+    const handlePointerOut = (event: ThreeEvent<PointerEvent>) => {
+        setHovered(false);
+        onPointerOut?.(event);
+    };
 
     return (
-        <Html>
-            <div
-                className={className}
-                onClick={() => action.setActiveOrbital(id, text)}
-                onMouseOver={() => action.addHighlightedOrbital(id)}
-                onMouseOut={() => action.removeHighlightedOrbital(id)}>
-                {text}
-            </div>
-        </Html>
+        // Handlers sit on the group so the plate (and its padding) is clickable too, not just the
+        // glyphs themselves — R3F bubbles events from both children up to here.
+        <group
+            ref={groupRef}
+            onClick={handleClick}
+            onPointerOver={handlePointerOver}
+            onPointerOut={handlePointerOut}
+        >
+            <mesh
+                ref={backgroundRef}
+                material={BACKGROUND_MATERIAL}
+                renderOrder={0} // render behind the text
+            >
+                <planeGeometry args={[1, 1]} />
+            </mesh>
+
+            <Text
+                ref={ref}
+                fontSize={fontSize}
+                material={LABEL_MATERIAL}
+                renderOrder={1} // render on top of the mesh
+                outlineColor={GLOW.COLOR}
+                outlineWidth={hovered ? GLOW.WIDTH : 0}
+                outlineBlur={hovered ? GLOW.BLUR : 0}
+                outlineOpacity={hovered ? GLOW.OPACITY : 0}
+                {...props}
+            >
+                {children}
+            </Text>
+        </group>
     );
 }
+
+function Label({ text, id, action, targetId, parentId, isSatellite, maxDistance }: Props) {
+    // Keep the view uncluttered: only show a satellite's label when the orbital it orbits is
+    // focused (or the satellite itself is focused).
+    if (isSatellite && parentId !== targetId && id !== targetId) {
+        return null;
+    }
+
+    return (
+        <CameraFacingText
+            color="white"
+            anchorX="center"
+            anchorY="middle"
+            fontSize={5}
+            font="/static/fonts/MonaspaceArgon-Regular.woff"
+            barycenterId={isSatellite ? parentId : undefined}
+            maxDistance={maxDistance}
+            onClick={() => action.setActiveOrbital(id, text)}
+            onPointerOver={() => action.addHighlightedOrbital(id)}
+            onPointerOut={() => action.removeHighlightedOrbital(id)}
+        >
+            {text}
+        </CameraFacingText>
+    );
+}
+
+export default React.memo(Label);

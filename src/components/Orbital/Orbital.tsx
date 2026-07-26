@@ -21,6 +21,8 @@ interface Props {
     scale?: number;
     maps?: TextureMap[];
     targetId?: string;
+    parentId?: string;
+    isSatellite?: boolean;
     maxDistance?: number;
     camera?: any;
     rings?: RingData;
@@ -61,7 +63,15 @@ export default function Orbital(props: Props) {
                         maps={maps}
                         scale={scale}
                     />
-                    <Label {...props} />
+                    <Label
+                        text={props.text}
+                        id={id}
+                        action={props.action}
+                        targetId={props.targetId}
+                        parentId={props.parentId}
+                        isSatellite={props.isSatellite}
+                        maxDistance={props.maxDistance}
+                    />
                     {children}
                 </group>
 
