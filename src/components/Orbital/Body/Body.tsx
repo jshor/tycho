@@ -1,4 +1,3 @@
-import React from 'react'
 import * as THREE from 'three'
 import Constants from '../../../constants'
 import Scale, { getVisibleRadius } from '../../../utils/Scale'
@@ -7,31 +6,35 @@ import Rings from '../../Orbital/Rings'
 import { TextureMap, RingData } from '../../../types'
 
 interface Props {
+  /** The radius of the body, in km. */
   radius: number
+  /** The rotation of the body about its own axis. */
   rotation?: THREE.Euler
+  /** The ring system encircling the body, if it has one. */
   rings?: RingData
+  /** The texture maps applied to the body's material. */
   maps?: TextureMap[]
+  /** The scene's current size scale. */
   scale?: number
 }
 
-export default class Body extends React.Component<Props> {
-  render() {
-    const { rings, radius, scale } = this.props
-
-    return (
-      <group>
-        <mesh rotation={this.props.rotation}>
-          <sphereGeometry
-            args={[
-              Scale(getVisibleRadius(radius), scale),
-              Constants.WebGL.SPHERE_SEGMENTS,
-              Constants.WebGL.SPHERE_SEGMENTS
-            ]}
-          />
-          <TextureContainer textures={this.props.maps} />
-        </mesh>
-        {rings && <Rings {...rings} scale={scale} />}
-      </group>
-    )
-  }
+/**
+ * The physical sphere of an orbital, together with any rings encircling it.
+ */
+export default function Body({ radius, rotation, rings, maps, scale }: Props) {
+  return (
+    <group>
+      <mesh rotation={rotation}>
+        <sphereGeometry
+          args={[
+            Scale(getVisibleRadius(radius), scale),
+            Constants.WebGL.SPHERE_SEGMENTS,
+            Constants.WebGL.SPHERE_SEGMENTS
+          ]}
+        />
+        <TextureContainer textures={maps} />
+      </mesh>
+      {rings && <Rings {...rings} scale={scale} />}
+    </group>
+  )
 }

@@ -1,32 +1,26 @@
-import React from 'react'
 import { render } from '@testing-library/react'
 import Scene from '../Scene'
 import data from './__fixtures__/orbitals.json'
 
 describe('Scene Component', () => {
-  let ref: React.RefObject<Scene>
+  it('should render without crashing', () => {
+    const { container } = render(<Scene orbitalData={data} time={1} />)
 
-  beforeEach(() => {
-    ref = React.createRef<Scene>()
-    render(<Scene orbitalData={data} time={1} ref={ref} />)
+    expect(container).toBeTruthy()
   })
 
-  describe('getOrbitalElements()', () => {
-    it('should return an array', () => {
-      const result = ref.current?.getOrbitalElements(data)
-      expect(Array.isArray(result)).toBe(true)
-    })
+  it('should render a named group for each orbital, nesting satellites within their parent', () => {
+    const { container } = render(<Scene orbitalData={data} time={1} />)
+    const named = Array.from(container.querySelectorAll('group[name]'))
 
-    it('should return one element per orbital', () => {
-      const result = ref.current?.getOrbitalElements(data)
-      expect(result).toHaveLength(data.length)
-    })
-  })
+    expect(named.map((group) => group.getAttribute('name'))).toEqual([
+      'dummyOuter',
+      'dummyParent',
+      'dummyChild'
+    ])
 
-  describe('render()', () => {
-    it('should render without crashing', () => {
-      const { container } = render(<Scene orbitalData={data} time={1} />)
-      expect(container).toBeTruthy()
-    })
+    const parent = container.querySelector('group[name="dummyParent"]')
+
+    expect(parent?.querySelector('group[name="dummyChild"]')).not.toBeNull()
   })
 })

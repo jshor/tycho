@@ -1,7 +1,7 @@
-import React from 'react'
+import { fireEvent } from '@testing-library/react'
 import { renderWithStore } from '../../test/render'
-import { UIControlsContainer } from '../UIControlsContainer'
-import { Mutable } from '../../test/helpers'
+import { UIControlsContainer, Props } from '../UIControlsContainer'
+import Constants from '../../constants'
 
 const action = {
   setUIControls: vi.fn(),
@@ -10,42 +10,49 @@ const action = {
 }
 
 describe('UI Controls Container', () => {
-  let ref: React.RefObject<UIControlsContainer>
-
   beforeEach(() => {
     vi.clearAllMocks()
-    ref = React.createRef<UIControlsContainer>()
-    renderWithStore(<UIControlsContainer action={action} ref={ref} />)
   })
 
+  const renderContainer = (props: Partial<Props> = {}) => {
+    return renderWithStore(<UIControlsContainer action={action} pageText={{}} {...props} />)
+  }
+
   describe('toggleSettings()', () => {
-    it('should call toggleSettings with the inverse of settingsActive', () => {
-      const current = ref.current as Mutable<UIControlsContainer>
-      const toggleSettings = vi.fn()
-      current.props = {
-        action: { ...action, toggleSettings },
-        settingsActive: false
-      }
+    it('should expand the settings panel while it is collapsed', () => {
+      const { container } = renderContainer({ settingsActive: false })
 
-      current.toggleSettings()
+      fireEvent.click(container.querySelector('.settings-panel__hamburger'))
 
-      expect(toggleSettings).toHaveBeenCalledWith(true)
+      expect(action.toggleSettings).toHaveBeenCalledWith(true)
+    })
+
+    it('should collapse the settings panel while it is expanded', () => {
+      const { container } = renderContainer({ settingsActive: true })
+
+      fireEvent.click(container.querySelector('.settings-panel__hamburger'))
+
+      expect(action.toggleSettings).toHaveBeenCalledWith(false)
     })
   })
 
   describe('openModal()', () => {
-    it('should open the modal and hide UI controls', () => {
-      const current = ref.current as Mutable<UIControlsContainer>
-      const toggleModal = vi.fn()
-      const setUIControls = vi.fn()
-      current.props = {
-        action: { ...action, toggleModal, setUIControls }
-      }
+    it('should open the stats modal and hide the UI controls', () => {
+      const { container } = renderContainer({ targetName: 'Earth' })
 
-      current.openModal('TEST_MODAL')
+      fireEvent.click(container.querySelector('.uicontrols__control--stats-modal'))
 
-      expect(toggleModal).toHaveBeenCalledWith('TEST_MODAL')
-      expect(setUIControls).toHaveBeenCalledWith(false)
+      expect(action.toggleModal).toHaveBeenCalledWith(Constants.UI.ModalTypes.STATS_MODAL)
+      expect(action.setUIControls).toHaveBeenCalledWith(false)
+    })
+
+    it('should open the about modal and hide the UI controls', () => {
+      const { container } = renderContainer()
+
+      fireEvent.click(container.querySelector('.uicontrols__button--about-modal'))
+
+      expect(action.toggleModal).toHaveBeenCalledWith(Constants.UI.ModalTypes.ABOUT_MODAL)
+      expect(action.setUIControls).toHaveBeenCalledWith(false)
     })
   })
 })

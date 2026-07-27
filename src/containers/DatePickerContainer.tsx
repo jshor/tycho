@@ -1,11 +1,13 @@
-import React from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Datetime from 'react-datetime'
 import moment from 'moment'
 import DatePicker from '../components/DatePicker'
 import Constants from '../constants'
 
 interface Props {
+  /** The current simulation time, in seconds. */
   time?: number
+  /** Moves the simulation to the newly picked time. */
   onUpdate?: (time: number) => void
 }
 
@@ -13,71 +15,68 @@ type DatetimePicker = Datetime & {
   openCalendar: () => void
 }
 
-interface State {
-  uxTime?: string
-  realTime?: Date
-}
+/**
+ * Shows the current simulation time, allowing the user pick a new one.
+ */
+export default function DatePickerContainer({ time, onUpdate }: Props) {
+  const [uxTime, setUxTime] = useState<string>()
+  const [realTime, setRealTime] = useState<Date>()
 
-export default class DatePickerContainer extends React.Component<Props, State> {
-  isOpen: boolean = false
-  pickerRef = React.createRef<DatetimePicker>()
+  const isOpen = useRef(false)
+  const pickerRef = useRef<DatetimePicker>(null)
 
-  state: State = {}
-
-  componentDidUpdate = (prevProps: Props) => {
-    if (prevProps.time === this.props.time) return
-    const { time } = this.props
-    const timeInstance = moment(time * 1000)
-    const realTime = timeInstance.toDate()
-    const uxTime = this.getUXTime(timeInstance)
-
-    if (!this.isOpen) {
-      this.setState({ uxTime, realTime })
-    }
-  }
-
-  shouldComponentUpdate = (): boolean => !this.isOpen
-
-  getUXTime = (timeInstance: moment.Moment): string => {
+  /** Formats the given time for display using non-breaking spaces. */
+  const getUXTime = (timeInstance: moment.Moment): string => {
     return timeInstance.format(Constants.UI.UX_DATE_FORMAT).replace(/ /g, ' ')
   }
 
-  hidePicker = () => {
-    this.isOpen = false
+  /** Re-reads the clock whenever it ticks, unless the calendar is open. */
+  useEffect(() => {
+    if (isOpen.current || time === undefined) return
+
+    const timeInstance = moment(time * 1000)
+
+    setUxTime(getUXTime(timeInstance))
+    setRealTime(timeInstance.toDate())
+  }, [time])
+
+  /** Releases the clock once the calendar closes. */
+  const hidePicker = () => {
+    isOpen.current = false
   }
 
-  showPicker = () => {
-    const picker = this.pickerRef.current
+  /** Opens the calendar. */
+  const showPicker = () => {
+    const picker = pickerRef.current
 
     if (picker) {
-      this.isOpen = true
+      isOpen.current = true
       picker.openCalendar()
     }
   }
 
-  changeTime = (value: moment.Moment | string) => {
+  /** Advances (or regresses) the simulation time to the given one. */
+  const changeTime = (value: moment.Moment | string) => {
     // react-datetime emits the raw input string while a partially typed date is still
     // unparseable, and only hands back a Moment once it resolves.
     if (typeof value === 'string') return
 
-    this.props.onUpdate(value.unix())
+    onUpdate(value.unix())
   }
 
-  render() {
-    return (
-      <DatePicker onClick={this.showPicker} uxTime={this.state.uxTime}>
-        <Datetime
-          value={this.state.realTime}
-          ref={this.pickerRef}
-          className="date-picker__picker"
-          onClose={this.hidePicker}
-          onChange={this.changeTime}
-          closeOnSelect={true}
-          inputProps={{
-            className: 'date-picker__input'
-          }}
-        />
-      </DatePicker>
-    )
-  }
+  return (
+    <DatePicker onClick={showPicker} uxTime={uxTime}>
+      <Datetime
+        value={realTime}
+        ref={pickerRef}
+        className="date-picker__picker"
+        onClose={hidePicker}
+        onChange={changeTime}
+        closeOnSelect={true}
+        inputProps={{
+          className: 'date-picker__input'
+        }}
+      />
+    </DatePicker>
+  )
 }

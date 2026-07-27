@@ -1,11 +1,24 @@
-import React from 'react'
+import { fireEvent } from '@testing-library/react'
 import { renderWithStore } from '../../test/render'
 import { SceneContainer, Props as SceneContainerProps } from '../SceneContainer'
-import { Mutable } from '../../test/helpers'
 import data from './__fixtures__/orbitals.json'
 import { OrbitalData } from '../../types'
-import Controls from '../../utils/Controls'
-import { PerspectiveCamera } from 'three'
+
+/** Controls' methods are instance properties, so the whole module stands in for the real thing. */
+const controls = vi.hoisted(() => ({
+  wheelZoom: vi.fn(),
+  zoom: vi.fn(),
+  tweenZoom: vi.fn(),
+  cancelTween: vi.fn(),
+  update: vi.fn(),
+  faceTarget: vi.fn(),
+  dispose: vi.fn(),
+  autoRotate: false,
+  minDistance: 0,
+  enabled: true
+}))
+
+vi.mock('../../utils/Controls', () => ({ default: vi.fn(() => controls) }))
 
 const baseProps: SceneContainerProps = {
   orbitalData: data as OrbitalData[],
@@ -24,54 +37,37 @@ const baseProps: SceneContainerProps = {
 }
 
 describe('Scene Container', () => {
-  let ref: React.RefObject<SceneContainer>
-
   beforeEach(() => {
     vi.clearAllMocks()
-    ref = React.createRef<SceneContainer>()
-    renderWithStore(<SceneContainer {...baseProps} ref={ref} />)
   })
 
-  describe('onAnimate()', () => {
-    it('should call props.onAnimate', () => {
-      const onAnimate = vi.fn()
-      const container = ref.current as Mutable<SceneContainer>
-      container.props = { ...baseProps, onAnimate }
+  describe('render()', () => {
+    it('should render the scene without crashing', () => {
+      const { container } = renderWithStore(<SceneContainer {...baseProps} />)
 
-      container.onAnimate()
+      expect(container).toBeTruthy()
+    })
 
-      expect(onAnimate).toHaveBeenCalledTimes(1)
+    it('should render a group for each orbital in the scene', () => {
+      const { container } = renderWithStore(<SceneContainer {...baseProps} />)
+
+      data.forEach(({ id }) => {
+        expect(container.querySelector(`group[name="${id}"]`)).not.toBeNull()
+      })
     })
   })
 
   describe('changeZoom()', () => {
-    it('should forward wheel events to controls.wheelZoom when controls are available', () => {
-      const container = ref.current
-      const controls = new Controls(new PerspectiveCamera(), document.createElement('canvas'))
-      const wheelZoom = vi.spyOn(controls, 'wheelZoom')
-      const cameraRef = container.cameraRef as Mutable<typeof container.cameraRef>
+    it('should zoom the camera by however far the user scrolled', () => {
+      const { container } = renderWithStore(<SceneContainer {...baseProps} />)
 
-      cameraRef.current = { controls }
+      fireEvent.wheel(container.firstElementChild as HTMLElement, { deltaY: -10 })
 
-      container.changeZoom({ deltaY: -10 } as React.WheelEvent<HTMLDivElement>)
-
-      expect(wheelZoom).toHaveBeenCalledTimes(1)
-    })
-
-    it('should not throw when camera ref has no controls', () => {
-      const container = ref.current
-      const cameraRef = container.cameraRef as Mutable<typeof container.cameraRef>
-
-      cameraRef.current = null
-
-      expect(() => container.changeZoom({} as React.WheelEvent<HTMLDivElement>)).not.toThrow()
-    })
-  })
-
-  describe('render()', () => {
-    it('should render without crashing', () => {
-      const { container: dom } = renderWithStore(<SceneContainer {...baseProps} />)
-      expect(dom).toBeTruthy()
+      expect(controls.wheelZoom).toHaveBeenCalledTimes(1)
+      expect(controls.wheelZoom).toHaveBeenCalledWith(
+        expect.anything(),
+        baseProps.action.changeZoom
+      )
     })
   })
 })

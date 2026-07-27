@@ -1,4 +1,3 @@
-import React from 'react'
 import { renderWithStore } from '../../test/render'
 import App from './App'
 import orbitalData from '../Scene/__fixtures__/orbitals.json'

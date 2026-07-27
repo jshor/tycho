@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import TWEEN from 'tween.js'
 import { CubeTextureLoader } from 'three'
 import { Canvas, useThree, useFrame } from '@react-three/fiber'
@@ -15,53 +15,84 @@ import { OrbitalData, OrbitalLabelActions } from '../types'
 
 /** Passed in by whoever renders the container. */
 interface OwnProps {
+  /** Invoked on every animation frame of the scene. */
   onAnimate: () => void
+  /** The width of the canvas, in px. */
   width: number
+  /** The height of the canvas, in px. */
   height: number
+  /** Anything rendered into the scene alongside the orbitals. */
   children?: React.ReactNode
 }
 
 /** Supplied by connect. */
 interface StateProps {
+  /** The orbital data for the Solar System. */
   orbitalData: OrbitalData[]
+  /** The current simulation time. */
   time?: number
+  /** The scene's current size scale. */
   scale?: number
+  /** The speed at which time passes in the simulation. */
   speed?: number
+  /** The volume of the scene's ambience, from 0 to 1. */
   volume?: number
+  /** The current zoom level. */
   zoom?: number
+  /** The id of the orbital the camera is focused on. */
   targetId?: string
+  /** Whether the camera animates its way to a newly focused orbital. */
   animateTargetChange?: boolean
+  /** The ids of the orbitals whose paths are highlighted. */
   highlightedOrbitals?: string[]
+  /** Whether the camera is orbiting its target on its own. */
   isAutoOrbitEnabled?: boolean
 }
 
 export interface Props extends StateProps, OwnProps {
+  /** Store actions. */
   action?: CameraAction & OrbitalLabelActions
 }
 
+/**
+ * Wraps the scene in the app's skybox.
+ */
 function SkyboxSetup(): null {
   const { scene } = useThree()
+
   useEffect(() => {
     const loader = new CubeTextureLoader()
+
     scene.background = loader.load(Constants.WebGL.SKYBOX_TEXTURES)
   }, [scene])
+
   return null
 }
 
+/**
+ * Drives the simulation and its tweens.
+ */
 function AnimationTick({ onAnimate }: { onAnimate: () => void }): null {
   useFrame(() => {
     onAnimate()
     TWEEN.update()
   })
+
   return null
 }
 
 interface CanvasContentProps {
+  /** The scene the canvas renders. */
   props: Props
+  /** A handle on the camera, for the zoom the canvas captures. */
   cameraRef: React.RefObject<CameraContainerHandle>
+  /** Invoked on every animation frame of the scene. */
   onAnimate: () => void
 }
 
+/**
+ * Everything rendered inside the canvas: the camera, the skybox, and the scene itself.
+ */
 function CanvasContent({ props, cameraRef, onAnimate }: CanvasContentProps) {
   const {
     orbitalData,
@@ -111,28 +142,25 @@ function CanvasContent({ props, cameraRef, onAnimate }: CanvasContentProps) {
   )
 }
 
-export class SceneContainer extends React.Component<Props> {
-  cameraRef = React.createRef<CameraContainerHandle>()
+/**
+ * Connects the scene's canvas to the store.
+ */
+export function SceneContainer(props: Props) {
+  const { width, height, action, onAnimate } = props
+  const cameraRef = useRef<CameraContainerHandle>(null)
 
-  onAnimate = () => {
-    this.props.onAnimate()
+  /** Zooms the camera by however far the user scrolled. */
+  const changeZoom: React.WheelEventHandler<HTMLDivElement> = (ev) => {
+    cameraRef.current?.controls?.wheelZoom(ev, action.changeZoom)
   }
 
-  changeZoom: React.WheelEventHandler<HTMLDivElement> = (ev) => {
-    this.cameraRef.current?.controls?.wheelZoom(ev, this.props.action.changeZoom)
-  }
-
-  render() {
-    const { width, height } = this.props
-
-    return (
-      <EventContainer onWheel={this.changeZoom}>
-        <Canvas style={{ width, height }} gl={{ antialias: true, alpha: true }}>
-          <CanvasContent props={this.props} cameraRef={this.cameraRef} onAnimate={this.onAnimate} />
-        </Canvas>
-      </EventContainer>
-    )
-  }
+  return (
+    <EventContainer onWheel={changeZoom}>
+      <Canvas style={{ width, height }} gl={{ antialias: true, alpha: true }}>
+        <CanvasContent props={props} cameraRef={cameraRef} onAnimate={onAnimate} />
+      </Canvas>
+    </EventContainer>
+  )
 }
 
 export default connect(

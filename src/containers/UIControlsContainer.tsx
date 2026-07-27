@@ -1,42 +1,48 @@
-import React from 'react'
 import { connect } from 'react-redux'
 import * as Actions from '../actions/UIControlsActions'
 import ReduxService from '../services/ReduxService'
 import UIControls from '../components/UIControls'
 import { PageText, BoundActions } from '../types'
 
-interface Props {
+export interface Props {
+  /** The current simulation time. */
   time?: number
+  /** The speed at which time passes in the simulation. */
   speed?: number
+  /** The current zoom level. */
   zoom?: number
+  /** The scale applied to the size of each body. */
   scale?: number
+  /** Whether or not the user may interact with the controls. */
   controlsEnabled?: boolean
+  /** Whether or not the settings panel is expanded. */
   settingsActive?: boolean
+  /** The name of the orbital the camera is focused on. */
   targetName?: string
+  /** The translated page text for the app. */
   pageText?: PageText
+  /** Store actions. */
   action?: Pick<BoundActions, 'setUIControls' | 'toggleModal' | 'toggleSettings'>
 }
 
-export class UIControlsContainer extends React.Component<Props> {
-  toggleSettings = () => {
-    this.props.action.toggleSettings(!this.props.settingsActive)
+/**
+ * Connects the heads-up display to the store.
+ */
+export function UIControlsContainer(props: Props) {
+  const { settingsActive, action } = props
+
+  /** Expands the settings panel when it is collapsed, and collapses it when expanded. */
+  const toggleSettings = () => {
+    action.toggleSettings(!settingsActive)
   }
 
-  openModal = (type: string) => {
-    this.props.action.toggleModal(type)
-    this.props.action.setUIControls(false)
+  /** Opens the modal of the given type, yielding interactivity to it. */
+  const openModal = (type: string) => {
+    action.toggleModal(type)
+    action.setUIControls(false)
   }
 
-  render() {
-    return (
-      <UIControls
-        openModal={this.openModal}
-        toggleSetting={this.toggleSettings}
-        {...this.props}
-        {...this.props.action}
-      />
-    )
-  }
+  return <UIControls openModal={openModal} toggleSetting={toggleSettings} {...props} {...action} />
 }
 
 export default connect(

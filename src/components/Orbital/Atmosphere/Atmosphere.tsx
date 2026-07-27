@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 import * as THREE from 'three'
 import Scale, { getVisibleRadius } from '../../../utils/Scale'
 import Constants from '../../../constants'

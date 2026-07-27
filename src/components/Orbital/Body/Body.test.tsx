@@ -1,4 +1,3 @@
-import React from 'react'
 import { render } from '@testing-library/react'
 import Body from './Body'
 import { TextureMap } from '../../../types'

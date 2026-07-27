@@ -6,36 +6,39 @@ import ReduxService from '../services/ReduxService'
 
 /** Supplied by connect, out of the event reducer. */
 interface StateProps {
+  /** When the user last began interacting with the scene. */
   touched?: number
+  /** When the user last stopped interacting with the scene. */
   released?: number
 }
 
 /** Passed in by whoever renders the container. */
 interface OwnProps {
+  /** Invoked when the user scrolls over the scene. */
   onWheel?: React.WheelEventHandler<HTMLDivElement>
+  /** The scene the events are captured for. */
   children?: React.ReactNode
 }
 
-interface Props extends StateProps, OwnProps {
-  action?: Pick<BoundActions, 'setTouched' | 'setReleased'>
+export interface Props extends StateProps, OwnProps {
+  /** Store actions. */
+  action?: Pick<BoundActions, 'setTouched'>
 }
 
-export class EventContainer extends React.Component<Props> {
-  onTouched = () => {
-    this.props.action.setTouched(Date.now())
+/**
+ * Records when the user begins interacting with the scene.
+ */
+export function EventContainer({ onWheel, children, action }: Props) {
+  /** Records the moment the user reached for the scene. */
+  const onTouched = () => {
+    action.setTouched(Date.now())
   }
 
-  onReleased = () => {
-    this.props.action.setReleased(Date.now())
-  }
-
-  render() {
-    return (
-      <div onWheel={this.props.onWheel} onTouchStart={this.onTouched} onMouseDown={this.onTouched}>
-        {this.props.children}
-      </div>
-    )
-  }
+  return (
+    <div onWheel={onWheel} onTouchStart={onTouched} onMouseDown={onTouched}>
+      {children}
+    </div>
+  )
 }
 
 export default connect(

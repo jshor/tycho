@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import Constants from '../../constants'
 import LensFlareHelper from '../../utils/LensFlare'

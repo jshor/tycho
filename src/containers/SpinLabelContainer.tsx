@@ -1,4 +1,4 @@
-import React from 'react'
+import { useEffect, useRef } from 'react'
 import { BoundActions } from '../types'
 import { connect } from 'react-redux'
 import SpinLabel from '../components/SpinLabel'
@@ -8,33 +8,40 @@ import * as UIControlsActions from '../actions/UIControlsActions'
 import Constants from '../constants'
 
 export interface Props {
+  /** Whether or not the tour has finished playing. */
   isComplete?: boolean
+  /** Whether or not the camera is orbiting its target on its own. */
   isAutoOrbitEnabled?: boolean
+  /** Time when the user last began interacting with the scene. */
   touched?: number
+  /** Time when the user last stopped interacting with the scene. */
   released?: number
+  /** Store actions. */
   action?: Pick<BoundActions, 'setCameraOrbit' | 'setUIControls'>
 }
 
-export class SpinLabelContainer extends React.Component<Props> {
-  componentDidUpdate = (prevProps: Props) => {
-    this.maybeStopSpinPrompt(prevProps)
-  }
+/**
+ * Prompts the user to spin the camera.
+ */
+export function SpinLabelContainer({ isComplete, isAutoOrbitEnabled, touched, action }: Props) {
+  const previousTouched = useRef(touched)
 
-  maybeStopSpinPrompt = (prevProps: Props) => {
-    if (prevProps.touched !== this.props.touched && this.isVisible()) {
-      this.props.action.setCameraOrbit(false)
-      this.props.action.setUIControls(true)
+  /** Whether or not the prompt is visible. */
+  const isVisible = (): boolean => isComplete && isAutoOrbitEnabled
+
+  /** Hands the camera to the user the first time they reach for the scene. */
+  useEffect(() => {
+    if (previousTouched.current === touched) return
+
+    previousTouched.current = touched
+
+    if (isVisible()) {
+      action.setCameraOrbit(false)
+      action.setUIControls(true)
     }
-  }
+  }) // eslint-disable-line react-hooks/exhaustive-deps
 
-  isVisible = (): boolean => {
-    const { isComplete, isAutoOrbitEnabled } = this.props
-    return isComplete && isAutoOrbitEnabled
-  }
-
-  render() {
-    return <SpinLabel show={this.isVisible()} count={Constants.UI.SPIN_LABEL_ARROW_COUNT} />
-  }
+  return <SpinLabel show={isVisible()} count={Constants.UI.SPIN_LABEL_ARROW_COUNT} />
 }
 
 export default connect(

@@ -1,20 +1,24 @@
 import React from 'react'
 
 interface Props {
+  /** Toggles the calendar open and closed. */
   onClick: () => void
+  /** The current user-friendly simulation time. */
   uxTime?: string
+  /** The calendar rendered beneath the display. */
   children?: React.ReactNode
 }
 
-export default class DatePicker extends React.Component<Props> {
-  render() {
-    return (
-      <div className="date-picker">
-        <span className="date-picker__display" onClick={this.props.onClick}>
-          {this.props.uxTime}
-        </span>
-        {this.props.children}
-      </div>
-    )
-  }
+/**
+ * The clock readout that opens the scene's date picker.
+ */
+export default function DatePicker({ onClick, uxTime, children }: Props) {
+  return (
+    <div className="date-picker">
+      <span className="date-picker__display" onClick={onClick}>
+        {uxTime}
+      </span>
+      {children}
+    </div>
+  )
 }

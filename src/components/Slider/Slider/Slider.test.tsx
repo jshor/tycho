@@ -1,47 +1,18 @@
-import React from 'react'
 import { render } from '@testing-library/react'
 import Slider from './Slider'
-import { Mutable } from '../../../test/helpers'
 
 describe('Slider Component', () => {
-  let ref: React.RefObject<Slider>
+  it('should render without crashing', () => {
+    const { container } = render(<Slider onChange={vi.fn()} orientation="vertical" value={50} />)
 
-  beforeEach(() => {
-    ref = React.createRef<Slider>()
-    render(<Slider onChange={vi.fn()} orientation="horizontal" value={40} ref={ref} />)
+    expect(container).toBeTruthy()
   })
 
-  describe('getInitialValue()', () => {
-    it('should return 0 when value prop is undefined', () => {
-      const current = ref.current as Mutable<Slider>
+  it('should apply the orientation to each of its parts', () => {
+    const { container } = render(<Slider onChange={vi.fn()} orientation="horizontal" value={40} />)
 
-      current.props = { orientation: 'horizontal', value: undefined }
-      expect(current.getInitialValue()).toBe(0)
-    })
-
-    it('should return the value prop when defined', () => {
-      const current = ref.current as Mutable<Slider>
-      current.props = { orientation: 'horizontal', value: 10 }
-      expect(current.getInitialValue()).toBe(10)
-    })
-  })
-
-  describe('getClassName()', () => {
-    it('should include the sub-component name and orientation', () => {
-      const result = ref.current?.getClassName('handle')
-      expect(result).toBe('slider__handle slider__handle--horizontal')
-    })
-
-    it('should return the base class name when no sub-name given', () => {
-      const result = ref.current?.getClassName()
-      expect(result).toBe('slider slider--horizontal')
-    })
-  })
-
-  describe('render()', () => {
-    it('should render without crashing', () => {
-      const { container } = render(<Slider onChange={vi.fn()} orientation="vertical" value={50} />)
-      expect(container).toBeTruthy()
-    })
+    expect(container.querySelector('.slider__container--horizontal')).not.toBeNull()
+    expect(container.querySelector('.slider__handle--horizontal')).not.toBeNull()
+    expect(container.querySelector('.slider__bar--horizontal')).not.toBeNull()
   })
 })

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { BoundActions } from '../types'
 import { connect } from 'react-redux'
 import * as Actions from '../actions/UIControlsActions'
@@ -7,55 +7,59 @@ import Modal from '../components/Modal'
 
 /** Passed in by whoever renders the container. */
 interface OwnProps {
+  /** The type of modal this container renders. */
   type?: string
+  /** The title shown in the modal header. */
   title?: string
+  /** The contents of the modal. */
   children?: React.ReactNode
 }
 
 /** Supplied by connect. */
 interface StateProps {
+  /** The type of the modal currently open, if any. */
   activeModal?: string | null
 }
 
-interface Props extends StateProps, OwnProps {
+export interface Props extends StateProps, OwnProps {
+  /** Store actions. */
   action?: Pick<BoundActions, 'setUIControls' | 'toggleModal'>
 }
 
-export class ModalContainer extends React.Component<Props> {
-  componentDidMount = () => {
-    window.addEventListener('keydown', this.onKeyPressed)
-  }
+/** The key code that dismisses an open modal. */
+const ESCAPE_KEY_CODE = 27
 
-  componentWillUnmount = () => {
-    window.removeEventListener('keydown', this.onKeyPressed)
-  }
+/**
+ * Connects a modal to the store, closing it on escape.
+ */
+export function ModalContainer({ type, title, children, activeModal, action }: Props) {
+  /** Whether this container's modal is the one currently open. */
+  const isModalActive = (): boolean => activeModal === type
 
-  onKeyPressed = (evt: KeyboardEvent) => {
-    if (evt.keyCode === 27 && this.isModalActive()) {
-      this.closeModal()
+  /** Closes the modal and hands interactivity back to the UI controls. */
+  const closeModal = useCallback(() => {
+    action.toggleModal(null)
+    action.setUIControls(true)
+  }, [action])
+
+  /** Dismisses the modal when escape is pressed while it is open. */
+  useEffect(() => {
+    const onKeyPressed = (evt: KeyboardEvent) => {
+      if (evt.keyCode === ESCAPE_KEY_CODE && activeModal === type) {
+        closeModal()
+      }
     }
-  }
 
-  isModalActive = (): boolean => {
-    return this.props.activeModal === this.props.type
-  }
+    window.addEventListener('keydown', onKeyPressed)
 
-  closeModal = () => {
-    this.props.action.toggleModal(null)
-    this.props.action.setUIControls(true)
-  }
+    return () => window.removeEventListener('keydown', onKeyPressed)
+  }, [activeModal, type, closeModal])
 
-  render() {
-    return (
-      <Modal
-        modalActive={this.isModalActive()}
-        title={this.props.title}
-        closeModal={this.closeModal}
-      >
-        {this.props.children}
-      </Modal>
-    )
-  }
+  return (
+    <Modal modalActive={isModalActive()} title={title} closeModal={closeModal}>
+      {children}
+    </Modal>
+  )
 }
 
 export default connect(

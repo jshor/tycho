@@ -1,95 +1,85 @@
-import React from 'react'
+import { fireEvent } from '@testing-library/react'
 import { renderWithStore } from '../../test/render'
 import Cookies from 'js-cookie'
-import { VolumeContainer } from '../VolumeContainer'
-import { Mutable } from '../../test/helpers'
+import { VolumeContainer, getVolume, setVolume } from '../VolumeContainer'
+
+const action = { setVolume: vi.fn() }
 
 describe('Volume Container', () => {
-  let ref: React.RefObject<VolumeContainer>
-  const setVolume = vi.fn()
-
   beforeEach(() => {
     vi.clearAllMocks()
-    ref = React.createRef<VolumeContainer>()
-    renderWithStore(<VolumeContainer action={{ setVolume }} ref={ref} />)
+    Cookies.remove('volume')
   })
 
-  describe('componentDidUpdate()', () => {
-    it('should call setVolume(0) when new volume is truthy but cookie is 0', () => {
-      const container = ref.current as Mutable<VolumeContainer>
-      container.getVolume = () => 0
+  describe('getVolume()', () => {
+    it('should parse the cookie value as a number', () => {
+      Cookies.set('volume', '0')
 
-      container.props = { action: { setVolume }, volume: 1 }
-      container.componentDidUpdate({ volume: 0 })
-
-      expect(setVolume).toHaveBeenCalledWith(0)
+      expect(getVolume()).toBe(0)
     })
 
-    it('should not call setVolume when new and prev volume are the same', () => {
-      const container = ref.current as Mutable<VolumeContainer>
-      container.getVolume = () => 0
-
-      container.props = { action: { setVolume }, volume: 1 }
-      container.componentDidUpdate({ volume: 1 })
-
-      expect(setVolume).not.toHaveBeenCalled()
-    })
-
-    it('should not call setVolume when cookie volume is truthy', () => {
-      const container = ref.current as Mutable<VolumeContainer>
-      container.getVolume = () => 1
-
-      container.props = { action: { setVolume }, volume: 1 }
-      container.componentDidUpdate({ volume: 0 })
-
-      expect(setVolume).not.toHaveBeenCalled()
+    it('should return 1 when the cookie is not set', () => {
+      expect(getVolume()).toBe(1)
     })
   })
 
   describe('setVolume()', () => {
-    it('should store the volume level in a cookie', () => {
+    it('should store the volume level in a cookie for a year', () => {
       const spy = vi.spyOn(Cookies, 'set')
-      ref.current?.setVolume(1)
+
+      setVolume(1)
 
       expect(spy).toHaveBeenCalledWith('volume', '1', { expires: 365 })
     })
   })
 
-  describe('getVolume()', () => {
-    it('should parse the cookie value as a number', () => {
-      Cookies.set('volume', '1')
-      expect(ref.current?.getVolume()).toBe(1)
+  describe('render()', () => {
+    it('should mute the scene when the user muted it on a previous visit', () => {
+      Cookies.set('volume', '0')
+
+      renderWithStore(<VolumeContainer action={action} volume={1} />)
+
+      expect(action.setVolume).toHaveBeenCalledWith(0)
     })
 
-    it('should return 1 when the cookie is not set', () => {
-      Cookies.remove('volume')
-      expect(ref.current?.getVolume()).toBe(1)
+    it('should leave the volume alone when the user left the scene audible', () => {
+      Cookies.set('volume', '1')
+
+      renderWithStore(<VolumeContainer action={action} volume={1} />)
+
+      expect(action.setVolume).not.toHaveBeenCalled()
+    })
+
+    it('should leave the volume alone while the scene is already muted', () => {
+      Cookies.set('volume', '0')
+
+      renderWithStore(<VolumeContainer action={action} volume={0} />)
+
+      expect(action.setVolume).not.toHaveBeenCalled()
     })
   })
 
   describe('triggerVolume()', () => {
-    it('should set volume to 1 when currently 0', () => {
-      const container = ref.current as Mutable<VolumeContainer>
-      const spy = vi.spyOn(container, 'setVolume')
-      container.getVolume = () => 0
-      container.props = { action: { setVolume } }
+    it('should unmute the scene while it is muted', () => {
+      Cookies.set('volume', '0')
 
-      container.triggerVolume()
+      const { container } = renderWithStore(<VolumeContainer action={action} volume={0} />)
 
-      expect(spy).toHaveBeenCalledWith(1)
-      expect(setVolume).toHaveBeenCalledWith(1)
+      fireEvent.click(container.querySelector('.volume'))
+
+      expect(Cookies.get('volume')).toEqual('1')
+      expect(action.setVolume).toHaveBeenCalledWith(1)
     })
 
-    it('should set volume to 0 when currently 1', () => {
-      const container = ref.current as Mutable<VolumeContainer>
-      const spy = vi.spyOn(container, 'setVolume')
-      container.getVolume = () => 1
-      container.props = { action: { setVolume } }
+    it('should mute the scene while it is audible', () => {
+      Cookies.set('volume', '1')
 
-      container.triggerVolume()
+      const { container } = renderWithStore(<VolumeContainer action={action} volume={1} />)
 
-      expect(spy).toHaveBeenCalledWith(0)
-      expect(setVolume).toHaveBeenCalledWith(0)
+      fireEvent.click(container.querySelector('.volume'))
+
+      expect(Cookies.get('volume')).toEqual('0')
+      expect(action.setVolume).toHaveBeenCalledWith(0)
     })
   })
 })

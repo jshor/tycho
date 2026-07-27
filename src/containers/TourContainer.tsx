@@ -1,4 +1,4 @@
-import React from 'react'
+import { useEffect, useRef } from 'react'
 import { connect } from 'react-redux'
 import * as UIControlsActions from '../actions/UIControlsActions'
 import * as TourActions from '../actions/TourActions'
@@ -11,41 +11,57 @@ import { TourLabelItem, PageText, BoundActions } from '../types'
 
 /** Passed in by whoever renders the container. */
 interface OwnProps {
+  /** The narration labels that play over the course of the tour. */
   labels?: TourLabelItem[]
 }
 
 /** Supplied by connect. */
 interface StateProps {
+  /** Whether or not the user may interact with the controls. */
   controlsEnabled?: boolean
+  /** The scene's current size scale. */
   scale?: number
+  /** The ID of the orbital the camera is focused on. */
   targetId?: string
+  /** Whether or not the tour has finished playing. */
   isComplete?: boolean
+  /** Whether or not the simulation is currently playing. */
   playing?: boolean
+  /** The translated page text for the app. */
   pageText?: PageText
 }
 
-interface Props extends StateProps, OwnProps {
+export interface Props extends StateProps, OwnProps {
+  /** Store actions. */
   action?: Pick<
     BoundActions,
     'setActiveOrbital' | 'setCameraOrbit' | 'setUIControls' | 'tourCompleted'
   >
 }
 
-export class TourContainer extends React.Component<Props> {
-  hasInitialized = false
+/**
+ * Plays the tour the first time the user visits the scene.
+ */
+export function TourContainer(props: Props) {
+  const { playing, labels, action } = props
+  const hasInitialized = useRef(false)
 
-  initialize = () => {
-    if (this.hasInitialized) return
-    if (localStorage.getItem('tourViewed') === 'true_TEST') {
-      this.skipTour()
-    } else if (this.props.playing) {
-      this.initializeTour()
-    }
-    this.hasInitialized = true
+  /** Ends the tour and hands the scene back to the user. */
+  const skipTour = () => {
+    action.tourCompleted(true)
+    action.setCameraOrbit(false)
+    action.setUIControls(true)
+    localStorage.setItem('tourViewed', 'true')
   }
 
-  initializeTour = () => {
-    const { action, labels } = this.props
+  /** Marks the tour as viewed once its last label has played. */
+  const onTourComplete = () => {
+    localStorage.setItem('tourViewed', 'true')
+    action.tourCompleted(true)
+  }
+
+  /** Takes the scene away from the user and orbits it for the length of the tour. */
+  const initializeTour = () => {
     const duration = labels.reduce((cur, next) => {
       return cur + next.duration + Constants.Tour.SEPARATION_INTERVAL
     }, Constants.Tour.SEPARATION_INTERVAL)
@@ -55,24 +71,24 @@ export class TourContainer extends React.Component<Props> {
       action.setUIControls(false)
     })
 
-    setTimeout(this.onTourComplete, duration)
+    setTimeout(onTourComplete, duration)
   }
 
-  onTourComplete = () => {
-    localStorage.setItem('tourViewed', 'true')
-    this.props.action.tourCompleted(true)
-  }
+  /** Starts the tour on the user's first visit, and skips it on every visit after. */
+  useEffect(() => {
+    if (hasInitialized.current || !playing) return
 
-  skipTour = () => {
-    const { action } = this.props
+    hasInitialized.current = true
 
-    action.tourCompleted(true)
-    action.setCameraOrbit(false)
-    action.setUIControls(true)
-    localStorage.setItem('tourViewed', 'true')
-  }
+    if (localStorage.getItem('tourViewed') === 'true_TEST') {
+      skipTour()
+    } else {
+      initializeTour()
+    }
+  }) // eslint-disable-line react-hooks/exhaustive-deps
 
-  getLabels = (labels: TourLabelItem[]) => {
+  /** Builds a label for each item of narration, timed to play one after the other. */
+  const getLabels = (labels: TourLabelItem[]) => {
     let totalTime = 0
 
     return labels.map(({ text, duration }, key) => {
@@ -85,21 +101,11 @@ export class TourContainer extends React.Component<Props> {
     })
   }
 
-  render() {
-    if (!this.props.playing) {
-      return null
-    }
-
-    this.initialize()
-
-    return (
-      <Tour
-        {...this.props}
-        skipTour={this.skipTour}
-        labels={this.getLabels(this.props.labels)}
-      />
-    )
+  if (!playing) {
+    return null
   }
+
+  return <Tour {...props} skipTour={skipTour} labels={getLabels(labels)} />
 }
 
 export default connect(

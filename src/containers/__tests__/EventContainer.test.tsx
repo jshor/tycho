@@ -1,46 +1,56 @@
-import React from 'react'
+import { fireEvent } from '@testing-library/react'
 import { renderWithStore } from '../../test/render'
 import { EventContainer } from '../EventContainer'
-import { Mutable } from '../../test/helpers'
+
+const action = { setTouched: vi.fn() }
 
 describe('Event Container', () => {
-  let ref: React.RefObject<EventContainer>
-
   beforeEach(() => {
     vi.clearAllMocks()
-    ref = React.createRef<EventContainer>()
-    renderWithStore(<EventContainer ref={ref} />)
   })
 
+  const renderContainer = () => {
+    const { container } = renderWithStore(
+      <EventContainer action={action}>
+        <div className="child" />
+      </EventContainer>
+    )
+
+    return container.firstElementChild as HTMLElement
+  }
+
   describe('onTouched()', () => {
-    it('should call setTouched with the current timestamp', () => {
-      const current = ref.current as Mutable<EventContainer>
+    it('should call setTouched with the current timestamp when the scene is pressed', () => {
       const now = 12345
-      const setTouched = vi.fn()
       vi.spyOn(Date, 'now').mockReturnValue(now)
 
-      current.props = {
-        action: { setTouched, setReleased: vi.fn() }
-      }
-      current.onTouched()
+      fireEvent.mouseDown(renderContainer())
 
-      expect(setTouched).toHaveBeenCalledWith(now)
+      expect(action.setTouched).toHaveBeenCalledWith(now)
+    })
+
+    it('should call setTouched with the current timestamp when the scene is touched', () => {
+      const now = 12345
+      vi.spyOn(Date, 'now').mockReturnValue(now)
+
+      fireEvent.touchStart(renderContainer())
+
+      expect(action.setTouched).toHaveBeenCalledWith(now)
     })
   })
 
-  describe('onReleased()', () => {
-    it('should call setReleased with the current timestamp', () => {
-      const current = ref.current as Mutable<EventContainer>
-      const now = 12345
-      const setReleased = vi.fn()
-      vi.spyOn(Date, 'now').mockReturnValue(now)
+  describe('render()', () => {
+    it('should forward wheel events to the given handler', () => {
+      const onWheel = vi.fn()
+      const { container } = renderWithStore(<EventContainer action={action} onWheel={onWheel} />)
 
-      current.props = {
-        action: { setTouched: vi.fn(), setReleased }
-      }
-      current.onReleased()
+      fireEvent.wheel(container.firstElementChild as HTMLElement)
 
-      expect(setReleased).toHaveBeenCalledWith(now)
+      expect(onWheel).toHaveBeenCalledTimes(1)
+    })
+
+    it('should render its children', () => {
+      expect(renderContainer().querySelector('.child')).not.toBeNull()
     })
   })
 })

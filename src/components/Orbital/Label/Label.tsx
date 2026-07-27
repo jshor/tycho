@@ -86,6 +86,9 @@ const findAncestorByName = (from: THREE.Object3D, name: string): THREE.Object3D 
   return null
 }
 
+/**
+ * A WebGL text element that always faces the camera.
+ */
 export function CameraFacingText({
   children,
   fontSize = 1,
@@ -203,8 +206,6 @@ export function CameraFacingText({
   }
 
   return (
-    // Handlers sit on the group so the plate (and its padding) is clickable too, not just the
-    // glyphs themselves — R3F bubbles events from both children up to here.
     <group
       ref={groupRef}
       onClick={handleClick}

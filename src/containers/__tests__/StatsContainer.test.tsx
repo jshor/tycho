@@ -1,81 +1,74 @@
-import React from 'react'
-import { act } from '@testing-library/react'
-import { renderWithStore } from '../../test/render'
+import { render } from '@testing-library/react'
 import { StatsContainer } from '../StatsContainer'
-import { Mutable } from '../../test/helpers'
 import OrbitalService from '../../services/OrbitalService'
+import Constants from '../../constants'
+import moment from 'moment'
 import data from './__fixtures__/orbitals.json'
 
 const baseProps = { orbitalData: data, pageText: {}, time: 1 }
 
-describe('Stats Container', () => {
-  let ref: React.RefObject<StatsContainer>
+const stats = {
+  magnitude: '1AU',
+  velocity: '10km/s',
+  trueAnomaly: '45°'
+}
 
+describe('Stats Container', () => {
   beforeEach(() => {
-    ref = React.createRef<StatsContainer>()
-    renderWithStore(<StatsContainer {...baseProps} ref={ref} />)
+    vi.restoreAllMocks()
+    vi.spyOn(OrbitalService, 'getOrbitalStats').mockReturnValue(stats)
   })
 
-  describe('componentDidUpdate()', () => {
-    it('should call updateOrbitalStats when targetId changes', () => {
-      const container = ref.current as Mutable<StatsContainer>
-      const spy = vi.spyOn(container, 'updateOrbitalStats')
+  describe('render()', () => {
+    it('should report the stats of the active orbital', () => {
+      const { container } = render(<StatsContainer {...baseProps} targetId="dummyParent" />)
+      const text = container.textContent
 
-      container.props = { ...baseProps, targetId: 'Mars', time: 1 }
-      container.componentDidUpdate({ targetId: 'Earth', time: 1 })
-
-      expect(spy).toHaveBeenCalledTimes(1)
+      expect(text).toContain(stats.velocity)
+      expect(text).toContain(stats.magnitude)
+      expect(text).toContain(stats.trueAnomaly)
     })
 
-    it('should call updateOrbitalStats when time changes', () => {
-      const container = ref.current as Mutable<StatsContainer>
-      const spy = vi.spyOn(container, 'updateOrbitalStats')
+    it('should report no stats while no orbital is active', () => {
+      const { container } = render(<StatsContainer {...baseProps} />)
 
-      container.props = { ...baseProps, targetId: 'Earth', time: 2 }
-      container.componentDidUpdate({ targetId: 'Earth', time: 1 })
-
-      expect(spy).toHaveBeenCalledTimes(1)
+      expect(OrbitalService.getOrbitalStats).not.toHaveBeenCalled()
+      expect(container.textContent).not.toContain(stats.velocity)
     })
 
-    it('should not call updateOrbitalStats when nothing changed', () => {
-      const container = ref.current as Mutable<StatsContainer>
-      const spy = vi.spyOn(container, 'updateOrbitalStats')
+    it('should display the current simulation time', () => {
+      const { container } = render(<StatsContainer {...baseProps} time={1000} />)
 
-      container.props = { ...baseProps, targetId: 'Earth', time: 1 }
-      container.componentDidUpdate({ targetId: 'Earth', time: 1 })
-
-      expect(spy).not.toHaveBeenCalled()
+      expect(container.textContent).toContain(
+        moment(1000 * 1000).format(Constants.UI.UX_DATE_FORMAT)
+      )
     })
   })
 
   describe('updateOrbitalStats()', () => {
-    it('should set name, description, and orbital stats in state', () => {
-      const container = ref.current as Mutable<StatsContainer>
-      const target = data[1]
+    it('should recompute the stats as the clock ticks', () => {
+      const { rerender } = render(<StatsContainer {...baseProps} targetId="dummyParent" />)
 
-      OrbitalService.getOrbitalStats = () => ({
-        magnitude: '1AU',
-        velocity: '10km/s',
-        trueAnomaly: '45°'
-      })
-      OrbitalService.getTargetByName = () => target
+      rerender(<StatsContainer {...baseProps} targetId="dummyParent" time={2} />)
 
-      container.props = { ...baseProps, orbitalData: data }
-
-      act(() => {
-        container.updateOrbitalStats(target.id, 1)
-      })
-
-      expect(container.state.name).toBe(target.name)
+      expect(OrbitalService.getOrbitalStats).toHaveBeenCalledTimes(2)
+      expect(OrbitalService.getOrbitalStats).toHaveBeenLastCalledWith(expect.anything(), 2)
     })
-  })
 
-  describe('getTime()', () => {
-    it('should return a formatted time string', () => {
-      const current = ref.current as Mutable<StatsContainer>
-      current.props = { ...baseProps, time: 1000 }
-      const result = current.getTime()
-      expect(typeof result).toBe('string')
+    it('should recompute the stats when the active orbital changes', () => {
+      const { rerender } = render(<StatsContainer {...baseProps} targetId="dummyParent" />)
+
+      rerender(<StatsContainer {...baseProps} targetId="dummyOuter" />)
+
+      expect(OrbitalService.getOrbitalStats).toHaveBeenCalledTimes(2)
+    })
+
+    it('should not recompute the stats when nothing has changed', () => {
+      const { rerender } = render(<StatsContainer {...baseProps} targetId="dummyParent" />)
+
+      rerender(<StatsContainer {...baseProps} targetId="dummyParent" />)
+
+      expect(OrbitalService.getOrbitalStats).toHaveBeenCalledTimes(1)
     })
   })
 })

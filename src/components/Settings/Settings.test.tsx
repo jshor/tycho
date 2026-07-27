@@ -1,4 +1,3 @@
-import React from 'react'
 import { render } from '@testing-library/react'
 import Settings from './Settings'
 import { PageText } from '../../types'

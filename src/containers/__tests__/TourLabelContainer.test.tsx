@@ -1,4 +1,3 @@
-import React from 'react'
 import { act } from '@testing-library/react'
 import { renderWithStore } from '../../test/render'
 import TourLabelContainer from '../TourLabelContainer'
@@ -6,43 +5,46 @@ import TourLabelContainer from '../TourLabelContainer'
 vi.useFakeTimers()
 
 describe('Tour Label Container', () => {
-  describe('componentDidMount()', () => {
-    it('should schedule show and hide via setTimeout', () => {
-      const spy = vi.spyOn(global, 'setTimeout')
+  /** Advances timers inside `act()` so the label's scheduled state changes are flushed. */
+  const advanceTimers = (ms: number) => act(() => void vi.advanceTimersByTime(ms))
 
-      renderWithStore(<TourLabelContainer text="Hello" start={100} end={5000} />)
+  const getModifier = (container: HTMLElement) => {
+    return container.querySelector('.tour-label span')?.className.trim().split(/\s+/).pop()
+  }
 
-      expect(spy).toHaveBeenCalledTimes(2)
-    })
+  it('should hide the label until its start time', () => {
+    const { container } = renderWithStore(
+      <TourLabelContainer text="Hello" start={100} end={5000} />
+    )
+
+    expect(getModifier(container)).toEqual('tour-label__text--hide')
   })
 
-  describe('setClassAsync()', () => {
-    it('should update modifier state after the timeout fires', () => {
-      const ref = React.createRef<TourLabelContainer>()
-      renderWithStore(<TourLabelContainer text="Hello" start={100} end={5000} ref={ref} />)
+  it('should show the label between its start and end times', () => {
+    const { container } = renderWithStore(
+      <TourLabelContainer text="Hello" start={100} end={5000} />
+    )
 
-      expect(ref.current?.state.modifier).toBe('hide')
+    advanceTimers(100)
 
-      act(() => {
-        vi.advanceTimersByTime(100)
-      })
-      expect(ref.current?.state.modifier).toBe('show')
+    expect(getModifier(container)).toEqual('tour-label__text--show')
+  })
 
-      act(() => {
-        vi.advanceTimersByTime(5000)
-      })
-      expect(ref.current?.state.modifier).toBe('hide')
-    })
+  it('should hide the label again once its end time passes', () => {
+    const { container } = renderWithStore(
+      <TourLabelContainer text="Hello" start={100} end={5000} />
+    )
 
-    it('should not update state after unmount', () => {
-      const ref = React.createRef<TourLabelContainer>()
-      const { unmount } = renderWithStore(
-        <TourLabelContainer text="Hello" start={100} end={5000} ref={ref} />
-      )
+    advanceTimers(5000)
 
-      unmount()
+    expect(getModifier(container)).toEqual('tour-label__text--hide')
+  })
 
-      expect(() => vi.advanceTimersByTime(10000)).not.toThrow()
-    })
+  it('should not update once unmounted', () => {
+    const { unmount } = renderWithStore(<TourLabelContainer text="Hello" start={100} end={5000} />)
+
+    unmount()
+
+    expect(() => vi.advanceTimersByTime(10000)).not.toThrow()
   })
 })

@@ -1,40 +1,30 @@
-import React from 'react'
+import { useEffect, useState } from 'react'
 import TourLabel from '../components/TourLabel'
 
 interface Props {
+  /** The text to display. */
   text?: string
+  /** Duration after the tour begins the label appears, in ms. */
   start?: number
+  /** Duration after the tour begins the label disappears, in ms. */
   end?: number
 }
 
-interface State {
-  modifier: string
-}
+/**
+ * Shows a single tour label for the window of time it belongs to.
+ */
+export default function TourLabelContainer({ text, start, end }: Props) {
+  const [modifier, setModifier] = useState('hide')
 
-export default class TourLabelContainer extends React.Component<Props, State> {
-  isCancelled: boolean = false
+  /** Reveals the label at its start time and hides it again at its end time. */
+  useEffect(() => {
+    const timeouts = [
+      setTimeout(() => setModifier('show'), start),
+      setTimeout(() => setModifier('hide'), end)
+    ]
 
-  state: State = { modifier: 'hide' }
+    return () => timeouts.forEach(clearTimeout)
+  }, [start, end])
 
-  componentDidMount = () => {
-    const { start, end } = this.props
-    this.setClassAsync('show', start)
-    this.setClassAsync('hide', end)
-  }
-
-  componentWillUnmount = () => {
-    this.isCancelled = true
-  }
-
-  setClassAsync = (modifier: string, timeout: number) => {
-    setTimeout(() => {
-      if (!this.isCancelled) {
-        this.setState({ modifier })
-      }
-    }, timeout)
-  }
-
-  render() {
-    return <TourLabel modifier={this.state.modifier} text={this.props.text} />
-  }
+  return <TourLabel modifier={modifier} text={text} />
 }

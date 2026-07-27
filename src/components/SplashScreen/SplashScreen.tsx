@@ -1,55 +1,59 @@
-import React from 'react'
 import cx from 'classnames'
 import { PageText } from '../../types'
 
 interface Props {
+  /** Whether or not the splash screen should be visible. */
   show?: boolean
+  /** The translated page text for the app. */
   pageText?: PageText
+  /** How much of the scene has loaded [0, 100]. */
   percent?: number
+  /** Dismisses the splash screen to enter the scene. */
   enterScene?: () => void
 }
 
-export default class SplashScreen extends React.Component<Props> {
-  renderEnterButton = () => {
+/**
+ * The loading screen shown until the scene is ready to enter.
+ */
+export default function SplashScreen({ show, pageText, percent, enterScene }: Props) {
+  /** Renders the anchor that enters the scene. */
+  const renderEnterButton = () => {
     return (
       <div className="splash-screen__button">
-        <a className="splash-screen__button-anchor" onClick={this.props.enterScene}>
-          {this.props.pageText && this.props.pageText.start}
+        <a className="splash-screen__button-anchor" onClick={enterScene}>
+          {pageText && pageText.start}
         </a>
       </div>
     )
   }
 
-  renderLoadingBar = () => {
+  /** Renders the bar tracking how much of the scene has loaded. */
+  const renderLoadingBar = () => {
     return (
       <div className="splash-screen__loading">
-        <div
-          className="splash-screen__loading-bar"
-          style={{ width: `${this.props.percent}%` }}
-        ></div>
+        <div className="splash-screen__loading-bar" style={{ width: `${percent}%` }}></div>
       </div>
     )
   }
 
-  renderUserPrompt = () => {
-    if (this.props.percent === 100) {
-      return this.renderEnterButton()
+  /** Renders the enter button once loading completes, and the loading bar until then. */
+  const renderUserPrompt = () => {
+    if (percent === 100) {
+      return renderEnterButton()
     }
-    return this.renderLoadingBar()
+    return renderLoadingBar()
   }
 
-  render() {
-    return (
-      <div
-        className={cx({
-          'splash-screen': true,
-          'splash-screen--hide': !this.props.show,
-          'splash-screen--show': this.props.show
-        })}
-      >
-        <div className="splash-screen__hero"></div>
-        <div className="splash-screen__content">{this.renderUserPrompt()}</div>
-      </div>
-    )
-  }
+  return (
+    <div
+      className={cx({
+        'splash-screen': true,
+        'splash-screen--hide': !show,
+        'splash-screen--show': show
+      })}
+    >
+      <div className="splash-screen__hero"></div>
+      <div className="splash-screen__content">{renderUserPrompt()}</div>
+    </div>
+  )
 }

@@ -1,4 +1,3 @@
-import React from 'react'
 import { renderWithStore } from '../../test/render'
 import NoWebGL from './NoWebGL'
 import { PageText } from '../../types'

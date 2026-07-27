@@ -1,131 +1,99 @@
-import React from 'react'
-import * as THREE from 'three'
+import React, { useMemo, useRef } from 'react'
 import Ellipse from '../utils/Ellipse'
 import Service from '../services/OrbitalService'
 import Orbital from '../components/Orbital'
 import { OrbitalData, OrbitalLabelActions } from '../types'
 
-interface Props extends OrbitalData {
+export interface Props extends OrbitalData {
+  /** The ID of the orbital the camera is focused on. */
   targetId?: string
+  /** The ID of the orbital this one orbits, if it is a satellite. */
   parentId?: string
+  /** The current simulation time. */
   time?: number
+  /** The scene's current size scale. */
   scale?: number
+  /** Whether this orbital is the active one. */
   active?: boolean
+  /** The IDs of the orbitals whose paths are highlighted. */
   highlightedOrbitals?: string[]
+  /** Store actions passed down to the orbital's label. */
   action?: OrbitalLabelActions
+  /** The satellites orbiting this orbital. */
   children?: React.ReactNode
 }
 
-interface State {
-  eclipticGroupRotation?: THREE.Euler
-  orbitalGroupRotation?: THREE.Euler
-  bodyRotation?: THREE.Euler
-  bodyPosition?: THREE.Vector3
-  bodyPercent?: number
-  pathOpacity?: number
-  maxDistance?: number
-  scaleLastUpdate?: number
-}
+/**
+ * Positions an orbital along its orbit, and keeps it there as the simulation runs.
+ */
+export function OrbitalContainer(props: Props) {
+  const { id, targetId, parentId, time, scale, highlightedOrbitals, isSatellite, action } = props
 
-export class OrbitalContainer extends React.Component<Props, State> {
-  ellipse: Ellipse
+  // the ellipse is mutated in place as the scale changes, so it outlives any one render
+  const ellipseRef = useRef<Ellipse>()
 
-  constructor(props: Props) {
-    super(props)
-    this.ellipse = new Ellipse(props)
-    this.state = {
-      eclipticGroupRotation: Service.getEclipticGroupRotation(props),
-      orbitalGroupRotation: Service.getOrbitalGroupRotation(props),
-      pathOpacity: Service.getPathOpacity(props, undefined, props.id === props.targetId),
-      bodyRotation: Service.getBodyRotation(props),
-      bodyPosition: Service.getBodyPosition(props, this.ellipse),
-      bodyPercent: Service.getBodyPercent(props, this.ellipse),
+  if (!ellipseRef.current) {
+    ellipseRef.current = new Ellipse(props)
+  }
+
+  const ellipse = ellipseRef.current
+
+  // the orbit is only ever tilted once, out of the orbital data it was built from
+  const eclipticGroupRotation = useMemo(() => Service.getEclipticGroupRotation(props), []) // eslint-disable-line react-hooks/exhaustive-deps
+  const orbitalGroupRotation = useMemo(() => Service.getOrbitalGroupRotation(props), []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // a satellite's orbit is drawn at the scene's scale, so its path has to be rebuilt to match
+  useMemo(() => {
+    if (isSatellite) {
+      ellipse.setScale(scale)
+    }
+  }, [scale, isSatellite, ellipse])
+
+  const scaleLastUpdate = useMemo(() => time, [scale]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  /** Where the body sits along its orbit, and how it is turned, at the current time. */
+  const body = useMemo(
+    () => ({
+      rotation: Service.getBodyRotation(props),
+      position: Service.getBodyPosition(props, ellipse),
+      percent: Service.getBodyPercent(props, ellipse),
       maxDistance: Service.getMaxViewDistance(props)
-    }
-  }
+    }),
+    [time, scale, ellipse] // eslint-disable-line react-hooks/exhaustive-deps
+  )
 
-  componentDidUpdate = (prevProps: Props) => {
-    this.maybeUpdateBodyState(prevProps)
-    this.maybeUpdatePathOpacity(prevProps)
-    this.maybeUpdateScale(prevProps)
-  }
+  /** How prominently the orbit path is drawn, given what the user is pointing at. */
+  const pathOpacity = useMemo(
+    () => Service.getPathOpacity(props, highlightedOrbitals, id === targetId),
+    [highlightedOrbitals, id, targetId] // eslint-disable-line react-hooks/exhaustive-deps
+  )
 
-  maybeUpdateBodyState = (prevProps: Props) => {
-    if (prevProps.time !== this.props.time) {
-      this.setBodyState(this.props, this.ellipse)
-    }
-  }
-
-  maybeUpdatePathOpacity = (prevProps: Props) => {
-    if (prevProps.highlightedOrbitals !== this.props.highlightedOrbitals) {
-      this.setPathOpacity(this.props, this.props.highlightedOrbitals)
-    }
-  }
-
-  maybeUpdateScale = (prevProps: Props) => {
-    if (prevProps.scale !== this.props.scale) {
-      if (this.props.isSatellite) {
-        this.ellipse.setScale(this.props.scale)
-      }
-      this.setBodyState(this.props, this.ellipse)
-      this.setState({ scaleLastUpdate: this.props.time })
-    }
-  }
-
-  setPathOpacity = (props: Props, highlightedOrbitals?: string[]) => {
-    this.setState({
-      pathOpacity: Service.getPathOpacity(props, highlightedOrbitals, this.isTarget())
-    })
-  }
-
-  setGroupRotations = (props: Props) => {
-    this.setState({
-      eclipticGroupRotation: Service.getEclipticGroupRotation(props),
-      orbitalGroupRotation: Service.getOrbitalGroupRotation(props)
-    })
-  }
-
-  setBodyState = (props: Props, ellipse: Ellipse) => {
-    this.setState({
-      bodyRotation: Service.getBodyRotation(props),
-      bodyPosition: Service.getBodyPosition(props, ellipse),
-      bodyPercent: Service.getBodyPercent(props, ellipse),
-      maxDistance: Service.getMaxViewDistance(props)
-    })
-  }
-
-  isTarget = (): boolean => {
-    return this.props.id === this.props.targetId
-  }
-
-  render() {
-    return (
-      <Orbital
-        eclipticGroupRotation={this.state.eclipticGroupRotation}
-        orbitalGroupRotation={this.state.orbitalGroupRotation}
-        pathVertices={this.ellipse.getVertices()}
-        bodyPosition={this.state.bodyPosition}
-        bodyPercent={this.state.bodyPercent}
-        bodyRotation={this.state.bodyRotation}
-        pathOpacity={this.state.pathOpacity}
-        atmosphere={this.props.atmosphere}
-        scaleLastUpdate={this.state.scaleLastUpdate}
-        maxDistance={this.state.maxDistance}
-        maps={this.props.maps}
-        rings={this.props.rings}
-        text={this.props.name}
-        radius={this.props.radius}
-        action={this.props.action}
-        targetId={this.props.targetId}
-        parentId={this.props.parentId}
-        isSatellite={this.props.isSatellite}
-        scale={this.props.scale}
-        id={this.props.id}
-      >
-        {this.props.children}
-      </Orbital>
-    )
-  }
+  return (
+    <Orbital
+      eclipticGroupRotation={eclipticGroupRotation}
+      orbitalGroupRotation={orbitalGroupRotation}
+      pathVertices={ellipse.getVertices()}
+      bodyPosition={body.position}
+      bodyPercent={body.percent}
+      bodyRotation={body.rotation}
+      pathOpacity={pathOpacity}
+      atmosphere={props.atmosphere}
+      scaleLastUpdate={scaleLastUpdate}
+      maxDistance={body.maxDistance}
+      maps={props.maps}
+      rings={props.rings}
+      text={props.name}
+      radius={props.radius}
+      action={action}
+      targetId={targetId}
+      parentId={parentId}
+      isSatellite={isSatellite}
+      scale={scale}
+      id={id}
+    >
+      {props.children}
+    </Orbital>
+  )
 }
 
 export default OrbitalContainer

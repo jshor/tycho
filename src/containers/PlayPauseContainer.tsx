@@ -1,23 +1,26 @@
-import React from 'react'
 import { BoundActions } from '../types'
 import { connect } from 'react-redux'
 import ReduxService from '../services/ReduxService'
 import * as AnimationActions from '../actions/AnimationActions'
 import PlayPause from '../components/PlayPause'
 
-interface Props {
+export interface Props {
+  /** Whether or not the simulation is currently playing. */
   playing?: boolean
+  /** Store actions. */
   action?: Pick<BoundActions, 'setPlaying'>
 }
 
-export class PlayPauseContainer extends React.Component<Props> {
-  togglePlayer = () => {
-    this.props.action.setPlaying(!this.props.playing)
+/**
+ * Connects the play/pause button to the store.
+ */
+export function PlayPauseContainer({ playing, action }: Props) {
+  /** Starts the simulation when it is paused, and pauses it when it is playing. */
+  const togglePlayer = () => {
+    action.setPlaying(!playing)
   }
 
-  render() {
-    return <PlayPause playing={this.props.playing} onClick={this.togglePlayer} />
-  }
+  return <PlayPause playing={playing} onClick={togglePlayer} />
 }
 
 export default connect(

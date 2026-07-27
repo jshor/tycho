@@ -10,6 +10,11 @@ export const renderWithStore = (
   options?: RenderOptions
 ): RenderResult => {
   const store = createStore(initialState)
+  const withStore = (node: React.ReactElement) => <Provider store={store}>{node}</Provider>
+  const result = render(withStore(ui), options)
 
-  return render(<Provider store={store}>{ui}</Provider>, options)
+  return {
+    ...result,
+    rerender: (node: React.ReactElement) => result.rerender(withStore(node))
+  }
 }

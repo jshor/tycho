@@ -1,4 +1,3 @@
-import React from 'react'
 import { renderWithStore } from '../../test/render'
 import { DoubleSide } from 'three'
 import TextureContainer from '../TextureContainer'

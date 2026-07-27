@@ -1,6 +1,5 @@
-import React from 'react'
+import { useEffect, useRef } from 'react'
 import { connect } from 'react-redux'
-import webglEnabled from 'webgl-detect'
 import Clock from '../utils/Clock'
 import ReduxService from '../services/ReduxService'
 import App from '../components/App'
@@ -11,88 +10,111 @@ import * as AnimationActions from '../actions/AnimationActions'
 import { OrbitalData, PageText, BoundActions } from '../types'
 
 export interface Props {
+  /** The speed of the animation. */
   speed?: number
+  /** The scale of the animation. */
   scale?: number
+  /** The time at which the scene began. */
   timeOffset?: number
+  /** The orbital data for the Solar System. */
   orbitalData?: OrbitalData[]
+  /** The translated page text for the app. */
   pageText?: PageText
+  /** The active orbital target name. */
   targetName?: string
+  /** Whether or not the animation is currently playing. */
   playing?: boolean
+  /** Store actions. */
   action?: Pick<BoundActions, 'requestOrbitalData' | 'requestPageText' | 'setTime'>
 }
 
-export class AppContainer extends React.Component<Props> {
-  clock: Clock = new Clock()
-  lastTime: number = 0
+/**
+ * Drives the simulation clock, holding the app behind a splash screen until its data arrives.
+ */
+export function AppContainer({
+  speed,
+  timeOffset,
+  orbitalData,
+  pageText,
+  targetName,
+  playing,
+  action
+}: Props) {
+  const clockRef = useRef<Clock>()
+  const lastTime = useRef(0)
+  const previousOffset = useRef(timeOffset)
 
-  componentDidMount = () => {
-    this.props.action.requestOrbitalData()
-    this.props.action.requestPageText()
-    this.maybeUpdateTime(true)
+  if (!clockRef.current) {
+    clockRef.current = new Clock()
   }
 
-  componentDidUpdate = (prevProps: Props) => {
-    this.maybeUpdateOffset(prevProps)
-  }
+  const clock = clockRef.current
 
-  onAnimate = () => {
-    this.maybeUpdateTime()
-    this.maybeContinue()
-    this.maybeStop()
-
-    this.clock.speed(this.props.speed)
-    this.clock.update()
-  }
-
-  maybeUpdateOffset = (prevProps: Props) => {
-    if (prevProps.timeOffset !== this.props.timeOffset && this.props.playing) {
-      this.clock.setOffset(this.props.timeOffset)
-    }
-  }
-
-  maybeUpdateTime = (force?: boolean) => {
-    if (force || this.shouldUpdateTime()) {
-      this.lastTime = this.clock.getTime()
-      this.props.action.setTime(this.lastTime)
-    }
-  }
-
-  maybeContinue = () => {
-    if (this.props.playing && this.clock.stopped) {
-      this.clock.continue()
-    }
-  }
-
-  maybeStop = () => {
-    if (!this.props.playing && !this.clock.stopped) {
-      this.clock.stop()
-    }
-  }
-
-  shouldUpdateTime = (): boolean => {
-    if (this.clock.getTime() !== this.lastTime) {
-      return !!this.props.playing
+  /** Returns true if the clock has moved on since the last store update. */
+  const shouldUpdateTime = (): boolean => {
+    if (clock.getTime() !== lastTime.current) {
+      return !!playing
     }
     return false
   }
 
-  render() {
-    const { orbitalData, pageText } = this.props
-
-    if (orbitalData && pageText) {
-      // if (!webglEnabled) {
-      //     return <NoWebGL pageText={this.props.pageText} />;
-      // }
-      return (
-        <App
-          onAnimate={this.onAnimate}
-          title={this.props.targetName}
-          pageText={this.props.pageText}
-        />
-      )
+  /** Updates the store with the clock's current time. */
+  const updateClock = (force?: boolean) => {
+    if (force || shouldUpdateTime()) {
+      lastTime.current = clock.getTime()
+      action.setTime(lastTime.current)
     }
-    return <SplashScreen />
   }
+
+  /** Restarts the clock once the simulation resumes. */
+  const continueClock = () => {
+    if (playing && clock.stopped) {
+      clock.continue()
+    }
+  }
+
+  /** Halts the clock once the simulation pauses. */
+  const stopClock = () => {
+    if (!playing && !clock.stopped) {
+      clock.stop()
+    }
+  }
+
+  /** Advances the simulation by one frame. */
+  const onAnimate = () => {
+    updateClock()
+    continueClock()
+    stopClock()
+
+    clock.speed(speed)
+    clock.update()
+  }
+
+  /** Fetches the data the app needs, and starts the clock. */
+  useEffect(() => {
+    action.requestOrbitalData()
+    action.requestPageText()
+    updateClock(true)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  /** Moves the running clock to the time the user picked. */
+  useEffect(() => {
+    if (previousOffset.current === timeOffset) return
+
+    previousOffset.current = timeOffset
+
+    if (playing) {
+      clock.setOffset(timeOffset)
+    }
+  }, [timeOffset, playing, clock])
+
+  if (orbitalData && pageText) {
+    // if (!webglEnabled) {
+    //     return <NoWebGL pageText={pageText} />;
+    // }
+    return <App onAnimate={onAnimate} title={targetName} pageText={pageText} />
+  }
+  return <SplashScreen />
 }
 
 export default connect(

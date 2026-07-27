@@ -1,4 +1,3 @@
-import React from 'react'
 import { render } from '@testing-library/react'
 import Sun from './Sun'
 import LensFlareHelper from '../../utils/LensFlare'

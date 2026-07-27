@@ -1,4 +1,4 @@
-import React from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { DefaultLoadingManager } from 'three'
 import { connect } from 'react-redux'
 import * as AnimationActions from '../actions/AnimationActions'
@@ -8,46 +8,54 @@ import ReduxService from '../services/ReduxService'
 import SplashScreen from '../components/SplashScreen'
 import { PageText, BoundActions } from '../types'
 
-interface Props {
+export interface Props {
+  /** The url of the asset that most recently finished loading. */
   url?: string
+  /** How much of the scene has loaded, from 0 to 100. */
   percent?: number
+  /** Whether the simulation is currently playing. */
   playing?: boolean
+  /** The translated page text for the app. */
   pageText?: PageText
+  /** Store actions. */
   action?: Pick<BoundActions, 'setPercentLoaded' | 'setTextureLoaded' | 'setPlaying' | 'setVolume'>
 }
 
-interface State {
-  hasEntered: boolean
-}
+/**
+ * Holds the splash screen in front of the scene until its assets have loaded.
+ */
+export function LoaderContainer({ percent, pageText, action }: Props) {
+  const [hasEntered, setHasEntered] = useState(false)
 
-export class LoaderContainer extends React.Component<Props, State> {
-  state: State = { hasEntered: false }
+  /** Records each asset THREE.js finishes loading. */
+  const onProgress = useCallback(
+    (url: string, count: number, total: number) => {
+      action.setPercentLoaded(count, total)
+      action.setTextureLoaded(url)
+    },
+    [action]
+  )
 
-  componentDidMount = () => {
-    DefaultLoadingManager.onProgress = this.onProgress
+  /** Updates the loading progress to the store. */
+  useEffect(() => {
+    DefaultLoadingManager.onProgress = onProgress
+  }, [onProgress])
+
+  /** Dismisses the splash screen to start the simulation. */
+  const enterScene = () => {
+    action.setPlaying(true)
+    action.setVolume(1)
+    setHasEntered(true)
   }
 
-  onProgress = (url: string, count: number, total: number) => {
-    this.props.action.setPercentLoaded(count, total)
-    this.props.action.setTextureLoaded(url)
-  }
-
-  enterScene = () => {
-    this.props.action.setPlaying(true)
-    this.props.action.setVolume(1)
-    this.setState({ hasEntered: true })
-  }
-
-  render() {
-    return (
-      <SplashScreen
-        percent={this.props.percent || 0}
-        show={!this.state.hasEntered}
-        enterScene={this.enterScene}
-        pageText={this.props.pageText}
-      />
-    )
-  }
+  return (
+    <SplashScreen
+      percent={percent || 0}
+      show={!hasEntered}
+      enterScene={enterScene}
+      pageText={pageText}
+    />
+  )
 }
 
 export default connect(

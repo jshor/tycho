@@ -1,4 +1,3 @@
-import React from 'react'
 import { render } from '@testing-library/react'
 import Orbital, { Props } from './Orbital'
 import { Euler, Vector3 } from 'three'

@@ -1,4 +1,4 @@
-import React from 'react'
+import { useEffect, useState } from 'react'
 import moment from 'moment'
 import { connect } from 'react-redux'
 import ReduxService from '../services/ReduxService'
@@ -7,60 +7,66 @@ import Constants from '../constants'
 import Stats from '../components/Stats'
 import { OrbitalData, PageText } from '../types'
 
-interface Props {
+export interface Props {
+  /** The ID of the orbital the camera is focused on. */
   targetId?: string
+  /** The orbital data for the Solar System. */
   orbitalData?: OrbitalData[]
+  /** The translated page text for the app. */
   pageText?: PageText
+  /** The current simulation time. */
   time?: number
 }
 
-interface State {
+interface Stat {
+  /** The name of the orbital the statistics describe. */
   name?: string
+  /** The encyclopedic description of the orbital. */
   description?: string
+  /** The orbital's distance from the body it orbits. */
   magnitude?: string
+  /** The orbital's velocity along its current vector. */
   velocity?: string
+  /** The orbital's angle from its periapsis. */
   trueAnomaly?: string
 }
 
-export class StatsContainer extends React.Component<Props, State> {
-  state: State = {}
+/**
+ * Reports the live orbital statistics of the orbital the camera is focused on.
+ */
+export function StatsContainer({ targetId, orbitalData, pageText, time }: Props) {
+  const [stats, setStats] = useState<Stat>({})
 
-  componentDidUpdate = (prevProps: Props) => {
-    if (prevProps.targetId !== this.props.targetId || prevProps.time !== this.props.time) {
-      this.updateOrbitalStats(this.props.targetId, this.props.time)
-    }
-  }
-
-  updateOrbitalStats = (targetId: string, time: number) => {
-    const { orbitalData } = this.props
+  /** Recomputes the statistics whenever the target changes or the clock ticks. */
+  useEffect(() => {
     const target = OrbitalService.getTargetByName(orbitalData, targetId)
 
     if (target) {
       const { name, description } = target
-      this.setState({
+
+      setStats({
         name,
         description,
         ...OrbitalService.getOrbitalStats(target, time)
       })
     }
+  }, [targetId, time, orbitalData])
+
+  /** Formats the current simulation time for display. */
+  const getTime = (): string => {
+    return moment(time * 1000).format(Constants.UI.UX_DATE_FORMAT)
   }
 
-  getTime = (): string => {
-    return moment(this.props.time * 1000).format(Constants.UI.UX_DATE_FORMAT)
-  }
-
-  render() {
-    return (
-      <Stats
-        description={this.state.description}
-        velocity={this.state.velocity}
-        magnitude={this.state.magnitude}
-        trueAnomaly={this.state.trueAnomaly}
-        pageText={this.props.pageText}
-        time={this.getTime()}
-      />
-    )
-  }
+  return (
+    <Stats
+      description={stats.description}
+      velocity={stats.velocity}
+      magnitude={stats.magnitude}
+      trueAnomaly={stats.trueAnomaly}
+      pageText={pageText}
+      time={getTime()}
+    />
+  )
 }
 
 export default connect(
