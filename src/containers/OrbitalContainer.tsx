@@ -22,6 +22,7 @@ interface State {
   orbitalGroupRotation?: THREE.Euler
   bodyRotation?: THREE.Euler
   bodyPosition?: THREE.Vector3
+  bodyPercent?: number
   pathOpacity?: number
   maxDistance?: number
   scaleLastUpdate?: number
@@ -39,6 +40,7 @@ export class OrbitalContainer extends React.Component<Props, State> {
       pathOpacity: Service.getPathOpacity(props, undefined, props.id === props.targetId),
       bodyRotation: Service.getBodyRotation(props as any),
       bodyPosition: Service.getBodyPosition(props as any, this.ellipse),
+      bodyPercent: Service.getBodyPercent(props as any, this.ellipse),
       maxDistance: Service.getMaxViewDistance(props)
     }
   }
@@ -88,6 +90,7 @@ export class OrbitalContainer extends React.Component<Props, State> {
     this.setState({
       bodyRotation: Service.getBodyRotation(props as any),
       bodyPosition: Service.getBodyPosition(props as any, ellipse),
+      bodyPercent: Service.getBodyPercent(props as any, ellipse),
       maxDistance: Service.getMaxViewDistance(props)
     })
   }
@@ -103,6 +106,7 @@ export class OrbitalContainer extends React.Component<Props, State> {
         orbitalGroupRotation={this.state.orbitalGroupRotation}
         pathVertices={this.ellipse.getVertices()}
         bodyPosition={this.state.bodyPosition}
+        bodyPercent={this.state.bodyPercent}
         bodyRotation={this.state.bodyRotation}
         pathOpacity={this.state.pathOpacity}
         atmosphere={this.props.atmosphere}

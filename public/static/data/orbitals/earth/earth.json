@@ -20,6 +20,14 @@
         {
             "slot": "map",
             "url": "Earth.jpg"
+        },
+        {
+            "slot": "specularMap",
+            "url": "Earth_specular.jpg"
+        },
+        {
+            "slot": "normalMap",
+            "url": "Earth_normal.jpg"
         }
     ],
     "argumentOfPeriapsis": 114.20763,

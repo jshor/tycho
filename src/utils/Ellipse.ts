@@ -65,6 +65,15 @@ export default class Ellipse {
     return new THREE.Vector3(vector2d.x, vector2d.y)
   }
 
+  /**
+   *Returns the percentage of travel along the elliptical path [0, 1] to its periapsis.
+   */
+  getVertexPercent = (time: number, periapses: Periapses): number => {
+    const percent = PhysicsService.ellipticPercent(this.eccentricity, time, periapses)
+
+    return this.ellipse.getUtoTmapping(percent, undefined as unknown as number)
+  }
+
   setScale = (scale: number): void => {
     this.scale = scale
     this.render()

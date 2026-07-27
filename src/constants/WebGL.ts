@@ -106,3 +106,29 @@ export const Sunlight = {
   INTENSITY: 0.95,
   DISTANCE: 20000
 }
+
+export interface AtmosphereEntry {
+  /** Depth of the atmospheric shell above the surface, as a fraction of the body's radius. */
+  THICKNESS: number
+  /** Sharpness of the limb glow: how tightly it hugs the grazing edge of the disc. */
+  POWER: number
+  /** Overall brightness of the scattering. */
+  INTENSITY: number
+  /** Width of the day/night terminator fade (0-1). */
+  TERMINATOR_SOFTNESS: number
+  /** Warm colour blended in near the terminator (i.e., dusk/dawn). */
+  DUSK_COLOR: number
+}
+
+/**
+ * Atmospheric scattering settings for bodies that have an atmosphere.
+ */
+export const Atmospheres: Record<string, AtmosphereEntry> = {
+  earth: { // TODO: make this configurable in JSON
+    THICKNESS: 0.03,
+    POWER: 3,
+    INTENSITY: 1.4,
+    TERMINATOR_SOFTNESS: 0.1,
+    DUSK_COLOR: 0xffbe94
+  }
+}

@@ -18,6 +18,7 @@ export default function Sun() {
         color={Constants.WebGL.Sunlight.COLOR}
         intensity={Constants.WebGL.Sunlight.INTENSITY}
         distance={Constants.WebGL.Sunlight.DISTANCE}
+        decay={0}
       />
     </group>
   )

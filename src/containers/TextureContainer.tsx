@@ -21,12 +21,14 @@ export default function TextureContainer({ textures, transparent, side = THREE.F
 
     textures.forEach(({ url, slot }) => {
       const resolvedUrl = env(`/static/textures/map/${url}`)
+
       loader.load(resolvedUrl, (texture) => {
         const mat = materialRef.current
         if (!mat) return
 
         const key = (slot || 'map') as keyof THREE.MeshLambertMaterial
         ;(mat as any)[key] = texture
+
         mat.needsUpdate = true
         setRevision((r) => r + 1)
       })

@@ -63,6 +63,16 @@ export default class OrbitalService {
     return percentRotated * 360
   }
 
+  /**
+   *Returns the percentage of travel along the elliptical path [0, 1] to its periapsis.
+   */
+  static getBodyPercent = (
+    { periapses, time }: { periapses: Periapses; time: number },
+    ellipse: Ellipse
+  ): number => {
+    return ellipse.getVertexPercent(time, periapses)
+  }
+
   static getBodyPosition = (
     { periapses, time }: { periapses: Periapses; time: number },
     ellipse: Ellipse
