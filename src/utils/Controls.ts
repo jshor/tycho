@@ -54,6 +54,14 @@ export default class Controls extends OrbitControls {
     }
   }
 
+  /**
+   * Zooms by however far apart the user's fingers moved, in the steps the wheel zooms in.
+   */
+  pinchZoom = (separationDelta: number, action: (zoom: number) => void): void => {
+    // spreading the fingers apart pulls the camera in, the way scrolling up does
+    this.wheelZoom({ deltaY: -separationDelta * Constants.UI.PINCH_DELTA_SCALE }, action)
+  }
+
   getZoomDelta = (delta: number): number => {
     let zoom = this.level
 

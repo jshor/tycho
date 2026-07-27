@@ -7,6 +7,7 @@ import { OrbitalData } from '../../types'
 /** Controls' methods are instance properties, so the whole module stands in for the real thing. */
 const controls = vi.hoisted(() => ({
   wheelZoom: vi.fn(),
+  pinchZoom: vi.fn(),
   zoom: vi.fn(),
   tweenZoom: vi.fn(),
   cancelTween: vi.fn(),
@@ -58,6 +59,32 @@ describe('Scene Module', () => {
 
       expect(controls.wheelZoom).toHaveBeenCalledTimes(1)
       expect(controls.wheelZoom).toHaveBeenCalledWith(expect.anything(), changeZoom)
+    })
+  })
+
+  describe('pinchZoom()', () => {
+    /** Two fingers the given distance apart, along the x axis. */
+    const fingers = (separation: number) => ({
+      touches: [
+        { clientX: 0, clientY: 0 },
+        { clientX: separation, clientY: 0 }
+      ]
+    })
+
+    it('should zoom the camera by however far the user pinched', () => {
+      const changeZoom = vi.fn()
+      const { container } = renderWithStore(<Scene {...baseProps} />, {
+        orbitalData,
+        time: 1,
+        changeZoom
+      })
+      const scene = container.firstElementChild as HTMLElement
+
+      fireEvent.touchStart(scene, fingers(100))
+      fireEvent.touchMove(scene, fingers(160))
+
+      expect(controls.pinchZoom).toHaveBeenCalledTimes(1)
+      expect(controls.pinchZoom).toHaveBeenCalledWith(60, changeZoom)
     })
   })
 })
