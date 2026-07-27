@@ -1,17 +1,11 @@
-import { fireEvent } from '@testing-library/react'
-import { renderWithStore } from '../../test/render'
-import { Event } from '../event'
-
-const action = { setTouched: vi.fn() }
+import { fireEvent, render } from '@testing-library/react'
+import useStore from '../../store'
+import Event from '../event'
 
 describe('Event Module', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
-
   const renderModule = () => {
-    const { container } = renderWithStore(
-      <Event action={action}>
+    const { container } = render(
+      <Event>
         <div className="child" />
       </Event>
     )
@@ -20,29 +14,29 @@ describe('Event Module', () => {
   }
 
   describe('onTouched()', () => {
-    it('should call setTouched with the current timestamp when the scene is pressed', () => {
+    it('should record the timestamp when the scene is pressed', () => {
       const now = 12345
       vi.spyOn(Date, 'now').mockReturnValue(now)
 
       fireEvent.mouseDown(renderModule())
 
-      expect(action.setTouched).toHaveBeenCalledWith(now)
+      expect(useStore.getState().touched).toEqual(now)
     })
 
-    it('should call setTouched with the current timestamp when the scene is touched', () => {
+    it('should record the timestamp when the scene is touched', () => {
       const now = 12345
       vi.spyOn(Date, 'now').mockReturnValue(now)
 
       fireEvent.touchStart(renderModule())
 
-      expect(action.setTouched).toHaveBeenCalledWith(now)
+      expect(useStore.getState().touched).toEqual(now)
     })
   })
 
   describe('render()', () => {
     it('should forward wheel events to the given handler', () => {
       const onWheel = vi.fn()
-      const { container } = renderWithStore(<Event action={action} onWheel={onWheel} />)
+      const { container } = render(<Event onWheel={onWheel} />)
 
       fireEvent.wheel(container.firstElementChild as HTMLElement)
 

@@ -1,7 +1,9 @@
+import { act } from '@testing-library/react'
 import { useFrame } from '@react-three/fiber'
 import { renderWithStore } from '../../test/render'
-import { App } from '../app'
-import { OrbitalData, PageText } from '../../types'
+import useStore from '../../store'
+import App from '../app'
+import { OrbitalData, PageText, Store } from '../../types'
 
 /** Clock's methods are instance properties, so the whole module stands in for the real clock. */
 const clock = vi.hoisted(() => ({
@@ -16,21 +18,16 @@ const clock = vi.hoisted(() => ({
 
 vi.mock('../../utils/Clock', () => ({ default: vi.fn(() => clock) }))
 
-const action = {
-  requestOrbitalData: vi.fn(),
-  requestPageText: vi.fn(),
-  setTime: vi.fn()
-}
+const requestOrbitalData = vi.fn()
+const requestPageText = vi.fn()
 
 const orbitalData: OrbitalData[] = []
 
 const withData = { orbitalData, pageText: {} as PageText }
 
-const initialState = { data: { orbitalData } }
-
 /**
  * Runs the scene's animation tick, which the mocked `useFrame` registers but never calls on its
- * own. It is the first frame callback registered — see CanvasContent in Scene.
+ * own. It is the first frame callback registered — see CanvasContent in the scene module.
  */
 const advanceFrame = () => {
   const [tick] = vi.mocked(useFrame).mock.calls[0]
@@ -45,69 +42,73 @@ describe('App Module', () => {
     clock.stopped = false
   })
 
+  const renderModule = (state: Partial<Store> = {}) => {
+    return renderWithStore(<App />, { requestOrbitalData, requestPageText, ...state })
+  }
+
   describe('render()', () => {
     it('should show the splash screen until the app data arrives', () => {
-      const { container } = renderWithStore(<App action={action} />)
+      const { container } = renderModule()
 
       expect(container.querySelector('.splash-screen')).not.toBeNull()
       expect(container.querySelector('.uicontrols')).toBeNull()
     })
 
     it('should show the app once the data has arrived', () => {
-      const { container } = renderWithStore(<App action={action} {...withData} />, initialState)
+      const { container } = renderModule(withData)
 
       expect(container.querySelector('.uicontrols')).not.toBeNull()
     })
   })
 
-  describe('componentDidMount()', () => {
+  describe('mount', () => {
     it('should request the orbital data and page text', () => {
-      renderWithStore(<App action={action} />)
+      renderModule()
 
-      expect(action.requestOrbitalData).toHaveBeenCalledTimes(1)
-      expect(action.requestPageText).toHaveBeenCalledTimes(1)
+      expect(requestOrbitalData).toHaveBeenCalledTimes(1)
+      expect(requestPageText).toHaveBeenCalledTimes(1)
     })
 
     it('should report the clock time to the store, even while paused', () => {
       clock.getTime.mockReturnValue(42)
 
-      renderWithStore(<App action={action} />)
+      renderModule()
 
-      expect(action.setTime).toHaveBeenCalledWith(42)
+      expect(useStore.getState().time).toEqual(42)
     })
   })
 
   describe('onAnimate()', () => {
     it('should report each new time to the store while playing', () => {
-      renderWithStore(<App action={action} {...withData} playing />, initialState)
+      renderModule({ ...withData, playing: true })
 
       clock.getTime.mockReturnValue(2)
       advanceFrame()
 
-      expect(action.setTime).toHaveBeenLastCalledWith(2)
+      expect(useStore.getState().time).toEqual(2)
     })
 
     it('should not report a time that has not changed', () => {
-      renderWithStore(<App action={action} {...withData} playing />, initialState)
+      renderModule({ ...withData, playing: true })
 
-      action.setTime.mockClear()
+      useStore.setState({ time: undefined })
       advanceFrame()
 
-      expect(action.setTime).not.toHaveBeenCalled()
+      expect(useStore.getState().time).toBeUndefined()
     })
 
     it('should not report a new time while paused', () => {
-      renderWithStore(<App action={action} {...withData} playing={false} />, initialState)
+      renderModule({ ...withData, playing: false })
 
       clock.getTime.mockReturnValue(2)
-      action.setTime.mockClear()
+      useStore.setState({ time: undefined })
       advanceFrame()
 
-      expect(action.setTime).not.toHaveBeenCalled()
+      expect(useStore.getState().time).toBeUndefined()
     })
 
     it('should apply the current speed to the clock', () => {
-      renderWithStore(<App action={action} {...withData} speed={2} />, initialState)
+      renderModule({ ...withData, speed: 2 })
 
       advanceFrame()
 
@@ -118,14 +119,14 @@ describe('App Module', () => {
     it('should restart the clock once the simulation resumes', () => {
       clock.stopped = true
 
-      renderWithStore(<App action={action} {...withData} playing />, initialState)
+      renderModule({ ...withData, playing: true })
       advanceFrame()
 
       expect(clock.continue).toHaveBeenCalledTimes(1)
     })
 
     it('should halt the clock once the simulation pauses', () => {
-      renderWithStore(<App action={action} {...withData} playing={false} />, initialState)
+      renderModule({ ...withData, playing: false })
 
       advanceFrame()
 
@@ -133,36 +134,27 @@ describe('App Module', () => {
     })
   })
 
-  describe('maybeUpdateOffset()', () => {
+  describe('timeOffset', () => {
     it('should move the running clock to a newly picked time', () => {
-      const { rerender } = renderWithStore(
-        <App action={action} {...withData} playing timeOffset={0} />,
-        initialState
-      )
+      renderModule({ ...withData, playing: true, timeOffset: 0 })
 
-      rerender(<App action={action} {...withData} playing timeOffset={123} />)
+      act(() => useStore.setState({ timeOffset: 123 }))
 
       expect(clock.setOffset).toHaveBeenCalledWith(123)
     })
 
     it('should leave the clock alone while the simulation is paused', () => {
-      const { rerender } = renderWithStore(
-        <App action={action} {...withData} playing={false} timeOffset={0} />,
-        initialState
-      )
+      renderModule({ ...withData, playing: false, timeOffset: 0 })
 
-      rerender(<App action={action} {...withData} playing={false} timeOffset={123} />)
+      act(() => useStore.setState({ timeOffset: 123 }))
 
       expect(clock.setOffset).not.toHaveBeenCalled()
     })
 
     it('should leave the clock alone when the time was not picked anew', () => {
-      const { rerender } = renderWithStore(
-        <App action={action} {...withData} playing timeOffset={123} />,
-        initialState
-      )
+      renderModule({ ...withData, playing: true, timeOffset: 123 })
 
-      rerender(<App action={action} {...withData} playing timeOffset={123} />)
+      act(() => useStore.setState({ timeOffset: 123 }))
 
       expect(clock.setOffset).not.toHaveBeenCalled()
     })

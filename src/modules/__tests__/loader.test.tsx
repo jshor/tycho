@@ -1,53 +1,55 @@
 import { fireEvent } from '@testing-library/react'
 import { renderWithStore } from '../../test/render'
 import { DefaultLoadingManager } from 'three'
-import { Loader } from '../loader'
-
-const action = {
-  setPercentLoaded: vi.fn(),
-  setTextureLoaded: vi.fn(),
-  setPlaying: vi.fn(),
-  setVolume: vi.fn()
-}
+import useStore from '../../store'
+import Loader from '../loader'
+import { Store } from '../../types'
 
 describe('Loader Module', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
+  const renderModule = (state: Partial<Store> = {}) => renderWithStore(<Loader />, state)
 
   describe('onProgress()', () => {
     it('should report three.js loading progress to the store', () => {
-      renderWithStore(<Loader action={action} />)
+      renderModule()
 
       DefaultLoadingManager.onProgress('tex.png', 2, 4)
 
-      expect(action.setPercentLoaded).toHaveBeenCalledWith(2, 4)
-      expect(action.setTextureLoaded).toHaveBeenCalledWith('tex.png')
+      const { percent, url } = useStore.getState()
+
+      expect(percent).toEqual(50)
+      expect(url).toEqual('tex.png')
     })
   })
 
   describe('enterScene()', () => {
     it('should start playing, unmute the scene and dismiss the splash screen', () => {
-      const { container } = renderWithStore(
-        <Loader action={action} percent={100} pageText={{ start: 'Start' }} />
-      )
+      const { container } = renderModule({ percent: 100, pageText: { start: 'Start' } })
 
       expect(container.querySelector('.splash-screen--show')).not.toBeNull()
 
       fireEvent.click(container.querySelector('.splash-screen__button-anchor'))
 
-      expect(action.setPlaying).toHaveBeenCalledWith(true)
-      expect(action.setVolume).toHaveBeenCalledWith(1)
+      const { playing, volume } = useStore.getState()
+
+      expect(playing).toBe(true)
+      expect(volume).toEqual(1)
       expect(container.querySelector('.splash-screen--hide')).not.toBeNull()
     })
   })
 
   describe('render()', () => {
     it('should default the loading progress to zero', () => {
-      const { container } = renderWithStore(<Loader action={action} />)
+      const { container } = renderModule()
       const bar = container.querySelector('.splash-screen__loading-bar') as HTMLElement
 
       expect(bar.style.width).toEqual('0%')
+    })
+
+    it('should show how much of the scene has loaded', () => {
+      const { container } = renderModule({ percent: 40 })
+      const bar = container.querySelector('.splash-screen__loading-bar') as HTMLElement
+
+      expect(bar.style.width).toEqual('40%')
     })
   })
 })

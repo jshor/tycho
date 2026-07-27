@@ -11,8 +11,6 @@ import { PageText } from '../../types'
 interface Props {
   /** Invoked on every animation frame of the scene. */
   onAnimate: () => void
-  /** The active orbital target name, used as the stats modal title. */
-  title?: string
   /** The translated page text for the app. */
   pageText: PageText
 }
@@ -20,17 +18,17 @@ interface Props {
 /**
  * The visible application: the scene, its controls, and its modals.
  */
-export default function App({ onAnimate, title, pageText }: Props) {
+export default function App({ onAnimate, pageText }: Props) {
   return (
     <div>
       <Scene onAnimate={onAnimate} width={window.innerWidth} height={window.innerHeight} />
       <UIControls />
       <Loader />
       <Tour labels={Constants.Tour.LABELS} />
-      <Modal type={Constants.UI.ModalTypes.STATS_MODAL} title={title}>
+      <Modal type={Constants.UI.ModalTypes.STATS_MODAL}>
         <Stats />
       </Modal>
-      <Modal type={Constants.UI.ModalTypes.ABOUT_MODAL} title={pageText.aboutTitle}>
+      <Modal type={Constants.UI.ModalTypes.ABOUT_MODAL}>
         <Markdown text={pageText.aboutInfo} />
       </Modal>
     </div>

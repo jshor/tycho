@@ -1,29 +1,16 @@
 import { useEffect, useRef } from 'react'
-import { BoundActions } from '../types'
-import { connect } from 'react-redux'
+import useStore from '../store'
 import SpinLabelView from '../components/spinLabel'
-import ReduxService from '../services/ReduxService'
-import * as TourActions from '../actions/TourActions'
-import * as UIControlsActions from '../actions/UIControlsActions'
 import Constants from '../constants'
-
-export interface Props {
-  /** Whether or not the tour has finished playing. */
-  isComplete?: boolean
-  /** Whether or not the camera is orbiting its target on its own. */
-  isAutoOrbitEnabled?: boolean
-  /** Time when the user last began interacting with the scene. */
-  touched?: number
-  /** Time when the user last stopped interacting with the scene. */
-  released?: number
-  /** Store actions. */
-  action?: Pick<BoundActions, 'setCameraOrbit' | 'setUIControls'>
-}
 
 /**
  * Prompts the user to spin the camera.
  */
-export function SpinLabel({ isComplete, isAutoOrbitEnabled, touched, action }: Props) {
+export default function SpinLabel() {
+  const isComplete = useStore((state) => state.isComplete)
+  const isAutoOrbitEnabled = useStore((state) => state.isAutoOrbitEnabled)
+  const touched = useStore((state) => state.touched)
+
   const previousTouched = useRef(touched)
 
   /** Whether or not the prompt is visible. */
@@ -36,20 +23,9 @@ export function SpinLabel({ isComplete, isAutoOrbitEnabled, touched, action }: P
     previousTouched.current = touched
 
     if (isVisible()) {
-      action.setCameraOrbit(false)
-      action.setUIControls(true)
+      useStore.setState({ isAutoOrbitEnabled: false, controlsEnabled: true })
     }
   }) // eslint-disable-line react-hooks/exhaustive-deps
 
   return <SpinLabelView show={isVisible()} count={Constants.UI.SPIN_LABEL_ARROW_COUNT} />
 }
-
-export default connect(
-  ReduxService.mapStateToProps<Props>(
-    'tour.isComplete',
-    'tour.isAutoOrbitEnabled',
-    'event.touched',
-    'event.released'
-  ),
-  ReduxService.mapDispatchToProps<Props['action']>(TourActions, UIControlsActions)
-)(SpinLabel)

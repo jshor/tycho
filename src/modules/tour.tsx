@@ -1,63 +1,35 @@
 import { useEffect, useRef } from 'react'
-import { connect } from 'react-redux'
-import * as UIControlsActions from '../actions/UIControlsActions'
-import * as TourActions from '../actions/TourActions'
-import * as LabelActions from '../actions/LabelActions'
-import ReduxService from '../services/ReduxService'
+import useStore from '../store'
 import TourLabel from './tourLabel'
 import TourView from '../components/tour'
 import Constants from '../constants'
-import { TourLabelItem, PageText, BoundActions } from '../types'
+import { TourLabelItem } from '../types'
 
-/** Passed in by whoever renders the container. */
-interface OwnProps {
+interface Props {
   /** The narration labels that play over the course of the tour. */
   labels?: TourLabelItem[]
-}
-
-/** Supplied by connect. */
-interface StateProps {
-  /** Whether or not the user may interact with the controls. */
-  controlsEnabled?: boolean
-  /** The scene's current size scale. */
-  scale?: number
-  /** The ID of the orbital the camera is focused on. */
-  targetId?: string
-  /** Whether or not the tour has finished playing. */
-  isComplete?: boolean
-  /** Whether or not the simulation is currently playing. */
-  playing?: boolean
-  /** The translated page text for the app. */
-  pageText?: PageText
-}
-
-export interface Props extends StateProps, OwnProps {
-  /** Store actions. */
-  action?: Pick<
-    BoundActions,
-    'setActiveOrbital' | 'setCameraOrbit' | 'setUIControls' | 'tourCompleted'
-  >
 }
 
 /**
  * Plays the tour the first time the user visits the scene.
  */
-export function Tour(props: Props) {
-  const { playing, labels, action } = props
+export default function Tour({ labels }: Props) {
+  const playing = useStore((state) => state.playing)
+  const isComplete = useStore((state) => state.isComplete)
+  const pageText = useStore((state) => state.pageText)
+
   const hasInitialized = useRef(false)
 
   /** Ends the tour and hands the scene back to the user. */
   const skipTour = () => {
-    action.tourCompleted(true)
-    action.setCameraOrbit(false)
-    action.setUIControls(true)
+    useStore.setState({ isComplete: true, isAutoOrbitEnabled: false, controlsEnabled: true })
     localStorage.setItem('tourViewed', 'true')
   }
 
   /** Marks the tour as viewed once its last label has played. */
   const onTourComplete = () => {
     localStorage.setItem('tourViewed', 'true')
-    action.tourCompleted(true)
+    useStore.setState({ isComplete: true })
   }
 
   /** Takes the scene away from the user and orbits it for the length of the tour. */
@@ -67,8 +39,7 @@ export function Tour(props: Props) {
     }, Constants.Tour.SEPARATION_INTERVAL)
 
     setTimeout(() => {
-      action.setCameraOrbit(true)
-      action.setUIControls(false)
+      useStore.setState({ isAutoOrbitEnabled: true, controlsEnabled: false })
     })
 
     setTimeout(onTourComplete, duration)
@@ -105,17 +76,12 @@ export function Tour(props: Props) {
     return null
   }
 
-  return <TourView {...props} skipTour={skipTour} labels={getLabels(labels)} />
+  return (
+    <TourView
+      isComplete={isComplete}
+      pageText={pageText}
+      skipTour={skipTour}
+      labels={getLabels(labels)}
+    />
+  )
 }
-
-export default connect(
-  ReduxService.mapStateToProps<StateProps>(
-    'uiControls.controlsEnabled',
-    'uiControls.scale',
-    'label.targetId',
-    'tour.isComplete',
-    'animation.playing',
-    'data.pageText'
-  ),
-  ReduxService.mapDispatchToProps<Props['action']>(UIControlsActions, TourActions, LabelActions)
-)(Tour)

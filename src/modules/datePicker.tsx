@@ -1,15 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import Datetime from 'react-datetime'
 import moment from 'moment'
+import useStore from '../store'
 import DatePickerView from '../components/datePicker'
 import Constants from '../constants'
-
-interface Props {
-  /** The current simulation time, in seconds. */
-  time?: number
-  /** Moves the simulation to the newly picked time. */
-  onUpdate?: (time: number) => void
-}
 
 type DatetimePicker = Datetime & {
   openCalendar: () => void
@@ -18,7 +12,9 @@ type DatetimePicker = Datetime & {
 /**
  * Shows the current simulation time, allowing the user pick a new one.
  */
-export default function DatePicker({ time, onUpdate }: Props) {
+export default function DatePicker() {
+  const time = useStore((state) => state.time)
+
   const [uxTime, setUxTime] = useState<string>()
   const [realTime, setRealTime] = useState<Date>()
 
@@ -61,7 +57,7 @@ export default function DatePicker({ time, onUpdate }: Props) {
     // unparseable, and only hands back a Moment once it resolves.
     if (typeof value === 'string') return
 
-    onUpdate(value.unix())
+    useStore.setState({ timeOffset: value.unix() })
   }
 
   return (

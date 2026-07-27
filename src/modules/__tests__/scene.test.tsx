@@ -1,6 +1,6 @@
 import { fireEvent } from '@testing-library/react'
 import { renderWithStore } from '../../test/render'
-import { Scene, Props as SceneProps } from '../scene'
+import Scene from '../scene'
 import data from './__fixtures__/orbitals.json'
 import { OrbitalData } from '../../types'
 
@@ -20,21 +20,9 @@ const controls = vi.hoisted(() => ({
 
 vi.mock('../../utils/Controls', () => ({ default: vi.fn(() => controls) }))
 
-const baseProps: SceneProps = {
-  orbitalData: data as OrbitalData[],
-  action: {
-    changeZoom: vi.fn(),
-    setUIControls: vi.fn(),
-    setPlaying: vi.fn(),
-    setActiveOrbital: vi.fn(),
-    addHighlightedOrbital: vi.fn(),
-    removeHighlightedOrbital: vi.fn()
-  },
-  onAnimate: vi.fn(),
-  width: 500,
-  height: 300,
-  time: 1
-}
+const orbitalData = data as OrbitalData[]
+
+const baseProps = { onAnimate: vi.fn(), width: 500, height: 300 }
 
 describe('Scene Module', () => {
   beforeEach(() => {
@@ -43,15 +31,15 @@ describe('Scene Module', () => {
 
   describe('render()', () => {
     it('should render the scene without crashing', () => {
-      const { container } = renderWithStore(<Scene {...baseProps} />)
+      const { container } = renderWithStore(<Scene {...baseProps} />, { orbitalData, time: 1 })
 
       expect(container).toBeTruthy()
     })
 
     it('should render a group for each orbital in the scene', () => {
-      const { container } = renderWithStore(<Scene {...baseProps} />)
+      const { container } = renderWithStore(<Scene {...baseProps} />, { orbitalData, time: 1 })
 
-      data.forEach(({ id }) => {
+      orbitalData.forEach(({ id }) => {
         expect(container.querySelector(`group[name="${id}"]`)).not.toBeNull()
       })
     })
@@ -59,15 +47,17 @@ describe('Scene Module', () => {
 
   describe('changeZoom()', () => {
     it('should zoom the camera by however far the user scrolled', () => {
-      const { container } = renderWithStore(<Scene {...baseProps} />)
+      const changeZoom = vi.fn()
+      const { container } = renderWithStore(<Scene {...baseProps} />, {
+        orbitalData,
+        time: 1,
+        changeZoom
+      })
 
       fireEvent.wheel(container.firstElementChild as HTMLElement, { deltaY: -10 })
 
       expect(controls.wheelZoom).toHaveBeenCalledTimes(1)
-      expect(controls.wheelZoom).toHaveBeenCalledWith(
-        expect.anything(),
-        baseProps.action.changeZoom
-      )
+      expect(controls.wheelZoom).toHaveBeenCalledWith(expect.anything(), changeZoom)
     })
   })
 })

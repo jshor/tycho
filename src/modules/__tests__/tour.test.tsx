@@ -1,7 +1,9 @@
 import { act, fireEvent } from '@testing-library/react'
 import { renderWithStore } from '../../test/render'
-import { Tour, Props } from '../tour'
+import useStore from '../../store'
+import Tour from '../tour'
 import Constants from '../../constants'
+import { Store } from '../../types'
 
 vi.useFakeTimers()
 
@@ -20,15 +22,6 @@ const TOUR_DURATION = labels.reduce(
   Constants.Tour.SEPARATION_INTERVAL
 )
 
-const action = {
-  setUIControls: vi.fn(),
-  setCameraOrbit: vi.fn(),
-  setActiveOrbital: vi.fn(),
-  tourCompleted: vi.fn()
-}
-
-const baseProps = { labels, action, pageText: {} }
-
 /** Advances timers inside `act()` so the labels' scheduled state changes are flushed. */
 const advanceTimers = (ms: number) => act(() => void vi.advanceTimersByTime(ms))
 
@@ -38,8 +31,8 @@ describe('Tour Module', () => {
     localStorage.clear()
   })
 
-  const renderModule = (props: Partial<Props> = {}) => {
-    return renderWithStore(<Tour {...baseProps} {...props} />)
+  const renderModule = (state: Partial<Store> = {}) => {
+    return renderWithStore(<Tour labels={labels} />, { pageText: {}, ...state })
   }
 
   describe('render()', () => {
@@ -61,9 +54,11 @@ describe('Tour Module', () => {
       renderModule({ playing: true })
       advanceTimers(0)
 
-      expect(action.setCameraOrbit).toHaveBeenCalledWith(true)
-      expect(action.setUIControls).toHaveBeenCalledWith(false)
-      expect(action.tourCompleted).not.toHaveBeenCalled()
+      const { isAutoOrbitEnabled, controlsEnabled, isComplete } = useStore.getState()
+
+      expect(isAutoOrbitEnabled).toBe(true)
+      expect(controlsEnabled).toBe(false)
+      expect(isComplete).toBeUndefined()
     })
 
     it('should skip the tour when it was already viewed', () => {
@@ -72,32 +67,34 @@ describe('Tour Module', () => {
       renderModule({ playing: true })
       advanceTimers(TOUR_DURATION)
 
-      expect(action.tourCompleted).toHaveBeenCalledWith(true)
-      expect(action.setCameraOrbit).toHaveBeenCalledTimes(1)
-      expect(action.setCameraOrbit).toHaveBeenCalledWith(false)
-      expect(action.setUIControls).toHaveBeenCalledWith(true)
+      const { isComplete, isAutoOrbitEnabled, controlsEnabled } = useStore.getState()
+
+      expect(isComplete).toBe(true)
+      expect(isAutoOrbitEnabled).toBe(false)
+      expect(controlsEnabled).toBe(true)
     })
 
     it('should not start the tour until the scene is playing', () => {
-      const { rerender } = renderModule({ playing: false })
-
+      renderModule({ playing: false })
       advanceTimers(0)
 
-      expect(action.setCameraOrbit).not.toHaveBeenCalled()
+      expect(useStore.getState().isAutoOrbitEnabled).toBeUndefined()
 
-      rerender(<Tour {...baseProps} playing />)
+      act(() => useStore.setState({ playing: true }))
       advanceTimers(0)
 
-      expect(action.setCameraOrbit).toHaveBeenCalledWith(true)
+      expect(useStore.getState().isAutoOrbitEnabled).toBe(true)
     })
 
     it('should only initialize once, no matter how many times it renders', () => {
-      const { rerender } = renderModule({ playing: true })
-
-      rerender(<Tour {...baseProps} playing />)
+      renderModule({ playing: true })
       advanceTimers(0)
 
-      expect(action.setCameraOrbit).toHaveBeenCalledTimes(1)
+      // the user has since taken the camera back; re-rendering must not start the tour again
+      act(() => useStore.setState({ isAutoOrbitEnabled: false }))
+      advanceTimers(0)
+
+      expect(useStore.getState().isAutoOrbitEnabled).toBe(false)
     })
   })
 
@@ -107,11 +104,11 @@ describe('Tour Module', () => {
 
       advanceTimers(TOUR_DURATION - 1)
 
-      expect(action.tourCompleted).not.toHaveBeenCalled()
+      expect(useStore.getState().isComplete).toBeUndefined()
 
       advanceTimers(1)
 
-      expect(action.tourCompleted).toHaveBeenCalledWith(true)
+      expect(useStore.getState().isComplete).toBe(true)
       expect(localStorage.getItem('tourViewed')).toEqual('true')
     })
   })
@@ -120,12 +117,13 @@ describe('Tour Module', () => {
     it('should end the tour, restore the UI controls and remember it was viewed', () => {
       const { container } = renderModule({ playing: true })
 
-      vi.clearAllMocks()
       fireEvent.click(container.querySelector('.tour__skip-link'))
 
-      expect(action.tourCompleted).toHaveBeenCalledWith(true)
-      expect(action.setCameraOrbit).toHaveBeenCalledWith(false)
-      expect(action.setUIControls).toHaveBeenCalledWith(true)
+      const { isComplete, isAutoOrbitEnabled, controlsEnabled } = useStore.getState()
+
+      expect(isComplete).toBe(true)
+      expect(isAutoOrbitEnabled).toBe(false)
+      expect(controlsEnabled).toBe(true)
       expect(localStorage.getItem('tourViewed')).toEqual('true')
     })
   })

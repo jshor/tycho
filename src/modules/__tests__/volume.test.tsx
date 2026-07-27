@@ -1,13 +1,11 @@
 import { fireEvent } from '@testing-library/react'
 import { renderWithStore } from '../../test/render'
 import Cookies from 'js-cookie'
-import { Volume, getVolume, setVolume } from '../volume'
-
-const action = { setVolume: vi.fn() }
+import useStore from '../../store'
+import Volume, { getVolume, setVolume } from '../volume'
 
 describe('Volume Module', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
     Cookies.remove('volume')
   })
 
@@ -37,25 +35,25 @@ describe('Volume Module', () => {
     it('should mute the scene when the user muted it on a previous visit', () => {
       Cookies.set('volume', '0')
 
-      renderWithStore(<Volume action={action} volume={1} />)
+      renderWithStore(<Volume />, { volume: 1 })
 
-      expect(action.setVolume).toHaveBeenCalledWith(0)
+      expect(useStore.getState().volume).toEqual(0)
     })
 
     it('should leave the volume alone when the user left the scene audible', () => {
       Cookies.set('volume', '1')
 
-      renderWithStore(<Volume action={action} volume={1} />)
+      renderWithStore(<Volume />, { volume: 1 })
 
-      expect(action.setVolume).not.toHaveBeenCalled()
+      expect(useStore.getState().volume).toEqual(1)
     })
 
     it('should leave the volume alone while the scene is already muted', () => {
       Cookies.set('volume', '0')
 
-      renderWithStore(<Volume action={action} volume={0} />)
+      renderWithStore(<Volume />, { volume: 0 })
 
-      expect(action.setVolume).not.toHaveBeenCalled()
+      expect(useStore.getState().volume).toEqual(0)
     })
   })
 
@@ -63,23 +61,23 @@ describe('Volume Module', () => {
     it('should unmute the scene while it is muted', () => {
       Cookies.set('volume', '0')
 
-      const { container } = renderWithStore(<Volume action={action} volume={0} />)
+      const { container } = renderWithStore(<Volume />, { volume: 0 })
 
       fireEvent.click(container.querySelector('.volume'))
 
       expect(Cookies.get('volume')).toEqual('1')
-      expect(action.setVolume).toHaveBeenCalledWith(1)
+      expect(useStore.getState().volume).toEqual(1)
     })
 
     it('should mute the scene while it is audible', () => {
       Cookies.set('volume', '1')
 
-      const { container } = renderWithStore(<Volume action={action} volume={1} />)
+      const { container } = renderWithStore(<Volume />, { volume: 1 })
 
       fireEvent.click(container.querySelector('.volume'))
 
       expect(Cookies.get('volume')).toEqual('0')
-      expect(action.setVolume).toHaveBeenCalledWith(0)
+      expect(useStore.getState().volume).toEqual(0)
     })
   })
 })

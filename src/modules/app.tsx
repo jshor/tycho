@@ -1,45 +1,22 @@
 import { useEffect, useRef } from 'react'
-import { connect } from 'react-redux'
+import useStore from '../store'
 import Clock from '../utils/Clock'
-import ReduxService from '../services/ReduxService'
 import AppView from '../components/app'
 // import NoWebGL from '../components/noWebGL';
 import SplashScreen from '../components/splashScreen'
-import * as DataActions from '../actions/DataActions'
-import * as AnimationActions from '../actions/AnimationActions'
-import { OrbitalData, PageText, BoundActions } from '../types'
-
-export interface Props {
-  /** The speed of the animation. */
-  speed?: number
-  /** The scale of the animation. */
-  scale?: number
-  /** The time at which the scene began. */
-  timeOffset?: number
-  /** The orbital data for the Solar System. */
-  orbitalData?: OrbitalData[]
-  /** The translated page text for the app. */
-  pageText?: PageText
-  /** The active orbital target name. */
-  targetName?: string
-  /** Whether or not the animation is currently playing. */
-  playing?: boolean
-  /** Store actions. */
-  action?: Pick<BoundActions, 'requestOrbitalData' | 'requestPageText' | 'setTime'>
-}
 
 /**
  * Drives the simulation clock, holding the app behind a splash screen until its data arrives.
  */
-export function App({
-  speed,
-  timeOffset,
-  orbitalData,
-  pageText,
-  targetName,
-  playing,
-  action
-}: Props) {
+export default function App() {
+  const speed = useStore((state) => state.speed)
+  const timeOffset = useStore((state) => state.timeOffset)
+  const orbitalData = useStore((state) => state.orbitalData)
+  const pageText = useStore((state) => state.pageText)
+  const playing = useStore((state) => state.playing)
+  const requestOrbitalData = useStore((state) => state.requestOrbitalData)
+  const requestPageText = useStore((state) => state.requestPageText)
+
   const clockRef = useRef<Clock>()
   const lastTime = useRef(0)
   const previousOffset = useRef(timeOffset)
@@ -62,7 +39,7 @@ export function App({
   const updateClock = (force?: boolean) => {
     if (force || shouldUpdateTime()) {
       lastTime.current = clock.getTime()
-      action.setTime(lastTime.current)
+      useStore.setState({ time: lastTime.current })
     }
   }
 
@@ -92,8 +69,8 @@ export function App({
 
   /** Fetches the data the app needs, and starts the clock. */
   useEffect(() => {
-    action.requestOrbitalData()
-    action.requestPageText()
+    requestOrbitalData()
+    requestPageText()
     updateClock(true)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -112,20 +89,7 @@ export function App({
     // if (!webglEnabled) {
     //     return <NoWebGL pageText={pageText} />;
     // }
-    return <AppView onAnimate={onAnimate} title={targetName} pageText={pageText} />
+    return <AppView onAnimate={onAnimate} pageText={pageText} />
   }
   return <SplashScreen />
 }
-
-export default connect(
-  ReduxService.mapStateToProps<Props>(
-    'uiControls.speed',
-    'uiControls.scale',
-    'uiControls.timeOffset',
-    'data.orbitalData',
-    'data.pageText',
-    'label.targetName',
-    'animation.playing'
-  ),
-  ReduxService.mapDispatchToProps<Props['action']>(DataActions, AnimationActions)
-)(App)

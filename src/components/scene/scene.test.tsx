@@ -4,13 +4,13 @@ import data from './__fixtures__/orbitals.json'
 
 describe('Scene Component', () => {
   it('should render without crashing', () => {
-    const { container } = render(<Scene orbitalData={data} time={1} />)
+    const { container } = render(<Scene orbitalData={data} />)
 
     expect(container).toBeTruthy()
   })
 
   it('should render a named group for each orbital, nesting satellites within their parent', () => {
-    const { container } = render(<Scene orbitalData={data} time={1} />)
+    const { container } = render(<Scene orbitalData={data} />)
     const named = Array.from(container.querySelectorAll('group[name]'))
 
     expect(named.map((group) => group.getAttribute('name'))).toEqual([

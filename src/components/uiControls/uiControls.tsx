@@ -8,34 +8,49 @@ import Constants from '../../constants'
 import { PageText } from '../../types'
 
 interface Props {
-  /** Whether the user may interact with the controls. */
+  /** Whether or not the user may interact with the controls. */
   controlsEnabled?: boolean
+  /** Whether or not the settings panel is expanded. */
+  settingsActive?: boolean
   /** The name of the orbital the camera is focused on. */
   targetName?: string
-  /** The current simulation time. */
-  time?: number
   /** The current zoom level. */
   zoom?: number
+  /** The speed at which time passes in the simulation. */
+  speed?: number
+  /** The scale applied to the size of each body. */
+  scale?: number
   /** Opens the modal of the given type. */
   openModal?: (type: string) => void
-  /** Moves the simulation to a new point in time. */
-  changeTimeOffset?: (offset: number) => void
   /** Applies a new zoom level. */
   changeZoom?: (zoom: number) => void
+  /** Applies a new simulation speed. */
+  changeSpeed?: (speed: number) => void
+  /** Applies a new body scale. */
+  changeScale?: (scale: number) => void
   /** Expands and collapses the settings panel. */
   toggleSetting?: () => void
   /** The translated page text for the app. */
   pageText?: PageText
-  /** Remaining store state and actions, forwarded to the settings panel. */
-  [key: string]: unknown
 }
 
 /**
  * The heads-up display overlaying the scene.
  */
-export default function UIControls(props: Props) {
-  const { controlsEnabled, targetName, time, zoom, openModal, changeTimeOffset, changeZoom } = props
-
+export default function UIControls({
+  controlsEnabled,
+  settingsActive,
+  targetName,
+  zoom,
+  speed,
+  scale,
+  openModal,
+  changeZoom,
+  changeSpeed,
+  changeScale,
+  toggleSetting,
+  pageText
+}: Props) {
   return (
     <div
       className={cx({
@@ -45,7 +60,15 @@ export default function UIControls(props: Props) {
       })}
     >
       <div className="uicontrols__control uicontrols__control--scales">
-        <Settings {...props} />
+        <Settings
+          settingsActive={settingsActive}
+          speed={speed}
+          scale={scale}
+          pageText={pageText}
+          toggleSetting={toggleSetting}
+          changeSpeed={changeSpeed}
+          changeScale={changeScale}
+        />
       </div>
 
       <div className="uicontrols__control uicontrols__control--target-label">
@@ -58,7 +81,7 @@ export default function UIControls(props: Props) {
       </div>
 
       <div className="uicontrols__control uicontrols__control--datetime">
-        <DatePicker time={time} onUpdate={changeTimeOffset} />
+        <DatePicker />
         <PlayPause />
       </div>
 

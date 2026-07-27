@@ -1,22 +1,9 @@
 import { useEffect, useState } from 'react'
 import moment from 'moment'
-import { connect } from 'react-redux'
-import ReduxService from '../services/ReduxService'
+import useStore from '../store'
 import OrbitalService from '../services/OrbitalService'
 import Constants from '../constants'
 import StatsView from '../components/stats'
-import { OrbitalData, PageText } from '../types'
-
-export interface Props {
-  /** The ID of the orbital the camera is focused on. */
-  targetId?: string
-  /** The orbital data for the Solar System. */
-  orbitalData?: OrbitalData[]
-  /** The translated page text for the app. */
-  pageText?: PageText
-  /** The current simulation time. */
-  time?: number
-}
 
 interface Stat {
   /** The name of the orbital the statistics describe. */
@@ -34,7 +21,12 @@ interface Stat {
 /**
  * Reports the live orbital statistics of the orbital the camera is focused on.
  */
-export function Stats({ targetId, orbitalData, pageText, time }: Props) {
+export default function Stats() {
+  const targetId = useStore((state) => state.targetId)
+  const orbitalData = useStore((state) => state.orbitalData)
+  const pageText = useStore((state) => state.pageText)
+  const time = useStore((state) => state.time)
+
   const [stats, setStats] = useState<Stat>({})
 
   /** Recomputes the statistics whenever the target changes or the clock ticks. */
@@ -68,13 +60,3 @@ export function Stats({ targetId, orbitalData, pageText, time }: Props) {
     />
   )
 }
-
-export default connect(
-  ReduxService.mapStateToProps(
-    'label.targetId',
-    'data.orbitalData',
-    'data.pageText',
-    'animation.time'
-  ),
-  null
-)(Stats)

@@ -1,19 +1,14 @@
 import { Vector3 } from 'three'
-import { render } from '@testing-library/react'
+import { act } from '@testing-library/react'
+import { renderWithStore } from '../../test/render'
+import useStore from '../../store'
 import data from './__fixtures__/orbitals.json'
-import { Orbital } from '../orbital'
+import Orbital from '../orbital'
 import OrbitalService from '../../services/OrbitalService'
 import Constants from '../../constants'
+import { OrbitalData, Store } from '../../types'
 
-const action = {
-  setActiveOrbital: vi.fn(),
-  addHighlightedOrbital: vi.fn(),
-  removeHighlightedOrbital: vi.fn()
-}
-
-const orbital = data[0]
-
-const baseProps = { ...orbital, time: 1, action }
+const orbital = data[0] as OrbitalData
 
 describe('Orbital Module', () => {
   beforeEach(() => {
@@ -24,9 +19,13 @@ describe('Orbital Module', () => {
     vi.restoreAllMocks()
   })
 
+  const renderModule = (state: Partial<Store> = {}, props = {}) => {
+    return renderWithStore(<Orbital {...orbital} {...props} />, { time: 1, ...state })
+  }
+
   describe('render()', () => {
     it('should render a group named after the orbital', () => {
-      const { container } = render(<Orbital {...baseProps} />)
+      const { container } = renderModule()
 
       expect(container.querySelector(`group[name="${orbital.id}"]`)).not.toBeNull()
     })
@@ -35,7 +34,7 @@ describe('Orbital Module', () => {
       const position = new Vector3(1, 2, 3)
       const spy = vi.spyOn(OrbitalService, 'getBodyPosition').mockReturnValue(position)
 
-      render(<Orbital {...baseProps} />)
+      renderModule()
 
       expect(spy).toHaveBeenCalledTimes(1)
     })
@@ -44,30 +43,33 @@ describe('Orbital Module', () => {
   describe('body state', () => {
     it('should reposition the body as the clock ticks', () => {
       const spy = vi.spyOn(OrbitalService, 'getBodyPosition')
-      const { rerender } = render(<Orbital {...baseProps} />)
 
+      renderModule()
       spy.mockClear()
-      rerender(<Orbital {...baseProps} time={2} />)
+
+      act(() => useStore.setState({ time: 2 }))
 
       expect(spy).toHaveBeenCalledTimes(1)
     })
 
     it('should leave the body where it is when nothing has changed', () => {
       const spy = vi.spyOn(OrbitalService, 'getBodyPosition')
-      const { rerender } = render(<Orbital {...baseProps} />)
 
+      renderModule()
       spy.mockClear()
-      rerender(<Orbital {...baseProps} />)
+
+      act(() => useStore.setState({ time: 1 }))
 
       expect(spy).not.toHaveBeenCalled()
     })
 
     it('should reposition the body when the scale changes', () => {
       const spy = vi.spyOn(OrbitalService, 'getBodyPosition')
-      const { rerender } = render(<Orbital {...baseProps} scale={1} />)
 
+      renderModule({ scale: 1 })
       spy.mockClear()
-      rerender(<Orbital {...baseProps} scale={2} />)
+
+      act(() => useStore.setState({ scale: 2 }))
 
       expect(spy).toHaveBeenCalledTimes(1)
     })
@@ -76,19 +78,20 @@ describe('Orbital Module', () => {
   describe('scale', () => {
     it("should rescale a satellite's orbit when the scale changes", () => {
       const spy = vi.spyOn(OrbitalService, 'getMaxViewDistance')
-      const { rerender } = render(<Orbital {...baseProps} scale={1} isSatellite />)
 
+      renderModule({ scale: 1 }, { isSatellite: true })
       spy.mockClear()
-      rerender(<Orbital {...baseProps} scale={2} isSatellite />)
+
+      act(() => useStore.setState({ scale: 2 }))
 
       expect(spy).toHaveBeenCalledTimes(1)
     })
 
     it('should rebuild the orbit path when the scale changes', () => {
-      const { container, rerender } = render(<Orbital {...baseProps} scale={1} isSatellite />)
+      const { container } = renderModule({ scale: 1 }, { isSatellite: true })
       const before = container.innerHTML
 
-      rerender(<Orbital {...baseProps} scale={2} isSatellite />)
+      act(() => useStore.setState({ scale: 2 }))
 
       expect(container.innerHTML).not.toEqual(before)
     })
@@ -99,10 +102,11 @@ describe('Orbital Module', () => {
       const spy = vi
         .spyOn(OrbitalService, 'getPathOpacity')
         .mockReturnValue(Constants.UI.HOVER_OPACITY_ON)
-      const { rerender } = render(<Orbital {...baseProps} highlightedOrbitals={[]} />)
 
+      renderModule({ highlightedOrbitals: [] })
       spy.mockClear()
-      rerender(<Orbital {...baseProps} highlightedOrbitals={[orbital.id]} />)
+
+      act(() => useStore.setState({ highlightedOrbitals: [orbital.id] }))
 
       expect(spy).toHaveBeenCalledWith(expect.anything(), [orbital.id], false)
     })
@@ -110,9 +114,20 @@ describe('Orbital Module', () => {
     it('should mark the orbital as the target when the camera is focused on it', () => {
       const spy = vi.spyOn(OrbitalService, 'getPathOpacity')
 
-      render(<Orbital {...baseProps} targetId={orbital.id} />)
+      renderModule({ targetId: orbital.id })
 
       expect(spy).toHaveBeenCalledWith(expect.anything(), undefined, true)
+    })
+  })
+
+  describe('label actions', () => {
+    it('should focus the camera on the orbital when its label is clicked', () => {
+      const setActiveOrbital = vi.fn()
+      const { container } = renderModule({ setActiveOrbital })
+
+      container.querySelector('span')?.click()
+
+      expect(setActiveOrbital).toHaveBeenCalledWith(orbital.id, orbital.name)
     })
   })
 })

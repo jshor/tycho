@@ -1,21 +1,11 @@
 import React from 'react'
 import Orbital from '../../modules/orbital'
 import Sun from '../sun'
-import { OrbitalData, OrbitalLabelActions } from '../../types'
+import { OrbitalData } from '../../types'
 
 interface Props {
   /** The orbital data for the Solar System. */
   orbitalData: OrbitalData[]
-  /** The current simulation time. */
-  time?: number
-  /** The scene's current size scale. */
-  scale?: number
-  /** Store actions passed down to each orbital's label. */
-  action?: OrbitalLabelActions
-  /** The ids of the orbitals whose paths are highlighted. */
-  highlightedOrbitals?: string[]
-  /** The id of the orbital the camera is focused on. */
-  targetId?: string
   /** Anything rendered into the scene alongside the orbitals. */
   children?: React.ReactNode
 }
@@ -23,14 +13,7 @@ interface Props {
 /**
  * Every orbital in the Solar System, orbiting the Sun.
  */
-export default function Scene({
-  orbitalData,
-  time,
-  scale,
-  action,
-  highlightedOrbitals,
-  targetId
-}: Props) {
+export default function Scene({ orbitalData }: Props) {
   /** Recursively renders the given orbitals, nesting each one's satellites within it. */
   const getOrbitalElements = (
     orbitals: OrbitalData[],
@@ -38,17 +21,7 @@ export default function Scene({
     parentId?: string
   ) => {
     return orbitals.map((orbital) => (
-      <Orbital
-        {...orbital}
-        key={orbital.id}
-        action={action}
-        scale={scale}
-        time={time}
-        targetId={targetId}
-        highlightedOrbitals={highlightedOrbitals}
-        isSatellite={isSatellite}
-        parentId={parentId}
-      >
+      <Orbital {...orbital} key={orbital.id} isSatellite={isSatellite} parentId={parentId}>
         {orbital.satellites && getOrbitalElements(orbital.satellites, !isSatellite, orbital.id)}
       </Orbital>
     ))

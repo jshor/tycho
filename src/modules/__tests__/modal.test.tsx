@@ -1,19 +1,16 @@
 import { fireEvent } from '@testing-library/react'
 import { renderWithStore } from '../../test/render'
-import { Modal, Props } from '../modal'
-
-const action = { toggleModal: vi.fn(), setUIControls: vi.fn() }
+import useStore from '../../store'
+import Modal from '../modal'
+import Constants from '../../constants'
+import { Store } from '../../types'
 
 /** The key code that dismisses an open modal. */
 const ESCAPE = 27
 
 describe('Modal Module', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
-
-  const renderModule = (props: Partial<Props> = {}) => {
-    return renderWithStore(<Modal action={action} type="TEST_MODAL" {...props} />)
+  const renderModule = (state: Partial<Store> = {}) => {
+    return renderWithStore(<Modal type="TEST_MODAL" />, state)
   }
 
   describe('isModalActive()', () => {
@@ -30,33 +27,55 @@ describe('Modal Module', () => {
     })
   })
 
+  describe('title', () => {
+    it('should title the stats modal after the orbital the camera is focused on', () => {
+      const { container } = renderWithStore(<Modal type={Constants.UI.ModalTypes.STATS_MODAL} />, {
+        targetName: 'Earth'
+      })
+
+      expect(container.querySelector('.modal__header')?.textContent).toContain('Earth')
+    })
+
+    it('should title the about modal after the page text', () => {
+      const { container } = renderWithStore(<Modal type={Constants.UI.ModalTypes.ABOUT_MODAL} />, {
+        pageText: { aboutTitle: 'About Tycho' }
+      })
+
+      expect(container.querySelector('.modal__header')?.textContent).toContain('About Tycho')
+    })
+  })
+
   describe('closeModal()', () => {
-    it('should toggle the modal closed and re-enable the UI controls', () => {
-      const { container } = renderModule({ activeModal: 'TEST_MODAL' })
+    it('should close the modal and re-enable the UI controls', () => {
+      const { container } = renderModule({ activeModal: 'TEST_MODAL', controlsEnabled: false })
 
       fireEvent.click(container.querySelector('.modal__close'))
 
-      expect(action.toggleModal).toHaveBeenCalledWith(null)
-      expect(action.setUIControls).toHaveBeenCalledWith(true)
+      const { activeModal, controlsEnabled } = useStore.getState()
+
+      expect(activeModal).toBeNull()
+      expect(controlsEnabled).toBe(true)
     })
   })
 
   describe('onKeyPressed()', () => {
     it('should close the modal when escape is pressed and the modal is open', () => {
-      renderModule({ activeModal: 'TEST_MODAL' })
+      renderModule({ activeModal: 'TEST_MODAL', controlsEnabled: false })
 
       fireEvent.keyDown(window, { keyCode: ESCAPE })
 
-      expect(action.toggleModal).toHaveBeenCalledWith(null)
-      expect(action.setUIControls).toHaveBeenCalledWith(true)
+      const { activeModal, controlsEnabled } = useStore.getState()
+
+      expect(activeModal).toBeNull()
+      expect(controlsEnabled).toBe(true)
     })
 
     it('should do nothing when escape is pressed and the modal is closed', () => {
-      renderModule({ activeModal: null })
+      renderModule({ activeModal: 'OTHER_MODAL', controlsEnabled: false })
 
       fireEvent.keyDown(window, { keyCode: ESCAPE })
 
-      expect(action.toggleModal).not.toHaveBeenCalled()
+      expect(useStore.getState().activeModal).toEqual('OTHER_MODAL')
     })
 
     it('should do nothing when another key is pressed', () => {
@@ -64,7 +83,7 @@ describe('Modal Module', () => {
 
       fireEvent.keyDown(window, { keyCode: 13 })
 
-      expect(action.toggleModal).not.toHaveBeenCalled()
+      expect(useStore.getState().activeModal).toEqual('TEST_MODAL')
     })
 
     it('should stop listening once unmounted', () => {
@@ -73,7 +92,7 @@ describe('Modal Module', () => {
       unmount()
       fireEvent.keyDown(window, { keyCode: ESCAPE })
 
-      expect(action.toggleModal).not.toHaveBeenCalled()
+      expect(useStore.getState().activeModal).toEqual('TEST_MODAL')
     })
   })
 })

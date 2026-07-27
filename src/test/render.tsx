@@ -1,20 +1,22 @@
 import React from 'react'
 import { render, RenderOptions, RenderResult } from '@testing-library/react'
-import { Provider } from 'react-redux'
-import createStore from '../store'
-import { RootState } from '../types'
+import useStore from '../store'
+import { Store } from '../types'
 
+/**
+ * Seeds the store before rendering.
+ *
+ * The store is a singleton, so state (and any action replaced with a spy) is set on it directly
+ * rather than handed to a provider. `src/test/setup.ts` resets it between tests.
+ */
 export const renderWithStore = (
   ui: React.ReactElement,
-  initialState?: Partial<RootState>,
+  initialState?: Partial<Store>,
   options?: RenderOptions
 ): RenderResult => {
-  const store = createStore(initialState)
-  const withStore = (node: React.ReactElement) => <Provider store={store}>{node}</Provider>
-  const result = render(withStore(ui), options)
-
-  return {
-    ...result,
-    rerender: (node: React.ReactElement) => result.rerender(withStore(node))
+  if (initialState) {
+    useStore.setState(initialState)
   }
+
+  return render(ui, options)
 }

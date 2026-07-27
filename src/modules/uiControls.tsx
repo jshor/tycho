@@ -1,62 +1,45 @@
-import { connect } from 'react-redux'
-import * as Actions from '../actions/UIControlsActions'
-import ReduxService from '../services/ReduxService'
+import useStore from '../store'
 import UIControlsView from '../components/uiControls'
-import { PageText, BoundActions } from '../types'
-
-export interface Props {
-  /** The current simulation time. */
-  time?: number
-  /** The speed at which time passes in the simulation. */
-  speed?: number
-  /** The current zoom level. */
-  zoom?: number
-  /** The scale applied to the size of each body. */
-  scale?: number
-  /** Whether or not the user may interact with the controls. */
-  controlsEnabled?: boolean
-  /** Whether or not the settings panel is expanded. */
-  settingsActive?: boolean
-  /** The name of the orbital the camera is focused on. */
-  targetName?: string
-  /** The translated page text for the app. */
-  pageText?: PageText
-  /** Store actions. */
-  action?: Pick<BoundActions, 'setUIControls' | 'toggleModal' | 'toggleSettings'>
-}
 
 /**
  * Connects the heads-up display to the store.
  */
-export function UIControls(props: Props) {
-  const { settingsActive, action } = props
+export default function UIControls() {
+  const speed = useStore((state) => state.speed)
+  const zoom = useStore((state) => state.zoom)
+  const scale = useStore((state) => state.scale)
+  const controlsEnabled = useStore((state) => state.controlsEnabled)
+  const settingsActive = useStore((state) => state.settingsActive)
+  const targetName = useStore((state) => state.targetName)
+  const pageText = useStore((state) => state.pageText)
+  const changeZoom = useStore((state) => state.changeZoom)
+  const changeSpeed = useStore((state) => state.changeSpeed)
+  const changeScale = useStore((state) => state.changeScale)
 
   /** Expands the settings panel when it is collapsed, and collapses it when expanded. */
-  const toggleSettings = () => {
-    action.toggleSettings(!settingsActive)
+  const toggleSetting = () => {
+    useStore.setState({ settingsActive: !settingsActive })
   }
 
   /** Opens the modal of the given type, yielding interactivity to it. */
-  const openModal = (type: string) => {
-    action.toggleModal(type)
-    action.setUIControls(false)
+  const openModal = (activeModal: string) => {
+    useStore.setState({ activeModal, controlsEnabled: false })
   }
 
   return (
-    <UIControlsView openModal={openModal} toggleSetting={toggleSettings} {...props} {...action} />
+    <UIControlsView
+      controlsEnabled={controlsEnabled}
+      settingsActive={settingsActive}
+      targetName={targetName}
+      pageText={pageText}
+      speed={speed}
+      zoom={zoom}
+      scale={scale}
+      openModal={openModal}
+      toggleSetting={toggleSetting}
+      changeZoom={changeZoom}
+      changeSpeed={changeSpeed}
+      changeScale={changeScale}
+    />
   )
 }
-
-export default connect(
-  ReduxService.mapStateToProps<Props>(
-    'uiControls.speed',
-    'uiControls.zoom',
-    'uiControls.scale',
-    'uiControls.controlsEnabled',
-    'uiControls.settingsActive',
-    'label.targetName',
-    'data.pageText',
-    'animation.time'
-  ),
-  ReduxService.mapDispatchToProps<Props['action']>(Actions)
-)(UIControls)

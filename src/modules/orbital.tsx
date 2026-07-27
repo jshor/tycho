@@ -1,24 +1,13 @@
 import React, { useMemo, useRef } from 'react'
+import useStore from '../store'
 import Ellipse from '../utils/Ellipse'
 import Service from '../services/OrbitalService'
 import OrbitalView from '../components/orbital'
-import { OrbitalData, OrbitalLabelActions } from '../types'
+import { OrbitalData } from '../types'
 
 export interface Props extends OrbitalData {
-  /** The ID of the orbital the camera is focused on. */
-  targetId?: string
   /** The ID of the orbital this one orbits, if it is a satellite. */
   parentId?: string
-  /** The current simulation time. */
-  time?: number
-  /** The scene's current size scale. */
-  scale?: number
-  /** Whether this orbital is the active one. */
-  active?: boolean
-  /** The IDs of the orbitals whose paths are highlighted. */
-  highlightedOrbitals?: string[]
-  /** Store actions passed down to the orbital's label. */
-  action?: OrbitalLabelActions
   /** The satellites orbiting this orbital. */
   children?: React.ReactNode
 }
@@ -26,14 +15,29 @@ export interface Props extends OrbitalData {
 /**
  * Positions an orbital along its orbit, and keeps it there as the simulation runs.
  */
-export function Orbital(props: Props) {
-  const { id, targetId, parentId, time, scale, highlightedOrbitals, isSatellite, action } = props
+export default function Orbital(props: Props) {
+  const { id, parentId, isSatellite } = props
+
+  const time = useStore((state) => state.time)
+  const scale = useStore((state) => state.scale)
+  const targetId = useStore((state) => state.targetId)
+  const highlightedOrbitals = useStore((state) => state.highlightedOrbitals)
+
+  // the label's actions never change, so one selector returning them all costs no extra renders
+  const setActiveOrbital = useStore((state) => state.setActiveOrbital)
+  const addHighlightedOrbital = useStore((state) => state.addHighlightedOrbital)
+  const removeHighlightedOrbital = useStore((state) => state.removeHighlightedOrbital)
+
+  const action = useMemo(
+    () => ({ setActiveOrbital, addHighlightedOrbital, removeHighlightedOrbital }),
+    [setActiveOrbital, addHighlightedOrbital, removeHighlightedOrbital]
+  )
 
   // the ellipse is mutated in place as the scale changes, so it outlives any one render
   const ellipseRef = useRef<Ellipse>()
 
   if (!ellipseRef.current) {
-    ellipseRef.current = new Ellipse(props)
+    ellipseRef.current = new Ellipse({ ...props, scale })
   }
 
   const ellipse = ellipseRef.current
@@ -54,9 +58,9 @@ export function Orbital(props: Props) {
   /** Where the body sits along its orbit, and how it is turned, at the current time. */
   const body = useMemo(
     () => ({
-      rotation: Service.getBodyRotation(props),
-      position: Service.getBodyPosition(props, ellipse),
-      percent: Service.getBodyPercent(props, ellipse),
+      rotation: Service.getBodyRotation({ ...props, time }),
+      position: Service.getBodyPosition({ ...props, time }, ellipse),
+      percent: Service.getBodyPercent({ ...props, time }, ellipse),
       maxDistance: Service.getMaxViewDistance(props)
     }),
     [time, scale, ellipse] // eslint-disable-line react-hooks/exhaustive-deps
@@ -95,5 +99,3 @@ export function Orbital(props: Props) {
     </OrbitalView>
   )
 }
-
-export default Orbital

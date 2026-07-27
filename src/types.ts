@@ -1,11 +1,5 @@
 // Shared TypeScript interfaces for the Tycho application
 
-export interface Vector3Like {
-  x: number
-  y: number
-  z: number
-}
-
 export interface Periapses {
   last: number
   next: number
@@ -79,61 +73,70 @@ export interface PageText {
   abbreviations?: AbbreviationsPageText
 }
 
-// Redux state slices
+// Store
 
-export interface AnimationState {
+export interface Store {
+  /** Whether or not the simulation is currently playing. */
   playing?: boolean
+  /** The current simulation time, in seconds. */
   time?: number
-}
-
-export interface DataState {
+  /** The orbital data for the Solar System. */
   orbitalData?: OrbitalData[]
+  /** The translated page text for the app. */
   pageText?: PageText
-}
-
-export interface EventState {
+  /** When the user last began interacting with the scene. */
   touched?: number
-  released?: number
-}
-
-export interface LabelState {
+  /** The ID of the orbital the camera is focused on. */
   targetId?: string
+  /** The name of the orbital the camera is focused on. */
   targetName?: string
+  /** Whether or not the camera animates its way to a newly focused orbital. */
   animateTargetChange?: boolean
-  labelText?: string
+  /** The IDs of the orbitals whose paths are highlighted. */
   highlightedOrbitals?: string[]
-}
-
-export interface LoaderState {
+  /** How much of the scene has loaded, from 0 to 100. */
   percent?: number
+  /** The URL of the asset that most recently finished loading. */
   url?: string
-}
-
-export interface TourState {
+  /** Whether or not the camera is orbiting its target on its own. */
   isAutoOrbitEnabled?: boolean
+  /** Whether or not the tour has finished playing. */
   isComplete?: boolean
-}
-
-export interface UIControlsState {
+  /** The current zoom level. */
   zoom?: number
+  /** The scale applied to the size of each body. */
   scale?: number
+  /** The speed at which time passes in the simulation. */
   speed?: number
+  /** The time the user picked on the calendar. */
   timeOffset?: number
+  /** Whether or not the user may interact with the controls. */
   controlsEnabled?: boolean
+  /** The type of the modal currently open, if any. */
   activeModal?: string | null
+  /** Whether or not the settings panel is expanded. */
   settingsActive?: boolean
+  /** The volume of the scene's ambience [0, 1]. */
   volume?: number
-  newVector?: Vector3Like
-}
 
-export interface RootState {
-  animation: AnimationState
-  data: DataState
-  event: EventState
-  label: LabelState
-  loader: LoaderState
-  tour: TourState
-  uiControls: UIControlsState
+  /** Fetches the orbital data for the Solar System. */
+  requestOrbitalData: () => Promise<void>
+  /** Fetches the translated page text for the app. */
+  requestPageText: () => Promise<void>
+  /** Focuses the camera on the given orbital. */
+  setActiveOrbital: (targetId: string, targetName: string, animateTargetChange?: boolean) => void
+  /** Highlights the given orbital's path. */
+  addHighlightedOrbital: (highlightedOrbital: string) => void
+  /** Stops highlighting the given orbital's path. */
+  removeHighlightedOrbital: (highlightedOrbital: string) => void
+  /** Records how far through loading its assets the scene is. */
+  setPercentLoaded: (count: number, total: number) => void
+  /** Applies a new zoom level. */
+  changeZoom: (zoom: number) => void
+  /** Applies a new simulation speed. */
+  changeSpeed: (speed: number) => void
+  /** Applies a new body scale. */
+  changeScale: (scale: number) => void
 }
 
 export interface TourLabelItem {
@@ -152,39 +155,8 @@ export interface DistanceResult {
   trueAnomaly: number
 }
 
-// Action shape used by ReduxService
-export interface ReduxAction {
-  type: string
-  [key: string]: unknown
-}
-
-export interface BoundActions {
-  setCameraOrbit: (isAutoOrbitEnabled: boolean) => void
-  tourCompleted: (isComplete: boolean) => void
-  requestOrbitalData: () => void
-  requestPageText: () => void
-  setTime: (time: number) => void
-  setPlaying: (playing: boolean) => void
-  setTouched: (touched: number) => void
-  setReleased: (released: number) => void
-  changeZoom: (zoom: number) => void
-  changeSpeed: (speed: number) => void
-  changeScale: (scale: number) => void
-  changeTimeOffset: (timeOffset: number) => void
-  setUIControls: (controlsEnabled: boolean) => void
-  toggleModal: (activeModal: string | null) => void
-  toggleSettings: (settingsActive: boolean) => void
-  setVolume: (volume: number) => void
-  setPercentLoaded: (count: number, total: number) => void
-  setTextureLoaded: (url: string) => void
-  setActiveOrbital: (targetId: string, targetName: string, animateTargetChange?: boolean) => void
-  setLabelText: (labelText: string) => void
-  addHighlightedOrbital: (highlightedOrbital: string) => void
-  removeHighlightedOrbital: (highlightedOrbital: string) => void
-}
-
-/** The actions an orbital's label needs, threaded down through Scene and Orbital. */
+/** The actions an orbital's label needs, handed down to it by the orbital module. */
 export type OrbitalLabelActions = Pick<
-  BoundActions,
+  Store,
   'setActiveOrbital' | 'addHighlightedOrbital' | 'removeHighlightedOrbital'
 >

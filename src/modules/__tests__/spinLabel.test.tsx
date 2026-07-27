@@ -1,18 +1,18 @@
-import { render } from '@testing-library/react'
-import { SpinLabel, Props } from '../spinLabel'
-
-const action = { setCameraOrbit: vi.fn(), setUIControls: vi.fn() }
+import { act } from '@testing-library/react'
+import { renderWithStore } from '../../test/render'
+import useStore from '../../store'
+import SpinLabel from '../spinLabel'
+import { Store } from '../../types'
 
 const visible = { isComplete: true, isAutoOrbitEnabled: true }
 
 describe('Spin Label Module', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
-
-  const renderModule = (props: Partial<Props> = {}) => {
-    return render(<SpinLabel action={action} touched={0} {...props} />)
+  const renderModule = (state: Partial<Store> = {}) => {
+    return renderWithStore(<SpinLabel />, { touched: 0, controlsEnabled: false, ...state })
   }
+
+  /** Reaches for the scene, the way the event module does. */
+  const touchScene = () => act(() => useStore.setState({ touched: 1 }))
 
   describe('isVisible()', () => {
     it('should show the prompt once the tour completes and the camera is orbiting', () => {
@@ -36,30 +36,28 @@ describe('Spin Label Module', () => {
 
   describe('maybeStopSpinPrompt()', () => {
     it('should hand the camera to the user when they reach for the visible scene', () => {
-      const { rerender } = renderModule(visible)
+      renderModule(visible)
+      touchScene()
 
-      rerender(<SpinLabel action={action} touched={1} {...visible} />)
+      const { isAutoOrbitEnabled, controlsEnabled } = useStore.getState()
 
-      expect(action.setCameraOrbit).toHaveBeenCalledWith(false)
-      expect(action.setUIControls).toHaveBeenCalledWith(true)
+      expect(isAutoOrbitEnabled).toBe(false)
+      expect(controlsEnabled).toBe(true)
     })
 
     it('should do nothing while the user has not reached for the scene', () => {
-      const { rerender } = renderModule(visible)
+      renderModule(visible)
 
-      rerender(<SpinLabel action={action} touched={0} {...visible} />)
+      act(() => useStore.setState({ touched: 0 }))
 
-      expect(action.setCameraOrbit).not.toHaveBeenCalled()
+      expect(useStore.getState().isAutoOrbitEnabled).toBe(true)
     })
 
     it('should do nothing when the prompt is not on screen', () => {
-      const { rerender } = renderModule({ isComplete: false, isAutoOrbitEnabled: false })
+      renderModule({ isComplete: false, isAutoOrbitEnabled: true })
+      touchScene()
 
-      rerender(
-        <SpinLabel action={action} touched={1} isComplete={false} isAutoOrbitEnabled={false} />
-      )
-
-      expect(action.setCameraOrbit).not.toHaveBeenCalled()
+      expect(useStore.getState().isAutoOrbitEnabled).toBe(true)
     })
   })
 })

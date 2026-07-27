@@ -1,6 +1,17 @@
 import '@testing-library/jest-dom'
-import { vi } from 'vitest'
+import { beforeEach, vi } from 'vitest'
 import { AudioLoader, type Camera, type Texture } from 'three'
+import useStore from '../store'
+
+/**
+ * The store is a module-level singleton, so state a test seeds (or an action it replaces with a
+ * spy) would otherwise leak into every test that follows.
+ */
+const pristineStore = useStore.getState()
+
+beforeEach(() => {
+  useStore.setState(pristineStore, true)
+})
 
 /**
  * three's AudioLoader fetches a root-relative asset URL, which Node's fetch rejects outright

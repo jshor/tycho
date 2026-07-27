@@ -2,29 +2,15 @@ import React, { useRef, useEffect, useImperativeHandle } from 'react'
 import * as THREE from 'three'
 import { useThree, useFrame } from '@react-three/fiber'
 import { PerspectiveCamera } from '@react-three/drei'
+import useStore from '../store'
 import CameraService from '../services/CameraService'
 import Controls from '../utils/Controls'
 import Ambience from '../utils/Ambience'
 import Constants from '../constants'
-import { OrbitalData } from '../types'
-
-export interface CameraAction {
-  setUIControls: (enabled: boolean) => void
-  setPlaying: (enabled: boolean) => void
-  changeZoom: (level: number) => void
-}
 
 interface Props {
+  /** The aspect ratio the camera renders at. */
   ratio: number
-  targetId?: string
-  animateTargetChange?: boolean
-  speed?: number
-  scale?: number
-  zoom?: number
-  volume?: number
-  isAutoOrbitEnabled?: boolean
-  orbitalData?: OrbitalData[]
-  action?: CameraAction
 }
 
 export interface CameraHandle {
@@ -44,18 +30,15 @@ export const focusCameraImmediately = (
   changeZoom?.(Constants.WebGL.Zoom.MIN)
 }
 
-const Camera = React.forwardRef<CameraHandle, Props>((props, ref) => {
-  const {
-    ratio,
-    targetId,
-    animateTargetChange,
-    scale,
-    zoom,
-    volume,
-    isAutoOrbitEnabled,
-    orbitalData,
-    action
-  } = props
+const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
+  const targetId = useStore((state) => state.targetId)
+  const animateTargetChange = useStore((state) => state.animateTargetChange)
+  const scale = useStore((state) => state.scale)
+  const zoom = useStore((state) => state.zoom)
+  const volume = useStore((state) => state.volume)
+  const isAutoOrbitEnabled = useStore((state) => state.isAutoOrbitEnabled)
+  const orbitalData = useStore((state) => state.orbitalData)
+  const changeZoom = useStore((state) => state.changeZoom)
 
   const pivotRef = useRef<THREE.Group>(null)
   const controlsRef = useRef<Controls>(null)
@@ -127,7 +110,7 @@ const Camera = React.forwardRef<CameraHandle, Props>((props, ref) => {
       if (animateTargetChange === false) {
         // TODO: this is an inelegant hack to force the camera view; find alternative
         cancelTween()
-        focusCameraImmediately(target, pivot, controlsRef.current, action?.changeZoom)
+        focusCameraImmediately(target, pivot, controlsRef.current, changeZoom)
         return
       }
 
@@ -161,15 +144,14 @@ const Camera = React.forwardRef<CameraHandle, Props>((props, ref) => {
   const endTween = () => setInteractivity(true)
 
   const setInteractivity = (enabled: boolean) => {
-    action?.setUIControls(!!enabled)
-    action?.setPlaying(enabled)
+    useStore.setState({ controlsEnabled: !!enabled, playing: enabled })
     if (controlsRef.current) {
       controlsRef.current.enabled = !!enabled
     }
   }
 
   const zoomInFull = () => {
-    controlsRef.current?.tweenZoom(Constants.WebGL.Zoom.MIN, action?.changeZoom)
+    controlsRef.current?.tweenZoom(Constants.WebGL.Zoom.MIN, changeZoom)
   }
 
   return (

@@ -1,11 +1,16 @@
-import { render } from '@testing-library/react'
-import { Stats } from '../stats'
+import { act } from '@testing-library/react'
+import { renderWithStore } from '../../test/render'
+import useStore from '../../store'
+import Stats from '../stats'
 import OrbitalService from '../../services/OrbitalService'
 import Constants from '../../constants'
 import moment from 'moment'
 import data from './__fixtures__/orbitals.json'
+import { OrbitalData, Store } from '../../types'
 
-const baseProps = { orbitalData: data, pageText: {}, time: 1 }
+const orbitalData = data as OrbitalData[]
+
+const baseState = { orbitalData, pageText: {}, time: 1 }
 
 const stats = {
   magnitude: '1AU',
@@ -15,13 +20,20 @@ const stats = {
 
 describe('Stats Module', () => {
   beforeEach(() => {
-    vi.restoreAllMocks()
     vi.spyOn(OrbitalService, 'getOrbitalStats').mockReturnValue(stats)
   })
 
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  const renderModule = (state: Partial<Store> = {}) => {
+    return renderWithStore(<Stats />, { ...baseState, ...state })
+  }
+
   describe('render()', () => {
     it('should report the stats of the active orbital', () => {
-      const { container } = render(<Stats {...baseProps} targetId="dummyParent" />)
+      const { container } = renderModule({ targetId: 'dummyParent' })
       const text = container.textContent
 
       expect(text).toContain(stats.velocity)
@@ -30,14 +42,14 @@ describe('Stats Module', () => {
     })
 
     it('should report no stats while no orbital is active', () => {
-      const { container } = render(<Stats {...baseProps} />)
+      const { container } = renderModule()
 
       expect(OrbitalService.getOrbitalStats).not.toHaveBeenCalled()
       expect(container.textContent).not.toContain(stats.velocity)
     })
 
     it('should display the current simulation time', () => {
-      const { container } = render(<Stats {...baseProps} time={1000} />)
+      const { container } = renderModule({ time: 1000 })
 
       expect(container.textContent).toContain(
         moment(1000 * 1000).format(Constants.UI.UX_DATE_FORMAT)
@@ -47,26 +59,26 @@ describe('Stats Module', () => {
 
   describe('updateOrbitalStats()', () => {
     it('should recompute the stats as the clock ticks', () => {
-      const { rerender } = render(<Stats {...baseProps} targetId="dummyParent" />)
+      renderModule({ targetId: 'dummyParent' })
 
-      rerender(<Stats {...baseProps} targetId="dummyParent" time={2} />)
+      act(() => useStore.setState({ time: 2 }))
 
       expect(OrbitalService.getOrbitalStats).toHaveBeenCalledTimes(2)
       expect(OrbitalService.getOrbitalStats).toHaveBeenLastCalledWith(expect.anything(), 2)
     })
 
     it('should recompute the stats when the active orbital changes', () => {
-      const { rerender } = render(<Stats {...baseProps} targetId="dummyParent" />)
+      renderModule({ targetId: 'dummyParent' })
 
-      rerender(<Stats {...baseProps} targetId="dummyOuter" />)
+      act(() => useStore.setState({ targetId: 'dummyOuter' }))
 
       expect(OrbitalService.getOrbitalStats).toHaveBeenCalledTimes(2)
     })
 
     it('should not recompute the stats when nothing has changed', () => {
-      const { rerender } = render(<Stats {...baseProps} targetId="dummyParent" />)
+      renderModule({ targetId: 'dummyParent' })
 
-      rerender(<Stats {...baseProps} targetId="dummyParent" />)
+      act(() => useStore.setState({ targetId: 'dummyParent' }))
 
       expect(OrbitalService.getOrbitalStats).toHaveBeenCalledTimes(1)
     })
