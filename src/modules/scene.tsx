@@ -87,7 +87,7 @@ export default function Scene({ onAnimate, width, height, children }: Props) {
 
   return (
     <Event onWheel={changeZoom}>
-      <Canvas style={{ width, height }} gl={{ antialias: true, alpha: true }}>
+      <Canvas gl={{ antialias: true, alpha: true }}>
         <CanvasContent ratio={width / height} cameraRef={cameraRef} onAnimate={onAnimate}>
           {children}
         </CanvasContent>

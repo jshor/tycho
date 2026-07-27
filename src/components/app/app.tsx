@@ -20,7 +20,7 @@ interface Props {
  */
 export default function App({ onAnimate, pageText }: Props) {
   return (
-    <div>
+    <>
       <Scene onAnimate={onAnimate} width={window.innerWidth} height={window.innerHeight} />
       <UIControls />
       <Loader />
@@ -31,6 +31,6 @@ export default function App({ onAnimate, pageText }: Props) {
       <Modal type={Constants.UI.ModalTypes.ABOUT_MODAL}>
         <Markdown text={pageText.aboutInfo} />
       </Modal>
-    </div>
+    </>
   )
 }

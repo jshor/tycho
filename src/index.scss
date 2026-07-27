@@ -9,8 +9,10 @@ body {
 }
 
 html,
-body {
-  height: 100%;
+body,
+#root {
+  height: 100vh;
+  width: 100vw;
 }
 
 canvas {

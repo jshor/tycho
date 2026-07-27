@@ -18,7 +18,14 @@ export default function Event({ onWheel, children }: Props) {
   }
 
   return (
-    <div onWheel={onWheel} onTouchStart={onTouched} onMouseDown={onTouched}>
+    <div onWheel={onWheel} onTouchStart={onTouched} onMouseDown={onTouched} style={{
+      width: '100%',
+      height: '100%',
+      maxWidth: '100%',
+      maxHeight: '100%',
+      position: 'absolute',
+      overflow: 'hidden'
+    }}>
       {children}
     </div>
   )
