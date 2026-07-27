@@ -99,6 +99,7 @@ export interface EventState {
 export interface LabelState {
   targetId?: string
   targetName?: string
+  animateTargetChange?: boolean
   labelText?: string
   highlightedOrbitals?: string[]
 }
@@ -111,7 +112,6 @@ export interface LoaderState {
 export interface TourState {
   isAutoOrbitEnabled?: boolean
   isComplete?: boolean
-  isSkipped?: boolean
 }
 
 export interface UIControlsState {
@@ -161,7 +161,6 @@ export interface ReduxAction {
 export interface BoundActions {
   setCameraOrbit: (isAutoOrbitEnabled: boolean) => void
   tourCompleted: (isComplete: boolean) => void
-  tourSkipped: (isSkipped: boolean) => void
   requestOrbitalData: () => void
   requestPageText: () => void
   setTime: (time: number) => void
@@ -178,7 +177,7 @@ export interface BoundActions {
   setVolume: (volume: number) => void
   setPercentLoaded: (count: number, total: number) => void
   setTextureLoaded: (url: string) => void
-  setActiveOrbital: (targetId: string, targetName: string) => void
+  setActiveOrbital: (targetId: string, targetName: string, animateTargetChange?: boolean) => void
   setLabelText: (labelText: string) => void
   addHighlightedOrbital: (highlightedOrbital: string) => void
   removeHighlightedOrbital: (highlightedOrbital: string) => void

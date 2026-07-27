@@ -11,6 +11,13 @@ describe('Label Actions', () => {
       expect(result).toHaveProperty('targetId')
       expect(result.type).toEqual(ActionType.SET_ACTIVE_ORBITAL)
       expect(result.targetId).toEqual(targetId)
+      expect(result.animateTargetChange).toBe(true)
+    })
+
+    it('should allow an orbital to be focused without animation', () => {
+      const result = Actions.setActiveOrbital('earth', 'Earth', false)
+
+      expect(result.animateTargetChange).toBe(false)
     })
   })
 

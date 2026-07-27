@@ -10,8 +10,3 @@ export const tourCompleted = (isComplete: boolean): ReduxAction => ({
   type: Actions.TOUR_COMPLETED,
   isComplete
 })
-
-export const tourSkipped = (isSkipped: boolean): ReduxAction => ({
-  type: Actions.TOUR_SKIPPED,
-  isSkipped
-})

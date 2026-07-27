@@ -30,7 +30,8 @@ export default function labelReducer(state: LabelState = {}, payload: AnyAction)
     case Actions.SET_ACTIVE_ORBITAL:
       return Object.assign({}, state, {
         targetId: payload.targetId,
-        targetName: payload.targetName
+        targetName: payload.targetName,
+        animateTargetChange: payload.animateTargetChange
       })
 
     case Actions.SET_LABEL_TEXT:

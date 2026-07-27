@@ -4,7 +4,6 @@ import * as UIControlsActions from '../actions/UIControlsActions'
 import * as TourActions from '../actions/TourActions'
 import * as LabelActions from '../actions/LabelActions'
 import ReduxService from '../services/ReduxService'
-import TourService from '../services/TourService'
 import TourLabelContainer from './TourLabelContainer'
 import Tour from '../components/Tour'
 import Constants from '../constants'
@@ -21,7 +20,6 @@ interface StateProps {
   scale?: number
   targetId?: string
   isComplete?: boolean
-  isSkipped?: boolean
   playing?: boolean
   pageText?: PageText
 }
@@ -29,58 +27,39 @@ interface StateProps {
 interface Props extends StateProps, OwnProps {
   action?: Pick<
     BoundActions,
-    'setActiveOrbital' | 'setCameraOrbit' | 'setUIControls' | 'tourCompleted' | 'tourSkipped'
+    'setActiveOrbital' | 'setCameraOrbit' | 'setUIControls' | 'tourCompleted'
   >
 }
 
 export class TourContainer extends React.Component<Props> {
-  componentDidMount = () => {
-    if (TourService.canSkip()) {
-      this.props.action.tourSkipped(true)
-    }
-  }
+  hasInitialized = false
 
-  componentDidUpdate = (prevProps: Props) => {
-    this.maybeSkipTour(prevProps)
-    this.maybeStartTour(prevProps)
-  }
-
-  maybeSkipTour = (prevProps: Props) => {
-    if (prevProps.isSkipped !== this.props.isSkipped && this.props.isSkipped) {
+  initialize = () => {
+    if (this.hasInitialized) return
+    if (localStorage.getItem('tourViewed') === 'true_TEST') {
       this.skipTour()
-    }
-  }
-
-  maybeStartTour = (prevProps: Props) => {
-    if (this.props.playing && !prevProps.playing && !this.props.isComplete) {
+    } else if (this.props.playing) {
       this.initializeTour()
     }
-  }
-
-  shouldRunTour = (): boolean => {
-    return this.props.playing && !this.props.isSkipped
+    this.hasInitialized = true
   }
 
   initializeTour = () => {
     const { action, labels } = this.props
-    const tourDuration = TourService.getTourDuration(labels)
+    const duration = labels.reduce((cur, next) => {
+      return cur + next.duration + Constants.Tour.SEPARATION_INTERVAL
+    }, Constants.Tour.SEPARATION_INTERVAL)
 
-    if (!TourService.canSkip()) {
-      action.setUIControls(false)
+    setTimeout(() => {
       action.setCameraOrbit(true)
+      action.setUIControls(false)
+    })
 
-      setTimeout(this.onOrbitComplete, tourDuration)
-    }
-  }
-
-  onOrbitComplete = () => {
-    if (!this.props.isComplete) {
-      this.setDefaultActiveOrbital()
-      setTimeout(this.onTourComplete, Constants.WebGL.Tween.SLOW)
-    }
+    setTimeout(this.onTourComplete, duration)
   }
 
   onTourComplete = () => {
+    localStorage.setItem('tourViewed', 'true')
     this.props.action.tourCompleted(true)
   }
 
@@ -90,28 +69,14 @@ export class TourContainer extends React.Component<Props> {
     action.tourCompleted(true)
     action.setCameraOrbit(false)
     action.setUIControls(true)
-
-    this.setDefaultActiveOrbital()
-  }
-
-  setDefaultActiveOrbital = () => {
-    setTimeout(() => {
-      this.props.action.setActiveOrbital(...Constants.UI.Targets.ALTERNATE)
-      this.props.action.setActiveOrbital(...Constants.UI.Targets.DEFAULT)
-    })
-  }
-
-  skipTourTrigger = () => {
-    TourService.setSkip()
-    this.skipTour()
+    localStorage.setItem('tourViewed', 'true')
   }
 
   getLabels = (labels: TourLabelItem[]) => {
-    const separation = Constants.Tour.SEPARATION_INTERVAL
-    let totalTime = separation
+    let totalTime = 0
 
     return labels.map(({ text, duration }, key) => {
-      totalTime += separation
+      totalTime += Constants.Tour.SEPARATION_INTERVAL
       const start = totalTime
       totalTime += duration
       const end = totalTime
@@ -121,13 +86,16 @@ export class TourContainer extends React.Component<Props> {
   }
 
   render() {
-    if (!this.shouldRunTour()) {
+    if (!this.props.playing) {
       return null
     }
+
+    this.initialize()
+
     return (
       <Tour
         {...this.props}
-        skipTour={this.skipTourTrigger}
+        skipTour={this.skipTour}
         labels={this.getLabels(this.props.labels)}
       />
     )
@@ -140,7 +108,6 @@ export default connect(
     'uiControls.scale',
     'label.targetId',
     'tour.isComplete',
-    'tour.isSkipped',
     'animation.playing',
     'data.pageText'
   ),

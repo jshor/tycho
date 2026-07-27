@@ -5,7 +5,6 @@ import { PageText } from '../../types'
 
 interface Props {
   isComplete?: boolean
-  isSkipped?: boolean
   labels?: React.ReactNode[]
   skipTour?: () => void
   pageText?: PageText
@@ -13,13 +12,12 @@ interface Props {
 
 export default class Tour extends React.Component<Props> {
   render() {
-    const { isComplete, isSkipped, labels } = this.props
+    const { isComplete, labels } = this.props
     return (
       <div>
         <div
           className={cx({
             tour: true,
-            'tour--skip': isSkipped,
             'tour--hide': isComplete,
             'tour--show': !isComplete
           })}
@@ -27,7 +25,6 @@ export default class Tour extends React.Component<Props> {
           <div
             className={cx({
               'tour__theater-bar': true,
-              'tour__theater-bar--skip': isSkipped,
               'tour__theater-bar--hide': isComplete,
               'tour__theater-bar--show': !isComplete
             })}
@@ -37,7 +34,6 @@ export default class Tour extends React.Component<Props> {
           <div
             className={cx({
               'tour__theater-bar': true,
-              'tour__theater-bar--skip': isSkipped,
               'tour__theater-bar--hide': isComplete,
               'tour__theater-bar--show': !isComplete
             })}

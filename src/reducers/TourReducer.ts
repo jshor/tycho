@@ -11,8 +11,6 @@ export default function tourReducer(state: TourState = {}, payload: AnyAction): 
       return assign('isAutoOrbitEnabled')
     case Actions.TOUR_COMPLETED:
       return assign('isComplete')
-    case Actions.TOUR_SKIPPED:
-      return assign('isSkipped')
     default:
       return state
   }

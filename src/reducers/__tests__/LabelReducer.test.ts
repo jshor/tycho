@@ -13,10 +13,11 @@ describe('Label Reducer', () => {
     const targetId = 'Mars'
     const result = reducer(undefined, {
       type: Actions.SET_ACTIVE_ORBITAL,
-      targetId
+      targetId,
+      animateTargetChange: false
     })
 
-    expect(result).toEqual({ targetId })
+    expect(result).toEqual({ targetId, animateTargetChange: false })
   })
 
   it('should handle SET_LABEL_TEXT', () => {

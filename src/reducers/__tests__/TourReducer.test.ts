@@ -28,14 +28,4 @@ describe('Tour Reducer', () => {
 
     expect(result).toEqual({ isComplete })
   })
-
-  it('should handle TOUR_SKIPPED', () => {
-    const isSkipped = true
-    const result = reducer(undefined, {
-      type: Actions.TOUR_SKIPPED,
-      isSkipped
-    })
-
-    expect(result).toEqual({ isSkipped })
-  })
 })

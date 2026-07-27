@@ -25,16 +25,4 @@ describe('Tour Actions', () => {
       expect(result.isComplete).toEqual(isComplete)
     })
   })
-
-  describe('tourSkipped()', () => {
-    it('should be of type TOUR_SKIPPED with the isSkipped payload', () => {
-      const isSkipped = true
-      const result = Actions.tourSkipped(isSkipped)
-
-      expect(result).toHaveProperty('type')
-      expect(result).toHaveProperty('isSkipped')
-      expect(result.type).toEqual(ActionType.TOUR_SKIPPED)
-      expect(result.isSkipped).toEqual(isSkipped)
-    })
-  })
 })

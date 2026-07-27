@@ -1,8 +1,9 @@
 import React from 'react'
+import { act, fireEvent } from '@testing-library/react'
 import { renderWithStore } from '../../test/render'
 import { TourContainer } from '../TourContainer'
 import { Mutable } from '../../test/helpers'
-import TourService from '../../services/TourService'
+import Constants from '../../constants'
 
 vi.useFakeTimers()
 
@@ -12,126 +13,119 @@ const labels = [
   { duration: 3000, text: "Let's start exploring" }
 ]
 
+/** The value `initialize()` compares `tourViewed` against when deciding to skip the tour. */
+const TOUR_VIEWED_SKIP_VALUE = 'true_TEST'
+
+/** One separation interval leads each label, plus one before the first. */
+const TOUR_DURATION = labels.reduce(
+  (total, { duration }) => total + duration + Constants.Tour.SEPARATION_INTERVAL,
+  Constants.Tour.SEPARATION_INTERVAL
+)
+
 const action = {
   setUIControls: vi.fn(),
   setCameraOrbit: vi.fn(),
   setActiveOrbital: vi.fn(),
-  setLabelText: vi.fn(),
-  tourCompleted: vi.fn(),
-  tourSkipped: vi.fn()
+  tourCompleted: vi.fn()
 }
 
 const baseProps = { labels, action, pageText: {} }
 
-describe('Tour Container', () => {
-  let ref: React.RefObject<TourContainer>
+const renderContainer = (props: Record<string, unknown> = {}) => {
+  const ref = React.createRef<TourContainer>()
+  const result = renderWithStore(<TourContainer {...baseProps} {...props} ref={ref} />)
 
+  return { ref, ...result }
+}
+
+/** Advances timers inside `act()` so the labels' scheduled state changes are flushed. */
+const advanceTimers = (ms: number) => act(() => void vi.advanceTimersByTime(ms))
+
+describe('Tour Container', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    ref = React.createRef<TourContainer>()
-    renderWithStore(<TourContainer {...baseProps} ref={ref} />)
+    localStorage.clear()
   })
 
-  describe('componentDidMount()', () => {
-    it('should call tourSkipped when canSkip() returns true', () => {
-      TourService.canSkip = () => true
-      ref.current?.componentDidMount?.()
-      expect(action.tourSkipped).toHaveBeenCalledWith(true)
+  describe('render()', () => {
+    it('should render nothing when the scene is not playing', () => {
+      const { container } = renderContainer({ playing: false })
+
+      expect(container.firstChild).toBeNull()
     })
 
-    it('should not call tourSkipped when canSkip() returns false', () => {
-      vi.clearAllMocks()
-      TourService.canSkip = () => false
-      ref.current?.componentDidMount?.()
-      expect(action.tourSkipped).not.toHaveBeenCalled()
-    })
-  })
+    it('should render the tour when the scene is playing', () => {
+      const { container } = renderContainer({ playing: true })
 
-  describe('componentDidUpdate()', () => {
-    it('should call maybeSkipTour()', () => {
-      const spy = vi.spyOn(ref.current, 'maybeSkipTour')
-      ref.current?.componentDidUpdate({})
-      expect(spy).toHaveBeenCalledTimes(1)
-    })
-
-    it('should call maybeStartTour()', () => {
-      const spy = vi.spyOn(ref.current, 'maybeStartTour')
-      ref.current?.componentDidUpdate({})
-      expect(spy).toHaveBeenCalledTimes(1)
+      expect(container.querySelector('.tour')).not.toBeNull()
     })
   })
 
-  describe('maybeSkipTour()', () => {
-    it('should skip tour when isSkipped changes to true', () => {
-      const container = ref.current as Mutable<TourContainer>
-      const spy = vi.spyOn(container, 'skipTour')
+  describe('initialize()', () => {
+    it('should start the tour when the scene is playing', () => {
+      renderContainer({ playing: true })
+      advanceTimers(0)
 
-      container.props = { ...baseProps, isSkipped: true }
-      container.maybeSkipTour({ isSkipped: false })
-
-      expect(spy).toHaveBeenCalledTimes(1)
+      expect(action.setCameraOrbit).toHaveBeenCalledWith(true)
+      expect(action.setUIControls).toHaveBeenCalledWith(false)
+      expect(action.tourCompleted).not.toHaveBeenCalled()
     })
 
-    it('should not skip if isSkipped did not change', () => {
-      const container = ref.current as Mutable<TourContainer>
-      const spy = vi.spyOn(container, 'skipTour')
+    it('should skip the tour when it was already viewed', () => {
+      localStorage.setItem('tourViewed', TOUR_VIEWED_SKIP_VALUE)
 
-      container.props = { ...baseProps, isSkipped: true }
-      container.maybeSkipTour({ isSkipped: true })
+      renderContainer({ playing: true })
+      advanceTimers(TOUR_DURATION)
 
-      expect(spy).not.toHaveBeenCalled()
-    })
-  })
-
-  describe('maybeStartTour()', () => {
-    it('should initialize tour when playing transitions to true', () => {
-      const container = ref.current as Mutable<TourContainer>
-      const spy = vi.spyOn(container, 'initializeTour')
-
-      container.props = {
-        ...baseProps,
-        playing: true,
-        isComplete: false
-      }
-      container.maybeStartTour({ playing: false })
-
-      expect(spy).toHaveBeenCalledTimes(1)
+      expect(action.tourCompleted).toHaveBeenCalledWith(true)
+      expect(action.setCameraOrbit).toHaveBeenCalledTimes(1)
+      expect(action.setCameraOrbit).toHaveBeenCalledWith(false)
+      expect(action.setUIControls).toHaveBeenCalledWith(true)
     })
 
-    it('should not start tour if already complete', () => {
-      const container = ref.current as Mutable<TourContainer>
-      const spy = vi.spyOn(container, 'initializeTour')
+    it('should only initialize once, no matter how many times it renders', () => {
+      const { ref } = renderContainer({ playing: true })
 
-      container.props = {
-        ...baseProps,
-        playing: true,
-        isComplete: true
-      }
-      container.maybeStartTour({ playing: false })
+      act(() => ref.current?.forceUpdate())
+      ref.current?.initialize()
+      advanceTimers(0)
 
-      expect(spy).not.toHaveBeenCalled()
+      expect(action.setCameraOrbit).toHaveBeenCalledTimes(1)
     })
   })
 
   describe('initializeTour()', () => {
-    it('should call setUIControls and setCameraOrbit when canSkip is false', () => {
-      TourService.canSkip = () => false
-      const container = ref.current as Mutable<TourContainer>
-      container.props = { ...baseProps, action, labels }
+    it('should complete the tour once every label has played', () => {
+      renderContainer({ playing: true })
+      advanceTimers(TOUR_DURATION - 1)
 
-      container.initializeTour()
+      expect(action.tourCompleted).not.toHaveBeenCalled()
 
-      expect(action.setUIControls).toHaveBeenCalledWith(false)
-      expect(action.setCameraOrbit).toHaveBeenCalledWith(true)
+      advanceTimers(1)
+
+      expect(action.tourCompleted).toHaveBeenCalledWith(true)
+      expect(localStorage.getItem('tourViewed')).toEqual('true')
     })
   })
 
   describe('skipTour()', () => {
-    it('should complete the tour and restore UI controls', () => {
+    it('should complete the tour, restore the UI controls and persist that it was viewed', () => {
+      const { ref } = renderContainer()
       const container = ref.current as Mutable<TourContainer>
-      container.props = { ...baseProps, action }
 
       container.skipTour()
+
+      expect(action.tourCompleted).toHaveBeenCalledWith(true)
+      expect(action.setCameraOrbit).toHaveBeenCalledWith(false)
+      expect(action.setUIControls).toHaveBeenCalledWith(true)
+      expect(localStorage.getItem('tourViewed')).toEqual('true')
+    })
+
+    it('should skip the tour when the skip link is clicked', () => {
+      const { container } = renderContainer({ playing: true })
+
+      vi.clearAllMocks()
+      fireEvent.click(container.querySelector('.tour__skip-link'))
 
       expect(action.tourCompleted).toHaveBeenCalledWith(true)
       expect(action.setCameraOrbit).toHaveBeenCalledWith(false)
@@ -139,52 +133,28 @@ describe('Tour Container', () => {
     })
   })
 
-  describe('onTourComplete()', () => {
-    it('should mark the tour as completed', () => {
-      const container = ref.current as Mutable<TourContainer>
-      container.props = { ...baseProps, action }
-
-      container.onTourComplete()
-
-      expect(action.tourCompleted).toHaveBeenCalledWith(true)
-    })
-  })
-
-  describe('shouldRunTour()', () => {
-    it('should return true when playing and not skipped', () => {
-      const current = ref.current as Mutable<TourContainer>
-      current.props = {
-        ...baseProps,
-        playing: true,
-        isSkipped: false
-      }
-      expect(current.shouldRunTour()).toBe(true)
-    })
-
-    it('should return false when skipped', () => {
-      const current = ref.current as Mutable<TourContainer>
-      current.props = {
-        ...baseProps,
-        playing: true,
-        isSkipped: true
-      }
-      expect(current.shouldRunTour()).toBe(false)
-    })
-  })
-
   describe('getLabels()', () => {
     it('should return a label element for each tour item', () => {
+      const { ref } = renderContainer()
       const result = ref.current?.getLabels(labels)
+
       expect(result).toHaveLength(labels.length)
     })
-  })
 
-  describe('render()', () => {
-    it('should return null when tour should not run', () => {
-      const { container: dom } = renderWithStore(
-        <TourContainer labels={labels} action={action} pageText={{}} playing={false} />
-      )
-      expect(dom.firstChild).toBeNull()
+    it('should separate each label by the separation interval', () => {
+      const { ref } = renderContainer()
+      const separation = Constants.Tour.SEPARATION_INTERVAL
+      const result = ref.current?.getLabels(labels)
+
+      let expectedStart = separation
+
+      result?.forEach((label, index) => {
+        expect(label.props.text).toEqual(labels[index].text)
+        expect(label.props.start).toEqual(expectedStart)
+        expect(label.props.end).toEqual(expectedStart + labels[index].duration)
+
+        expectedStart += labels[index].duration + separation
+      })
     })
   })
 })

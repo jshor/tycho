@@ -30,6 +30,7 @@ interface StateProps {
   volume?: number
   zoom?: number
   targetId?: string
+  animateTargetChange?: boolean
   highlightedOrbitals?: string[]
   isAutoOrbitEnabled?: boolean
 }
@@ -68,6 +69,7 @@ function CanvasContent({ props, cameraRef, onAnimate }: CanvasContentProps) {
     scale,
     action,
     targetId,
+    animateTargetChange,
     highlightedOrbitals,
     zoom,
     volume,
@@ -86,6 +88,7 @@ function CanvasContent({ props, cameraRef, onAnimate }: CanvasContentProps) {
         ref={cameraRef}
         ratio={width / height}
         targetId={targetId}
+        animateTargetChange={animateTargetChange}
         action={action}
         speed={speed}
         scale={scale}
@@ -139,6 +142,7 @@ export default connect(
     'uiControls.speed',
     'uiControls.volume',
     'label.targetId',
+    'label.animateTargetChange',
     'label.highlightedOrbitals',
     'tour.isAutoOrbitEnabled',
     'animation.time',

@@ -17,6 +17,7 @@ export interface CameraAction {
 interface Props {
   ratio: number
   targetId?: string
+  animateTargetChange?: boolean
   speed?: number
   scale?: number
   zoom?: number
@@ -30,16 +31,38 @@ export interface CameraContainerHandle {
   controls: Controls | null
 }
 
+// TODO: hack; find better solution? this skips zoom by forcing the camera onto the lookat
+export const focusCameraImmediately = (
+  target: THREE.Object3D,
+  pivot: THREE.Object3D,
+  controls: Controls | null,
+  changeZoom?: (level: number) => void
+): void => {
+  controls?.cancelTween()
+  CameraService.attachToGyroscope(target, pivot, () => {})
+  controls?.zoom(Constants.WebGL.Zoom.MIN)
+  changeZoom?.(Constants.WebGL.Zoom.MIN)
+}
+
 const CameraContainer = React.forwardRef<CameraContainerHandle, Props>((props, ref) => {
-  const { ratio, targetId, scale, zoom, volume, isAutoOrbitEnabled, orbitalData, action } = props
+  const {
+    ratio,
+    targetId,
+    animateTargetChange,
+    scale,
+    zoom,
+    volume,
+    isAutoOrbitEnabled,
+    orbitalData,
+    action
+  } = props
 
   const pivotRef = useRef<THREE.Group>(null)
   const controlsRef = useRef<Controls>(null)
   const ambienceRef = useRef<Ambience>(null)
   const tweenBaseRef = useRef<{ stop(): void } | null>(null)
-  const prevTargetIdRef = useRef<string | undefined>(undefined)
 
-  // gl.domElement is the canvas — use it directly instead of requiring a prop
+  // gl.domElement is the canvas; use it directly instead of requiring a prop
   const { scene, camera, gl } = useThree()
 
   useImperativeHandle(ref, () => ({
@@ -86,24 +109,28 @@ const CameraContainer = React.forwardRef<CameraContainerHandle, Props>((props, r
     }
   }, [isAutoOrbitEnabled])
 
-  // Prevent camera collision when target or scale changes
+  // prevent camera collision when target or scale changes
   useEffect(() => {
     if (controlsRef.current) {
       controlsRef.current.minDistance = CameraService.getMinDistance(orbitalData, targetId, scale)
     }
   }, [targetId, scale, orbitalData])
 
-  // Move camera pivot when target changes
+  // move camera pivot when target changes
   useEffect(() => {
-    const hadTarget = !!prevTargetIdRef.current
-    prevTargetIdRef.current = targetId
-
-    if (!targetId || !hadTarget) return
+    if (!targetId) return
 
     const pivot = pivotRef.current
     const target = scene.getObjectByName(targetId)
 
     if (target) {
+      if (animateTargetChange === false) {
+        // TODO: this is an inelegant hack to force the camera view; find alternative
+        cancelTween()
+        focusCameraImmediately(target, pivot, controlsRef.current, action?.changeZoom)
+        return
+      }
+
       setInteractivity(false)
       const v = CameraService.getWorldPosition(target)
       const w = CameraService.getWorldPosition(pivot)
@@ -113,7 +140,7 @@ const CameraContainer = React.forwardRef<CameraContainerHandle, Props>((props, r
       zoomInFull()
       tweenBaseRef.current = CameraService.getPivotTween(w, v, target, pivot, endTween)
     }
-  }, [targetId]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [targetId, animateTargetChange]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useFrame(() => {
     controlsRef.current?.update()

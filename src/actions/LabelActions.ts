@@ -1,10 +1,15 @@
 import Actions from '../constants/Actions'
 import { ReduxAction } from '../types'
 
-export const setActiveOrbital = (targetId: string, targetName: string): ReduxAction => ({
+export const setActiveOrbital = (
+  targetId: string,
+  targetName: string,
+  animateTargetChange = true
+): ReduxAction => ({
   type: Actions.SET_ACTIVE_ORBITAL,
   targetId,
-  targetName
+  targetName,
+  animateTargetChange
 })
 
 export const setLabelText = (labelText: string): ReduxAction => ({
