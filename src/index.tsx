@@ -1,6 +1,6 @@
 import { createRoot } from 'react-dom/client'
 import { Provider } from 'react-redux'
-import AppContainer from './containers/AppContainer'
+import App from './modules/app'
 import Store from './store'
 import 'react-datetime/css/react-datetime.css'
 import './index.scss'
@@ -10,6 +10,6 @@ const root = createRoot(document.getElementById('root') || document.createElemen
 
 root.render(
   <Provider store={StoreInstance}>
-    <AppContainer />
+    <App />
   </Provider>
 )
