@@ -9,12 +9,22 @@
     "arcRotate": 45.0411,
     "inclination": 1.57869,
     "argPeriapsis": 114.20763,
-    "periapses": { "last": 1136430000, "next": 1167987600 },
+    "periapses": {
+      "last": 1136430000,
+      "next": 1167987600
+    },
     "eccentricity": 0.01671123,
     "longAscNode": 348.73936,
     "atmosphereColor": 16711680,
-    "ring": { "innerRadius": 6630, "outerRadius": 950000 },
-    "id": "dummyPlanet"
+    "ring": {
+      "innerRadius": 6630,
+      "outerRadius": 950000
+    },
+    "id": "dummyPlanet",
+    "sidereal": 1.0,
+    "centralMass": 1.989e30,
+    "longitudeOfAscendingNode": 0,
+    "argumentOfPeriapsis": 0
   },
   {
     "name": "Dummy Planet",
@@ -26,11 +36,17 @@
     "arcRotate": 45.0411,
     "inclination": 15.57869,
     "argPeriapsis": 114.20763,
-    "periapses": { "last": 1156430000, "next": 1167987600 },
+    "periapses": {
+      "last": 1156430000,
+      "next": 1167987600
+    },
     "eccentricity": 0.01671123,
     "longAscNode": 348.73936,
     "atmosphereColor": 16711680,
-    "ring": { "innerRadius": 6630, "outerRadius": 950000 },
+    "ring": {
+      "innerRadius": 6630,
+      "outerRadius": 950000
+    },
     "satellites": [
       {
         "name": "Dummy Satellite",
@@ -42,13 +58,24 @@
         "arcRotate": 15.0411,
         "inclination": 1.57869,
         "argPeriapsis": 114.20763,
-        "periapses": { "last": 1166430000, "next": 1167987600 },
+        "periapses": {
+          "last": 1166430000,
+          "next": 1167987600
+        },
         "eccentricity": 0.01671123,
         "longAscNode": 348.73936,
         "atmosphereColor": 16711680,
-        "id": "dummyChild"
+        "id": "dummyChild",
+        "sidereal": 1.0,
+        "centralMass": 1.989e30,
+        "longitudeOfAscendingNode": 0,
+        "argumentOfPeriapsis": 0
       }
     ],
-    "id": "dummyParent"
+    "id": "dummyParent",
+    "sidereal": 1.0,
+    "centralMass": 1.989e30,
+    "longitudeOfAscendingNode": 0,
+    "argumentOfPeriapsis": 0
   }
 ]

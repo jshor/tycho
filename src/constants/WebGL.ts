@@ -1,4 +1,6 @@
-export const SPECULAR_COLOR = 0x000000
+export const SPECULAR_COLOR = 0x333333 // TODO: ought to be determined by albedo, not a constant
+
+export const SHININESS = 40 // TODO: ought to be determined by albedo, not a constant
 
 export const MESH_DEFAULT_COLOR = 0xffffff
 

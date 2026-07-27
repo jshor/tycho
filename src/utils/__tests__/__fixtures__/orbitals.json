@@ -20,7 +20,11 @@
     "ring": {
       "innerRadius": 6630,
       "outerRadius": 950000
-    }
+    },
+    "sidereal": 1.0,
+    "centralMass": 1.989e30,
+    "longitudeOfAscendingNode": 0,
+    "argumentOfPeriapsis": 0
   },
   {
     "id": "dummyParent",
@@ -62,8 +66,16 @@
         },
         "eccentricity": 0.01671123,
         "longAscNode": 348.73936,
-        "atmosphereColor": 16711680
+        "atmosphereColor": 16711680,
+        "sidereal": 1.0,
+        "centralMass": 1.989e30,
+        "longitudeOfAscendingNode": 0,
+        "argumentOfPeriapsis": 0
       }
-    ]
+    ],
+    "sidereal": 1.0,
+    "centralMass": 1.989e30,
+    "longitudeOfAscendingNode": 0,
+    "argumentOfPeriapsis": 0
   }
 ]

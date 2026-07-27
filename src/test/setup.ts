@@ -1,6 +1,70 @@
 import '@testing-library/jest-dom'
 import { vi } from 'vitest'
-import type { Camera, Texture } from 'three'
+import { AudioLoader, type Camera, type Texture } from 'three'
+
+/**
+ * three's AudioLoader fetches a root-relative asset URL, which Node's fetch rejects outright
+ * ("Failed to parse URL"). Nothing asserts on the load itself, so replace it outright rather than
+ * spy on it — a spy would be undone by the suites that call restoreAllMocks.
+ */
+AudioLoader.prototype.load = vi.fn()
+
+/**
+ * jsdom has no Web Audio implementation, and three's AudioListener builds an AudioContext the
+ * moment anything renders the Ambience path. Only the handful of members three actually touches
+ * are provided here — the fuller `web-audio-mock` package patches enough globals to break
+ * user-event's clipboard stub, so it stays scoped to the one suite that imports it directly.
+ */
+class MockAudioContext {
+  currentTime = 0
+  destination = {}
+  createGain(): { gain: { value: number }; connect: () => void; disconnect: () => void } {
+    return { gain: { value: 1 }, connect: vi.fn(), disconnect: vi.fn() }
+  }
+  createBuffer(): object {
+    return {}
+  }
+  decodeAudioData(): Promise<object> {
+    return Promise.resolve({})
+  }
+}
+
+if (!('AudioContext' in global)) {
+  Object.defineProperty(global, 'AudioContext', {
+    value: MockAudioContext,
+    writable: true,
+    configurable: true
+  })
+}
+
+/**
+ * jsdom has no ResizeObserver, which react-slider constructs on mount.
+ */
+class MockResizeObserver implements ResizeObserver {
+  observe(): void {}
+  unobserve(): void {}
+  disconnect(): void {}
+}
+
+global.ResizeObserver = MockResizeObserver
+
+/**
+ * react-three-fiber's intrinsics (`<group>`, `<mesh>`, …) are not real DOM tags, so jsdom renders
+ * them as HTMLUnknownElement. Components that reach for a three.js Object3D method on a ref — Sun
+ * calls `groupRef.current.add(...)` — would otherwise blow up. These no-ops stand in for the
+ * Object3D surface those refs are expected to expose.
+ */
+const object3dMethods = ['add', 'remove', 'clear', 'lookAt', 'updateMatrixWorld'] as const
+
+object3dMethods.forEach((method) => {
+  if (!(method in HTMLUnknownElement.prototype)) {
+    Object.defineProperty(HTMLUnknownElement.prototype, method, {
+      value: vi.fn(),
+      writable: true,
+      configurable: true
+    })
+  }
+})
 
 class MockOrbitControls {
   camera: Camera

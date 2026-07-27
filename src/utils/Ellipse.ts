@@ -71,7 +71,7 @@ export default class Ellipse {
   getVertexPercent = (time: number, periapses: Periapses): number => {
     const percent = PhysicsService.ellipticPercent(this.eccentricity, time, periapses)
 
-    return this.ellipse.getUtoTmapping(percent, undefined!)
+    return this.ellipse.getUtoTmapping(percent, 0)
   }
 
   setScale = (scale: number): void => {

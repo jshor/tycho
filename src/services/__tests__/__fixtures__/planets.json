@@ -1,7 +1,21 @@
 [
   {
     "id": "Mars",
-    "radius": 4
+    "radius": 4,
+    "sidereal": 1.0,
+    "centralMass": 1.989e30,
+    "longitudeOfAscendingNode": 0,
+    "argumentOfPeriapsis": 0,
+    "axialTilt": 0,
+    "eccentricity": 0,
+    "inclination": 0,
+    "semimajor": 1,
+    "semiminor": 1,
+    "periapses": {
+      "last": 0,
+      "next": 1
+    },
+    "name": "Mars"
   },
   {
     "id": "Earth",
@@ -9,12 +23,54 @@
     "satellites": [
       {
         "id": "Moon",
-        "radius": 2
+        "radius": 2,
+        "sidereal": 1.0,
+        "centralMass": 1.989e30,
+        "longitudeOfAscendingNode": 0,
+        "argumentOfPeriapsis": 0,
+        "axialTilt": 0,
+        "eccentricity": 0,
+        "inclination": 0,
+        "semimajor": 1,
+        "semiminor": 1,
+        "periapses": {
+          "last": 0,
+          "next": 1
+        },
+        "name": "Moon"
       }
-    ]
+    ],
+    "sidereal": 1.0,
+    "centralMass": 1.989e30,
+    "longitudeOfAscendingNode": 0,
+    "argumentOfPeriapsis": 0,
+    "axialTilt": 0,
+    "eccentricity": 0,
+    "inclination": 0,
+    "semimajor": 1,
+    "semiminor": 1,
+    "periapses": {
+      "last": 0,
+      "next": 1
+    },
+    "name": "Earth"
   },
   {
     "id": "Venus",
-    "radius": 3
+    "radius": 3,
+    "sidereal": 1.0,
+    "centralMass": 1.989e30,
+    "longitudeOfAscendingNode": 0,
+    "argumentOfPeriapsis": 0,
+    "axialTilt": 0,
+    "eccentricity": 0,
+    "inclination": 0,
+    "semimajor": 1,
+    "semiminor": 1,
+    "periapses": {
+      "last": 0,
+      "next": 1
+    },
+    "name": "Venus"
   }
 ]
