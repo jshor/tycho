@@ -3,6 +3,7 @@ import { Text } from '@react-three/drei'
 import { useThree, useFrame, ThreeEvent } from '@react-three/fiber'
 import * as THREE from 'three'
 import Constants from '../../../constants'
+import { OrbitalLabelActions } from '../../../types'
 
 interface Props {
   /** The text to display in the label. */
@@ -10,7 +11,7 @@ interface Props {
   /** The unique identifier for the label. */
   id: string
   /** The action associated with the label. */
-  action: Record<string, any>
+  action: OrbitalLabelActions
   /** The target identifier for the label. */
   targetId?: string
   /** The parent identifier for the label. */
@@ -19,6 +20,28 @@ interface Props {
   isSatellite?: boolean
   /** The identifier for the barycenter of the label. */
   maxDistance?: number
+}
+
+interface TroikaText extends THREE.Mesh {
+  textRenderInfo?: {
+    /** [minX, minY, maxX, maxY] of the laid-out block, in the text's local units. */
+    blockBounds: [number, number, number, number]
+  }
+}
+
+interface CameraFacingTextProps {
+  children?: React.ReactNode
+  fontSize?: number
+  /** Name of the ancestor to measure distance from, when culling a satellite's label. */
+  barycenterId?: string
+  maxDistance?: number
+  onClick?: (event: ThreeEvent<MouseEvent>) => void
+  onPointerOver?: (event: ThreeEvent<PointerEvent>) => void
+  onPointerOut?: (event: ThreeEvent<PointerEvent>) => void
+  color?: string
+  anchorX?: 'left' | 'center' | 'right'
+  anchorY?: 'top' | 'middle' | 'bottom'
+  font?: string
 }
 
 /** The THREE.js material used for the label text. */
@@ -63,9 +86,6 @@ const findAncestorByName = (from: THREE.Object3D, name: string): THREE.Object3D 
   return null
 }
 
-/**
- * A 3D text label that always faces the camera and scales to maintain a constant size on screen.
- */
 export function CameraFacingText({
   children,
   fontSize = 1,
@@ -75,8 +95,8 @@ export function CameraFacingText({
   onPointerOver,
   onPointerOut,
   ...props
-}: any) {
-  const ref = useRef<any>(null)
+}: CameraFacingTextProps) {
+  const ref = useRef<TroikaText>(null)
   const groupRef = useRef<THREE.Group>(null)
   const backgroundRef = useRef<THREE.Mesh>(null)
   const { camera, size } = useThree()

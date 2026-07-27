@@ -4,7 +4,7 @@ import Actions from '../../constants/Actions'
 describe('Tour Reducer', () => {
   it('should return the state', () => {
     const state = { isAutoOrbitEnabled: true }
-    const result = reducer(state as any, {} as any)
+    const result = reducer(state, { type: 'UNKNOWN_ACTION' })
 
     expect(result).toEqual(state)
   })

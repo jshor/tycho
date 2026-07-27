@@ -8,10 +8,15 @@ import TourService from '../services/TourService'
 import TourLabelContainer from './TourLabelContainer'
 import Tour from '../components/Tour'
 import Constants from '../constants'
-import { TourLabelItem, PageText } from '../types'
+import { TourLabelItem, PageText, BoundActions } from '../types'
 
-interface Props {
+/** Passed in by whoever renders the container. */
+interface OwnProps {
   labels?: TourLabelItem[]
+}
+
+/** Supplied by connect. */
+interface StateProps {
   controlsEnabled?: boolean
   scale?: number
   targetId?: string
@@ -19,7 +24,13 @@ interface Props {
   isSkipped?: boolean
   playing?: boolean
   pageText?: PageText
-  action?: Record<string, any>
+}
+
+interface Props extends StateProps, OwnProps {
+  action?: Pick<
+    BoundActions,
+    'setActiveOrbital' | 'setCameraOrbit' | 'setUIControls' | 'tourCompleted' | 'tourSkipped'
+  >
 }
 
 export class TourContainer extends React.Component<Props> {
@@ -124,7 +135,7 @@ export class TourContainer extends React.Component<Props> {
 }
 
 export default connect(
-  ReduxService.mapStateToProps(
+  ReduxService.mapStateToProps<StateProps>(
     'uiControls.controlsEnabled',
     'uiControls.scale',
     'label.targetId',
@@ -133,5 +144,5 @@ export default connect(
     'animation.playing',
     'data.pageText'
   ),
-  ReduxService.mapDispatchToProps(UIControlsActions, TourActions, LabelActions)
-)(TourContainer as React.ComponentType<any>) as any
+  ReduxService.mapDispatchToProps<Props['action']>(UIControlsActions, TourActions, LabelActions)
+)(TourContainer)

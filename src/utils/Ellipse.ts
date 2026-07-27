@@ -9,7 +9,7 @@ interface EllipseProps {
   semimajor: number
   semiminor: number
   eccentricity: number
-  scale: number
+  scale?: number
 }
 
 export default class Ellipse {
@@ -18,7 +18,7 @@ export default class Ellipse {
   eccentricity: number
   scale: number
   ellipse: THREE.EllipseCurve
-  path: any
+  path: THREE.CurvePath<THREE.Vector2>
 
   constructor({ semimajor, semiminor, eccentricity, scale }: EllipseProps) {
     this.semimajor = semimajor
@@ -33,8 +33,8 @@ export default class Ellipse {
     this.path.add(this.ellipse)
   }
 
-  getPath = (): any => {
-    return new THREE.CurvePath()
+  getPath = (): THREE.CurvePath<THREE.Vector2> => {
+    return new THREE.CurvePath<THREE.Vector2>()
   }
 
   getEllipseCurve = (): THREE.EllipseCurve => {
@@ -53,9 +53,9 @@ export default class Ellipse {
   }
 
   getVertices = (): THREE.Vector3[] => {
-    return (
-      this.ellipse.getPoints(Constants.WebGL.Ellipse.POINTS) as unknown as THREE.Vector2[]
-    ).map((v: THREE.Vector2) => new THREE.Vector3(v.x, v.y, 0))
+    return this.ellipse
+      .getPoints(Constants.WebGL.Ellipse.POINTS)
+      .map((v: THREE.Vector2) => new THREE.Vector3(v.x, v.y, 0))
   }
 
   getPosition = (time: number, periapses: Periapses): THREE.Vector3 => {
@@ -71,7 +71,7 @@ export default class Ellipse {
   getVertexPercent = (time: number, periapses: Periapses): number => {
     const percent = PhysicsService.ellipticPercent(this.eccentricity, time, periapses)
 
-    return this.ellipse.getUtoTmapping(percent, undefined as unknown as number)
+    return this.ellipse.getUtoTmapping(percent, undefined!)
   }
 
   setScale = (scale: number): void => {

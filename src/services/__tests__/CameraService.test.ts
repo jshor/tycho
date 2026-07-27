@@ -9,7 +9,13 @@ import fixture from './__fixtures__/planets.json'
 describe('Camera Service', () => {
   describe('getPivotTween()', () => {
     it('should return a new instance of Tween', () => {
-      const tween = (CameraService.getPivotTween as any)()
+      const tween = CameraService.getPivotTween(
+        new Vector3(),
+        new Vector3(1, 1, 1),
+        new Object3D(),
+        new Object3D(),
+        vi.fn()
+      )
 
       expect(tween).toBeDefined()
       expect(tween).toBeInstanceOf(TWEEN.Tween)
@@ -60,29 +66,29 @@ describe('Camera Service', () => {
     const { MIN_DISTANCE } = Constants.WebGL.Camera
 
     it('should floor a small orbital to the minimum radius so the camera clears its inflated body', () => {
-      expect(CameraService.getMinDistance(fixture as any, 'Earth', 1)).toBeCloseTo(
+      expect(CameraService.getMinDistance(fixture, 'Earth', 1)).toBeCloseTo(
         Scale(MINIMUM_RADIUS, 1) + MIN_DISTANCE
       )
     })
 
     it('should still apply the scale factor after flooring', () => {
-      expect(CameraService.getMinDistance(fixture as any, 'Earth', 2)).toBeCloseTo(
+      expect(CameraService.getMinDistance(fixture, 'Earth', 2)).toBeCloseTo(
         Scale(MINIMUM_RADIUS, 2) + MIN_DISTANCE
       )
     })
 
     it('should return 0 if the target distance is not available', () => {
-      expect(CameraService.getMinDistance(fixture as any, 'Bogus', 1)).toEqual(0)
+      expect(CameraService.getMinDistance(fixture, 'Bogus', 1)).toEqual(0)
     })
   })
 
   describe('attachToWorld()', () => {
-    const scene = new Object3D()
+    const scene = new Scene()
     const pivot = new Object3D()
     const position = new Vector3(1, 2, 3)
 
     beforeEach(() => {
-      CameraService.attachToWorld(scene as any, pivot, position)
+      CameraService.attachToWorld(scene, pivot, position)
     })
 
     it('should add the given pivot to the scene', () => {

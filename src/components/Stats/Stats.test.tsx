@@ -4,7 +4,7 @@ import Stats from './Stats'
 
 describe('Stats Component', () => {
   it('should render without crashing', () => {
-    const { container } = render(<Stats time="2024-01-01" pageText={{} as any} />)
+    const { container } = render(<Stats time="2024-01-01" pageText={{}} />)
     expect(container).toBeTruthy()
   })
 })

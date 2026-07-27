@@ -15,7 +15,12 @@ export default class NoWebGL extends React.Component<Props> {
           <p>
             {webgl.required}
             <br />
-            <a href={webgl.enableInstructionsUrl} target="_blank" className="no-webgl__anchor">
+            <a
+              href={webgl.enableInstructionsUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="no-webgl__anchor"
+            >
               {webgl.clickHere}
             </a>
             &nbsp;

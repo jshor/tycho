@@ -8,7 +8,7 @@ export default class Ambience extends AudioListener {
   constructor(camera: Camera) {
     super()
     this.sound = new Audio(this)
-    this.loader.load(env('/static/audio/ambience.mp3'), this.loaded as any)
+    this.loader.load(env('/static/audio/ambience.mp3'), this.loaded)
     camera.add(this)
   }
 

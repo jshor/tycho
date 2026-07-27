@@ -10,7 +10,9 @@ const action = {
 }
 
 describe('Orbital Label Component', () => {
-  beforeEach(() => vi.clearAllMocks())
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
 
   it('should render the label text', () => {
     render(<Label text="Earth" id="Earth" action={action} />)
@@ -65,6 +67,7 @@ describe('Orbital Label Component', () => {
     const user = userEvent.setup()
     render(<Label text="Earth" id="Earth" action={action} />)
 
+    await user.hover(screen.getByText('Earth'))
     await user.unhover(screen.getByText('Earth'))
 
     expect(action.removeHighlightedOrbital).toHaveBeenCalledWith('Earth')

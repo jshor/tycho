@@ -3,7 +3,7 @@ import * as THREE from 'three'
 import Ellipse from '../utils/Ellipse'
 import Service from '../services/OrbitalService'
 import Orbital from '../components/Orbital'
-import { OrbitalData, TextureMap, RingData } from '../types'
+import { OrbitalData, OrbitalLabelActions } from '../types'
 
 interface Props extends OrbitalData {
   targetId?: string
@@ -12,8 +12,7 @@ interface Props extends OrbitalData {
   scale?: number
   active?: boolean
   highlightedOrbitals?: string[]
-  camera?: any
-  action?: Record<string, any>
+  action?: OrbitalLabelActions
   children?: React.ReactNode
 }
 
@@ -33,14 +32,14 @@ export class OrbitalContainer extends React.Component<Props, State> {
 
   constructor(props: Props) {
     super(props)
-    this.ellipse = new Ellipse(props as any)
+    this.ellipse = new Ellipse(props)
     this.state = {
       eclipticGroupRotation: Service.getEclipticGroupRotation(props),
       orbitalGroupRotation: Service.getOrbitalGroupRotation(props),
       pathOpacity: Service.getPathOpacity(props, undefined, props.id === props.targetId),
-      bodyRotation: Service.getBodyRotation(props as any),
-      bodyPosition: Service.getBodyPosition(props as any, this.ellipse),
-      bodyPercent: Service.getBodyPercent(props as any, this.ellipse),
+      bodyRotation: Service.getBodyRotation(props),
+      bodyPosition: Service.getBodyPosition(props, this.ellipse),
+      bodyPercent: Service.getBodyPercent(props, this.ellipse),
       maxDistance: Service.getMaxViewDistance(props)
     }
   }
@@ -88,9 +87,9 @@ export class OrbitalContainer extends React.Component<Props, State> {
 
   setBodyState = (props: Props, ellipse: Ellipse) => {
     this.setState({
-      bodyRotation: Service.getBodyRotation(props as any),
-      bodyPosition: Service.getBodyPosition(props as any, ellipse),
-      bodyPercent: Service.getBodyPercent(props as any, ellipse),
+      bodyRotation: Service.getBodyRotation(props),
+      bodyPosition: Service.getBodyPosition(props, ellipse),
+      bodyPercent: Service.getBodyPercent(props, ellipse),
       maxDistance: Service.getMaxViewDistance(props)
     })
   }
@@ -112,19 +111,19 @@ export class OrbitalContainer extends React.Component<Props, State> {
         atmosphere={this.props.atmosphere}
         scaleLastUpdate={this.state.scaleLastUpdate}
         maxDistance={this.state.maxDistance}
-        camera={this.props.camera}
         maps={this.props.maps}
         rings={this.props.rings}
         text={this.props.name}
         radius={this.props.radius}
         action={this.props.action}
-        children={this.props.children}
         targetId={this.props.targetId}
         parentId={this.props.parentId}
         isSatellite={this.props.isSatellite}
         scale={this.props.scale}
         id={this.props.id}
-      />
+      >
+        {this.props.children}
+      </Orbital>
     )
   }
 }

@@ -160,4 +160,6 @@ const CameraContainer = React.forwardRef<CameraContainerHandle, Props>((props, r
   )
 })
 
+CameraContainer.displayName = 'CameraContainer'
+
 export default CameraContainer

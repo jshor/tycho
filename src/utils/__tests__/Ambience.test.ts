@@ -2,17 +2,9 @@ import 'web-audio-mock'
 import { Camera } from 'three'
 import Ambience from '../Ambience'
 
-const mockSound = {
-  setBuffer: vi.fn(),
-  setLoop: vi.fn(),
-  play: vi.fn(),
-  pause: vi.fn(),
-  setVolume: vi.fn()
-}
-
 describe('Ambience Utility', () => {
   const camera = new Camera()
-  let ambience
+  let ambience: Ambience
 
   beforeEach(() => {
     ambience = new Ambience(camera)
@@ -29,11 +21,7 @@ describe('Ambience Utility', () => {
   })
 
   describe('loaded()', () => {
-    const buffer = { loaded: true }
-
-    beforeEach(() => {
-      ambience.sound = mockSound
-    })
+    const buffer = new AudioContext().createBuffer(1, 1, 44100)
 
     it('should call setBuffer with the given buffer', () => {
       const spy = vi.spyOn(ambience.sound, 'setBuffer')
@@ -55,10 +43,6 @@ describe('Ambience Utility', () => {
   })
 
   describe('setVolume()', () => {
-    beforeEach(() => {
-      ambience.sound = mockSound
-    })
-
     describe('when the volume level is truthy', () => {
       it('should play the audio', () => {
         const spy = vi.spyOn(ambience.sound, 'play')

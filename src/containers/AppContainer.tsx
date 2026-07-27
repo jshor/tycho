@@ -8,9 +8,9 @@ import App from '../components/App'
 import SplashScreen from '../components/SplashScreen'
 import * as DataActions from '../actions/DataActions'
 import * as AnimationActions from '../actions/AnimationActions'
-import { OrbitalData, PageText } from '../types'
+import { OrbitalData, PageText, BoundActions } from '../types'
 
-interface Props {
+export interface Props {
   speed?: number
   scale?: number
   timeOffset?: number
@@ -18,7 +18,7 @@ interface Props {
   pageText?: PageText
   targetName?: string
   playing?: boolean
-  action: Record<string, any>
+  action?: Pick<BoundActions, 'requestOrbitalData' | 'requestPageText' | 'setTime'>
 }
 
 export class AppContainer extends React.Component<Props> {
@@ -96,7 +96,7 @@ export class AppContainer extends React.Component<Props> {
 }
 
 export default connect(
-  ReduxService.mapStateToProps(
+  ReduxService.mapStateToProps<Props>(
     'uiControls.speed',
     'uiControls.scale',
     'uiControls.timeOffset',
@@ -105,5 +105,5 @@ export default connect(
     'label.targetName',
     'animation.playing'
   ),
-  ReduxService.mapDispatchToProps(DataActions, AnimationActions)
-)(AppContainer as React.ComponentType<any>) as any
+  ReduxService.mapDispatchToProps<Props['action']>(DataActions, AnimationActions)
+)(AppContainer)

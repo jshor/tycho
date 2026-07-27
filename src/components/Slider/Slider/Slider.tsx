@@ -2,7 +2,7 @@ import React from 'react'
 import ReactSlider from 'react-slider'
 
 interface Props {
-  orientation: string
+  orientation: 'horizontal' | 'vertical'
   step?: number
   min?: number
   max?: number
@@ -51,7 +51,7 @@ export default class Slider extends React.Component<Props, State> {
         min={this.props.min}
         max={this.props.max}
         value={this.props.value}
-        onChange={this.props.onChange as any}
+        onChange={this.props.onChange}
       />
     )
   }

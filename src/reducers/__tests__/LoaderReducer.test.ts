@@ -3,8 +3,8 @@ import Actions from '../../constants/Actions'
 
 describe('Loader Reducer', () => {
   it('should return the state', () => {
-    const state = { targetId: 'Mars' }
-    const result = reducer(state as any, {} as any)
+    const state = { percent: 50 }
+    const result = reducer(state, { type: 'UNKNOWN_ACTION' })
 
     expect(result).toEqual(state)
   })

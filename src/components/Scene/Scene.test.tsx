@@ -8,24 +8,24 @@ describe('Scene Component', () => {
 
   beforeEach(() => {
     ref = React.createRef<Scene>()
-    render(<Scene orbitalData={data as any} time={1} ref={ref as any} />)
+    render(<Scene orbitalData={data} time={1} ref={ref} />)
   })
 
   describe('getOrbitalElements()', () => {
     it('should return an array', () => {
-      const result = ref.current!.getOrbitalElements(data as any)
+      const result = ref.current?.getOrbitalElements(data)
       expect(Array.isArray(result)).toBe(true)
     })
 
     it('should return one element per orbital', () => {
-      const result = ref.current!.getOrbitalElements(data as any)
+      const result = ref.current?.getOrbitalElements(data)
       expect(result).toHaveLength(data.length)
     })
   })
 
   describe('render()', () => {
     it('should render without crashing', () => {
-      const { container } = render(<Scene orbitalData={data as any} time={1} />)
+      const { container } = render(<Scene orbitalData={data} time={1} />)
       expect(container).toBeTruthy()
     })
   })

@@ -1,10 +1,10 @@
 import React from 'react'
-import { render } from '@testing-library/react'
+import { renderWithStore } from '../../test/render'
 import Tour from './Tour'
 
 describe('Tour Component', () => {
   it('should render without crashing', () => {
-    const { container } = render(<Tour pageText={{} as any} skipTour={vi.fn()} labels={[]} />)
+    const { container } = renderWithStore(<Tour pageText={{}} skipTour={vi.fn()} labels={[]} />)
     expect(container).toBeTruthy()
   })
 })

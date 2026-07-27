@@ -1,20 +1,21 @@
+import type { MockInstance } from 'vitest'
 import TWEEN from 'tween.js'
 import { Camera, Vector3 } from 'three'
 import Controls from '../Controls'
 
 describe('Controls', () => {
-  let camera
-  let controls
+  let camera: Camera
+  let controls: Controls
 
   beforeEach(() => {
     camera = new Camera()
-    controls = new Controls(camera, null as any)
+    controls = new Controls(camera, document.createElement('canvas'))
   })
 
   describe('zoom()', () => {
     describe('when the zoom level has changed', () => {
       const newLevel = 50
-      let spy
+      let spy: MockInstance
 
       beforeEach(() => {
         spy = vi.spyOn(controls, 'pan')
@@ -83,7 +84,7 @@ describe('Controls', () => {
 
       controls.minDistance = 1
       controls.getZoomVector = () => zoomVector
-      controls.pan(0, true)
+      controls.pan(0)
 
       expect(controls.camera.position).toBeInstanceOf(Vector3)
       expect(controls.camera.position).toEqual(zoomVector)
@@ -196,8 +197,8 @@ describe('Controls', () => {
     it('should dispose of the tweenBase and tweenData objects', () => {
       const spy = vi.spyOn(controls, 'endTween')
 
-      controls.tweenBase = {}
-      controls.tweenData = {}
+      controls.tweenBase = new TWEEN.Tween({})
+      controls.tweenData = { level: 0 }
       controls.completeTween()
 
       expect(spy).toHaveBeenCalled()
@@ -207,8 +208,7 @@ describe('Controls', () => {
 
   describe('cancelTween()', () => {
     it('should stop the active tween', () => {
-      const stop = vi.fn()
-      controls.tweenBase = { stop }
+      controls.tweenBase = new TWEEN.Tween({})
       const spy = vi.spyOn(controls.tweenBase, 'stop')
 
       controls.cancelTween()
@@ -218,10 +218,9 @@ describe('Controls', () => {
     })
 
     it('should call endTween', () => {
-      const stop = vi.fn()
       const spy = vi.spyOn(controls, 'endTween')
 
-      controls.tweenBase = { stop }
+      controls.tweenBase = new TWEEN.Tween({})
       controls.cancelTween()
 
       expect(spy).toHaveBeenCalled()
@@ -232,7 +231,7 @@ describe('Controls', () => {
   describe('completeTween()', () => {
     it('should invoke the tweenDone callback assignment, if exists', () => {
       controls.tweenDone = vi.fn()
-      controls.tweenData = {}
+      controls.tweenData = { level: 0 }
 
       const spy = vi.spyOn(controls, 'tweenDone')
 
@@ -245,7 +244,7 @@ describe('Controls', () => {
     it('should call endTween()', () => {
       const spy = vi.spyOn(controls, 'endTween')
 
-      controls.tweenData = {}
+      controls.tweenData = { level: 0 }
       controls.completeTween()
 
       expect(spy).toHaveBeenCalled()
@@ -257,7 +256,7 @@ describe('Controls', () => {
     it('should cancel any tween in progress', () => {
       const spy = vi.spyOn(controls, 'cancelTween')
 
-      controls.tweenZoom(50)
+      controls.tweenZoom(50, vi.fn())
 
       expect(spy).toHaveBeenCalled()
       expect(spy).toHaveBeenCalledTimes(1)
@@ -265,7 +264,7 @@ describe('Controls', () => {
 
     it('should assign the tween data to be the current zoom level', () => {
       controls.level = 100
-      controls.tweenZoom(50)
+      controls.tweenZoom(50, vi.fn())
 
       expect(controls).toHaveProperty('tweenData')
       expect(controls.tweenData).toHaveProperty('level')
@@ -276,7 +275,7 @@ describe('Controls', () => {
       const tween = new TWEEN.Tween()
 
       controls.tweenBase = tween
-      controls.tweenZoom(50)
+      controls.tweenZoom(50, vi.fn())
 
       expect(controls).toHaveProperty('tweenBase')
       expect(controls.tweenBase).toBeInstanceOf(TWEEN.Tween)
@@ -284,8 +283,8 @@ describe('Controls', () => {
   })
 
   describe('wheelZoom()', () => {
-    let action
-    let spy
+    let action: { changeZoom: (zoom: number) => void }
+    let spy: MockInstance
 
     beforeEach(() => {
       action = { changeZoom: vi.fn() }
@@ -296,7 +295,7 @@ describe('Controls', () => {
       const newZoom = 20
 
       controls.getZoomDelta = () => newZoom
-      controls.wheelZoom({}, action.changeZoom)
+      controls.wheelZoom({ deltaY: 0 }, action.changeZoom)
 
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy).toHaveBeenCalledWith(newZoom)
@@ -307,7 +306,7 @@ describe('Controls', () => {
 
       controls.getZoomDelta = () => newZoom
       controls.level = newZoom / 100
-      controls.wheelZoom({}, action.changeZoom)
+      controls.wheelZoom({ deltaY: 0 }, action.changeZoom)
 
       expect(spy).not.toHaveBeenCalled()
     })

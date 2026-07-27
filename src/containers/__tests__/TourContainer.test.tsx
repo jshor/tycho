@@ -1,8 +1,8 @@
 import React from 'react'
-import { render } from '@testing-library/react'
+import { renderWithStore } from '../../test/render'
 import { TourContainer } from '../TourContainer'
+import { Mutable } from '../../test/helpers'
 import TourService from '../../services/TourService'
-import Constants from '../../constants'
 
 vi.useFakeTimers()
 
@@ -21,61 +21,63 @@ const action = {
   tourSkipped: vi.fn()
 }
 
+const baseProps = { labels, action, pageText: {} }
+
 describe('Tour Container', () => {
   let ref: React.RefObject<TourContainer>
 
   beforeEach(() => {
     vi.clearAllMocks()
     ref = React.createRef<TourContainer>()
-    render(<TourContainer labels={labels} action={action} pageText={{} as any} ref={ref as any} />)
+    renderWithStore(<TourContainer {...baseProps} ref={ref} />)
   })
 
   describe('componentDidMount()', () => {
     it('should call tourSkipped when canSkip() returns true', () => {
       TourService.canSkip = () => true
-      ref.current!.componentDidMount!()
+      ref.current?.componentDidMount?.()
       expect(action.tourSkipped).toHaveBeenCalledWith(true)
     })
 
     it('should not call tourSkipped when canSkip() returns false', () => {
       vi.clearAllMocks()
       TourService.canSkip = () => false
-      ref.current!.componentDidMount!()
+      ref.current?.componentDidMount?.()
       expect(action.tourSkipped).not.toHaveBeenCalled()
     })
   })
 
   describe('componentDidUpdate()', () => {
     it('should call maybeSkipTour()', () => {
-      const spy = vi.spyOn(ref.current!, 'maybeSkipTour')
-      ref.current!.componentDidUpdate({} as any)
+      const spy = vi.spyOn(ref.current, 'maybeSkipTour')
+      ref.current?.componentDidUpdate({})
       expect(spy).toHaveBeenCalledTimes(1)
     })
 
     it('should call maybeStartTour()', () => {
-      const spy = vi.spyOn(ref.current!, 'maybeStartTour')
-      ref.current!.componentDidUpdate({} as any)
+      const spy = vi.spyOn(ref.current, 'maybeStartTour')
+      ref.current?.componentDidUpdate({})
       expect(spy).toHaveBeenCalledTimes(1)
     })
   })
 
   describe('maybeSkipTour()', () => {
     it('should skip tour when isSkipped changes to true', () => {
-      const container = ref.current!
+      const container = ref.current as Mutable<TourContainer>
       const spy = vi.spyOn(container, 'skipTour')
 
-      ;(container as any).props = { isSkipped: true }
-      container.maybeSkipTour({ isSkipped: false } as any)
+      container.props = { ...baseProps, isSkipped: true }
+      container.maybeSkipTour({ isSkipped: false })
 
       expect(spy).toHaveBeenCalledTimes(1)
     })
 
     it('should not skip if isSkipped did not change', () => {
-      const container = ref.current!
+      const container = ref.current as Mutable<TourContainer>
       const spy = vi.spyOn(container, 'skipTour')
 
-      ;(container as any).props = { isSkipped: true }
-      container.maybeSkipTour({ isSkipped: true } as any)
+      container.props = { ...baseProps, isSkipped: true }
+      container.maybeSkipTour({ isSkipped: true })
 
       expect(spy).not.toHaveBeenCalled()
     })
@@ -83,21 +85,29 @@ describe('Tour Container', () => {
 
   describe('maybeStartTour()', () => {
     it('should initialize tour when playing transitions to true', () => {
-      const container = ref.current!
+      const container = ref.current as Mutable<TourContainer>
       const spy = vi.spyOn(container, 'initializeTour')
 
-      ;(container as any).props = { playing: true, isComplete: false }
-      container.maybeStartTour({ playing: false } as any)
+      container.props = {
+        ...baseProps,
+        playing: true,
+        isComplete: false
+      }
+      container.maybeStartTour({ playing: false })
 
       expect(spy).toHaveBeenCalledTimes(1)
     })
 
     it('should not start tour if already complete', () => {
-      const container = ref.current!
+      const container = ref.current as Mutable<TourContainer>
       const spy = vi.spyOn(container, 'initializeTour')
 
-      ;(container as any).props = { playing: true, isComplete: true }
-      container.maybeStartTour({ playing: false } as any)
+      container.props = {
+        ...baseProps,
+        playing: true,
+        isComplete: true
+      }
+      container.maybeStartTour({ playing: false })
 
       expect(spy).not.toHaveBeenCalled()
     })
@@ -106,8 +116,8 @@ describe('Tour Container', () => {
   describe('initializeTour()', () => {
     it('should call setUIControls and setCameraOrbit when canSkip is false', () => {
       TourService.canSkip = () => false
-      const container = ref.current!
-      ;(container as any).props = { action, labels }
+      const container = ref.current as Mutable<TourContainer>
+      container.props = { ...baseProps, action, labels }
 
       container.initializeTour()
 
@@ -118,8 +128,8 @@ describe('Tour Container', () => {
 
   describe('skipTour()', () => {
     it('should complete the tour and restore UI controls', () => {
-      const container = ref.current!
-      ;(container as any).props = { action }
+      const container = ref.current as Mutable<TourContainer>
+      container.props = { ...baseProps, action }
 
       container.skipTour()
 
@@ -131,8 +141,8 @@ describe('Tour Container', () => {
 
   describe('onTourComplete()', () => {
     it('should mark the tour as completed', () => {
-      const container = ref.current!
-      ;(container as any).props = { action }
+      const container = ref.current as Mutable<TourContainer>
+      container.props = { ...baseProps, action }
 
       container.onTourComplete()
 
@@ -142,27 +152,37 @@ describe('Tour Container', () => {
 
   describe('shouldRunTour()', () => {
     it('should return true when playing and not skipped', () => {
-      ;(ref.current! as any).props = { playing: true, isSkipped: false }
-      expect(ref.current!.shouldRunTour()).toBe(true)
+      const current = ref.current as Mutable<TourContainer>
+      current.props = {
+        ...baseProps,
+        playing: true,
+        isSkipped: false
+      }
+      expect(current.shouldRunTour()).toBe(true)
     })
 
     it('should return false when skipped', () => {
-      ;(ref.current! as any).props = { playing: true, isSkipped: true }
-      expect(ref.current!.shouldRunTour()).toBe(false)
+      const current = ref.current as Mutable<TourContainer>
+      current.props = {
+        ...baseProps,
+        playing: true,
+        isSkipped: true
+      }
+      expect(current.shouldRunTour()).toBe(false)
     })
   })
 
   describe('getLabels()', () => {
     it('should return a label element for each tour item', () => {
-      const result = ref.current!.getLabels(labels)
+      const result = ref.current?.getLabels(labels)
       expect(result).toHaveLength(labels.length)
     })
   })
 
   describe('render()', () => {
     it('should return null when tour should not run', () => {
-      const { container: dom } = render(
-        <TourContainer labels={labels} action={action} pageText={{} as any} playing={false} />
+      const { container: dom } = renderWithStore(
+        <TourContainer labels={labels} action={action} pageText={{}} playing={false} />
       )
       expect(dom.firstChild).toBeNull()
     })

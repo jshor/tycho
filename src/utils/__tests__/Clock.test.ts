@@ -1,3 +1,4 @@
+import TWEEN from 'tween.js'
 import Clock from '../Clock'
 import moment from 'moment'
 
@@ -43,7 +44,7 @@ describe('Clock', () => {
     })
 
     it('should update the elapsed time when 1 sec has passed', () => {
-      let clock = new Clock()
+      const clock = new Clock()
 
       clock.elapsedTime = 0
       clock.clock.getElapsedTime = () => 1
@@ -56,7 +57,7 @@ describe('Clock', () => {
 
     it('should not update elapsedTime if no time has passed', () => {
       const elapsedTime = 1470323035
-      let clock = new Clock()
+      const clock = new Clock()
 
       clock.elapsedTime = elapsedTime
       clock.clock.getElapsedTime = () => elapsedTime
@@ -106,7 +107,7 @@ describe('Clock', () => {
   })
 
   describe('start()', () => {
-    let clock
+    let clock: Clock
 
     beforeEach(() => {
       clock = new Clock()
@@ -130,7 +131,7 @@ describe('Clock', () => {
   })
 
   describe('continue()', () => {
-    let clock
+    let clock: Clock
 
     beforeEach(() => {
       clock = new Clock()
@@ -163,7 +164,7 @@ describe('Clock', () => {
   })
 
   describe('stop()', () => {
-    let clock
+    let clock: Clock
 
     beforeEach(() => {
       clock = new Clock()
@@ -188,13 +189,11 @@ describe('Clock', () => {
 
   describe('stopTween()', () => {
     describe('when an instance of Tween is defined', () => {
-      let clock
+      let clock: Clock
 
       beforeEach(() => {
         clock = new Clock()
-        clock.tween = {
-          stop: vi.fn()
-        }
+        clock.tween = new TWEEN.Tween({})
       })
 
       it('should stop the Tween in progress', () => {

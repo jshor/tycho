@@ -4,8 +4,24 @@ import Constants from '../constants'
 import { env } from '../utils/Environment'
 import { TextureMap } from '../types'
 
+/**
+ * The MeshLambertMaterial properties that hold a texture. Naming them makes the `slot` values in
+ * the orbital data checkable against the material rather than assigned blind.
+ */
+type TextureSlot =
+  | 'map'
+  | 'alphaMap'
+  | 'aoMap'
+  | 'bumpMap'
+  | 'displacementMap'
+  | 'emissiveMap'
+  | 'envMap'
+  | 'lightMap'
+  | 'normalMap'
+  | 'specularMap'
+
 interface Props {
-  side?: number
+  side?: THREE.Side
   textures?: TextureMap[]
   transparent?: boolean
 }
@@ -26,8 +42,8 @@ export default function TextureContainer({ textures, transparent, side = THREE.F
         const mat = materialRef.current
         if (!mat) return
 
-        const key = (slot || 'map') as keyof THREE.MeshLambertMaterial
-        ;(mat as any)[key] = texture
+        const key = (slot || 'map') as TextureSlot
+        mat[key] = texture
 
         mat.needsUpdate = true
         setRevision((r) => r + 1)

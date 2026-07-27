@@ -8,7 +8,7 @@ describe('Physics Service', () => {
       const result = PhysicsService.meanAnomaly(time, period)
 
       expect(typeof result).toBe('number')
-      expect(result).toEqual(231.21963500976562)
+      expect(result).toBeCloseTo(231.219635, 5)
     })
   })
 

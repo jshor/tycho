@@ -19,17 +19,27 @@ const labels = [
 describe('Tour Service', () => {
   describe('canSkip()', () => {
     it('should return true if the cookie is set', () => {
+      Cookie.set('tourViewed', 'true')
+
       expect(TourService.canSkip()).toEqual(true)
+    })
+
+    it('should return false if the cookie is not set', () => {
+      Cookie.remove('tourViewed')
+
+      expect(TourService.canSkip()).toEqual(false)
     })
   })
 
   describe('setSkip()', () => {
-    const spy = vi.spyOn(Cookie, 'set')
+    it('should write the skip cookie', () => {
+      const spy = vi.spyOn(Cookie, 'set')
 
-    TourService.setSkip()
+      TourService.setSkip()
 
-    expect(spy).toHaveBeenCalled()
-    expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalled()
+      expect(spy).toHaveBeenCalledTimes(1)
+    })
   })
 
   describe('getTourDuration()', () => {

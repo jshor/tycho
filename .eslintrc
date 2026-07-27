@@ -1,24 +1,99 @@
 {
-  "extends": ["react-app", "prettier"],
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "plugins": [
+    "@typescript-eslint",
+    "react",
+    "react-hooks",
+    "jsx-a11y",
+    "import"
+  ],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
+    "prettier"
+  ],
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
+  "env": {
+    "browser": true,
+    "es2022": true,
+    "node": true
+  },
   "rules": {
+    "@typescript-eslint/no-explicit-any": "error",
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      {
+        "argsIgnorePattern": "^_"
+      }
+    ],
+    "no-unused-vars": "off",
     "no-invalid-this": "off",
     "no-console": "off",
     "no-var": "off",
     "prefer-const": 1,
-    "max-nested-callbacks": ["error", 6],
+    "max-nested-callbacks": [
+      "error",
+      6
+    ],
     "vars-on-top": "off",
     "no-underscore-dangle": "off",
     "func-style": "off",
     "prefer-template": "error",
     "no-loop-func": "error",
     "prefer-arrow-callback": "error",
-    "no-dupe-class-members": "error",
+    "no-dupe-class-members": "off",
+    "@typescript-eslint/no-dupe-class-members": "error",
     "no-duplicate-imports": "error",
-    "one-var": ["error", "never"],
-    "jsx-a11y/href-no-hash": "off",
-    "jsx-a11y/anchor-is-valid": ["warn", { "aspects": ["invalidHref"] }]
+    "one-var": [
+      "error",
+      "never"
+    ],
+    "react/prop-types": "off",
+    "react/no-unknown-property": "off",
+    "jsx-a11y/anchor-is-valid": [
+      "warn",
+      {
+        "aspects": [
+          "invalidHref"
+        ]
+      }
+    ]
   },
-  "globals": {
-    "jest": true
-  }
+  "overrides": [
+    {
+      "files": [
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "**/__tests__/**",
+        "src/test/**"
+      ],
+      "env": {
+        "node": true
+      },
+      "globals": {
+        "describe": "readonly",
+        "it": "readonly",
+        "expect": "readonly",
+        "vi": "readonly",
+        "beforeEach": "readonly",
+        "afterEach": "readonly",
+        "beforeAll": "readonly",
+        "afterAll": "readonly"
+      }
+    }
+  ]
 }

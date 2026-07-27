@@ -1,7 +1,9 @@
 import React from 'react'
-import { render } from '@testing-library/react'
+import { act } from '@testing-library/react'
+import { renderWithStore } from '../../test/render'
 import { DefaultLoadingManager } from 'three'
 import { LoaderContainer } from '../LoaderContainer'
+import { Mutable } from '../../test/helpers'
 
 const action = {
   setPercentLoaded: vi.fn(),
@@ -16,19 +18,20 @@ describe('Loader Container', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     ref = React.createRef<LoaderContainer>()
-    render(<LoaderContainer action={action} ref={ref as any} />)
+    renderWithStore(<LoaderContainer action={action} ref={ref} />)
   })
 
   describe('componentDidMount()', () => {
     it('should register a progress handler on DefaultLoadingManager', () => {
-      expect((DefaultLoadingManager as any).onProgress).toBe(ref.current!.onProgress)
+      expect(DefaultLoadingManager.onProgress).toBe(ref.current?.onProgress)
     })
   })
 
   describe('onProgress()', () => {
     it('should dispatch setPercentLoaded and setTextureLoaded', () => {
-      ;(ref.current! as any).props = { action }
-      ref.current!.onProgress('tex.png', 2, 4)
+      const current = ref.current as Mutable<LoaderContainer>
+      current.props = { action }
+      current.onProgress('tex.png', 2, 4)
 
       expect(action.setPercentLoaded).toHaveBeenCalledWith(2, 4)
       expect(action.setTextureLoaded).toHaveBeenCalledWith('tex.png')
@@ -37,18 +40,24 @@ describe('Loader Container', () => {
 
   describe('enterScene()', () => {
     it('should start playing and set volume to 1', () => {
-      ;(ref.current! as any).props = { action }
-      ref.current!.enterScene()
+      const current = ref.current as Mutable<LoaderContainer>
+
+      current.props = { action }
+      current.enterScene()
 
       expect(action.setPlaying).toHaveBeenCalledWith(true)
       expect(action.setVolume).toHaveBeenCalledWith(1)
     })
 
     it('should set hasEntered state to true', () => {
-      ;(ref.current! as any).props = { action }
-      ref.current!.enterScene()
+      const current = ref.current as Mutable<LoaderContainer>
 
-      expect(ref.current!.state.hasEntered).toBe(true)
+      current.props = { action }
+      act(() => {
+        current.enterScene()
+      })
+
+      expect(ref.current.state.hasEntered).toBe(true)
     })
   })
 })

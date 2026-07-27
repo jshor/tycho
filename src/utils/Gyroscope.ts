@@ -28,7 +28,7 @@ export default class Gyroscope extends THREE.Object3D {
 
   updateChildrenMatrixWorlds = (force?: boolean): void => {
     for (let i = 0; i < this.children.length; i++) {
-      ;(this.children[i] as any).updateMatrixWorld(force)
+      this.children[i].updateMatrixWorld(force)
     }
   }
 

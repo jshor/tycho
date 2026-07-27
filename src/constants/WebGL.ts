@@ -124,7 +124,8 @@ export interface AtmosphereEntry {
  * Atmospheric scattering settings for bodies that have an atmosphere.
  */
 export const Atmospheres: Record<string, AtmosphereEntry> = {
-  earth: { // TODO: make this configurable in JSON
+  earth: {
+    // TODO: make this configurable in JSON
     THICKNESS: 0.03,
     POWER: 3,
     INTENSITY: 1.4,

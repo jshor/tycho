@@ -1,9 +1,10 @@
+import type { AnyAction, Dispatch } from 'redux'
 import * as Actions from '../DataActions'
 import ActionType from '../../constants/Actions'
 import orbitalFixtures from './__fixtures__/orbitals.json'
 import pageTextFixtures from './__fixtures__/pageText.json'
 
-const mockJsonFetch = (jsonData: any) => {
+const mockJsonFetch = (jsonData: object) => {
   return vi.fn().mockImplementation(() => {
     return new Promise((resolve) => {
       resolve({
@@ -16,7 +17,7 @@ const mockJsonFetch = (jsonData: any) => {
 describe('Data Actions', () => {
   describe('requestOrbitalData()', () => {
     beforeEach(() => {
-      ;(global as any).fetch = mockJsonFetch(orbitalFixtures)
+      vi.stubGlobal('fetch', mockJsonFetch(orbitalFixtures))
     })
 
     it('should be a thunk', () => {
@@ -24,19 +25,19 @@ describe('Data Actions', () => {
     })
 
     it('should request orbitals.json', () => {
-      const dispatch = (data: any) => {
+      const dispatch = ((data: AnyAction) => {
         expect(data).toEqual({
           type: ActionType.SET_ORBITAL_DATA,
           orbitalData: orbitalFixtures
         })
-      }
+      }) as Dispatch<AnyAction>
       Actions.requestOrbitalData()(dispatch)
     })
   })
 
   describe('requestPageText()', () => {
     beforeEach(() => {
-      ;(global as any).fetch = mockJsonFetch(pageTextFixtures)
+      vi.stubGlobal('fetch', mockJsonFetch(pageTextFixtures))
     })
 
     it('should be a thunk', () => {
@@ -44,12 +45,12 @@ describe('Data Actions', () => {
     })
 
     it('should request pageText.json', () => {
-      const dispatch = (data: any) => {
+      const dispatch = ((data: AnyAction) => {
         expect(data).toEqual({
           type: ActionType.SET_PAGE_TEXT,
           pageText: pageTextFixtures
         })
-      }
+      }) as Dispatch<AnyAction>
       Actions.requestPageText()(dispatch)
     })
   })

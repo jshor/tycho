@@ -38,7 +38,7 @@ describe('Redux Service', () => {
     })
 
     it('should return property `action` having `bindActionCreators`', () => {
-      const result = (ReduxService.mapDispatchToProps(actions) as any)()
+      const result = ReduxService.mapDispatchToProps(actions)(vi.fn())
 
       expect(typeof result).toBe('object')
       expect(result).toHaveProperty('action')
@@ -48,14 +48,14 @@ describe('Redux Service', () => {
 
   describe('assign()', () => {
     it('should return an object', () => {
-      const result = (ReduxService.assign as any)()
+      const result = ReduxService.assign({}, { type: 'NOOP' })
 
       expect(typeof result).toBe('object')
     })
 
     it('should assign the given payload prop values to state', () => {
       const state = { foo: 'bar' }
-      const payload = { baz: 'bat' }
+      const payload = { type: 'TEST_ACTION', baz: 'bat' }
       const result = ReduxService.assign(state, payload, 'baz')
 
       expect(result).toHaveProperty('foo')

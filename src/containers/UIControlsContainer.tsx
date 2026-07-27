@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import * as Actions from '../actions/UIControlsActions'
 import ReduxService from '../services/ReduxService'
 import UIControls from '../components/UIControls'
-import { PageText } from '../types'
+import { PageText, BoundActions } from '../types'
 
 interface Props {
   time?: number
@@ -14,7 +14,7 @@ interface Props {
   settingsActive?: boolean
   targetName?: string
   pageText?: PageText
-  action?: Record<string, any>
+  action?: Pick<BoundActions, 'setUIControls' | 'toggleModal' | 'toggleSettings'>
 }
 
 export class UIControlsContainer extends React.Component<Props> {
@@ -40,7 +40,7 @@ export class UIControlsContainer extends React.Component<Props> {
 }
 
 export default connect(
-  ReduxService.mapStateToProps(
+  ReduxService.mapStateToProps<Props>(
     'uiControls.speed',
     'uiControls.zoom',
     'uiControls.scale',
@@ -50,5 +50,5 @@ export default connect(
     'data.pageText',
     'animation.time'
   ),
-  ReduxService.mapDispatchToProps(Actions)
-)(UIControlsContainer as React.ComponentType<any>) as any
+  ReduxService.mapDispatchToProps<Props['action']>(Actions)
+)(UIControlsContainer)

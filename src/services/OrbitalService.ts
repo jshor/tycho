@@ -49,7 +49,7 @@ export default class OrbitalService {
   }: {
     axialTilt: number
     sidereal: number
-    time: number
+    time?: number
   }): THREE.Euler => {
     return OrbitalService.toEuler({
       x: OrbitalService.ASCENSION + axialTilt,
@@ -67,14 +67,14 @@ export default class OrbitalService {
    *Returns the percentage of travel along the elliptical path [0, 1] to its periapsis.
    */
   static getBodyPercent = (
-    { periapses, time }: { periapses: Periapses; time: number },
+    { periapses, time }: { periapses: Periapses; time?: number },
     ellipse: Ellipse
   ): number => {
     return ellipse.getVertexPercent(time, periapses)
   }
 
   static getBodyPosition = (
-    { periapses, time }: { periapses: Periapses; time: number },
+    { periapses, time }: { periapses: Periapses; time?: number },
     ellipse: Ellipse
   ): THREE.Vector3 => {
     return ellipse.getPosition(time, periapses)

@@ -1,8 +1,9 @@
 import '@testing-library/jest-dom'
 import { vi } from 'vitest'
+import type { Camera, Texture } from 'three'
 
 class MockOrbitControls {
-  camera: any
+  camera: Camera
   enabled = true
   enableZoom = true
   enablePan = true
@@ -11,7 +12,7 @@ class MockOrbitControls {
   minDistance = 0
   maxDistance = Infinity
 
-  constructor(camera: any, _domElement: any) {
+  constructor(camera: Camera, _domElement: HTMLElement) {
     this.camera = camera
   }
   update() {}
@@ -23,7 +24,10 @@ vi.mock('three/examples/jsm/controls/OrbitControls.js', () => ({
 }))
 
 vi.mock('three/examples/jsm/objects/Lensflare.js', () => ({
-  Lensflare: vi.fn().mockImplementation(function (this: any) {
+  Lensflare: vi.fn().mockImplementation(function (this: {
+    position: { set: () => void }
+    addElement: () => void
+  }) {
     this.position = { set: vi.fn() }
     this.addElement = vi.fn()
   }),
@@ -31,10 +35,10 @@ vi.mock('three/examples/jsm/objects/Lensflare.js', () => ({
 }))
 
 vi.mock('@react-three/fiber', () => ({
-  Canvas: ({ children }: any) => children,
+  Canvas: ({ children }: { children?: React.ReactNode }): React.ReactNode => children,
   useThree: () => ({
     camera: { add: vi.fn(), position: { length: () => 1000 } },
-    scene: { getObjectByName: vi.fn(), add: vi.fn(), background: null },
+    scene: { getObjectByName: vi.fn(), add: vi.fn(), background: null as Texture | null },
     gl: { domElement: document.createElement('canvas') }
   }),
   useFrame: vi.fn()
@@ -42,12 +46,25 @@ vi.mock('@react-three/fiber', () => ({
 
 vi.mock('@react-three/drei', async () => {
   const React = (await import('react')).default
-  return {
-    Html: ({ children }: any) => children,
-    PerspectiveCamera: () => null,
-    Line: () => null,
-    Text: React.forwardRef(({ children, onClick, onPointerOver, onPointerOut }: any, _ref: any) =>
+
+  interface TextProps {
+    children?: React.ReactNode
+    onClick?: React.MouseEventHandler
+    onPointerOver?: React.PointerEventHandler
+    onPointerOut?: React.PointerEventHandler
+  }
+
+  const Text = React.forwardRef<unknown, TextProps>(
+    ({ children, onClick, onPointerOver, onPointerOut }, _ref): React.ReactElement =>
       React.createElement('span', { onClick, onPointerOver, onPointerOut }, children)
-    )
+  )
+
+  Text.displayName = 'Text'
+
+  return {
+    Html: ({ children }: { children?: React.ReactNode }): React.ReactNode => children,
+    PerspectiveCamera: (): null => null,
+    Line: (): null => null,
+    Text
   }
 })

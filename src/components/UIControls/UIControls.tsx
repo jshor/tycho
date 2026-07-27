@@ -18,7 +18,7 @@ interface Props {
   changeZoom?: (zoom: number) => void
   toggleSetting?: () => void
   pageText?: PageText
-  [key: string]: any
+  [key: string]: unknown
 }
 
 export default class UIControls extends React.Component<Props> {

@@ -3,8 +3,8 @@ import Actions from '../../constants/Actions'
 
 describe('Data Reducer', () => {
   it('should return the state', () => {
-    const state = { orbitalData: {} }
-    const result = reducer(state as any, {} as any)
+    const state = { touched: 1 }
+    const result = reducer(state, { type: 'UNKNOWN_ACTION' })
 
     expect(result).toEqual(state)
   })

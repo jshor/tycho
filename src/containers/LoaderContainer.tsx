@@ -6,14 +6,14 @@ import * as LoaderActions from '../actions/LoaderActions'
 import * as UIControlsActions from '../actions/UIControlsActions'
 import ReduxService from '../services/ReduxService'
 import SplashScreen from '../components/SplashScreen'
-import { PageText } from '../types'
+import { PageText, BoundActions } from '../types'
 
 interface Props {
   url?: string
   percent?: number
   playing?: boolean
   pageText?: PageText
-  action?: Record<string, any>
+  action?: Pick<BoundActions, 'setPercentLoaded' | 'setTextureLoaded' | 'setPlaying' | 'setVolume'>
 }
 
 interface State {
@@ -24,7 +24,7 @@ export class LoaderContainer extends React.Component<Props, State> {
   state: State = { hasEntered: false }
 
   componentDidMount = () => {
-    ;(DefaultLoadingManager as any).onProgress = this.onProgress
+    DefaultLoadingManager.onProgress = this.onProgress
   }
 
   onProgress = (url: string, count: number, total: number) => {
@@ -51,11 +51,15 @@ export class LoaderContainer extends React.Component<Props, State> {
 }
 
 export default connect(
-  ReduxService.mapStateToProps(
+  ReduxService.mapStateToProps<Props>(
     'loader.url',
     'loader.percent',
     'animation.playing',
     'data.pageText'
   ),
-  ReduxService.mapDispatchToProps(AnimationActions, LoaderActions, UIControlsActions)
-)(LoaderContainer as React.ComponentType<any>) as any
+  ReduxService.mapDispatchToProps<Props['action']>(
+    AnimationActions,
+    LoaderActions,
+    UIControlsActions
+  )
+)(LoaderContainer)

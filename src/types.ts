@@ -1,5 +1,11 @@
 // Shared TypeScript interfaces for the Tycho application
 
+export interface Vector3Like {
+  x: number
+  y: number
+  z: number
+}
+
 export interface Periapses {
   last: number
   next: number
@@ -117,7 +123,7 @@ export interface UIControlsState {
   activeModal?: string | null
   settingsActive?: boolean
   volume?: number
-  newVector?: any
+  newVector?: Vector3Like
 }
 
 export interface RootState {
@@ -149,5 +155,37 @@ export interface DistanceResult {
 // Action shape used by ReduxService
 export interface ReduxAction {
   type: string
-  [key: string]: any
+  [key: string]: unknown
 }
+
+export interface BoundActions {
+  setCameraOrbit: (isAutoOrbitEnabled: boolean) => void
+  tourCompleted: (isComplete: boolean) => void
+  tourSkipped: (isSkipped: boolean) => void
+  requestOrbitalData: () => void
+  requestPageText: () => void
+  setTime: (time: number) => void
+  setPlaying: (playing: boolean) => void
+  setTouched: (touched: number) => void
+  setReleased: (released: number) => void
+  changeZoom: (zoom: number) => void
+  changeSpeed: (speed: number) => void
+  changeScale: (scale: number) => void
+  changeTimeOffset: (timeOffset: number) => void
+  setUIControls: (controlsEnabled: boolean) => void
+  toggleModal: (activeModal: string | null) => void
+  toggleSettings: (settingsActive: boolean) => void
+  setVolume: (volume: number) => void
+  setPercentLoaded: (count: number, total: number) => void
+  setTextureLoaded: (url: string) => void
+  setActiveOrbital: (targetId: string, targetName: string) => void
+  setLabelText: (labelText: string) => void
+  addHighlightedOrbital: (highlightedOrbital: string) => void
+  removeHighlightedOrbital: (highlightedOrbital: string) => void
+}
+
+/** The actions an orbital's label needs, threaded down through Scene and Orbital. */
+export type OrbitalLabelActions = Pick<
+  BoundActions,
+  'setActiveOrbital' | 'addHighlightedOrbital' | 'removeHighlightedOrbital'
+>

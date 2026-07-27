@@ -5,9 +5,9 @@ import Body from './Body'
 import Label from './Label'
 import Atmosphere from './Atmosphere'
 import Constants from '../../constants'
-import { TextureMap, RingData } from '../../types'
+import { TextureMap, RingData, OrbitalLabelActions } from '../../types'
 
-interface Props {
+export interface Props {
   eclipticGroupRotation: THREE.Euler
   orbitalGroupRotation: THREE.Euler
   pathVertices: THREE.Vector3[]
@@ -17,7 +17,7 @@ interface Props {
   radius: number
   id: string
   text: string
-  action: Record<string, any>
+  action: OrbitalLabelActions
   atmosphere?: number
   pathOpacity?: number
   scaleLastUpdate?: number
@@ -27,7 +27,6 @@ interface Props {
   parentId?: string
   isSatellite?: boolean
   maxDistance?: number
-  camera?: any
   rings?: RingData
   children?: React.ReactNode
 }

@@ -1,10 +1,10 @@
 import React from 'react'
-import { render } from '@testing-library/react'
+import { renderWithStore } from '../../test/render'
 import UIControls from './UIControls'
 
 describe('UIControls Component', () => {
   it('should render without crashing', () => {
-    const { container } = render(<UIControls action={{} as any} pageText={{} as any} />)
+    const { container } = renderWithStore(<UIControls pageText={{}} />)
     expect(container).toBeTruthy()
   })
 })

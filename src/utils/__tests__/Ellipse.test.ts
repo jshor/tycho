@@ -1,12 +1,12 @@
-import { EllipseCurve, CurvePath, Vector3 } from 'three'
+import { EllipseCurve, CurvePath, Vector2, Vector3 } from 'three'
 import Ellipse from '../Ellipse'
 import data from './__fixtures__/orbitals.json'
 
 describe('Ellipse', () => {
-  let ellipse: any
+  let ellipse: Ellipse
 
   beforeEach(() => {
-    ellipse = new Ellipse(data[0] as any)
+    ellipse = new Ellipse(data[0])
   })
 
   describe('constructor()', () => {
@@ -35,8 +35,8 @@ describe('Ellipse', () => {
     })
 
     it('should add the ellipse curve to the path', () => {
-      const path = { add: vi.fn(), getPoint: vi.fn(() => ({ x: 0, y: 0 })) }
-      const ellipseCurve = {}
+      const path = new CurvePath<Vector2>()
+      const ellipseCurve = new EllipseCurve(0, 0, 1, 1, 0, Math.PI * 2)
       const spy = vi.spyOn(path, 'add')
 
       ellipse.getPath = () => path
@@ -77,7 +77,7 @@ describe('Ellipse', () => {
 
   describe('getPosition()', () => {
     it('should return an instance of Vector3', () => {
-      expect(ellipse.getPosition(0, {})).toBeInstanceOf(Vector3)
+      expect(ellipse.getPosition(0, { last: 0, next: 1 })).toBeInstanceOf(Vector3)
     })
   })
 })

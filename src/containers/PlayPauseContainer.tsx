@@ -1,4 +1,5 @@
 import React from 'react'
+import { BoundActions } from '../types'
 import { connect } from 'react-redux'
 import ReduxService from '../services/ReduxService'
 import * as AnimationActions from '../actions/AnimationActions'
@@ -6,7 +7,7 @@ import PlayPause from '../components/PlayPause'
 
 interface Props {
   playing?: boolean
-  action?: Record<string, any>
+  action?: Pick<BoundActions, 'setPlaying'>
 }
 
 export class PlayPauseContainer extends React.Component<Props> {
@@ -20,6 +21,6 @@ export class PlayPauseContainer extends React.Component<Props> {
 }
 
 export default connect(
-  ReduxService.mapStateToProps('animation.playing'),
-  ReduxService.mapDispatchToProps(AnimationActions)
-)(PlayPauseContainer as React.ComponentType<any>) as any
+  ReduxService.mapStateToProps<Props>('animation.playing'),
+  ReduxService.mapDispatchToProps<Props['action']>(AnimationActions)
+)(PlayPauseContainer)

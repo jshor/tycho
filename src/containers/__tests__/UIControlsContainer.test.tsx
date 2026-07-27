@@ -1,6 +1,13 @@
 import React from 'react'
-import { render } from '@testing-library/react'
+import { renderWithStore } from '../../test/render'
 import { UIControlsContainer } from '../UIControlsContainer'
+import { Mutable } from '../../test/helpers'
+
+const action = {
+  setUIControls: vi.fn(),
+  toggleModal: vi.fn(),
+  toggleSettings: vi.fn()
+}
 
 describe('UI Controls Container', () => {
   let ref: React.RefObject<UIControlsContainer>
@@ -8,15 +15,19 @@ describe('UI Controls Container', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     ref = React.createRef<UIControlsContainer>()
-    render(<UIControlsContainer action={{ changeSpeed: vi.fn() } as any} ref={ref as any} />)
+    renderWithStore(<UIControlsContainer action={action} ref={ref} />)
   })
 
   describe('toggleSettings()', () => {
     it('should call toggleSettings with the inverse of settingsActive', () => {
+      const current = ref.current as Mutable<UIControlsContainer>
       const toggleSettings = vi.fn()
-      ;(ref.current! as any).props = { action: { toggleSettings }, settingsActive: false }
+      current.props = {
+        action: { ...action, toggleSettings },
+        settingsActive: false
+      }
 
-      ref.current!.toggleSettings()
+      current.toggleSettings()
 
       expect(toggleSettings).toHaveBeenCalledWith(true)
     })
@@ -24,11 +35,14 @@ describe('UI Controls Container', () => {
 
   describe('openModal()', () => {
     it('should open the modal and hide UI controls', () => {
+      const current = ref.current as Mutable<UIControlsContainer>
       const toggleModal = vi.fn()
       const setUIControls = vi.fn()
-      ;(ref.current! as any).props = { action: { toggleModal, setUIControls } }
+      current.props = {
+        action: { ...action, toggleModal, setUIControls }
+      }
 
-      ref.current!.openModal('TEST_MODAL')
+      current.openModal('TEST_MODAL')
 
       expect(toggleModal).toHaveBeenCalledWith('TEST_MODAL')
       expect(setUIControls).toHaveBeenCalledWith(false)

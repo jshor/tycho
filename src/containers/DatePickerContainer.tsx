@@ -9,6 +9,10 @@ interface Props {
   onUpdate?: (time: number) => void
 }
 
+type DatetimePicker = Datetime & {
+  openCalendar: () => void
+}
+
 interface State {
   uxTime?: string
   realTime?: Date
@@ -16,7 +20,7 @@ interface State {
 
 export default class DatePickerContainer extends React.Component<Props, State> {
   isOpen: boolean = false
-  pickerRef = React.createRef<any>()
+  pickerRef = React.createRef<DatetimePicker>()
 
   state: State = {}
 
@@ -51,9 +55,12 @@ export default class DatePickerContainer extends React.Component<Props, State> {
     }
   }
 
-  changeTime = (timeInstance: moment.Moment) => {
-    const time = timeInstance.unix()
-    this.props.onUpdate(time)
+  changeTime = (value: moment.Moment | string) => {
+    // react-datetime emits the raw input string while a partially typed date is still
+    // unparseable, and only hands back a Moment once it resolves.
+    if (typeof value === 'string') return
+
+    this.props.onUpdate(value.unix())
   }
 
   render() {
@@ -63,8 +70,8 @@ export default class DatePickerContainer extends React.Component<Props, State> {
           value={this.state.realTime}
           ref={this.pickerRef}
           className="date-picker__picker"
-          onBlur={this.hidePicker}
-          onChange={this.changeTime as any}
+          onClose={this.hidePicker}
+          onChange={this.changeTime}
           closeOnSelect={true}
           inputProps={{
             className: 'date-picker__input'

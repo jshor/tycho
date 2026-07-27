@@ -1,5 +1,6 @@
 import React from 'react'
-import { render } from '@testing-library/react'
+import { act } from '@testing-library/react'
+import { renderWithStore } from '../../test/render'
 import TourLabelContainer from '../TourLabelContainer'
 
 vi.useFakeTimers()
@@ -9,7 +10,7 @@ describe('Tour Label Container', () => {
     it('should schedule show and hide via setTimeout', () => {
       const spy = vi.spyOn(global, 'setTimeout')
 
-      render(<TourLabelContainer text="Hello" start={100} end={5000} />)
+      renderWithStore(<TourLabelContainer text="Hello" start={100} end={5000} />)
 
       expect(spy).toHaveBeenCalledTimes(2)
     })
@@ -18,21 +19,25 @@ describe('Tour Label Container', () => {
   describe('setClassAsync()', () => {
     it('should update modifier state after the timeout fires', () => {
       const ref = React.createRef<TourLabelContainer>()
-      render(<TourLabelContainer text="Hello" start={100} end={5000} ref={ref as any} />)
+      renderWithStore(<TourLabelContainer text="Hello" start={100} end={5000} ref={ref} />)
 
-      expect(ref.current!.state.modifier).toBe('hide')
+      expect(ref.current?.state.modifier).toBe('hide')
 
-      vi.advanceTimersByTime(100)
-      expect(ref.current!.state.modifier).toBe('show')
+      act(() => {
+        vi.advanceTimersByTime(100)
+      })
+      expect(ref.current?.state.modifier).toBe('show')
 
-      vi.advanceTimersByTime(5000)
-      expect(ref.current!.state.modifier).toBe('hide')
+      act(() => {
+        vi.advanceTimersByTime(5000)
+      })
+      expect(ref.current?.state.modifier).toBe('hide')
     })
 
     it('should not update state after unmount', () => {
       const ref = React.createRef<TourLabelContainer>()
-      const { unmount } = render(
-        <TourLabelContainer text="Hello" start={100} end={5000} ref={ref as any} />
+      const { unmount } = renderWithStore(
+        <TourLabelContainer text="Hello" start={100} end={5000} ref={ref} />
       )
 
       unmount()

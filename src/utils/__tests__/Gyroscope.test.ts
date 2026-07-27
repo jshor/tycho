@@ -1,8 +1,9 @@
+import type { MockInstance } from 'vitest'
 import Gyroscope from '../Gyroscope'
 import * as THREE from 'three'
 
 describe('Gyroscope', () => {
-  let gyroscope
+  let gyroscope: Gyroscope
 
   beforeEach(() => {
     gyroscope = new Gyroscope()
@@ -18,7 +19,7 @@ describe('Gyroscope', () => {
       expect(spy).toHaveBeenCalledTimes(1)
     })
 
-    const updateMatrixWorldTests = (matrixWorldNeedsUpdate, force) => {
+    const updateMatrixWorldTests = (matrixWorldNeedsUpdate: boolean, force: boolean) => {
       beforeEach(() => {
         gyroscope.matrixWorldNeedsUpdate = matrixWorldNeedsUpdate
       })
@@ -71,7 +72,7 @@ describe('Gyroscope', () => {
   })
 
   describe('maybeAutoUpdateMatrix()', () => {
-    let spy
+    let spy: MockInstance
 
     beforeEach(() => {
       spy = vi.spyOn(gyroscope, 'updateMatrix')

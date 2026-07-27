@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import TWEEN from 'tween.js'
+import TWEEN, { Tween } from 'tween.js'
 import moment from 'moment'
 import Constants from '../constants'
 
@@ -9,7 +9,7 @@ export default class Clock {
   scale: number
   stopped: boolean = false
   elapsedTime: number = 0
-  tween: any
+  tween?: Tween
   tweenData: { offset: number }
   destinationOffset: number
 
@@ -41,7 +41,7 @@ export default class Clock {
     if (elapsedTime !== this.elapsedTime) {
       this.elapsedTime = elapsedTime
     }
-    ;(TWEEN as any).update()
+    TWEEN.update()
   }
 
   speed = (e?: number): void => {
@@ -65,7 +65,7 @@ export default class Clock {
 
     this.stopped = false
     this.clock.start()
-    ;(this.clock as any).elapsedTime = elapsedTime
+    this.clock.elapsedTime = elapsedTime
   }
 
   stop = (): void => {
@@ -94,8 +94,8 @@ export default class Clock {
     }
     this.destinationOffset = time
 
-    this.tween = new (TWEEN as any).Tween(this.tweenData)
-      .easing((TWEEN as any).Easing.Quadratic.Out)
+    this.tween = new TWEEN.Tween(this.tweenData)
+      .easing(TWEEN.Easing.Quadratic.Out)
       .to({ offset: time }, Constants.WebGL.Tween.NORMAL)
       .onUpdate(this.updateTweenOffset)
       .onComplete(this.start)

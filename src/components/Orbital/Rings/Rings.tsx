@@ -5,7 +5,7 @@ import MathService from '../../../services/MathService'
 import TextureContainer from '../../../containers/TextureContainer'
 import { TextureMap } from '../../../types'
 
-interface Props {
+export interface Props {
   outerRadius: number
   maps: TextureMap[]
   barycenterTilt: number

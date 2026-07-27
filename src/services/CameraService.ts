@@ -1,4 +1,4 @@
-import TWEEN from 'tween.js'
+import TWEEN, { Tween } from 'tween.js'
 import { Vector3, Object3D, Scene as ThreeScene } from 'three'
 import Constants from '../constants'
 import OrbitalService from './OrbitalService'
@@ -30,10 +30,10 @@ export default class CameraService {
     target: Object3D,
     group: Object3D,
     cb: () => void
-  ): any => {
-    return new (TWEEN as any).Tween(from)
+  ): Tween => {
+    return new TWEEN.Tween(from)
       .to(to, Constants.WebGL.Tween.SLOW)
-      .easing((TWEEN as any).Easing.Quadratic.Out)
+      .easing(TWEEN.Easing.Quadratic.Out)
       .onUpdate(CameraService.setPivotPosition.bind(CameraService, group, from))
       .onComplete(CameraService.attachToGyroscope.bind(CameraService, target, group, cb))
       .start()
@@ -47,9 +47,9 @@ export default class CameraService {
   }
 
   static getWorldPosition = (target: Object3D): Vector3 => {
-    ;(target as any).updateMatrixWorld()
+    target.updateMatrixWorld()
 
-    const matrix = (target as any).matrixWorld
+    const matrix = target.matrixWorld
     const vect = new Vector3()
 
     vect.setFromMatrixPosition(matrix)

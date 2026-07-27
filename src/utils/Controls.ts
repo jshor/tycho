@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import TWEEN from 'tween.js'
+import TWEEN, { Tween } from 'tween.js'
 import Constants from '../constants'
 
 export default class Controls extends OrbitControls {
@@ -9,7 +9,7 @@ export default class Controls extends OrbitControls {
   camera: THREE.Camera
   level: number
   tweenData: { level: number }
-  tweenBase: any
+  tweenBase?: Tween
   tweenDone: ((level: number) => void) | undefined
   lookMatrix: THREE.Matrix4 = new THREE.Matrix4()
 
@@ -45,7 +45,7 @@ export default class Controls extends OrbitControls {
     }
   }
 
-  wheelZoom = (ev: WheelEvent, action: (zoom: number) => void): void => {
+  wheelZoom = (ev: { deltaY: number }, action: (zoom: number) => void): void => {
     const zoom = this.getZoomDelta(ev.deltaY)
     const current = Math.round(this.level * 100)
 
@@ -79,7 +79,7 @@ export default class Controls extends OrbitControls {
   }
 
   pan = (percent: number): void => {
-    const position = (this.camera as any).position
+    const position = this.camera.position
     const newVector = this.getZoomVector(position, this.maxDistance * percent)
     const minVector = this.getZoomVector(position, this.minDistance)
 
@@ -144,8 +144,8 @@ export default class Controls extends OrbitControls {
     this.tweenDone = onDone
     this.tweenData = { level: this.level }
 
-    this.tweenBase = new (TWEEN as any).Tween(this.tweenData)
-      .easing((TWEEN as any).Easing.Quadratic.Out)
+    this.tweenBase = new TWEEN.Tween(this.tweenData)
+      .easing(TWEEN.Easing.Quadratic.Out)
       .to({ level }, Constants.WebGL.Tween.SLOW)
       .onUpdate(this.updateTween)
       .onComplete(this.completeTween)

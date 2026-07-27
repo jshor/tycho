@@ -1,10 +1,11 @@
+import { Texture, TextureLoader } from 'three'
 import LensFlareHelper from '../LensFlare'
 import Constants from '../../constants'
 
 // The jsm Lensflare/LensflareElement are mocked globally in src/test/setup.ts
 
 describe('LensFlare', () => {
-  let lensFlare: any
+  let lensFlare: LensFlareHelper
 
   beforeEach(() => {
     lensFlare = new LensFlareHelper()
@@ -20,11 +21,15 @@ describe('LensFlare', () => {
     })
 
     it('should call addEntry() for each LENS_FLARE constant', () => {
-      const spy = vi.spyOn(lensFlare, 'addEntry')
-      lensFlare.constructor(undefined)
+      // addEntry runs during construction, so the only way to observe it is to watch what it
+      // does — load one texture per configured flare — with the spy installed beforehand.
+      const spy = vi.spyOn(TextureLoader.prototype, 'load').mockImplementation(() => new Texture())
 
-      // addEntry is called for each flare in LENS_FLARES — verify count from constants
-      expect(Constants.WebGL.LENS_FLARES.length).toBeGreaterThan(0)
+      new LensFlareHelper()
+
+      expect(spy).toHaveBeenCalledTimes(Constants.WebGL.LENS_FLARES.length)
+
+      spy.mockRestore()
     })
   })
 

@@ -1,15 +1,24 @@
 import React from 'react'
+import { BoundActions } from '../types'
 import { connect } from 'react-redux'
 import * as Actions from '../actions/UIControlsActions'
 import ReduxService from '../services/ReduxService'
 import Modal from '../components/Modal'
 
-interface Props {
-  activeModal?: string | null
+/** Passed in by whoever renders the container. */
+interface OwnProps {
   type?: string
   title?: string
   children?: React.ReactNode
-  action?: Record<string, any>
+}
+
+/** Supplied by connect. */
+interface StateProps {
+  activeModal?: string | null
+}
+
+interface Props extends StateProps, OwnProps {
+  action?: Pick<BoundActions, 'setUIControls' | 'toggleModal'>
 }
 
 export class ModalContainer extends React.Component<Props> {
@@ -42,13 +51,14 @@ export class ModalContainer extends React.Component<Props> {
         modalActive={this.isModalActive()}
         title={this.props.title}
         closeModal={this.closeModal}
-        children={this.props.children}
-      />
+      >
+        {this.props.children}
+      </Modal>
     )
   }
 }
 
 export default connect(
-  ReduxService.mapStateToProps('uiControls.activeModal'),
-  ReduxService.mapDispatchToProps(Actions)
-)(ModalContainer as React.ComponentType<any>) as any
+  ReduxService.mapStateToProps<StateProps>('uiControls.activeModal'),
+  ReduxService.mapDispatchToProps<Props['action']>(Actions)
+)(ModalContainer)

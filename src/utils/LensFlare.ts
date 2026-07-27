@@ -7,7 +7,7 @@ export default class LensFlareHelper extends Lensflare {
   textureLoader: THREE.TextureLoader = new THREE.TextureLoader()
   color: THREE.Color = new THREE.Color(Constants.WebGL.Sunlight.COLOR)
 
-  constructor(_camera?: any) {
+  constructor() {
     super()
     this.position.set(0, 0, 0)
     Constants.WebGL.LENS_FLARES.forEach(this.addEntry)

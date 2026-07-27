@@ -1,4 +1,5 @@
 import React from 'react'
+import { BoundActions } from '../types'
 import { connect } from 'react-redux'
 import SpinLabel from '../components/SpinLabel'
 import ReduxService from '../services/ReduxService'
@@ -6,12 +7,12 @@ import * as TourActions from '../actions/TourActions'
 import * as UIControlsActions from '../actions/UIControlsActions'
 import Constants from '../constants'
 
-interface Props {
+export interface Props {
   isComplete?: boolean
   isAutoOrbitEnabled?: boolean
   touched?: number
   released?: number
-  action?: Record<string, any>
+  action?: Pick<BoundActions, 'setCameraOrbit' | 'setUIControls'>
 }
 
 export class SpinLabelContainer extends React.Component<Props> {
@@ -37,11 +38,11 @@ export class SpinLabelContainer extends React.Component<Props> {
 }
 
 export default connect(
-  ReduxService.mapStateToProps(
+  ReduxService.mapStateToProps<Props>(
     'tour.isComplete',
     'tour.isAutoOrbitEnabled',
     'event.touched',
     'event.released'
   ),
-  ReduxService.mapDispatchToProps(TourActions, UIControlsActions)
-)(SpinLabelContainer as React.ComponentType<any>) as any
+  ReduxService.mapDispatchToProps<Props['action']>(TourActions, UIControlsActions)
+)(SpinLabelContainer)

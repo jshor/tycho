@@ -1,4 +1,5 @@
 import React from 'react'
+import { BoundActions } from '../types'
 import { connect } from 'react-redux'
 import Cookies from 'js-cookie'
 import Volume from '../components/Volume'
@@ -7,7 +8,7 @@ import ReduxService from '../services/ReduxService'
 
 interface Props {
   volume?: number
-  action?: Record<string, any>
+  action?: Pick<BoundActions, 'setVolume'>
 }
 
 export class VolumeContainer extends React.Component<Props> {
@@ -39,6 +40,6 @@ export class VolumeContainer extends React.Component<Props> {
 }
 
 export default connect(
-  ReduxService.mapStateToProps('uiControls.volume'),
-  ReduxService.mapDispatchToProps(UIControlsActions)
-)(VolumeContainer as React.ComponentType<any>) as any
+  ReduxService.mapStateToProps<Props>('uiControls.volume'),
+  ReduxService.mapDispatchToProps<Props['action']>(UIControlsActions)
+)(VolumeContainer)

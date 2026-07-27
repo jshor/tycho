@@ -1,21 +1,26 @@
 import React from 'react'
-import { render } from '@testing-library/react'
+import { renderWithStore } from '../../test/render'
 import { PlayPauseContainer } from '../PlayPauseContainer'
+import { Mutable } from '../../test/helpers'
 
 describe('Play Pause Container', () => {
   let ref: React.RefObject<PlayPauseContainer>
 
   beforeEach(() => {
     ref = React.createRef<PlayPauseContainer>()
-    render(<PlayPauseContainer ref={ref as any} />)
+    renderWithStore(<PlayPauseContainer ref={ref} />)
   })
 
   describe('togglePlayer()', () => {
     it('should call setPlaying with the inverse of the current playing value', () => {
+      const current = ref.current as Mutable<PlayPauseContainer>
       const setPlaying = vi.fn()
-      ;(ref.current! as any).props = { action: { setPlaying }, playing: true }
+      current.props = {
+        action: { setPlaying },
+        playing: true
+      }
 
-      ref.current!.togglePlayer()
+      current.togglePlayer()
 
       expect(setPlaying).toHaveBeenCalledWith(false)
     })

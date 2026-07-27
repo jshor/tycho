@@ -4,7 +4,7 @@ import Actions from '../../constants/Actions'
 describe('UIControls Reducer', () => {
   it('should return the state', () => {
     const state = { zoom: 10 }
-    const result = reducer(state as any, {} as any)
+    const result = reducer(state, { type: 'UNKNOWN_ACTION' })
 
     expect(result).toEqual(state)
   })

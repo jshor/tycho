@@ -3,8 +3,8 @@ import Actions from '../../constants/Actions'
 
 describe('Animation Reducer', () => {
   it('should return the state', () => {
-    const state = { positions: {} }
-    const result = reducer(state as any, {} as any)
+    const state = { playing: true }
+    const result = reducer(state, { type: 'UNKNOWN_ACTION' })
 
     expect(result).toEqual(state)
   })

@@ -1,10 +1,10 @@
 import React from 'react'
 import { render } from '@testing-library/react'
-import Orbital from './Orbital'
+import Orbital, { Props } from './Orbital'
 import { Euler, Vector3 } from 'three'
 
 describe('Orbital Component', () => {
-  const props: any = {
+  const props: Props = {
     eclipticGroupRotation: new Euler(0, 0, 0),
     orbitalGroupRotation: new Euler(0, 0, 0),
     pathVertices: [new Vector3(0, 0, 0), new Vector3(1, 0, 0)],

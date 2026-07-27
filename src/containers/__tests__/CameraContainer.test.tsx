@@ -1,22 +1,19 @@
 import { vi } from 'vitest'
-import CameraService from '../../services/CameraService'
 import Controls from '../../utils/Controls'
 import Constants from '../../constants'
-import { Vector3, Object3D } from 'three'
+import { PerspectiveCamera } from 'three'
 
 vi.mock('../../services/CameraService')
 vi.mock('../../utils/Ambience')
 
 describe('Camera Container', () => {
-  // CameraContainer is now a functional component with forwardRef.
-  // Tests focus on the logic helpers and the Controls class it delegates to.
-
   describe('Controls integration', () => {
-    let camera: any
+    let camera: PerspectiveCamera
     let controls: Controls
 
     beforeEach(() => {
-      camera = { position: new Vector3(1, 1, 1) }
+      camera = new PerspectiveCamera()
+      camera.position.set(1, 1, 1)
       controls = new Controls(camera, document.createElement('canvas'))
     })
 
@@ -42,7 +39,7 @@ describe('Camera Container', () => {
     describe('tweenZoom()', () => {
       it('should start a new Tween on the controls', () => {
         const spy = vi.spyOn(controls, 'cancelTween')
-        controls.tweenZoom(50)
+        controls.tweenZoom(50, vi.fn())
 
         expect(spy).toHaveBeenCalledTimes(1)
         expect(controls.tweenBase).toBeDefined()
@@ -85,8 +82,9 @@ describe('Camera Container', () => {
 
     describe('zoomInFull logic', () => {
       it('should call controls.tweenZoom with the MIN zoom constant', () => {
-        const camera = { position: new Vector3(1, 1, 1) }
-        const controls = new Controls(camera as any, document.createElement('canvas'))
+        const camera = new PerspectiveCamera()
+        camera.position.set(1, 1, 1)
+        const controls = new Controls(camera, document.createElement('canvas'))
         const changeZoom = vi.fn()
         const spy = vi.spyOn(controls, 'tweenZoom')
 

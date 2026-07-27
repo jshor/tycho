@@ -1,9 +1,15 @@
-import { bindActionCreators, Dispatch } from 'redux'
+import { bindActionCreators, ActionCreatorsMapObject, AnyAction, Dispatch } from 'redux'
+
+/** A bag of values keyed by name, whose value types are only known at runtime. */
+type Props = Record<string, unknown>
 
 export default class ReduxService {
-  static mapStateToProps = (...props: string[]) => {
-    return (state: Record<string, any>): Record<string, any> => {
-      const data: Record<string, any> = {}
+  /**
+   * Builds a `mapStateToProps` that pulls `'reducer.key'` paths out of the store.
+   */
+  static mapStateToProps = <S extends object = Props>(...props: string[]) => {
+    return (state: Record<string, Props>): S => {
+      const data: Props = {}
 
       props.forEach((prop) => {
         const path = prop.split('.')
@@ -17,24 +23,27 @@ export default class ReduxService {
           data[key] = state[reducer][key]
         }
       })
-      return data
+
+      return data as S
     }
   }
 
-  static mapDispatchToProps = (...actions: Record<string, any>[]) => {
+  /**
+   * Binds whole action modules to dispatch and exposes them under a single `action` prop.
+   */
+  static mapDispatchToProps = <A>(...actions: ActionCreatorsMapObject[]) => {
     const allActions = actions.reduce((cur, next) => Object.assign(cur, next), {})
 
-    return (dispatch: Dispatch<any>) => ({
-      action: bindActionCreators(allActions, dispatch)
+    return (dispatch: Dispatch<AnyAction>): { action: A } => ({
+      action: bindActionCreators(allActions, dispatch) as A
     })
   }
 
-  static assign = (
-    state: Record<string, any>,
-    payload: Record<string, any>,
-    ...props: string[]
-  ): Record<string, any> => {
-    const data: Record<string, any> = {}
+  /**
+   * Copies the named properties off an action onto a shallow clone of the state.
+   */
+  static assign = <S extends object>(state: S, payload: AnyAction, ...props: string[]): S => {
+    const data: Props = {}
 
     props.forEach((prop) => {
       data[prop] = payload[prop]

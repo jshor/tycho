@@ -11,13 +11,19 @@ import * as LabelActions from '../actions/LabelActions'
 import ReduxService from '../services/ReduxService'
 import CameraContainer, { CameraContainerHandle, CameraAction } from './CameraContainer'
 import EventContainer from './EventContainer'
-import { OrbitalData } from '../types'
+import { OrbitalData, OrbitalLabelActions } from '../types'
 
-interface Props {
-  orbitalData: OrbitalData[]
+/** Passed in by whoever renders the container. */
+interface OwnProps {
   onAnimate: () => void
   width: number
   height: number
+  children?: React.ReactNode
+}
+
+/** Supplied by connect. */
+interface StateProps {
+  orbitalData: OrbitalData[]
   time?: number
   scale?: number
   speed?: number
@@ -26,11 +32,13 @@ interface Props {
   targetId?: string
   highlightedOrbitals?: string[]
   isAutoOrbitEnabled?: boolean
-  children?: React.ReactNode
-  action?: CameraAction
 }
 
-function SkyboxSetup() {
+export interface Props extends StateProps, OwnProps {
+  action?: CameraAction & OrbitalLabelActions
+}
+
+function SkyboxSetup(): null {
   const { scene } = useThree()
   useEffect(() => {
     const loader = new CubeTextureLoader()
@@ -39,10 +47,10 @@ function SkyboxSetup() {
   return null
 }
 
-function AnimationTick({ onAnimate }: { onAnimate: () => void }) {
+function AnimationTick({ onAnimate }: { onAnimate: () => void }): null {
   useFrame(() => {
     onAnimate()
-    ;(TWEEN as any).update()
+    TWEEN.update()
   })
   return null
 }
@@ -54,7 +62,6 @@ interface CanvasContentProps {
 }
 
 function CanvasContent({ props, cameraRef, onAnimate }: CanvasContentProps) {
-  const { camera } = useThree()
   const {
     orbitalData,
     time,
@@ -94,7 +101,6 @@ function CanvasContent({ props, cameraRef, onAnimate }: CanvasContentProps) {
         action={action}
         targetId={targetId}
         highlightedOrbitals={highlightedOrbitals}
-        camera={camera}
       >
         {children}
       </Scene>
@@ -109,7 +115,7 @@ export class SceneContainer extends React.Component<Props> {
     this.props.onAnimate()
   }
 
-  changeZoom = (ev: WheelEvent) => {
+  changeZoom: React.WheelEventHandler<HTMLDivElement> = (ev) => {
     this.cameraRef.current?.controls?.wheelZoom(ev, this.props.action.changeZoom)
   }
 
@@ -117,7 +123,7 @@ export class SceneContainer extends React.Component<Props> {
     const { width, height } = this.props
 
     return (
-      <EventContainer onWheel={this.changeZoom as any}>
+      <EventContainer onWheel={this.changeZoom}>
         <Canvas style={{ width, height }} gl={{ antialias: true, alpha: true }}>
           <CanvasContent props={this.props} cameraRef={this.cameraRef} onAnimate={this.onAnimate} />
         </Canvas>
@@ -127,7 +133,7 @@ export class SceneContainer extends React.Component<Props> {
 }
 
 export default connect(
-  ReduxService.mapStateToProps(
+  ReduxService.mapStateToProps<StateProps>(
     'uiControls.zoom',
     'uiControls.scale',
     'uiControls.speed',
@@ -138,5 +144,9 @@ export default connect(
     'animation.time',
     'data.orbitalData'
   ),
-  ReduxService.mapDispatchToProps(UIControlsActions, AnimationActions, LabelActions)
-)(SceneContainer as React.ComponentType<any>) as any
+  ReduxService.mapDispatchToProps<Props['action']>(
+    UIControlsActions,
+    AnimationActions,
+    LabelActions
+  )
+)(SceneContainer)

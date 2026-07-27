@@ -1,14 +1,21 @@
 import { Euler } from 'three'
 import OrbitalService from '../OrbitalService'
+import Ellipse from '../../utils/Ellipse'
 import Constants from '../../constants'
 import MathService from '../MathService'
 import fixture from './__fixtures__/planets.json'
 
 describe('Orbital Service', () => {
-  afterEach(() => vi.resetAllMocks())
+  afterEach(() => {
+    vi.resetAllMocks()
+  })
 
   describe('getEclipticGroupRotation()', () => {
-    const params: any = {
+    const params: {
+      inclination: number
+      longitudeOfAscendingNode: number
+      isSatellite?: boolean
+    } = {
       inclination: 10,
       longitudeOfAscendingNode: 15
     }
@@ -60,20 +67,21 @@ describe('Orbital Service', () => {
   })
 
   describe('getBodyRotation()', () => {
-    const param: any = {
+    const param = {
       axialTilt: 10,
-      arcRotate: 15,
+      sidereal: 15,
+      longitudeOfAscendingNode: 0,
       time: 0
     }
 
     it('should return an Eulerian vector', () => {
-      const result = OrbitalService.getEclipticGroupRotation(param as any)
+      const result = OrbitalService.getEclipticGroupRotation(param)
       expect(result).toBeInstanceOf(Euler)
     })
 
     it('should set the x Euler rotation param to axialTilt rotated 90 degrees counter-clockwise', () => {
       const x = OrbitalService.ASCENSION + param.axialTilt
-      const result = OrbitalService.getBodyRotation(param as any)
+      const result = OrbitalService.getBodyRotation(param)
       const expected = OrbitalService.toEuler({ x })
 
       expect(typeof result.x).toBe('number')
@@ -81,7 +89,7 @@ describe('Orbital Service', () => {
     })
 
     it('should omit the z Euler rotation param', () => {
-      const result = OrbitalService.getBodyRotation(param as any)
+      const result = OrbitalService.getBodyRotation(param)
 
       expect(typeof result.z).toBe('number')
       expect(result.z).toEqual(0)
@@ -90,12 +98,11 @@ describe('Orbital Service', () => {
 
   describe('getBodyPosition()', () => {
     it('should call getPosition() on the ellipse instance with periapses and time props', () => {
-      const getPosition = vi.fn()
-      const props: any = {
+      const props = {
         time: 0,
-        periapses: {}
+        periapses: { last: 0, next: 1 }
       }
-      const ellipse: any = { getPosition }
+      const ellipse = new Ellipse({ semimajor: 1, semiminor: 1, eccentricity: 0, scale: 1 })
       const spy = vi.spyOn(ellipse, 'getPosition')
 
       OrbitalService.getBodyPosition(props, ellipse)
@@ -180,17 +187,15 @@ describe('Orbital Service', () => {
 
   describe('getTargetByName()', () => {
     it("should return a planet's radius", () => {
-      expect(OrbitalService.getTargetByName(fixture as any, 'Earth')).toEqual(fixture[1])
+      expect(OrbitalService.getTargetByName(fixture, 'Earth')).toEqual(fixture[1])
     })
 
     it("should return a satellite's radius", () => {
-      expect(OrbitalService.getTargetByName(fixture as any, 'Moon')).toEqual(
-        (fixture[1] as any).satellites[0]
-      )
+      expect(OrbitalService.getTargetByName(fixture, 'Moon')).toEqual(fixture[1].satellites?.[0])
     })
 
     it('should return a mid-entry list item radius', () => {
-      expect(OrbitalService.getTargetByName(fixture as any, 'Mars')).toEqual(fixture[0])
+      expect(OrbitalService.getTargetByName(fixture, 'Mars')).toEqual(fixture[0])
     })
   })
 })

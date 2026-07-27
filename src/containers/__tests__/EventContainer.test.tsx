@@ -1,6 +1,7 @@
 import React from 'react'
-import { render } from '@testing-library/react'
+import { renderWithStore } from '../../test/render'
 import { EventContainer } from '../EventContainer'
+import { Mutable } from '../../test/helpers'
 
 describe('Event Container', () => {
   let ref: React.RefObject<EventContainer>
@@ -8,17 +9,20 @@ describe('Event Container', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     ref = React.createRef<EventContainer>()
-    render(<EventContainer ref={ref as any} />)
+    renderWithStore(<EventContainer ref={ref} />)
   })
 
   describe('onTouched()', () => {
     it('should call setTouched with the current timestamp', () => {
+      const current = ref.current as Mutable<EventContainer>
       const now = 12345
       const setTouched = vi.fn()
       vi.spyOn(Date, 'now').mockReturnValue(now)
 
-      ;(ref.current! as any).props = { action: { setTouched } }
-      ref.current!.onTouched()
+      current.props = {
+        action: { setTouched, setReleased: vi.fn() }
+      }
+      current.onTouched()
 
       expect(setTouched).toHaveBeenCalledWith(now)
     })
@@ -26,12 +30,15 @@ describe('Event Container', () => {
 
   describe('onReleased()', () => {
     it('should call setReleased with the current timestamp', () => {
+      const current = ref.current as Mutable<EventContainer>
       const now = 12345
       const setReleased = vi.fn()
       vi.spyOn(Date, 'now').mockReturnValue(now)
 
-      ;(ref.current! as any).props = { action: { setReleased } }
-      ref.current!.onReleased()
+      current.props = {
+        action: { setTouched: vi.fn(), setReleased }
+      }
+      current.onReleased()
 
       expect(setReleased).toHaveBeenCalledWith(now)
     })
