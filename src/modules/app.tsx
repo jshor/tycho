@@ -17,7 +17,7 @@ export default function App() {
   const requestOrbitalData = useStore((state) => state.requestOrbitalData)
   const requestPageText = useStore((state) => state.requestPageText)
 
-  const clockRef = useRef<Clock>()
+  const clockRef = useRef<Clock>(null)
   const lastTime = useRef(0)
   const previousOffset = useRef(timeOffset)
 

@@ -1,18 +1,17 @@
 import { useEffect } from 'react'
-import Cookies from 'js-cookie'
 import useStore from '../store'
 import VolumeView from '../components/volume'
 
 /** Reads the volume the user last chose, defaulting to audible. */
 export const getVolume = (): number => {
-  const volume = parseInt(Cookies.get('volume'), 10)
+  const volume = parseInt(localStorage.getItem('volume') || '', 10)
 
   return isNaN(volume) ? 1 : volume
 }
 
 /** Remembers the given volume for a year. */
 export const setVolume = (volume: number) => {
-  Cookies.set('volume', String(volume), { expires: 365 })
+  localStorage.setItem('volume', String(volume))
 }
 
 /**

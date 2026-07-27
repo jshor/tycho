@@ -1,9 +1,9 @@
-name: Build and deploy
+name: Build and Publish
 
 on:
   push:
     branches:
-      - master
+      - main
   release:
     types: [created]
 
@@ -13,35 +13,56 @@ env:
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
-          persist-credentials: false
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 8.4
-      - name: Pull latest
-        run: git pull origin master
-      - name: Install dependencies
+          node-version: 26
+      - name: Install npm dependencies
         run: yarn
-      - name: Build application
-        run: yarn build
       - name: Run linter
         run: yarn lint
-      - name: Run tests
+      - name: Run unit tests
         run: yarn test:coverage
-      #   - name: Report coverage
-      #     run: yarn codecov
+      - name: Report coverage
+        run: yarn codecov
+      - name: Upload bundle artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: dist
+          path: dist
+      - name: Build app
+        run: yarn build
+      - name: Upload app artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: dist
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Pull latest
+        run: git pull origin main
+      - name: Download bundle artifact
+        uses: actions/download-artifact@v6
+        with:
+          name: dist
+          path: dist
       - name: Create CNAME Record
-        run: echo "tycho.io" > build/CNAME
-      - name: Deploy to GitHub Pages
+        run: echo "tycho.io" > dist/CNAME
+      - name: Deploy app to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@3.7.1
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GIT_CONFIG_NAME: ${{ env.GIT_USER }}
           GIT_CONFIG_EMAIL: ${{ env.GIT_EMAIL }}
           BRANCH: gh-pages
-          FOLDER: build
+          FOLDER: dist
           CLEAN: true

@@ -6,14 +6,12 @@
 
 <p align="center">
   <a href="https://codecov.io/gh/jshor/tycho"><img
-    src="https://img.shields.io/codecov/c/github/jshor/tycho.svg?style=for-the-badge"
-    alt="Code coverage"
-  /></a> <a href="https://github.com/jshor/tycho/actions?query=workflow%3A%22Build+and+deploy%22"><img
-    src="https://img.shields.io/github/workflow/status/jshor/tycho/Build%20and%20deploy?style=for-the-badge"
-    alt="Build status"
-  /></a> <a href="LICENSE.md"><img src="https://img.shields.io/:license-MIT-blue.svg?style=for-the-badge"
-    alt="License | MIT"
-  /></a>
+    src="https://img.shields.io/codecov/c/github/jshor/tycho?logo=codecov&style=for-the-badge"
+    alt="Code coverage"></a> <a href="https://github.com/jshor/tycho/actions"><img 
+    src="https://img.shields.io/github/actions/workflow/status/jshor/tycho/merge.yml?logo=github&style=for-the-badge"
+    alt="Build status"></a> <a href="https://github.com/jshor/tycho/releases/"><img
+    src="https://img.shields.io/github/package-json/v/jshor/tycho?logo=github&style=for-the-badge"
+    alt="Version"></a>
 </p>
 
 ## About This Project
@@ -65,7 +63,7 @@ nvm use
 3. Install dependencies (via yarn).
 
 ```sh
-yarn install
+yarn
 ```
 
 4. Start

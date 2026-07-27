@@ -17,24 +17,18 @@ export interface Props extends OrbitalData {
  */
 export default function Orbital(props: Props) {
   const { id, parentId, isSatellite } = props
-
   const time = useStore((state) => state.time)
   const scale = useStore((state) => state.scale)
   const targetId = useStore((state) => state.targetId)
   const highlightedOrbitals = useStore((state) => state.highlightedOrbitals)
-
-  // the label's actions never change, so one selector returning them all costs no extra renders
   const setActiveOrbital = useStore((state) => state.setActiveOrbital)
   const addHighlightedOrbital = useStore((state) => state.addHighlightedOrbital)
   const removeHighlightedOrbital = useStore((state) => state.removeHighlightedOrbital)
-
   const action = useMemo(
     () => ({ setActiveOrbital, addHighlightedOrbital, removeHighlightedOrbital }),
     [setActiveOrbital, addHighlightedOrbital, removeHighlightedOrbital]
   )
-
-  // the ellipse is mutated in place as the scale changes, so it outlives any one render
-  const ellipseRef = useRef<Ellipse>()
+  const ellipseRef = useRef<Ellipse>(null)
 
   if (!ellipseRef.current) {
     ellipseRef.current = new Ellipse({ ...props, scale })

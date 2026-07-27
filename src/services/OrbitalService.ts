@@ -60,7 +60,7 @@ export default class OrbitalService {
   static getRotationCompleted = (sidereal: number, time: number): number => {
     const unixTimeToDays = time / 60 / 60 / 24
     // TODO: 0.6 is the offset needed to make earth align to the sun at the right time; add this as a constant to the config JSON
-    const percentRotated = (unixTimeToDays / sidereal) + 0.6 % 1
+    const percentRotated = unixTimeToDays / sidereal + (0.6 % 1)
     return percentRotated * 360
   }
 
