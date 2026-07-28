@@ -26,7 +26,7 @@ export const Tween = {
 }
 
 export const Zoom = {
-  MIN: 0.0005,
+  MIN: 0,
   MAX: 100,
   STEP: 0.005
 }
@@ -40,6 +40,9 @@ export const Camera = {
   Z: 0,
   MAX_DISTANCE: 12000,
   MIN_DISTANCE: 0.001,
+  /** Percentage of FOV for the fully-zoomed orbital to show. */
+  FOCUS_FILL: 0.7,
+  /** Distance range of the satellite to appear when its system is in focus. */
   SATELLITE_LABEL_RANGE: 7
 }
 
@@ -135,5 +138,3 @@ export const Atmospheres: Record<string, AtmosphereEntry> = {
     DUSK_COLOR: 0xffbe94
   }
 }
-
-// tail settings live with the bodies that grow one; see `tail` in the orbital data

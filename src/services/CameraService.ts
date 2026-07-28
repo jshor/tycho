@@ -1,5 +1,5 @@
 import TWEEN, { Tween } from 'tween.js'
-import { Vector3, Object3D, Scene as ThreeScene } from 'three'
+import { Vector3, Object3D, Scene as ThreeScene, MathUtils } from 'three'
 import Constants from '../constants'
 import OrbitalService from './OrbitalService'
 import Gyroscope from '../utils/Gyroscope'
@@ -13,15 +13,32 @@ export default class CameraService {
     Constants.WebGL.Camera.Z
   )
 
-  static getMinDistance = (orbitals: OrbitalData[], targetId: string): number => {
+  /**
+   * Returns the minimum distance the camera may get to the given orbital.
+   */
+  static getMinDistance = (
+    orbitals: OrbitalData[],
+    targetId: string,
+    aspect: number = 1
+  ): number => {
     const target = OrbitalService.getTargetByName(orbitals, targetId)
 
-    if (target) {
-      // flooor the radius so the camera stops outside the inflated body of a small
-      // orbital (see getVisibleRadius) instead of clipping it
-      return Scale(getVisibleRadius(target.radius)) + Constants.WebGL.Camera.MIN_DISTANCE
+    if (!target) {
+      return Constants.WebGL.Camera.MIN_DISTANCE
     }
-    return 0
+
+    // floor the radius so the camera stops outside the inflated body of a small orbital
+    const extent = Math.max(
+      getVisibleRadius(target.radius),
+      target.rings?.outerRadius ?? 0
+    )
+
+    // the field of view is the vertical one, so a screen taller than it is wide is narrower than
+    // the camera's own field and is what the orbital actually has to fit inside
+    const vertical = MathUtils.degToRad(Constants.WebGL.Camera.FOV)
+    const field = Math.min(vertical, 2 * Math.atan(Math.tan(vertical / 2) * aspect))
+
+    return Scale(extent) / Math.sin((field * Constants.WebGL.Camera.FOCUS_FILL) / 2)
   }
 
   static getPivotTween = (

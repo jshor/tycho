@@ -63,16 +63,46 @@ describe('Camera Service', () => {
 
   describe('getMinDistance()', () => {
     const { MINIMUM_RADIUS } = Constants.WebGL
-    const { MIN_DISTANCE } = Constants.WebGL.Camera
+    const { MIN_DISTANCE, FOV, FOCUS_FILL } = Constants.WebGL.Camera
+    const framing = (radius: number, aspect = 1) => {
+      const vertical = (FOV * Math.PI) / 180
+      const field = Math.min(vertical, 2 * Math.atan(Math.tan(vertical / 2) * aspect))
+
+      return Scale(radius) / Math.sin((field * FOCUS_FILL) / 2)
+    }
 
     it('should floor a small orbital to the minimum radius so the camera clears its inflated body', () => {
-      expect(CameraService.getMinDistance(fixture, 'Earth')).toBeCloseTo(
-        Scale(MINIMUM_RADIUS) + MIN_DISTANCE
+      expect(CameraService.getMinDistance(fixture, 'Earth')).toBeCloseTo(framing(MINIMUM_RADIUS))
+    })
+
+    it('should stand off a ringed orbital far enough to take in its rings', () => {
+      const outerRadius = 120700
+      const ringed = [{ ...fixture[1], id: 'Ringed', rings: { outerRadius } }]
+
+      expect(CameraService.getMinDistance(ringed as never, 'Ringed')).toBeCloseTo(
+        framing(outerRadius)
       )
     })
 
-    it('should return 0 if the target distance is not available', () => {
-      expect(CameraService.getMinDistance(fixture, 'Bogus')).toEqual(0)
+    it('should show a large orbital at the same size on screen as a small one', () => {
+      const small = [{ ...fixture[1], id: 'Small', radius: MINIMUM_RADIUS }]
+      const large = [{ ...fixture[1], id: 'Large', radius: MINIMUM_RADIUS * 11 }]
+
+      const near = CameraService.getMinDistance(small as never, 'Small')
+      const far = CameraService.getMinDistance(large as never, 'Large')
+
+      expect(far / near).toBeCloseTo(11)
+    })
+
+    it('should stand further off on a screen narrower than the camera field', () => {
+      const wide = CameraService.getMinDistance(fixture, 'Earth', 16 / 9)
+      const tall = CameraService.getMinDistance(fixture, 'Earth', 9 / 16)
+
+      expect(tall).toBeGreaterThan(wide)
+    })
+
+    it('should fall back to the closest the camera may ever get if there is no target', () => {
+      expect(CameraService.getMinDistance(fixture, 'Bogus')).toEqual(MIN_DISTANCE)
     })
   })
 

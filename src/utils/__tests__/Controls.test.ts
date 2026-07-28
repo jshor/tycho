@@ -48,6 +48,41 @@ describe('Controls', () => {
     })
   })
 
+  describe('setMinDistance()', () => {
+    beforeEach(() => {
+      controls.camera.position.set(0, 0, 10)
+    })
+
+    it('should pull the camera in to the new limit', () => {
+      controls.setMinDistance(2)
+      controls.zoom(0)
+
+      expect(controls.camera.position.length()).toBeCloseTo(2)
+    })
+
+    it('should re-frame a camera already sitting at the old limit, whose zoom has not changed', () => {
+      controls.setMinDistance(8)
+      controls.zoom(0)
+
+      expect(controls.camera.position.length()).toBeCloseTo(8)
+
+      controls.setMinDistance(2)
+
+      expect(controls.level).toEqual(0)
+      expect(controls.camera.position.length()).toBeCloseTo(2)
+    })
+
+    it('should leave a camera that is not zoomed all the way in where it is', () => {
+      controls.zoom(50)
+
+      const distance = controls.camera.position.length()
+
+      controls.setMinDistance(2)
+
+      expect(controls.camera.position.length()).toBeCloseTo(distance)
+    })
+  })
+
   describe('getZoomDelta()', () => {
     it('should calculate the proper zoom delta', () => {
       controls.level = 50

@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom'
 import { beforeEach, vi } from 'vitest'
-import { AudioLoader, type Camera, type Texture } from 'three'
+import { AudioLoader, Vector3, type Camera, type Texture } from 'three'
 import useStore from '../store'
 
 /**
@@ -114,7 +114,7 @@ vi.mock('three/examples/jsm/objects/Lensflare.js', () => ({
 vi.mock('@react-three/fiber', () => ({
   Canvas: ({ children }: { children?: React.ReactNode }): React.ReactNode => children,
   useThree: () => ({
-    camera: { add: vi.fn(), position: { length: () => 1000 } },
+    camera: { add: vi.fn(), position: new Vector3(0, 0, 1000) },
     scene: { getObjectByName: vi.fn(), add: vi.fn(), background: null as Texture | null },
     gl: { domElement: document.createElement('canvas') }
   }),

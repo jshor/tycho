@@ -11,6 +11,7 @@ const controls = vi.hoisted(() => ({
   zoom: vi.fn(),
   tweenZoom: vi.fn(),
   cancelTween: vi.fn(),
+  setMinDistance: vi.fn(),
   update: vi.fn(),
   faceTarget: vi.fn(),
   dispose: vi.fn(),

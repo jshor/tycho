@@ -17,7 +17,10 @@ export interface CameraHandle {
   controls: Controls | null
 }
 
-// TODO: hack; find better solution? this skips zoom by forcing the camera onto the lookat
+
+/**
+ * Dollies the camera in to the minimum distance allowed without tween animation. 
+ */
 export const focusCameraImmediately = (
   target: THREE.Object3D,
   pivot: THREE.Object3D,
@@ -30,6 +33,9 @@ export const focusCameraImmediately = (
   changeZoom?.(Constants.WebGL.Zoom.MIN)
 }
 
+/**
+ * The camera that renders the scene.
+ */
 const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
   const targetId = useStore((state) => state.targetId)
   const animateTargetChange = useStore((state) => state.animateTargetChange)
@@ -43,8 +49,6 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
   const controlsRef = useRef<Controls>(null)
   const ambienceRef = useRef<Ambience>(null)
   const tweenBaseRef = useRef<{ stop(): void } | null>(null)
-
-  // gl.domElement is the canvas; use it directly instead of requiring a prop
   const { scene, camera, gl } = useThree()
 
   useImperativeHandle(ref, () => ({
@@ -53,12 +57,16 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
     }
   }))
 
-  // initialize ambience once the camera is available
+  /**
+   * Initializes ambience once the camera is available.
+   */
   useEffect(() => {
     ambienceRef.current = new Ambience(camera)
   }, [camera])
 
-  // create controls as soon as the camera and canvas are available
+  /**
+   * Creates controls as soon as the camera and canvas are available.
+   */
   useEffect(() => {
     if (controlsRef.current) {
       controlsRef.current.dispose()
@@ -70,35 +78,47 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
     }
   }, [camera, gl.domElement])
 
-  // update volume
+  /**
+   * Updates the volume of the ambience.
+   */
   useEffect(() => {
     if (volume !== undefined && isFinite(volume)) {
       ambienceRef.current?.setVolume(volume)
     }
   }, [volume])
 
-  // update zoom level
+  /**
+   * Updates the zoom level of the controls.
+   */
   useEffect(() => {
     if (zoom !== undefined) {
       controlsRef.current?.zoom(zoom)
     }
   }, [zoom])
 
-  // update auto-rotate
+  /**
+   * Updates the auto-rotate setting of the controls.
+   */
   useEffect(() => {
     if (controlsRef.current) {
       controlsRef.current.autoRotate = !!isAutoOrbitEnabled
     }
   }, [isAutoOrbitEnabled])
 
-  // prevent camera collision when the target changes
+  /**
+   * Frames the target consistently (regardless of size) when the camera closes on it.
+   */
   useEffect(() => {
     if (controlsRef.current) {
-      controlsRef.current.minDistance = CameraService.getMinDistance(orbitalData, targetId)
+      controlsRef.current.setMinDistance(
+        CameraService.getMinDistance(orbitalData, targetId, ratio)
+      )
     }
-  }, [targetId, orbitalData])
+  }, [targetId, orbitalData, ratio])
 
-  // move camera pivot when target changes
+  /**
+   * Moves the camera pivot when the target changes.
+   */
   useEffect(() => {
     if (!targetId) return
 
@@ -107,8 +127,7 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
 
     if (target) {
       if (animateTargetChange === false) {
-        // TODO: this is an inelegant hack to force the camera view; find alternative
-        cancelTween()
+        cancelTween() // TODO: is this necessary? cancelTween() will happen twice?
         focusCameraImmediately(target, pivot, controlsRef.current, changeZoom)
         return
       }
@@ -123,16 +142,20 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
       tweenBaseRef.current = CameraService.getPivotTween(w, v, target, pivot, endTween)
     }
   }, [targetId, animateTargetChange]) // eslint-disable-line react-hooks/exhaustive-deps
-
+  
+  /**
+   * Updates the matrix world so that face targets know where to look at.
+   * Necessary to ensure that the labels are always facing the camera.
+   */
   useFrame(() => {
     controlsRef.current?.update()
     controlsRef.current?.faceTarget()
-
-    // update the matrix world so that face targets know where to look at the next frame
-    // this is necessary to ensure that the labels are always facing the camera correctly
     scene.updateMatrixWorld()
   })
 
+  /**
+   * Cancels dollying the camera.
+   */
   const cancelTween = () => {
     if (tweenBaseRef.current) {
       tweenBaseRef.current.stop()
@@ -140,8 +163,14 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
     }
   }
 
+  /**
+   * Completes the dolly animation.
+   */
   const endTween = () => setInteractivity(true)
 
+  /**
+   * Enables or disables interactivity with the camera.
+   */
   const setInteractivity = (enabled: boolean) => {
     useStore.setState({ controlsEnabled: !!enabled, playing: enabled })
     if (controlsRef.current) {
@@ -149,6 +178,9 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
     }
   }
 
+  /**
+   * Zooms the camera all the way in to the minimum distance allowed.
+   */
   const zoomInFull = () => {
     controlsRef.current?.tweenZoom(Constants.WebGL.Zoom.MIN, changeZoom)
   }

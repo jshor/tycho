@@ -12,6 +12,8 @@ interface Props {
  * The vertical slider that zooms the camera toward and away from an active orbital.
  */
 export default function ZoomSlider({ value, onChange }: Props) {
+  const level = value ?? Constants.WebGL.Zoom.MAX
+
   return (
     <div className="slider slider--vertical">
       <Slider
@@ -20,7 +22,7 @@ export default function ZoomSlider({ value, onChange }: Props) {
         step={Constants.WebGL.Zoom.STEP}
         min={Constants.WebGL.Zoom.MIN}
         max={Constants.WebGL.Zoom.MAX}
-        value={value || Constants.WebGL.Zoom.MAX}
+        value={level}
         onChange={onChange}
       />
     </div>
