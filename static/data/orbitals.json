@@ -94,6 +94,15 @@
         "longitudeOfAscendingNode": 58.42008097656843,
         "semimajor": 2667330000,
         "semiminor": 679572662,
+        "tail": {
+            "length": 100,
+            "width": 20,
+            "comaScale": 60,
+            "activeDistance": 450,
+            "restActivity": 0.18,
+            "dustColor": 16773328,
+            "ionColor": 6737151
+        },
         "periapses": {
             "last": 508291200000,
             "next": 2889734400000
