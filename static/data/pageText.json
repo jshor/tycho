@@ -1,8 +1,5 @@
 {
-	"planetScale": "Planet Scale: × ",
-	"speedScale": "Speed Scale: × 10^",
-	"settings": "Settings",
-	"start": "Start",
+    "start": "Start",
     "skipTour": "Skip Tour",
     "stats": {
         "currentEarthTime": "Current Earth time:",
