@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Text } from '@react-three/drei'
 import { useThree, useFrame, ThreeEvent } from '@react-three/fiber'
 import * as THREE from 'three'
@@ -55,9 +55,8 @@ const LABEL_MATERIAL = new THREE.MeshBasicMaterial({
   depthWrite: false
 })
 
-/** The glow effect when the text is hovered. */
+/** The glow effect when the text is hovered, which takes the color of the text it surrounds. */
 const GLOW = {
-  COLOR: '#ffffff',
   WIDTH: '2%',
   BLUR: '60%',
   OPACITY: 0.85
@@ -96,6 +95,7 @@ export function CameraFacingText({
   fontSize = 1,
   barycenterId,
   maxDistance,
+  color,
   onClick,
   onPointerOver,
   onPointerOut,
@@ -107,6 +107,7 @@ export function CameraFacingText({
   const { camera, size } = useThree()
   const isVisible = useRef(true)
   const pressedAt = useRef<{ x: number; y: number } | null>(null)
+  const leaving = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [hovered, setHovered] = useState(false)
   const textPosition = useMemo(() => new THREE.Vector3(), [])
   const barycenterPosition = useMemo(() => new THREE.Vector3(), [])
@@ -213,23 +214,43 @@ export function CameraFacingText({
   }
 
   /**
+   * Abandons a departure the pointer has not seen through.
+   */
+  const cancelLeaving = () => {
+    if (leaving.current !== null) {
+      clearTimeout(leaving.current)
+      leaving.current = null
+    }
+  }
+
+  /**
    * Label hover event handler.
    */
   const handlePointerOver = (event: ThreeEvent<PointerEvent>) => {
     if (!isVisible.current) return
 
+    cancelLeaving()
     event.stopPropagation()
     setHovered(true)
     onPointerOver?.(event)
   }
 
   /**
-   * Label mouseout event handler.
+   * Label mouseout event handler, which gives the pointer a moment to come back before the label
+   * gives up its highlight (see Constants.UI.HOVER_LINGER).
    */
   const handlePointerOut = (event: ThreeEvent<PointerEvent>) => {
-    setHovered(false)
-    onPointerOut?.(event)
+    cancelLeaving()
+
+    leaving.current = setTimeout(() => {
+      leaving.current = null
+      setHovered(false)
+      onPointerOut?.(event)
+    }, Constants.UI.HOVER_LINGER)
   }
+
+  // a label that goes away mid-departure would otherwise leave the timer to fire into nothing
+  useEffect(() => cancelLeaving, [])
 
   return (
     <group
@@ -252,7 +273,8 @@ export function CameraFacingText({
         fontSize={fontSize}
         material={LABEL_MATERIAL}
         renderOrder={1} // render on top of the mesh
-        outlineColor={GLOW.COLOR}
+        color={color}
+        outlineColor={color}
         outlineWidth={hovered ? GLOW.WIDTH : 0}
         outlineBlur={hovered ? GLOW.BLUR : 0}
         outlineOpacity={hovered ? GLOW.OPACITY : 0}

@@ -33,7 +33,7 @@ export const Zoom = {
 
 export const Camera = {
   NEAR: 0.001,
-  FAR: 15000,
+  FAR: 18000,
   FOV: 50,
   X: 0,
   Y: 12000,

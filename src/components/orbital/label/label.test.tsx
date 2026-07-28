@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import Label from './label'
 import Constants from '../../../constants'
@@ -114,13 +114,31 @@ describe('Orbital Label Component', () => {
     expect(action.addHighlightedOrbital).toHaveBeenCalledWith('Earth')
   })
 
-  it('should remove the highlight on pointer out', async () => {
+  it('should remove the highlight once the pointer has stayed away', async () => {
     const user = userEvent.setup()
     render(<Label text="Earth" id="Earth" action={action} />)
 
     await user.hover(screen.getByText('Earth'))
     await user.unhover(screen.getByText('Earth'))
 
-    expect(action.removeHighlightedOrbital).toHaveBeenCalledWith('Earth')
+    // the label holds its highlight for a moment first, in case the pointer is coming back
+    expect(action.removeHighlightedOrbital).not.toHaveBeenCalled()
+
+    await waitFor(() => expect(action.removeHighlightedOrbital).toHaveBeenCalledWith('Earth'))
+  })
+
+  it('should keep the highlight when the pointer flickers off the label and back', async () => {
+    const user = userEvent.setup()
+    render(<Label text="Earth" id="Earth" action={action} />)
+    const label = screen.getByText('Earth')
+
+    await user.hover(label)
+    await user.unhover(label)
+    await user.hover(label)
+
+    // long enough that a departure would have been seen through had it not been called off
+    await new Promise((resolve) => setTimeout(resolve, Constants.UI.HOVER_LINGER * 2))
+
+    expect(action.removeHighlightedOrbital).not.toHaveBeenCalled()
   })
 })
