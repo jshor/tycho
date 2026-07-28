@@ -24,6 +24,9 @@ export const SPIN_LABEL_ARROW_COUNT = 4
 
 export const WHEEL_DELTA_DIVISOR = 100000
 
+/** * How far a pointer may drift between press and release to count as a tap. */
+export const FAT_FINGER = 12
+
 /**
  * How much wheel delta one pixel of finger separation is worth when pinching, so that a pinch
  * zooms at roughly the same rate as the wheel does for the same amount of effort.

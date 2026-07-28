@@ -35,7 +35,7 @@ interface CameraFacingTextProps {
   /** Name of the ancestor to measure distance from, when culling a satellite's label. */
   barycenterId?: string
   maxDistance?: number
-  onClick?: (event: ThreeEvent<MouseEvent>) => void
+  onClick?: (event: ThreeEvent<PointerEvent>) => void
   onPointerOver?: (event: ThreeEvent<PointerEvent>) => void
   onPointerOut?: (event: ThreeEvent<PointerEvent>) => void
   color?: string
@@ -104,6 +104,7 @@ export function CameraFacingText({
   const backgroundRef = useRef<THREE.Mesh>(null)
   const { camera, size } = useThree()
   const isVisible = useRef(true)
+  const pressedAt = useRef<{ x: number; y: number } | null>(null)
   const [hovered, setHovered] = useState(false)
   const textPosition = useMemo(() => new THREE.Vector3(), [])
   const barycenterPosition = useMemo(() => new THREE.Vector3(), [])
@@ -177,10 +178,33 @@ export function CameraFacingText({
   })
 
   /**
-   * Label click event handler.
+   * Label press event handler.
    */
-  const handleClick = (event: ThreeEvent<MouseEvent>) => {
+  const handlePointerDown = (event: ThreeEvent<PointerEvent>) => {
     if (!isVisible.current) return
+
+    const target = event.target as Element
+
+    event.stopPropagation()
+    target?.setPointerCapture?.(event.pointerId)
+    pressedAt.current = { x: event.clientX, y: event.clientY }
+  }
+
+  /**
+   * Label release event handler, which counts as a tap if the pointer barely moved.
+   */
+  const handlePointerUp = (event: ThreeEvent<PointerEvent>) => {
+    const pressed = pressedAt.current
+    const target = event.target as Element
+
+    target?.releasePointerCapture?.(event.pointerId)
+    pressedAt.current = null
+
+    if (!pressed || !isVisible.current) return
+
+    const drift = Math.hypot(event.clientX - pressed.x, event.clientY - pressed.y)
+
+    if (drift > Constants.UI.FAT_FINGER) return
 
     event.stopPropagation()
     onClick?.(event)
@@ -208,7 +232,8 @@ export function CameraFacingText({
   return (
     <group
       ref={groupRef}
-      onClick={handleClick}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
       onPointerOver={handlePointerOver}
       onPointerOut={handlePointerOut}
     >

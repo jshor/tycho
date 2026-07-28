@@ -1,5 +1,5 @@
 import { Vector3 } from 'three'
-import { act } from '@testing-library/react'
+import { act, fireEvent } from '@testing-library/react'
 import { renderWithStore } from '../../test/render'
 import useStore from '../../store'
 import data from './__fixtures__/orbitals.json'
@@ -88,11 +88,16 @@ describe('Orbital Module', () => {
   })
 
   describe('label actions', () => {
-    it('should focus the camera on the orbital when its label is clicked', () => {
+    it('should focus the camera on the orbital when its label is tapped', () => {
       const setActiveOrbital = vi.fn()
       const { container } = renderModule({ setActiveOrbital })
+      const label = container.querySelector('span') as Element
+      const tap = { bubbles: true, clientX: 100, clientY: 100 }
 
-      container.querySelector('span')?.click()
+      // jsdom has no PointerEvent, and the plain Event testing-library falls back to carries no
+      // coordinates, which the label needs to tell a tap from a drag
+      fireEvent(label, new MouseEvent('pointerdown', tap))
+      fireEvent(label, new MouseEvent('pointerup', tap))
 
       expect(setActiveOrbital).toHaveBeenCalledWith(orbital.id, orbital.name)
     })

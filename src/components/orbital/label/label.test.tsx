@@ -1,6 +1,7 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import Label from './label'
+import Constants from '../../../constants'
 
 const action = {
   setActiveOrbital: vi.fn(),
@@ -51,6 +52,57 @@ describe('Orbital Label Component', () => {
     await user.click(screen.getByText('Earth'))
 
     expect(action.setActiveOrbital).toHaveBeenCalledWith('Earth', 'Earth')
+  })
+
+  describe('tapping', () => {
+    /**
+     * Presses and releases the label, with the pointer drifting the given distance between.
+     *
+     * jsdom has no PointerEvent, and the plain Event that testing-library falls back to carries
+     * no coordinates at all, so these are dispatched as mouse events instead.
+     */
+    const tap = (drift: number) => {
+      const label = screen.getByText('Earth')
+      const press = { bubbles: true, clientX: 100, clientY: 100 }
+
+      fireEvent(label, new MouseEvent('pointerdown', press))
+      fireEvent(label, new MouseEvent('pointerup', { ...press, clientX: 100 + drift }))
+    }
+
+    it('should focus the orbital when a finger lands and lifts on it', () => {
+      render(<Label text="Earth" id="Earth" action={action} />)
+
+      tap(0)
+
+      expect(action.setActiveOrbital).toHaveBeenCalledWith('Earth', 'Earth')
+    })
+
+    it('should forgive a finger that drifts as it lifts', () => {
+      render(<Label text="Earth" id="Earth" action={action} />)
+
+      tap(Constants.UI.FAT_FINGER - 1)
+
+      expect(action.setActiveOrbital).toHaveBeenCalledWith('Earth', 'Earth')
+    })
+
+    it('should leave the orbital alone when the scene was dragged instead', () => {
+      render(<Label text="Earth" id="Earth" action={action} />)
+
+      tap(Constants.UI.FAT_FINGER + 1)
+
+      expect(action.setActiveOrbital).not.toHaveBeenCalled()
+    })
+
+    it('should leave the orbital alone when a release arrives without a press', () => {
+      render(<Label text="Earth" id="Earth" action={action} />)
+
+      fireEvent(
+        screen.getByText('Earth'),
+        new MouseEvent('pointerup', { bubbles: true, clientX: 100, clientY: 100 })
+      )
+
+      expect(action.setActiveOrbital).not.toHaveBeenCalled()
+    })
   })
 
   it('should highlight the orbital on pointer over', async () => {
