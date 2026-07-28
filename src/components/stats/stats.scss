@@ -1,5 +1,3 @@
-@import 'globals.scss';
-
 .stats {
   display: flex;
   flex-direction: column;
@@ -7,13 +5,13 @@
 
   &__info {
     flex: 1;
-    line-height: $font-line-height;
+    line-height: var(--font-line-height);
   }
 
   &__footer {
-    padding-top: $base-spacing;
-    margin-top: $base-spacing;
-    border-top: $dotted-border;
+    padding-top: var(--base-spacing);
+    margin-top: var(--base-spacing);
+    border-top: var(--dotted-border);
     display: flex;
   }
 }

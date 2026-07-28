@@ -1,7 +1,5 @@
-@import 'globals.scss';
-
 .no-webgl {
-  color: $brand-primary;
+  color: var(--brand-primary);
   position: absolute;
   top: 0;
   right: 0;
@@ -13,7 +11,7 @@
   flex-direction: column;
 
   &__body {
-    margin-top: $base-spacing;
+    margin-top: var(--base-spacing);
     max-width: 500px;
     width: 100%;
     text-align: center;
@@ -24,7 +22,7 @@
   }
 
   &__anchor {
-    color: $brand-primary;
+    color: var(--brand-primary);
     text-decoration: underline;
 
     &:hover {

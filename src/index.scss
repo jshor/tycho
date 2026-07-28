@@ -1,18 +1,54 @@
-@import 'globals.scss';
+:root {
+  /* colors */
+  --brand-primary: #fff;
+  --brand-secondary: #000;
+  --brand-tertiary: #1e1e1e;
 
-body {
+  /* decorations */
+  --text-shadow: 1px 1px 10px var(--brand-primary);
+  --dotted-border: 1px dotted var(--brand-primary);
+  --opaque-backdrop: rgba(0, 0, 0, 0.8);
+
+  /* animations */
+  --transition-speed: 1s;
+
+  /* font sizes */
+  --font-size-tiny: 0.9em;
+  --font-size-small: 1em;
+  --font-size-medium: 1.5em;
+  --font-size-large: 2em;
+  --font-line-height: 1.4em;
+
+  /* font family */
+  --font-family-sans-serif: Helvetica, Arial, sans-serif;
+  --font-family-serif: 'Droid Serif', Georgia, serif;
+
+  /* padding */
+  --base-spacing: 1em;
+  --icon-size: 48px;
+
+  /* z-index */
+  --z-index-bottom: 0;
+  --z-index-top: 1000;
+
+  /* slider, named with respect to a horizontal orientation */
+  --slider-handle-height: 6px;
+  --slider-handle-width: var(--icon-size);
+  --slider-track-width: 4px;
+
+  /* splash screen */
+  --splash-button-height: 50px;
+  --splash-button-width: 160px;
+  --splash-button-spacing: 15px;
+  --splash-transition-speed: 0.25s;
+}
+
+body, body, #root {
   padding: 0;
   margin: 0;
   overflow: hidden;
-  background-color: $brand-secondary;
-  font-family: $font-family-serif;
-}
-
-html,
-body,
-#root {
-  height: 100vh;
-  width: 100vw;
+  background-color: var(--brand-secondary);
+  font-family: var(--font-family-serif);
 }
 
 canvas {

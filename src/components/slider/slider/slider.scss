@@ -1,65 +1,60 @@
-@import 'globals.scss';
-
 /* slider var names are w.r.t. a horizontal orientation */
-$slider-handle-height: 6px;
-$slider-handle-width: $icon-size;
-$slider-track-width: 4px;
 
 .slider {
   flex: 1;
   margin: auto;
 
   &--horizontal {
-    height: $slider-track-width + $slider-handle-width;
+    height: calc(var(--slider-track-width) + var(--slider-handle-width));
   }
 
   &--vertical {
-    width: $slider-track-width + $slider-handle-width;
+    width: calc(var(--slider-track-width) + var(--slider-handle-width));
   }
 
   &__label {
     box-sizing: border-box;
     display: block;
-    margin: $base-spacing 0;
-    color: $brand-primary;
+    margin: var(--base-spacing) 0;
+    color: var(--brand-primary);
   }
 
   &__container {
-    background-color: $brand-primary;
-    color: $brand-primary;
+    background-color: var(--brand-primary);
+    color: var(--brand-primary);
 
     &--horizontal {
       width: 100%;
-      height: $slider-track-width;
-      margin-top: $slider-handle-width / 2;
+      height: var(--slider-track-width);
+      margin-top: calc(var(--slider-handle-width) / 2);
       cursor: ew-resize;
     }
 
     &--vertical {
       height: 100%;
-      width: $slider-track-width;
-      margin-left: $slider-handle-width / 2;
+      width: var(--slider-track-width);
+      margin-left: calc(var(--slider-handle-width) / 2);
       cursor: ns-resize;
     }
   }
 
   &__handle {
     text-align: center;
-    background-color: $brand-primary;
+    background-color: var(--brand-primary);
     font-size: 0;
     cursor: pointer;
 
     &--horizontal {
-      width: $slider-handle-height;
-      height: $slider-handle-width;
-      margin-top: -(($slider-handle-width / 2) - ($slider-track-width / 2));
+      width: var(--slider-handle-height);
+      height: var(--slider-handle-width);
+      margin-top: calc((var(--slider-track-width) - var(--slider-handle-width)) / 2);
       cursor: ew-resize;
     }
 
     &--vertical {
-      width: $slider-handle-width;
-      height: $slider-handle-height;
-      margin-left: -(($slider-handle-width / 2) - ($slider-track-width / 2));
+      width: var(--slider-handle-width);
+      height: var(--slider-handle-height);
+      margin-left: calc((var(--slider-track-width) - var(--slider-handle-width)) / 2);
       cursor: ns-resize;
     }
   }

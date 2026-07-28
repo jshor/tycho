@@ -4,6 +4,7 @@
   "private": true,
   "homepage": "https://www.tycho.io",
   "description": "A real-time, WebGL-based interactive simulation of our solar system.",
+  "type": "module",
   "author": {
     "name": "Josh Shor",
     "email": "jpshor@gmail.com",

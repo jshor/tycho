@@ -1,15 +1,13 @@
-@import 'globals.scss';
-
 .volume {
   position: relative;
-  width: $icon-size;
-  height: $icon-size;
+  width: var(--icon-size);
+  height: var(--icon-size);
   display: flex;
   flex-direction: row;
   transform: rotateX(-180deg);
 
   &__bar {
-    width: $icon-size / 4;
+    width: calc(var(--icon-size) / 4);
     margin: 0 1px;
 
     &:nth-of-type(1) {
@@ -32,7 +30,7 @@
       content: ' ';
       height: 100%;
       display: block;
-      background-color: $brand-primary;
+      background-color: var(--brand-primary);
       pointer-events: none;
       transition: height 1s;
       animation-play-state: paused;

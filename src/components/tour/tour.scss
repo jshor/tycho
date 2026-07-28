@@ -1,5 +1,3 @@
-@import 'globals.scss';
-
 .tour {
   position: absolute;
   top: 0;
@@ -14,7 +12,7 @@
   &--show {
     display: flex;
     opacity: 1;
-    z-index: $z-index-top;
+    z-index: var(--z-index-top);
   }
 
   &--hide {
@@ -39,7 +37,7 @@
     left: 0;
     right: 0;
     height: 10%;
-    background-color: $brand-secondary;
+    background-color: var(--brand-secondary);
     transition: height 0.5s;
     display: flex;
     align-items: center;
@@ -53,12 +51,12 @@
 
   &__skip-link {
     font-style: italic;
-    color: $brand-primary;
+    color: var(--brand-primary);
     cursor: pointer;
     pointer-events: auto;
 
     &:hover {
-      text-shadow: $text-shadow;
+      text-shadow: var(--text-shadow);
     }
   }
 }

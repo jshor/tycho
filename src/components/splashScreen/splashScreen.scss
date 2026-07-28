@@ -1,10 +1,3 @@
-@import 'globals.scss';
-
-$button-height: 50px;
-$button-width: 160px;
-$button-spacing: 15px;
-$button-transition-speed: 0.25s;
-
 .splash-screen {
   position: absolute;
   top: 0;
@@ -15,19 +8,19 @@ $button-transition-speed: 0.25s;
   justify-content: center;
   align-items: center;
   display: flex;
-  background-color: $brand-primary;
+  background-color: var(--brand-primary);
   background: url('/static/img/bg-stars-large.png');
   background-size: cover;
-  font-size: $font-size-medium;
-  transition: opacity $button-transition-speed;
+  font-size: var(--font-size-medium);
+  transition: opacity var(--splash-transition-speed);
   opacity: 1;
-  z-index: $z-index-top;
+  z-index: var(--z-index-top);
 
   &--hide {
     opacity: 0;
     pointer-events: none;
     touch-action: none;
-    z-index: $z-index-bottom;
+    z-index: var(--z-index-bottom);
   }
 
   &__hero {
@@ -40,7 +33,7 @@ $button-transition-speed: 0.25s;
   }
 
   &__content {
-    height: $button-height;
+    height: var(--splash-button-height);
   }
 
   &__loading {
@@ -50,29 +43,29 @@ $button-transition-speed: 0.25s;
   }
 
   &__loading-bar {
-    background-color: $brand-primary;
+    background-color: var(--brand-primary);
     height: 4px;
   }
 
   &__button {
     position: relative;
-    width: $button-width;
-    height: $button-height;
-    margin: 0 $button-spacing;
+    width: var(--splash-button-width);
+    height: var(--splash-button-height);
+    margin: 0 var(--splash-button-spacing);
     perspective: 1000px;
   }
 
   &__button-anchor {
-    color: $brand-primary;
-    border: 3px solid $brand-primary;
+    color: var(--brand-primary);
+    border: 3px solid var(--brand-primary);
     padding: 0.35em 2em;
     background-color: transparent;
     transition: 0.25s all;
     cursor: pointer;
 
     &:hover {
-      background-color: $brand-primary;
-      color: $brand-secondary;
+      background-color: var(--brand-primary);
+      color: var(--brand-secondary);
     }
   }
 }

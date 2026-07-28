@@ -1,5 +1,3 @@
-@import 'globals.scss';
-
 .uicontrols {
   // fading the display gives it a stacking context of its own, which sinks beneath the scene's
   // layer unless it is positioned; it is left without size so that it stacks above the scene
@@ -10,9 +8,9 @@
   left: 0;
   width: 0;
   height: 0;
-  z-index: $z-index-top;
+  z-index: var(--z-index-top);
   opacity: 0;
-  transition: opacity $transition-speed;
+  transition: opacity var(--transition-speed);
 
   &--enabled {
     opacity: 1;
@@ -23,17 +21,17 @@
   }
 
   &__button {
-    width: $icon-size;
-    height: $icon-size;
+    width: var(--icon-size);
+    height: var(--icon-size);
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: $base-spacing;
+    margin: var(--base-spacing);
     cursor: pointer;
 
     &--about-modal {
-      background-color: $brand-primary;
-      color: $brand-secondary;
+      background-color: var(--brand-primary);
+      color: var(--brand-secondary);
       font-weight: bold;
       border-radius: 50%;
       font-style: italic;
@@ -43,7 +41,7 @@
       }
 
       &:hover {
-        box-shadow: $text-shadow;
+        box-shadow: var(--text-shadow);
       }
     }
   }
@@ -57,7 +55,7 @@
     // pinned to the viewport rather than to the display, which has no size to pin them to
     position: fixed;
     opacity: 0.5;
-    transition: opacity $transition-speed;
+    transition: opacity var(--transition-speed);
 
     &:hover {
       opacity: 1;
@@ -67,7 +65,7 @@
       display: flex;
       flex-direction: column;
       align-items: flex-end;
-      margin: $base-spacing;
+      margin: var(--base-spacing);
       top: 0;
       right: 0;
     }
@@ -85,13 +83,13 @@
       // this one sits inside the target label rather than against an edge of the viewport
       position: static;
       opacity: 1;
-      font-size: $font-size-medium;
-      transition: text-shadow $transition-speed;
-      color: $brand-primary;
+      font-size: var(--font-size-medium);
+      transition: text-shadow var(--transition-speed);
+      color: var(--brand-primary);
       cursor: pointer;
 
       &:hover {
-        text-shadow: $text-shadow;
+        text-shadow: var(--text-shadow);
       }
     }
 

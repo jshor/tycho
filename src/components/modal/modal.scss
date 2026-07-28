@@ -1,11 +1,7 @@
-@import 'globals.scss';
-
-$min-width: 600px;
-
 .modal {
-  line-height: $font-line-height;
-  background-color: $opaque-backdrop;
-  color: $brand-primary;
+  line-height: var(--font-line-height);
+  background-color: var(--opaque-backdrop);
+  color: var(--brand-primary);
   display: flex;
   flex-direction: column;
   position: absolute;
@@ -15,18 +11,20 @@ $min-width: 600px;
   right: 0;
   bottom: 0;
   width: 40vw;
-  min-width: $min-width;
+  min-width: var(--modal-min-width);
   opacity: 0;
-  padding: $base-spacing;
+  padding: var(--base-spacing);
   // parking the panel by its own width puts it off the screen at every size; an offset measured in
   // vw leaves most of it lying over the scene as soon as min-width or the narrow breakpoint wins,
   // where it goes on swallowing touches it is too transparent to show it caught
   transform: translateX(100%);
   transition-property: background-color, opacity, transform;
-  transition-duration: $transition-speed;
-  z-index: $z-index-top;
+  transition-duration: var(--transition-speed);
+  z-index: var(--z-index-top);
 
-  @media screen and (max-width: $min-width) {
+  // a media condition is settled before the cascade, so this is the one place the number has to be
+  // substituted in at build time rather than read from --modal-min-width
+  @media screen and (max-width: 600px) {
     width: 100%;
     min-width: 100%;
   }
@@ -37,22 +35,22 @@ $min-width: 600px;
   }
 
   &__header {
-    border-bottom: $dotted-border;
-    font-size: $font-size-large;
-    padding: ($base-spacing / 2) 0;
+    border-bottom: var(--dotted-border);
+    font-size: var(--font-size-large);
+    padding: calc(var(--base-spacing) / 2) 0;
   }
 
   &__content {
     display: flex;
-    font-size: $font-size-tiny;
-    line-height: $font-line-height;
+    font-size: var(--font-size-tiny);
+    line-height: var(--font-line-height);
 
     p {
       text-indent: 50px;
     }
 
     a {
-      color: $brand-primary;
+      color: var(--brand-primary);
       &:hover {
         text-decoration: none;
       }
@@ -62,9 +60,9 @@ $min-width: 600px;
   &__close {
     float: right;
     cursor: pointer;
-    transition: all $transition-speed;
+    transition: all var(--transition-speed);
     &:hover {
-      text-shadow: $text-shadow;
+      text-shadow: var(--text-shadow);
     }
   }
 }

@@ -1,21 +1,19 @@
-@import 'globals.scss';
-
 .play-pause {
   display: inline-flex;
   cursor: pointer;
 
   &__button {
-    width: $icon-size;
-    height: $icon-size;
-    background-color: $brand-primary;
-    color: $brand-secondary;
+    width: var(--icon-size);
+    height: var(--icon-size);
+    background-color: var(--brand-primary);
+    color: var(--brand-secondary);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
 
     &:hover {
-      box-shadow: $text-shadow;
+      box-shadow: var(--text-shadow);
     }
 
     &--playing {
@@ -25,7 +23,7 @@
     }
 
     &--paused {
-      animation: glowing-box $transition-speed infinite;
+      animation: glowing-box var(--transition-speed) infinite;
 
       &::before {
         content: '\25B6';
@@ -39,10 +37,10 @@
     box-shadow: 0;
   }
   40% {
-    box-shadow: $text-shadow;
+    box-shadow: var(--text-shadow);
   }
   60% {
-    box-shadow: $text-shadow;
+    box-shadow: var(--text-shadow);
   }
   100% {
     box-shadow: 0;

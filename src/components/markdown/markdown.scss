@@ -1,8 +1,6 @@
-@import 'globals.scss';
-
 .markdown {
   overflow: auto;
-  line-height: $font-line-height;
+  line-height: var(--font-line-height);
   flex: 1;
 
   &::-webkit-scrollbar {
