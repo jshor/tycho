@@ -42,10 +42,10 @@ describe('Scene Component', () => {
       }
     ] as OrbitalData[]
 
-    it('should show every satellite of the system while one of them is focused', () => {
+    it('should show the rest of the system while one satellite is focused', () => {
       renderWithStore(<Scene orbitalData={system} />, { orbitalData: system, targetId: 'first' })
 
-      expect(screen.getByText('First Moon')).toBeInTheDocument()
+      expect(screen.queryByText('First Moon')).not.toBeInTheDocument()
       expect(screen.getByText('Second Moon')).toBeInTheDocument()
     })
 
@@ -57,6 +57,7 @@ describe('Scene Component', () => {
 
       expect(screen.getByText('First Moon')).toBeInTheDocument()
       expect(screen.getByText('Second Moon')).toBeInTheDocument()
+      expect(screen.queryByText(planet.name)).not.toBeInTheDocument()
     })
 
     it('should hide them all while something outside their system is focused', () => {

@@ -81,6 +81,7 @@ export function Orbital(props: Props) {
       radius={props.radius}
       action={action}
       systemId={systemId}
+      isFocused={id === targetId}
       parentId={parentId}
       isSatellite={isSatellite}
       id={id}

@@ -18,6 +18,8 @@ interface Props {
   action: OrbitalLabelActions
   /** The orbital at the centre of the system the camera is watching. */
   systemId?: string
+  /** Whether or not the camera is focused on this orbital itself. */
+  isFocused?: boolean
   /** The parent identifier for the label. */
   parentId?: string
   /** Whether the label is for a satellite. */
@@ -37,10 +39,17 @@ export const Label = React.memo(
     radius = 0,
     action,
     systemId,
+    isFocused,
     parentId,
     isSatellite,
     maxDistance
   }: Props) => {
+    // the focused orbital is the one the camera is sitting on, where its name is already given
+    // over the foot of the scene and a label would only be in the way of the body it names
+    if (isFocused) {
+      return null
+    }
+
     if (isSatellite && parentId !== systemId) {
       return null
     }

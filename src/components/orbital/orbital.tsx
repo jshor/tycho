@@ -24,6 +24,8 @@ export interface Props {
   maps?: TextureMap[]
   /** The orbital at the centre of the system the camera is watching. */
   systemId?: string
+  /** Whether or not the camera is focused on this orbital itself. */
+  isFocused?: boolean
   parentId?: string
   isSatellite?: boolean
   maxDistance?: number
@@ -99,6 +101,7 @@ export function Orbital(props: Props) {
             radius={radius}
             action={props.action}
             systemId={props.systemId}
+            isFocused={props.isFocused}
             parentId={props.parentId}
             isSatellite={props.isSatellite}
             maxDistance={props.maxDistance}

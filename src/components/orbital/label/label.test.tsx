@@ -78,6 +78,21 @@ describe('Orbital Label Component', () => {
 
       expect(screen.getByText('Earth')).toBeInTheDocument()
     })
+
+    it('should hide the label of the orbital the camera is focused on', () => {
+      // the camera is sitting on it and the display names it at the foot of the scene, so a label
+      // would only be in the way of the body it names
+      render(<Label text="Earth" id="Earth" action={action} systemId="Earth" isFocused />)
+
+      expect(screen.queryByText('Earth')).not.toBeInTheDocument()
+    })
+
+    it('should still show the planet whose satellite is the one focused', () => {
+      // focusing Io leaves the camera in Jupiter's system without focusing Jupiter itself
+      render(<Label text="Jupiter" id="jupiter" action={action} systemId="jupiter" />)
+
+      expect(screen.getByText('Jupiter')).toBeInTheDocument()
+    })
   })
 
   describe('how the text is set up', () => {
