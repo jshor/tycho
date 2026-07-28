@@ -20,6 +20,7 @@ export default class Controls extends OrbitControls {
     this.enabled = true
     this.enableZoom = false
     this.enablePan = false
+    this.touches.TWO = null // two fingers are reserved for custom pinch-to-zoom only
     this.level = Constants.WebGL.Zoom.MAX
     this.minDistance = Constants.WebGL.Camera.MIN_DISTANCE
     this.maxDistance = Constants.WebGL.Camera.MAX_DISTANCE
@@ -58,7 +59,6 @@ export default class Controls extends OrbitControls {
    * Zooms by however far apart the user's fingers moved, in the steps the wheel zooms in.
    */
   pinchZoom = (separationDelta: number, action: (zoom: number) => void): void => {
-    // spreading the fingers apart pulls the camera in, the way scrolling up does
     this.wheelZoom({ deltaY: -separationDelta * Constants.UI.PINCH_DELTA_SCALE }, action)
   }
 

@@ -12,13 +12,17 @@ $min-width: 600px;
   overflow: hidden;
   box-sizing: border-box;
   top: 0;
-  right: -40vw;
+  right: 0;
   bottom: 0;
   width: 40vw;
   min-width: $min-width;
   opacity: 0;
   padding: $base-spacing;
-  transition-property: background-color, opacity, right;
+  // parking the panel by its own width puts it off the screen at every size; an offset measured in
+  // vw leaves most of it lying over the scene as soon as min-width or the narrow breakpoint wins,
+  // where it goes on swallowing touches it is too transparent to show it caught
+  transform: translateX(100%);
+  transition-property: background-color, opacity, transform;
   transition-duration: $transition-speed;
   z-index: $z-index-top;
 
@@ -28,7 +32,7 @@ $min-width: 600px;
   }
 
   &--open {
-    right: 0;
+    transform: translateX(0);
     opacity: 1;
   }
 

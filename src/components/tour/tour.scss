@@ -19,6 +19,7 @@
 
   &--hide {
     pointer-events: none;
+    touch-action: none;
     opacity: 0;
   }
 
@@ -54,6 +55,7 @@
     font-style: italic;
     color: $brand-primary;
     cursor: pointer;
+    pointer-events: auto;
 
     &:hover {
       text-shadow: $text-shadow;

@@ -21,7 +21,6 @@ describe('Controls', () => {
       beforeEach(() => {
         spy = vi.spyOn(controls, 'pan')
         controls.level = 60
-
         controls.zoom(newLevel)
       })
 
@@ -365,4 +364,5 @@ describe('Controls', () => {
       expect(spy).toHaveBeenCalledWith(Constants.WebGL.Zoom.MAX)
     })
   })
+
 })

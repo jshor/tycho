@@ -77,25 +77,27 @@ object3dMethods.forEach((method) => {
   }
 })
 
-class MockOrbitControls {
-  camera: Camera
-  enabled = true
-  enableZoom = true
-  enablePan = true
-  autoRotate = false
-  autoRotateSpeed = 0
-  minDistance = 0
-  maxDistance = Infinity
-
-  constructor(camera: Camera, _domElement: HTMLElement) {
-    this.camera = camera
-  }
-  update() {}
-  dispose() {}
-}
-
 vi.mock('three/examples/jsm/controls/OrbitControls.js', () => ({
-  OrbitControls: MockOrbitControls
+  OrbitControls: class {
+    camera: Camera
+    enabled = true
+    enableZoom = true
+    enablePan = true
+    autoRotate = false
+    autoRotateSpeed = 0
+    minDistance = 0
+    maxDistance = Infinity
+    touches = {
+      ONE: 3,
+      TWO: 3
+    }
+
+    constructor(camera: Camera, _domElement: HTMLElement) {
+      this.camera = camera
+    }
+    update() {}
+    dispose() {}
+  }
 }))
 
 vi.mock('three/examples/jsm/objects/Lensflare.js', () => ({

@@ -3,7 +3,6 @@
 .label {
   &--active {
     animation: glowing-text $transition-speed infinite;
-    pointer-events: none;
     font-size: $font-size-medium;
   }
 

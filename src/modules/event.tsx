@@ -58,6 +58,7 @@ export default function Event({ onWheel, onPinch, children }: Props) {
     const current = getSeparation(ev)
 
     if (separation.current !== null) {
+      ev.preventDefault()
       onPinch?.(current - separation.current)
     }
     separation.current = current
@@ -84,9 +85,7 @@ export default function Event({ onWheel, onPinch, children }: Props) {
         maxWidth: '100%',
         maxHeight: '100%',
         position: 'absolute',
-        overflow: 'hidden',
-        // the browser's own pinch-to-zoom would otherwise swallow the gesture before it arrives
-        touchAction: 'none'
+        overflow: 'hidden'
       }}
     >
       {children}
