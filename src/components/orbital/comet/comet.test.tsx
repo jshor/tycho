@@ -37,8 +37,7 @@ describe('Comet Component', () => {
     )
     const comet = container.querySelector('group[name="comet"]')
 
-    expect(comet?.querySelectorAll('mesh')).toHaveLength(2)
-    expect(comet?.querySelectorAll('planeGeometry')).toHaveLength(1)
+    expect(comet?.querySelectorAll('mesh')).toHaveLength(1)
     expect(comet?.querySelectorAll('coneGeometry')).toHaveLength(1)
   })
 

@@ -28,10 +28,7 @@ export default class CameraService {
     }
 
     // floor the radius so the camera stops outside the inflated body of a small orbital
-    const extent = Math.max(
-      getVisibleRadius(target.radius),
-      target.rings?.outerRadius ?? 0
-    )
+    const extent = Math.max(getVisibleRadius(target.radius), target.rings?.outerRadius ?? 0)
 
     // the field of view is the vertical one, so a screen taller than it is wide is narrower than
     // the camera's own field and is what the orbital actually has to fit inside

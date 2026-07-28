@@ -1,10 +1,13 @@
+import * as THREE from 'three'
+import { HOVER_OPACITY_OFF } from './UI'
+
 export const SPECULAR_COLOR = 0x333333 // TODO: ought to be determined by albedo, not a constant
 
 export const SHININESS = 40 // TODO: ought to be determined by albedo, not a constant
 
 export const MESH_DEFAULT_COLOR = 0xffffff
 
-export const SPHERE_SEGMENTS = 32
+export const SPHERE_SEGMENTS = 64
 
 export const PLANET_SIZE_SCALE = 1
 
@@ -138,3 +141,52 @@ export const Atmospheres: Record<string, AtmosphereEntry> = {
     DUSK_COLOR: 0xffbe94
   }
 }
+
+/**
+ * The THREE.js material used for the label text.
+ */
+export const LABEL_MATERIAL = new THREE.MeshBasicMaterial({
+  color: 0xffffff,
+  side: THREE.DoubleSide,
+  transparent: true,
+  depthTest: true,
+  depthWrite: false
+})
+
+/** The glow effect when the text is hovered, which takes the color of the text it surrounds. */
+export const LABEL_GLOW = {
+  WIDTH: '2%',
+  BLUR: '60%',
+  OPACITY: 0.85
+}
+
+/** An opaque, black background to prevent the labels from looking smushed together. */
+export const LABEL_BACKGROUND_MATERIAL = new THREE.MeshBasicMaterial({
+  color: 0x000000,
+  side: THREE.FrontSide,
+  transparent: true,
+  opacity: HOVER_OPACITY_OFF,
+  // hidden by the same bodies that hide the text it sits behind, or it would blank them out
+  depthTest: true,
+  depthWrite: false
+})
+
+/** Padding for the background overlay (in px?). */
+export const LABEL_BACKGROUND_PADDING = 0.3
+
+/** The order labels are drawn in, before the distance to each is taken off it. */
+export const LABEL_RENDER_ORDER = 1000000
+
+/** Scalar multiple of how far a label should stand off from the orbital. */
+export const LABEL_STANDOFF = 1.05
+
+/**
+ * The least a label may stand off from its orbital, as a % of how far off that orbital is.
+ */
+export const LABEL_DEPTH_BIAS = 0.02
+
+/** Path to the font file for the label text. */
+export const LABEL_FONT_PATH = '/static/fonts/MonaspaceArgon-Regular.woff'
+
+/** Default font size for the label text. */
+export const LABEL_FONT_SIZE = 4

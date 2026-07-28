@@ -22,7 +22,8 @@ export interface Props {
   atmosphere?: number
   pathOpacity?: number
   maps?: TextureMap[]
-  targetId?: string
+  /** The orbital at the centre of the system the camera is watching. */
+  systemId?: string
   parentId?: string
   isSatellite?: boolean
   maxDistance?: number
@@ -82,9 +83,7 @@ export default function Orbital(props: Props) {
       <group rotation={orbitalGroupRotation}>
         <group position={bodyPosition} name={id}>
           <Body rotation={bodyRotation} radius={radius} rings={rings} maps={maps} />
-          {scattering && (
-            <Atmosphere radius={radius} color={bodyColor} settings={scattering} />
-          )}
+          {scattering && <Atmosphere radius={radius} color={bodyColor} settings={scattering} />}
           {tail && (
             <Comet
               radius={radius}
@@ -97,8 +96,9 @@ export default function Orbital(props: Props) {
             text={props.text}
             id={id}
             color={bodyColor}
+            radius={radius}
             action={props.action}
-            targetId={props.targetId}
+            systemId={props.systemId}
             parentId={props.parentId}
             isSatellite={props.isSatellite}
             maxDistance={props.maxDistance}
@@ -113,6 +113,7 @@ export default function Orbital(props: Props) {
           vertexColors={pathColors}
           opacity={pathOpacity ?? 1}
           transparent
+          depthWrite={false}
         />
       </group>
     </group>

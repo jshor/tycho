@@ -17,9 +17,8 @@ export interface CameraHandle {
   controls: Controls | null
 }
 
-
 /**
- * Dollies the camera in to the minimum distance allowed without tween animation. 
+ * Dollies the camera in to the minimum distance allowed without tween animation.
  */
 export const focusCameraImmediately = (
   target: THREE.Object3D,
@@ -110,9 +109,7 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
    */
   useEffect(() => {
     if (controlsRef.current) {
-      controlsRef.current.setMinDistance(
-        CameraService.getMinDistance(orbitalData, targetId, ratio)
-      )
+      controlsRef.current.setMinDistance(CameraService.getMinDistance(orbitalData, targetId, ratio))
     }
   }, [targetId, orbitalData, ratio])
 
@@ -142,7 +139,7 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
       tweenBaseRef.current = CameraService.getPivotTween(w, v, target, pivot, endTween)
     }
   }, [targetId, animateTargetChange]) // eslint-disable-line react-hooks/exhaustive-deps
-  
+
   /**
    * Updates the matrix world so that face targets know where to look at.
    * Necessary to ensure that the labels are always facing the camera.

@@ -19,6 +19,7 @@ export default function Orbital(props: Props) {
   const { id, parentId, isSatellite } = props
   const time = useStore((state) => state.time)
   const targetId = useStore((state) => state.targetId)
+  const orbitalData = useStore((state) => state.orbitalData)
   const highlightedOrbitals = useStore((state) => state.highlightedOrbitals)
   const setActiveOrbital = useStore((state) => state.setActiveOrbital)
   const addHighlightedOrbital = useStore((state) => state.addHighlightedOrbital)
@@ -56,6 +57,12 @@ export default function Orbital(props: Props) {
     [highlightedOrbitals, id, targetId] // eslint-disable-line react-hooks/exhaustive-deps
   )
 
+  /** The system the camera is watching, every orbital of which shows its label. */
+  const systemId = useMemo(
+    () => Service.getSystemId(orbitalData ?? [], targetId),
+    [orbitalData, targetId]
+  )
+
   return (
     <OrbitalView
       eclipticGroupRotation={eclipticGroupRotation}
@@ -73,7 +80,7 @@ export default function Orbital(props: Props) {
       text={props.name}
       radius={props.radius}
       action={action}
-      targetId={targetId}
+      systemId={systemId}
       parentId={parentId}
       isSatellite={isSatellite}
       id={id}

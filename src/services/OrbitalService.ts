@@ -115,6 +115,35 @@ export default class OrbitalService {
     return new THREE.Euler(rad(x), rad(y), rad(z))
   }
 
+  /**
+   * Returns the id of the orbital at the centre of the system the given one belongs to: the
+   * orbital it orbits if it is a satellite, and the orbital itself otherwise.
+   *
+   * Focusing a moon brings the camera in among all of that moon's siblings, so what the labels
+   * have to answer is which system is being watched rather than which orbital is pointed at.
+   */
+  static getSystemId = (
+    orbitals: OrbitalData[],
+    targetId?: string,
+    parentId?: string
+  ): string | undefined => {
+    let systemId: string | undefined
+
+    if (!targetId) return undefined
+
+    orbitals.forEach((orbital) => {
+      if (systemId) return
+
+      if (orbital.id === targetId) {
+        systemId = parentId ?? orbital.id
+      } else if (orbital.satellites) {
+        systemId = OrbitalService.getSystemId(orbital.satellites, targetId, orbital.id)
+      }
+    })
+
+    return systemId
+  }
+
   static getTargetByName = (
     orbitals: OrbitalData[],
     targetName: string

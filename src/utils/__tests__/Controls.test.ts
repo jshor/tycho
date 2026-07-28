@@ -399,5 +399,4 @@ describe('Controls', () => {
       expect(spy).toHaveBeenCalledWith(Constants.WebGL.Zoom.MAX)
     })
   })
-
 })

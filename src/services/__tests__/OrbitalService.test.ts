@@ -185,6 +185,42 @@ describe('Orbital Service', () => {
     })
   })
 
+  describe('getSystemId()', () => {
+    it('should give a planet as the centre of its own system', () => {
+      expect(OrbitalService.getSystemId(fixture, 'Earth')).toEqual('Earth')
+    })
+
+    it('should give the orbital a satellite orbits as the centre of its system', () => {
+      expect(OrbitalService.getSystemId(fixture, 'Moon')).toEqual('Earth')
+    })
+
+    it('should put a satellite and its siblings in the same system, whichever is focused', () => {
+      const [moon] = fixture[1].satellites ?? []
+      const jovian = [
+        {
+          ...fixture[1],
+          id: 'jupiter',
+          satellites: [
+            { ...moon, id: 'io' },
+            { ...moon, id: 'callisto' }
+          ]
+        }
+      ]
+
+      // focusing Io is focusing Jupiter's system, which is the system Callisto is in too
+      expect(OrbitalService.getSystemId(jovian, 'io')).toEqual('jupiter')
+      expect(OrbitalService.getSystemId(jovian, 'callisto')).toEqual('jupiter')
+    })
+
+    it('should give nothing when there is no target', () => {
+      expect(OrbitalService.getSystemId(fixture, undefined)).toBeUndefined()
+    })
+
+    it('should give nothing when the target is not in the data', () => {
+      expect(OrbitalService.getSystemId(fixture, 'Bogus')).toBeUndefined()
+    })
+  })
+
   describe('getTargetByName()', () => {
     it("should return a planet's radius", () => {
       expect(OrbitalService.getTargetByName(fixture, 'Earth')).toEqual(fixture[1])
