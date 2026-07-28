@@ -16,6 +16,40 @@ export interface RingData {
   maps: TextureMap[]
 }
 
+/**
+ * How a body's tail is drawn, for the bodies that grow one.
+ */
+export interface TailData {
+  /**
+   * How far the tail streams from the nucleus when fully grown, in scene units. 100 units is
+   * 1e8 km, about the length Halley's tail actually reaches.
+   */
+  length: number
+  /** How wide the tail fans out at its far end, in scene units. */
+  width: number
+  /**
+   * The radius of the coma, as a multiple of the nucleus' visible radius. The real coma dwarfs
+   * the nucleus by far more than this, but a coma that size would swallow the camera whenever it
+   * focuses on the comet.
+   */
+  comaScale: number
+  /**
+   * How close to the sun the body must come to grow its full tail, in scene units. 450 units is
+   * ~3 AU, inside which a comet's water ice begins to sublimate.
+   */
+  activeDistance: number
+  /**
+   * How much of a tail it keeps out where it is too cold to vent, from 0 to 1. A dormant comet is
+   * a bare rock; it keeps a wisp so that it still reads as a comet out at aphelion, where Halley
+   * spends most of its 76 years.
+   */
+  restActivity: number
+  /** Color of the dust the nucleus sheds, which fans out around the tail. */
+  dustColor: number
+  /** Color of the ionised gas the solar wind blows straight back. */
+  ionColor: number
+}
+
 export interface OrbitalData {
   id: string
   name: string
@@ -35,6 +69,7 @@ export interface OrbitalData {
   satellites?: OrbitalData[]
   maps?: TextureMap[]
   rings?: RingData
+  tail?: TailData
   description?: string
 }
 

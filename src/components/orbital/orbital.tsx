@@ -4,8 +4,9 @@ import { Line } from '@react-three/drei'
 import Body from './body'
 import Label from './label'
 import Atmosphere from './atmosphere'
+import Comet from './comet'
 import Constants from '../../constants'
-import { TextureMap, RingData, OrbitalLabelActions } from '../../types'
+import { TextureMap, RingData, TailData, OrbitalLabelActions } from '../../types'
 
 export interface Props {
   eclipticGroupRotation: THREE.Euler
@@ -26,9 +27,14 @@ export interface Props {
   isSatellite?: boolean
   maxDistance?: number
   rings?: RingData
+  /** Orbital tail settings (i.e., for comets). */
+  tail?: TailData
   children?: React.ReactNode
 }
 
+/**
+ * A component to render a single orbital body, its orbit path, and any associated features like an atmosphere or a tail.
+ */
 export default function Orbital(props: Props) {
   const {
     eclipticGroupRotation,
@@ -42,12 +48,18 @@ export default function Orbital(props: Props) {
     id,
     radius,
     rings,
+    tail,
     maps,
     children
   } = props
 
-  const lineColor = useMemo(() => new THREE.Color(atmosphere ?? 0xffffff), [atmosphere])
+  /** The color this body wears throughout the scene: its atmosphere, its orbit path, and its label. */
+  const bodyColor = atmosphere ?? 0xffffff
 
+  /** The basic (100% opacity) color of the orbit path. */
+  const lineColor = useMemo(() => new THREE.Color(bodyColor), [bodyColor])
+
+  /** The fading gradient colors along the path of the ellipse */
   const pathColors = useMemo(() => {
     // fades the orbit path into a trail
     const { r, g, b } = lineColor
@@ -63,7 +75,6 @@ export default function Orbital(props: Props) {
     return colors
   }, [pathVertices.length, bodyPercent, lineColor])
 
-  // Only bodies listed as having an atmosphere scatter light; see Constants.WebGL.Atmospheres.
   const scattering = Constants.WebGL.Atmospheres[id]
 
   return (
@@ -72,11 +83,20 @@ export default function Orbital(props: Props) {
         <group position={bodyPosition} name={id}>
           <Body rotation={bodyRotation} radius={radius} rings={rings} maps={maps} />
           {scattering && (
-            <Atmosphere radius={radius} color={atmosphere ?? 0xffffff} settings={scattering} />
+            <Atmosphere radius={radius} color={bodyColor} settings={scattering} />
+          )}
+          {tail && (
+            <Comet
+              radius={radius}
+              settings={tail}
+              pathVertices={pathVertices}
+              bodyPercent={bodyPercent}
+            />
           )}
           <Label
             text={props.text}
             id={id}
+            color={bodyColor}
             action={props.action}
             targetId={props.targetId}
             parentId={props.parentId}

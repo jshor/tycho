@@ -69,6 +69,7 @@ export default function Orbital(props: Props) {
       maxDistance={body.maxDistance}
       maps={props.maps}
       rings={props.rings}
+      tail={props.tail}
       text={props.name}
       radius={props.radius}
       action={action}

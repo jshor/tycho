@@ -35,9 +35,9 @@ export const Camera = {
   NEAR: 0.001,
   FAR: 15000,
   FOV: 50,
-  X: 12000,
+  X: 0,
   Y: 12000,
-  Z: 12000,
+  Z: 0,
   MAX_DISTANCE: 12000,
   MIN_DISTANCE: 0.001,
   SATELLITE_LABEL_RANGE: 7
@@ -135,3 +135,5 @@ export const Atmospheres: Record<string, AtmosphereEntry> = {
     DUSK_COLOR: 0xffbe94
   }
 }
+
+// tail settings live with the bodies that grow one; see `tail` in the orbital data

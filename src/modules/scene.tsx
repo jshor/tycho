@@ -27,7 +27,8 @@ function SkyboxSetup(): null {
 
   useEffect(() => {
     const loader = new CubeTextureLoader()
-
+    
+    scene.backgroundIntensity = 0.1
     scene.background = loader.load(Constants.WebGL.SKYBOX_TEXTURES)
   }, [scene])
 

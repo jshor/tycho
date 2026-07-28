@@ -10,6 +10,8 @@ interface Props {
   text: string
   /** The unique identifier for the label. */
   id: string
+  /** The color of the label's text, which the orbital wears elsewhere in the scene too. */
+  color?: THREE.ColorRepresentation
   /** The action associated with the label. */
   action: OrbitalLabelActions
   /** The target identifier for the label. */
@@ -38,7 +40,7 @@ interface CameraFacingTextProps {
   onClick?: (event: ThreeEvent<PointerEvent>) => void
   onPointerOver?: (event: ThreeEvent<PointerEvent>) => void
   onPointerOut?: (event: ThreeEvent<PointerEvent>) => void
-  color?: string
+  color?: THREE.ColorRepresentation
   anchorX?: 'left' | 'center' | 'right'
   anchorY?: 'top' | 'middle' | 'bottom'
   font?: string
@@ -262,7 +264,16 @@ export function CameraFacingText({
   )
 }
 
-function Label({ text, id, action, targetId, parentId, isSatellite, maxDistance }: Props) {
+function Label({
+  text,
+  id,
+  color = 'white',
+  action,
+  targetId,
+  parentId,
+  isSatellite,
+  maxDistance
+}: Props) {
   // Keep the view uncluttered: only show a satellite's label when the orbital it orbits is
   // focused (or the satellite itself is focused).
   if (isSatellite && parentId !== targetId && id !== targetId) {
@@ -271,10 +282,10 @@ function Label({ text, id, action, targetId, parentId, isSatellite, maxDistance 
 
   return (
     <CameraFacingText
-      color="white"
+      color={color}
       anchorX="center"
       anchorY="middle"
-      fontSize={5}
+      fontSize={4}
       font="/static/fonts/MonaspaceArgon-Regular.woff"
       barycenterId={isSatellite ? parentId : undefined}
       maxDistance={maxDistance}
