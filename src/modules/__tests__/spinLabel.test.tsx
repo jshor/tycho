@@ -1,7 +1,7 @@
 import { act } from '@testing-library/react'
 import { renderWithStore } from '../../test/render'
-import useStore from '../../store'
-import SpinLabel from '../spinLabel'
+import { useStore } from '../../store'
+import { SpinLabel } from '../spinLabel'
 import { Store } from '../../types'
 
 const visible = { isComplete: true, isAutoOrbitEnabled: true }

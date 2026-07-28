@@ -161,7 +161,7 @@ const TAIL_FRAGMENT_SHADER = /* glsl */ `
 /**
  * The tail of the comet, trailing back along the orbit it is travelling.
  */
-export default function Comet({ radius, settings, pathVertices, bodyPercent }: Props) {
+export function Comet({ radius, settings, pathVertices, bodyPercent }: Props) {
   const groupRef = useRef<THREE.Group>(null)
   const tailRef = useRef<THREE.Mesh>(null)
 

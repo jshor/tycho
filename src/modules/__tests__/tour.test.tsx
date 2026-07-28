@@ -1,8 +1,8 @@
 import { act, fireEvent } from '@testing-library/react'
 import { renderWithStore } from '../../test/render'
-import useStore from '../../store'
-import Tour from '../tour'
-import Constants from '../../constants'
+import { useStore } from '../../store'
+import { Tour } from '../tour'
+import { Constants } from '../../constants'
 import { Store } from '../../types'
 
 vi.useFakeTimers()

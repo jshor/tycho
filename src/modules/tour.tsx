@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react'
-import useStore from '../store'
-import TourLabel from './tourLabel'
-import TourView from '../components/tour'
-import Constants from '../constants'
+import { useStore } from '../store'
+import { TourLabel } from './tourLabel'
+import { Tour as TourView } from '../components/tour'
+import { Constants } from '../constants'
 import { TourLabelItem } from '../types'
 
 interface Props {
@@ -13,7 +13,7 @@ interface Props {
 /**
  * Plays the tour the first time the user visits the scene.
  */
-export default function Tour({ labels }: Props) {
+export function Tour({ labels }: Props) {
   const playing = useStore((state) => state.playing)
   const isComplete = useStore((state) => state.isComplete)
   const pageText = useStore((state) => state.pageText)

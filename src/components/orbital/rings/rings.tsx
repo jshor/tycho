@@ -1,7 +1,7 @@
 import { DoubleSide, Euler } from 'three'
-import Scale from '../../../utils/Scale'
-import MathService from '../../../services/MathService'
-import Texture from '../../../modules/texture'
+import { Scale } from '../../../utils/Scale'
+import { MathService } from '../../../services/MathService'
+import { Texture } from '../../../modules/texture'
 import { TextureMap } from '../../../types'
 
 export interface Props {
@@ -16,7 +16,7 @@ export interface Props {
 /**
  * The flat, textured plane standing in for a body's ring system.
  */
-export default function Rings({ outerRadius, maps, barycenterTilt }: Props) {
+export function Rings({ outerRadius, maps, barycenterTilt }: Props) {
   const tilt = MathService.toRadians(barycenterTilt)
   const size = Scale(outerRadius * 2)
   const rotation = new Euler(tilt, 0, 0)

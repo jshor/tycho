@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from 'react'
-import useStore from '../store'
-import Constants from '../constants'
-import ModalView from '../components/modal'
+import { useStore } from '../store'
+import { Constants } from '../constants'
+import { Modal as ModalView } from '../components/modal'
 import { Store } from '../types'
 
 interface Props {
@@ -26,7 +26,7 @@ const selectTitle = (type: string) => (state: Store) => {
 /**
  * Connects a modal to the store, closing it on escape.
  */
-export default function Modal({ type, children }: Props) {
+export function Modal({ type, children }: Props) {
   const activeModal = useStore((state) => state.activeModal)
   const title = useStore(selectTitle(type))
 

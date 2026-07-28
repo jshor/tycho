@@ -1,5 +1,5 @@
 import { renderWithStore } from '../../test/render'
-import App from './app'
+import { App } from './app'
 import orbitalData from '../scene/__fixtures__/orbitals.json'
 import { OrbitalData } from '../../types'
 

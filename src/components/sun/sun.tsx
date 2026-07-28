@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
-import Constants from '../../constants'
-import LensFlareHelper from '../../utils/LensFlare'
+import { Constants } from '../../constants'
+import { LensFlareHelper } from '../../utils/LensFlare'
 
-export default function Sun() {
+export function Sun() {
   const groupRef = useRef<THREE.Group>(null)
 
   useEffect(() => {

@@ -2,11 +2,11 @@ import React, { useRef, useEffect, useImperativeHandle } from 'react'
 import * as THREE from 'three'
 import { useThree, useFrame } from '@react-three/fiber'
 import { PerspectiveCamera } from '@react-three/drei'
-import useStore from '../store'
-import CameraService from '../services/CameraService'
-import Controls from '../utils/Controls'
-import Ambience from '../utils/Ambience'
-import Constants from '../constants'
+import { useStore } from '../store'
+import { CameraService } from '../services/CameraService'
+import { Controls } from '../utils/Controls'
+import { Ambience } from '../utils/Ambience'
+import { Constants } from '../constants'
 
 interface Props {
   /** The aspect ratio the camera renders at. */
@@ -199,4 +199,4 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
 
 Camera.displayName = 'Camera'
 
-export default Camera
+export { Camera }

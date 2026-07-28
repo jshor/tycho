@@ -1,8 +1,8 @@
 import { fireEvent } from '@testing-library/react'
 import { renderWithStore } from '../../test/render'
-import useStore from '../../store'
-import Modal from '../modal'
-import Constants from '../../constants'
+import { useStore } from '../../store'
+import { Modal } from '../modal'
+import { Constants } from '../../constants'
 import { Store } from '../../types'
 
 /** The key code that dismisses an open modal. */

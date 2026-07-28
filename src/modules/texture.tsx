@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
-import Constants from '../constants'
+import { Constants } from '../constants'
 import { env } from '../utils/Environment'
 import { TextureMap } from '../types'
 
@@ -52,7 +52,7 @@ const restrictEmissiveToNightSide = (shader: { fragmentShader: string }): void =
   )
 }
 
-export default function Texture({ textures, transparent, side = THREE.FrontSide }: Props) {
+export function Texture({ textures, transparent, side = THREE.FrontSide }: Props) {
   const materialRef = useRef<THREE.MeshPhongMaterial>(null)
   const [revision, setRevision] = useState(0)
 

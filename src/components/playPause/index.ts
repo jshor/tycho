@@ -1,2 +1,2 @@
 import './playPause.scss'
-export { default } from './playPause'
+export { PlayPause } from './playPause'

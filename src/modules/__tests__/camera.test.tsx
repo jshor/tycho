@@ -1,7 +1,7 @@
 import { vi } from 'vitest'
-import Controls from '../../utils/Controls'
-import Constants from '../../constants'
-import CameraService from '../../services/CameraService'
+import { Controls } from '../../utils/Controls'
+import { Constants } from '../../constants'
+import { CameraService } from '../../services/CameraService'
 import { focusCameraImmediately } from '../camera'
 import { Group, PerspectiveCamera } from 'three'
 

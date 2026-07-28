@@ -1,8 +1,8 @@
 import type { MockInstance } from 'vitest'
 import TWEEN from 'tween.js'
 import { Camera, Vector3 } from 'three'
-import Controls from '../Controls'
-import Constants from '../../constants'
+import { Controls } from '../Controls'
+import { Constants } from '../../constants'
 
 describe('Controls', () => {
   let camera: Camera

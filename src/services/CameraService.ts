@@ -1,12 +1,12 @@
 import TWEEN, { Tween } from 'tween.js'
 import { Vector3, Object3D, Scene as ThreeScene, MathUtils } from 'three'
-import Constants from '../constants'
-import OrbitalService from './OrbitalService'
-import Gyroscope from '../utils/Gyroscope'
-import Scale, { getVisibleRadius } from '../utils/Scale'
+import { Constants } from '../constants'
+import { OrbitalService } from './OrbitalService'
+import { Gyroscope } from '../utils/Gyroscope'
+import { Scale, getVisibleRadius } from '../utils/Scale'
 import { OrbitalData } from '../types'
 
-export default class CameraService {
+export class CameraService {
   static CAMERA_INITIAL_POSITION: Vector3 = new Vector3(
     Constants.WebGL.Camera.X,
     Constants.WebGL.Camera.Y,

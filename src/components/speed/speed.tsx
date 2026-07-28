@@ -8,7 +8,7 @@ interface Props {
 /**
  * The button that steps the simulation through its speeds, shown as a power of ten.
  */
-export default function Speed({ speed = 0, onClick }: Props) {
+export function Speed({ speed = 0, onClick }: Props) {
   return (
     <div className="speed" onClick={onClick}>
       <span className="speed__button">

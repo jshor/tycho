@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import * as THREE from 'three'
 import { CameraText } from './cameraText'
-import Constants from '../../../constants'
+import { Constants } from '../../../constants'
 
 /**
  * The frame loop and the camera it runs against, which the component is otherwise given no way to

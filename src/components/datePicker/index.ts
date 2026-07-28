@@ -1,3 +1,3 @@
 import './datePicker.scss'
 
-export { default } from './datePicker'
+export { DatePicker } from './datePicker'

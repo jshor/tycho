@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react'
-import Stats from './stats'
+import { Stats } from './stats'
 
 describe('Stats Component', () => {
   it('should render without crashing', () => {

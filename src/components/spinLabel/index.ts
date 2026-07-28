@@ -1,3 +1,3 @@
 import './spinLabel.scss'
 
-export { default } from './spinLabel'
+export { SpinLabel } from './spinLabel'

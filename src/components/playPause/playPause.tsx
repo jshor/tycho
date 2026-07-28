@@ -10,7 +10,7 @@ interface Props {
 /**
  * The button that plays and pauses the simulation.
  */
-export default function PlayPause({ onClick, playing }: Props) {
+export function PlayPause({ onClick, playing }: Props) {
   return (
     <div className="play-pause" onClick={onClick}>
       <span

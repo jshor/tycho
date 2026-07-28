@@ -1,8 +1,8 @@
 import { Euler } from 'three'
-import OrbitalService from '../OrbitalService'
-import Ellipse from '../../utils/Ellipse'
-import Constants from '../../constants'
-import MathService from '../MathService'
+import { OrbitalService } from '../OrbitalService'
+import { Ellipse } from '../../utils/Ellipse'
+import { Constants } from '../../constants'
+import { MathService } from '../MathService'
 import fixture from './__fixtures__/planets.json'
 
 describe('Orbital Service', () => {

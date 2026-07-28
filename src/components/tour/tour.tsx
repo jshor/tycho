@@ -1,5 +1,5 @@
 import React from 'react'
-import SpinLabel from '../../modules/spinLabel'
+import { SpinLabel } from '../../modules/spinLabel'
 import cx from 'classnames'
 import { PageText } from '../../types'
 
@@ -17,7 +17,7 @@ interface Props {
 /**
  * The letterboxed narration that plays over the scene when the app first loads.
  */
-export default function Tour({ isComplete, labels, skipTour, pageText }: Props) {
+export function Tour({ isComplete, labels, skipTour, pageText }: Props) {
   return (
     <div>
       <div

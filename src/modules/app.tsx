@@ -1,14 +1,14 @@
 import { useEffect, useRef } from 'react'
-import useStore from '../store'
-import Clock from '../utils/Clock'
-import AppView from '../components/app'
+import { useStore } from '../store'
+import { Clock } from '../utils/Clock'
+import { App as AppView } from '../components/app'
 // import NoWebGL from '../components/noWebGL';
-import SplashScreen from '../components/splashScreen'
+import { SplashScreen } from '../components/splashScreen'
 
 /**
  * Drives the simulation clock, holding the app behind a splash screen until its data arrives.
  */
-export default function App() {
+export function App() {
   const speed = useStore((state) => state.speed)
   const timeOffset = useStore((state) => state.timeOffset)
   const orbitalData = useStore((state) => state.orbitalData)

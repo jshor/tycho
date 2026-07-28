@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { OrbitalData, PageText, Store } from '../types'
 import { env } from '../utils/Environment'
 
-const useStore = create<Store>()((set) => ({
+export const useStore = create<Store>()((set) => ({
   /**
    * Fetches the orbital data.
    */
@@ -57,5 +57,3 @@ const useStore = create<Store>()((set) => ({
    */
   changeZoom: (zoom) => set({ zoom })
 }))
-
-export default useStore

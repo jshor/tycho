@@ -1,8 +1,8 @@
 import * as THREE from 'three'
-import Constants from '../../../constants'
-import Scale, { getVisibleRadius } from '../../../utils/Scale'
-import Texture from '../../../modules/texture'
-import Rings from '../../orbital/rings'
+import { Constants } from '../../../constants'
+import { Scale, getVisibleRadius } from '../../../utils/Scale'
+import { Texture } from '../../../modules/texture'
+import { Rings } from '../../orbital/rings'
 import { TextureMap, RingData } from '../../../types'
 
 interface Props {
@@ -19,7 +19,7 @@ interface Props {
 /**
  * The physical sphere of an orbital, together with any rings encircling it.
  */
-export default function Body({ radius, rotation, rings, maps }: Props) {
+export function Body({ radius, rotation, rings, maps }: Props) {
   return (
     <group>
       <mesh rotation={rotation}>

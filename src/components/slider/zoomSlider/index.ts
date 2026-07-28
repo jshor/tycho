@@ -1,1 +1,1 @@
-export { default } from './zoomSlider'
+export { ZoomSlider } from './zoomSlider'

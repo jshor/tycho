@@ -1,6 +1,6 @@
 import 'web-audio-mock'
 import { Camera } from 'three'
-import Ambience from '../Ambience'
+import { Ambience } from '../Ambience'
 
 describe('Ambience Utility', () => {
   const camera = new Camera()

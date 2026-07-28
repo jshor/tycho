@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 
-export default class Gyroscope extends THREE.Object3D {
+export class Gyroscope extends THREE.Object3D {
   translationWorld: THREE.Vector3 = new THREE.Vector3()
   translationObject: THREE.Vector3 = new THREE.Vector3()
   quaternionWorld: THREE.Quaternion = new THREE.Quaternion()

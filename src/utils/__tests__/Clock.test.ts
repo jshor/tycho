@@ -1,5 +1,5 @@
 import TWEEN from 'tween.js'
-import Clock from '../Clock'
+import { Clock } from '../Clock'
 import moment from 'moment'
 
 describe('Clock', () => {

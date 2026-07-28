@@ -1,6 +1,6 @@
-import Constants from '../constants'
+import { Constants } from '../constants'
 
-const Scale = (radius: number): number => {
+export const Scale = (radius: number): number => {
   return radius / Constants.WebGL.UNIT_SCALE
 }
 
@@ -10,5 +10,3 @@ const Scale = (radius: number): number => {
 export const getVisibleRadius = (radius: number): number => {
   return Math.max(radius, Constants.WebGL.MINIMUM_RADIUS)
 }
-
-export default Scale

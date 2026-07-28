@@ -1,4 +1,4 @@
-import MathService from '../MathService'
+import { MathService } from '../MathService'
 
 describe('Math Service', () => {
   describe('ramanujan()', () => {

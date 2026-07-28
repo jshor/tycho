@@ -1,5 +1,5 @@
 import React, { useRef } from 'react'
-import useStore from '../store'
+import { useStore } from '../store'
 
 interface Props {
   /** Invoked when the user scrolls over the scene. */
@@ -16,7 +16,7 @@ const PINCH_TOUCH_COUNT = 2
 /**
  * Records when the user begins interacting with the scene.
  */
-export default function Event({ onWheel, onPinch, children }: Props) {
+export function Event({ onWheel, onPinch, children }: Props) {
   // the separation the last touch was measured at, kept in a ref because a pinch is reported as
   // the change since the previous frame rather than as a total
   const separation = useRef<number | null>(null)

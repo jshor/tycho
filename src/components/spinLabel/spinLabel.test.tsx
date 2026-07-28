@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react'
-import SpinLabel from './spinLabel'
+import { SpinLabel } from './spinLabel'
 
 describe('SpinLabel Component', () => {
   it('should render without crashing', () => {

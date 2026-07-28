@@ -1,10 +1,10 @@
 import cx from 'classnames'
-import ZoomSlider from '../slider/zoomSlider'
-import DatePicker from '../../modules/datePicker'
-import PlayPause from '../../modules/playPause'
-import Speed from '../../modules/speed'
-import Volume from '../../modules/volume'
-import Constants from '../../constants'
+import { ZoomSlider } from '../slider/zoomSlider'
+import { DatePicker } from '../../modules/datePicker'
+import { PlayPause } from '../../modules/playPause'
+import { Speed } from '../../modules/speed'
+import { Volume } from '../../modules/volume'
+import { Constants } from '../../constants'
 
 interface Props {
   /** Whether or not the user may interact with the controls. */
@@ -22,7 +22,7 @@ interface Props {
 /**
  * The heads-up display overlaying the scene.
  */
-export default function UIControls({
+export function UIControls({
   controlsEnabled,
   targetName,
   zoom,

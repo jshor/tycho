@@ -1,5 +1,5 @@
 import { PerspectiveCamera, Vector3 } from 'three'
-import Controls from '../Controls'
+import { Controls } from '../Controls'
 
 vi.unmock('three/examples/jsm/controls/OrbitControls.js')
 

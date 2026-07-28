@@ -1,11 +1,11 @@
 import { Vector3 } from 'three'
 import { act, fireEvent } from '@testing-library/react'
 import { renderWithStore } from '../../test/render'
-import useStore from '../../store'
+import { useStore } from '../../store'
 import data from './__fixtures__/orbitals.json'
-import Orbital from '../orbital'
-import OrbitalService from '../../services/OrbitalService'
-import Constants from '../../constants'
+import { Orbital } from '../orbital'
+import { OrbitalService } from '../../services/OrbitalService'
+import { Constants } from '../../constants'
 import { OrbitalData, Store } from '../../types'
 
 const orbital = data[0] as OrbitalData

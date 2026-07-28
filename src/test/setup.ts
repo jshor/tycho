@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom'
 import { beforeEach, vi } from 'vitest'
 import { AudioLoader, Vector3, type Camera, type Texture } from 'three'
-import useStore from '../store'
+import { useStore } from '../store'
 
 /**
  * The store is a module-level singleton, so state a test seeds (or an action it replaces with a

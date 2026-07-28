@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import TourLabelView from '../components/tourLabel'
+import { TourLabel as TourLabelView } from '../components/tourLabel'
 
 interface Props {
   /** The text to display. */
@@ -13,7 +13,7 @@ interface Props {
 /**
  * Shows a single tour label for the window of time it belongs to.
  */
-export default function TourLabel({ text, start, end }: Props) {
+export function TourLabel({ text, start, end }: Props) {
   const [modifier, setModifier] = useState('hide')
 
   /**

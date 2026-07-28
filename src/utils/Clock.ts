@@ -1,9 +1,9 @@
 import * as THREE from 'three'
 import TWEEN, { Tween } from 'tween.js'
 import moment from 'moment'
-import Constants from '../constants'
+import { Constants } from '../constants'
 
-export default class Clock {
+export class Clock {
   clock: THREE.Clock
   offset: number
   scale: number

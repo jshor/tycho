@@ -1,6 +1,6 @@
 import { act } from '@testing-library/react'
 import { renderWithStore } from '../../test/render'
-import TourLabel from '../tourLabel'
+import { TourLabel } from '../tourLabel'
 
 vi.useFakeTimers()
 

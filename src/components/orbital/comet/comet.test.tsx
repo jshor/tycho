@@ -1,7 +1,7 @@
 import { render } from '@testing-library/react'
 import { Quaternion, Vector3 } from 'three'
-import Comet, { getActivity, getHeading, getPlumeOrientation } from './comet'
-import Constants from '../../../constants'
+import { Comet, getActivity, getHeading, getPlumeOrientation } from './comet'
+import { Constants } from '../../../constants'
 import { TailData } from '../../../types'
 
 /** Halley's tail, as the orbital data configures it. */

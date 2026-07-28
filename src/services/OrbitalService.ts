@@ -1,9 +1,9 @@
 import * as THREE from 'three'
-import MathService from './MathService'
-import PhysicsService from './PhysicsService'
-import Constants from '../constants'
+import { MathService } from './MathService'
+import { PhysicsService } from './PhysicsService'
+import { Constants } from '../constants'
 import { OrbitalData, OrbitalStats, Periapses } from '../types'
-import Ellipse from '../utils/Ellipse'
+import { Ellipse } from '../utils/Ellipse'
 
 interface RotationCoords {
   x?: number
@@ -11,7 +11,7 @@ interface RotationCoords {
   z?: number
 }
 
-export default class OrbitalService {
+export class OrbitalService {
   static ASCENSION = 90
 
   static getEclipticGroupRotation = ({

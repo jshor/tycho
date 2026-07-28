@@ -1,2 +1,2 @@
 import './markdown.scss'
-export { default } from './markdown'
+export { Markdown } from './markdown'

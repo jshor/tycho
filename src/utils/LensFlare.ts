@@ -1,9 +1,9 @@
 import * as THREE from 'three'
 import { Lensflare, LensflareElement } from 'three/examples/jsm/objects/Lensflare.js'
-import Constants from '../constants'
+import { Constants } from '../constants'
 import { LensFlareEntry } from '../constants/WebGL'
 
-export default class LensFlareHelper extends Lensflare {
+export class LensFlareHelper extends Lensflare {
   textureLoader: THREE.TextureLoader = new THREE.TextureLoader()
   color: THREE.Color = new THREE.Color(Constants.WebGL.Sunlight.COLOR)
 

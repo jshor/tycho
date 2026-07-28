@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import Datetime from 'react-datetime'
 import moment from 'moment'
-import useStore from '../store'
-import DatePickerView from '../components/datePicker'
-import Constants from '../constants'
+import { useStore } from '../store'
+import { DatePicker as DatePickerView } from '../components/datePicker'
+import { Constants } from '../constants'
 
 type DatetimePicker = Datetime & {
   openCalendar: () => void
@@ -12,7 +12,7 @@ type DatetimePicker = Datetime & {
 /**
  * Shows the current simulation time, allowing the user pick a new one.
  */
-export default function DatePicker() {
+export function DatePicker() {
   const time = useStore((state) => state.time)
 
   const [uxTime, setUxTime] = useState<string>()

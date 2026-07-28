@@ -12,7 +12,7 @@ interface Props {
 /**
  * The clock readout that opens the scene's date picker.
  */
-export default function DatePicker({ onClick, uxTime, children }: Props) {
+export function DatePicker({ onClick, uxTime, children }: Props) {
   return (
     <div className="date-picker">
       <span className="date-picker__display" onClick={onClick}>

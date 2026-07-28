@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react'
-import Volume from './volume'
+import { Volume } from './volume'
 
 describe('Volume Component', () => {
   it('should render without crashing', () => {

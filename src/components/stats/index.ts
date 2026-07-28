@@ -1,2 +1,2 @@
 import './stats.scss'
-export { default } from './stats'
+export { Stats } from './stats'

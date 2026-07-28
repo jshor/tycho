@@ -1,5 +1,5 @@
-import Scale, { getVisibleRadius } from '../Scale'
-import Constants from '../../constants'
+import { Scale, getVisibleRadius } from '../Scale'
+import { Constants } from '../../constants'
 
 describe('Scale', () => {
   it('should be a number', () => {

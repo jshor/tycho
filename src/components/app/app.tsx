@@ -1,11 +1,11 @@
-import Markdown from '../markdown'
-import Scene from '../../modules/scene'
-import UIControls from '../../modules/uiControls'
-import Loader from '../../modules/loader'
-import Tour from '../../modules/tour'
-import Modal from '../../modules/modal'
-import Stats from '../../modules/stats'
-import Constants from '../../constants'
+import { Markdown } from '../markdown'
+import { Scene } from '../../modules/scene'
+import { UIControls } from '../../modules/uiControls'
+import { Loader } from '../../modules/loader'
+import { Tour } from '../../modules/tour'
+import { Modal } from '../../modules/modal'
+import { Stats } from '../../modules/stats'
+import { Constants } from '../../constants'
 import { PageText } from '../../types'
 
 interface Props {
@@ -18,7 +18,7 @@ interface Props {
 /**
  * The visible application: the scene, its controls, and its modals.
  */
-export default function App({ onAnimate, pageText }: Props) {
+export function App({ onAnimate, pageText }: Props) {
   return (
     <>
       <Scene onAnimate={onAnimate} width={window.innerWidth} height={window.innerHeight} />

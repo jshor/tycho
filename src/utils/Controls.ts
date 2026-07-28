@@ -1,9 +1,9 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import TWEEN, { Tween } from 'tween.js'
-import Constants from '../constants'
+import { Constants } from '../constants'
 
-export default class Controls extends OrbitControls {
+export class Controls extends OrbitControls {
   static LOCAL_FOCUS: THREE.Vector3 = new THREE.Vector3(0, 0, 0)
 
   camera: THREE.Camera

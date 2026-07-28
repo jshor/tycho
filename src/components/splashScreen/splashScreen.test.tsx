@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react'
-import SplashScreen from './splashScreen'
+import { SplashScreen } from './splashScreen'
 
 describe('SplashScreen Component', () => {
   it('should render without crashing', () => {

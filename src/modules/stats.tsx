@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import moment from 'moment'
-import useStore from '../store'
-import OrbitalService from '../services/OrbitalService'
-import Constants from '../constants'
-import StatsView from '../components/stats'
+import { useStore } from '../store'
+import { OrbitalService } from '../services/OrbitalService'
+import { Constants } from '../constants'
+import { Stats as StatsView } from '../components/stats'
 
 interface Stat {
   /** The name of the orbital the statistics describe. */
@@ -21,7 +21,7 @@ interface Stat {
 /**
  * Reports the live orbital statistics of the orbital the camera is focused on.
  */
-export default function Stats() {
+export function Stats() {
   const targetId = useStore((state) => state.targetId)
   const orbitalData = useStore((state) => state.orbitalData)
   const pageText = useStore((state) => state.pageText)

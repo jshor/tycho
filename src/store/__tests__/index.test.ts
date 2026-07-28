@@ -1,4 +1,4 @@
-import useStore from '../'
+import { useStore } from '../'
 import orbitalFixtures from './__fixtures__/orbitals.json'
 import pageTextFixtures from './__fixtures__/pageText.json'
 

@@ -2,7 +2,7 @@ import { useThree, useFrame, ThreeEvent } from '@react-three/fiber'
 import * as THREE from 'three'
 import { Text } from '@react-three/drei'
 import { useRef, useState, useMemo, useEffect } from 'react'
-import Constants from '../../../constants'
+import { Constants } from '../../../constants'
 
 interface TroikaText extends THREE.Mesh {
   textRenderInfo?: {

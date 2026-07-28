@@ -1,7 +1,7 @@
 import { fireEvent } from '@testing-library/react'
 import { renderWithStore } from '../../test/render'
-import useStore from '../../store'
-import PlayPause from '../playPause'
+import { useStore } from '../../store'
+import { PlayPause } from '../playPause'
 
 describe('Play Pause Module', () => {
   describe('togglePlayer()', () => {

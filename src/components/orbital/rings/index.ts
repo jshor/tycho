@@ -1,1 +1,1 @@
-export { default } from './rings'
+export { Rings } from './rings'

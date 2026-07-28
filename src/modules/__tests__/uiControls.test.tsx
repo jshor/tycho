@@ -1,8 +1,8 @@
 import { fireEvent } from '@testing-library/react'
 import { renderWithStore } from '../../test/render'
-import useStore from '../../store'
-import UIControls from '../uiControls'
-import Constants from '../../constants'
+import { useStore } from '../../store'
+import { UIControls } from '../uiControls'
+import { Constants } from '../../constants'
 import { Store } from '../../types'
 
 describe('UI Controls Module', () => {

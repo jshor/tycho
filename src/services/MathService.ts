@@ -1,4 +1,4 @@
-export default class MathService {
+export class MathService {
   static ramanujan(a: number, b: number): number {
     const p = 3 * b + a
     const q = 3 * a + b

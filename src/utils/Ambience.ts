@@ -1,7 +1,7 @@
 import { AudioListener, AudioLoader, Audio, Camera } from 'three'
 import { env } from '../utils/Environment'
 
-export default class Ambience extends AudioListener {
+export class Ambience extends AudioListener {
   sound: Audio
   loader: AudioLoader = new AudioLoader()
 

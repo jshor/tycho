@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react'
-import Sun from './sun'
-import LensFlareHelper from '../../utils/LensFlare'
+import { Sun } from './sun'
+import { LensFlareHelper } from '../../utils/LensFlare'
 
 describe('Sun Component', () => {
   it('should render without crashing', () => {

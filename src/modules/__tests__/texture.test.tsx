@@ -1,6 +1,6 @@
 import { renderWithStore } from '../../test/render'
 import { DoubleSide } from 'three'
-import Texture from '../texture'
+import { Texture } from '../texture'
 
 describe('Texture Module', () => {
   it('should render without textures', () => {

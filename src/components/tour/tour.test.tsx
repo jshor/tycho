@@ -1,5 +1,5 @@
 import { renderWithStore } from '../../test/render'
-import Tour from './tour'
+import { Tour } from './tour'
 
 describe('Tour Component', () => {
   it('should render without crashing', () => {

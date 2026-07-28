@@ -15,7 +15,7 @@ interface Props {
 /**
  * The loading screen shown until the scene is ready to enter.
  */
-export default function SplashScreen({ show, pageText, percent, enterScene }: Props) {
+export function SplashScreen({ show, pageText, percent, enterScene }: Props) {
   /**
    * Renders the anchor that enters the scene.
    */

@@ -1,3 +1,3 @@
 import './splashScreen.scss'
 
-export { default } from './splashScreen'
+export { SplashScreen } from './splashScreen'

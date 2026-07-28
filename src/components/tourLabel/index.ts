@@ -1,3 +1,3 @@
 import './tourLabel.scss'
 
-export { default } from './tourLabel'
+export { TourLabel } from './tourLabel'

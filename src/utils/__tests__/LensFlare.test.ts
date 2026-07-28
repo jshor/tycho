@@ -1,6 +1,6 @@
 import { Texture, TextureLoader } from 'three'
-import LensFlareHelper from '../LensFlare'
-import Constants from '../../constants'
+import { LensFlareHelper } from '../LensFlare'
+import { Constants } from '../../constants'
 
 // The jsm Lensflare/LensflareElement are mocked globally in src/test/setup.ts
 

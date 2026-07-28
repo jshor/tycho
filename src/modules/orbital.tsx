@@ -1,8 +1,8 @@
 import React, { useMemo, useRef } from 'react'
-import useStore from '../store'
-import Ellipse from '../utils/Ellipse'
-import Service from '../services/OrbitalService'
-import OrbitalView from '../components/orbital'
+import { useStore } from '../store'
+import { Ellipse } from '../utils/Ellipse'
+import { OrbitalService as Service } from '../services/OrbitalService'
+import { Orbital as OrbitalView } from '../components/orbital'
 import { OrbitalData } from '../types'
 
 export interface Props extends OrbitalData {
@@ -15,7 +15,7 @@ export interface Props extends OrbitalData {
 /**
  * Positions an orbital along its orbit, and keeps it there as the simulation runs.
  */
-export default function Orbital(props: Props) {
+export function Orbital(props: Props) {
   const { id, parentId, isSatellite } = props
   const time = useStore((state) => state.time)
   const targetId = useStore((state) => state.targetId)

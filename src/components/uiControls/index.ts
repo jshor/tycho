@@ -1,3 +1,3 @@
 import './uiControls.scss'
 
-export { default } from './uiControls'
+export { UIControls } from './uiControls'

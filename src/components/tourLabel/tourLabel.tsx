@@ -8,7 +8,7 @@ interface Props {
 /**
  * A single line of narration shown during the tour.
  */
-export default function TourLabel({ modifier, text }: Props) {
+export function TourLabel({ modifier, text }: Props) {
   return (
     <div className="tour-label">
       <span

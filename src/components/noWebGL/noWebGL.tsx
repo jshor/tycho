@@ -8,7 +8,7 @@ interface Props {
 /**
  * The fallback shown when the browser cannot render WebGL.
  */
-export default function NoWebGL({ pageText }: Props) {
+export function NoWebGL({ pageText }: Props) {
   const { webgl } = pageText
 
   return (

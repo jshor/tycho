@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react'
-import Rings, { Props } from './rings'
+import { Rings, Props } from './rings'
 
 describe('Rings Component', () => {
   it('should render without crashing', () => {

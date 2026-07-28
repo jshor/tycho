@@ -1,6 +1,6 @@
 import React from 'react'
-import Orbital from '../../modules/orbital'
-import Sun from '../sun'
+import { Orbital } from '../../modules/orbital'
+import { Sun } from '../sun'
 import { OrbitalData } from '../../types'
 
 interface Props {
@@ -13,7 +13,7 @@ interface Props {
 /**
  * Every orbital in the Solar System, orbiting the Sun.
  */
-export default function Scene({ orbitalData }: Props) {
+export function Scene({ orbitalData }: Props) {
   /**
    * Recursively renders the given orbitals, nesting each one's satellites within it.
    */

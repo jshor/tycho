@@ -1,4 +1,4 @@
-import Markdown from '../markdown'
+import { Markdown } from '../markdown'
 import { PageText } from '../../types'
 
 interface Props {
@@ -19,7 +19,7 @@ interface Props {
 /**
  * The readout of the active orbital's description and live orbital statistics.
  */
-export default function Stats({
+export function Stats({
   description,
   velocity,
   magnitude,

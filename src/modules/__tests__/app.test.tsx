@@ -1,8 +1,8 @@
 import { act } from '@testing-library/react'
 import { useFrame } from '@react-three/fiber'
 import { renderWithStore } from '../../test/render'
-import useStore from '../../store'
-import App from '../app'
+import { useStore } from '../../store'
+import { App } from '../app'
 import { OrbitalData, PageText, Store } from '../../types'
 
 /** Clock's methods are instance properties, so the whole module stands in for the real clock. */
@@ -16,7 +16,7 @@ const clock = vi.hoisted(() => ({
   stopped: false
 }))
 
-vi.mock('../../utils/Clock', () => ({ default: vi.fn(() => clock) }))
+vi.mock('../../utils/Clock', () => ({ Clock: vi.fn(() => clock) }))
 
 const requestOrbitalData = vi.fn()
 const requestPageText = vi.fn()

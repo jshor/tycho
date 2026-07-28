@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useState } from 'react'
 import { DefaultLoadingManager } from 'three'
-import useStore from '../store'
-import SplashScreen from '../components/splashScreen'
+import { useStore } from '../store'
+import { SplashScreen } from '../components/splashScreen'
 
 /**
  * Holds the splash screen in front of the scene until its assets have loaded.
  */
-export default function Loader() {
+export function Loader() {
   const percent = useStore((state) => state.percent)
   const pageText = useStore((state) => state.pageText)
   const setPercentLoaded = useStore((state) => state.setPercentLoaded)

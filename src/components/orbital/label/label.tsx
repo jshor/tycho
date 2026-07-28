@@ -1,8 +1,8 @@
 import React from 'react'
 import * as THREE from 'three'
-import Constants from '../../../constants'
+import { Constants } from '../../../constants'
 import { CameraText } from './cameraText'
-import Scale, { getVisibleRadius } from '../../../utils/Scale'
+import { Scale, getVisibleRadius } from '../../../utils/Scale'
 import { OrbitalLabelActions } from '../../../types'
 
 interface Props {
@@ -29,36 +29,38 @@ interface Props {
 /**
  * The label to display for an orbital.
  */
-function Label({
-  text,
-  id,
-  color = 'white',
-  radius = 0,
-  action,
-  systemId,
-  parentId,
-  isSatellite,
-  maxDistance
-}: Props) {
-  if (isSatellite && parentId !== systemId) {
-    return null
+export const Label = React.memo(
+  ({
+    text,
+    id,
+    color = 'white',
+    radius = 0,
+    action,
+    systemId,
+    parentId,
+    isSatellite,
+    maxDistance
+  }: Props) => {
+    if (isSatellite && parentId !== systemId) {
+      return null
+    }
+
+    return (
+      <CameraText
+        color={color}
+        fontSize={Constants.WebGL.LABEL_FONT_SIZE}
+        font={Constants.WebGL.LABEL_FONT_PATH}
+        barycenterId={isSatellite ? parentId : undefined}
+        maxDistance={maxDistance}
+        standoff={Scale(getVisibleRadius(radius)) * Constants.WebGL.LABEL_STANDOFF}
+        onClick={() => action.setActiveOrbital(id, text)}
+        onPointerOver={() => action.addHighlightedOrbital(id)}
+        onPointerOut={() => action.removeHighlightedOrbital(id)}
+      >
+        {text}
+      </CameraText>
+    )
   }
+)
 
-  return (
-    <CameraText
-      color={color}
-      fontSize={Constants.WebGL.LABEL_FONT_SIZE}
-      font={Constants.WebGL.LABEL_FONT_PATH}
-      barycenterId={isSatellite ? parentId : undefined}
-      maxDistance={maxDistance}
-      standoff={Scale(getVisibleRadius(radius)) * Constants.WebGL.LABEL_STANDOFF}
-      onClick={() => action.setActiveOrbital(id, text)}
-      onPointerOver={() => action.addHighlightedOrbital(id)}
-      onPointerOut={() => action.removeHighlightedOrbital(id)}
-    >
-      {text}
-    </CameraText>
-  )
-}
-
-export default React.memo(Label)
+Label.displayName = 'Label'

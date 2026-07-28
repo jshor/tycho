@@ -2,11 +2,11 @@ import React, { useEffect, useRef } from 'react'
 import TWEEN from 'tween.js'
 import { CubeTextureLoader } from 'three'
 import { Canvas, useThree, useFrame } from '@react-three/fiber'
-import useStore from '../store'
-import SceneView from '../components/scene'
-import Constants from '../constants'
-import Camera, { CameraHandle } from './camera'
-import Event from './event'
+import { useStore } from '../store'
+import { Scene as SceneView } from '../components/scene'
+import { Constants } from '../constants'
+import { Camera, CameraHandle } from './camera'
+import { Event } from './event'
 
 interface Props {
   /** Invoked on every animation frame of the scene. */
@@ -77,7 +77,7 @@ function CanvasContent({ ratio, cameraRef, onAnimate, children }: CanvasContentP
 /**
  * Connects the scene's canvas to the store.
  */
-export default function Scene({ onAnimate, width, height, children }: Props) {
+export function Scene({ onAnimate, width, height, children }: Props) {
   const changeZoomLevel = useStore((state) => state.changeZoom)
   const cameraRef = useRef<CameraHandle>(null)
 

@@ -1,9 +1,9 @@
 import { Vector3, Object3D, Scene } from 'three'
 import TWEEN from 'tween.js'
-import CameraService from '../CameraService'
-import Gyroscope from '../../utils/Gyroscope'
-import Scale from '../../utils/Scale'
-import Constants from '../../constants'
+import { CameraService } from '../CameraService'
+import { Gyroscope } from '../../utils/Gyroscope'
+import { Scale } from '../../utils/Scale'
+import { Constants } from '../../constants'
 import fixture from './__fixtures__/planets.json'
 
 describe('Camera Service', () => {

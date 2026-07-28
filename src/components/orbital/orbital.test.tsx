@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react'
-import Orbital, { Props } from './orbital'
+import { Orbital, Props } from './orbital'
 import { Euler, Vector3 } from 'three'
 import { TailData } from '../../types'
 

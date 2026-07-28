@@ -1,8 +1,8 @@
 import { fireEvent } from '@testing-library/react'
 import { renderWithStore } from '../../test/render'
 import { DefaultLoadingManager } from 'three'
-import useStore from '../../store'
-import Loader from '../loader'
+import { useStore } from '../../store'
+import { Loader } from '../loader'
 import { Store } from '../../types'
 
 describe('Loader Module', () => {

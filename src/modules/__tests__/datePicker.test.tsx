@@ -1,9 +1,9 @@
 import { act, fireEvent } from '@testing-library/react'
 import { renderWithStore } from '../../test/render'
-import useStore from '../../store'
-import DatePicker from '../datePicker'
+import { useStore } from '../../store'
+import { DatePicker } from '../datePicker'
 import moment from 'moment'
-import Constants from '../../constants'
+import { Constants } from '../../constants'
 
 /**
  * The display text for the given simulation time, as the module formats it.

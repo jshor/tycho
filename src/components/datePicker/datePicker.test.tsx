@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react'
-import DatePicker from './datePicker'
+import { DatePicker } from './datePicker'
 
 describe('DatePicker Component', () => {
   it('should render without crashing', () => {

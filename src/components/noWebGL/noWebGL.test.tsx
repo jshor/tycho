@@ -1,5 +1,5 @@
 import { renderWithStore } from '../../test/render'
-import NoWebGL from './noWebGL'
+import { NoWebGL } from './noWebGL'
 import { PageText } from '../../types'
 
 const pageText: PageText = {

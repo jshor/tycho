@@ -1,5 +1,5 @@
 import { renderWithStore } from '../../test/render'
-import UIControls from './uiControls'
+import { UIControls } from './uiControls'
 
 describe('UIControls Component', () => {
   it('should render without crashing', () => {

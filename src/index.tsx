@@ -1,5 +1,5 @@
 import { createRoot } from 'react-dom/client'
-import App from './modules/app'
+import { App } from './modules/app'
 import 'react-datetime/css/react-datetime.css'
 import './index.scss'
 

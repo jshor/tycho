@@ -15,7 +15,7 @@ interface Props {
 /**
  * A titled, dismissible overlay panel.
  */
-export default function Modal({ modalActive, closeModal, title, children }: Props) {
+export function Modal({ modalActive, closeModal, title, children }: Props) {
   return (
     <div
       className={`modal modal--${cx({

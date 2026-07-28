@@ -1,10 +1,10 @@
-import useStore from '../store'
-import UIControlsView from '../components/uiControls'
+import { useStore } from '../store'
+import { UIControls as UIControlsView } from '../components/uiControls'
 
 /**
  * Connects the heads-up display to the store.
  */
-export default function UIControls() {
+export function UIControls() {
   const zoom = useStore((state) => state.zoom)
   const controlsEnabled = useStore((state) => state.controlsEnabled)
   const targetName = useStore((state) => state.targetName)

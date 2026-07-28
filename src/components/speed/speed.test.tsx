@@ -1,5 +1,5 @@
 import { fireEvent, render } from '@testing-library/react'
-import Speed from './speed'
+import { Speed } from './speed'
 
 describe('Speed Component', () => {
   it('should render without crashing', () => {

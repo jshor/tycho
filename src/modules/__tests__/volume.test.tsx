@@ -1,7 +1,7 @@
 import { fireEvent } from '@testing-library/react'
 import { renderWithStore } from '../../test/render'
-import useStore from '../../store'
-import Volume, { getVolume, setVolume } from '../volume'
+import { useStore } from '../../store'
+import { Volume, getVolume, setVolume } from '../volume'
 
 describe('Volume Module', () => {
   beforeEach(() => {

@@ -1,11 +1,11 @@
 import React, { useMemo } from 'react'
 import * as THREE from 'three'
 import { Line } from '@react-three/drei'
-import Body from './body'
-import Label from './label'
-import Atmosphere from './atmosphere'
-import Comet from './comet'
-import Constants from '../../constants'
+import { Body } from './body'
+import { Label } from './label'
+import { Atmosphere } from './atmosphere'
+import { Comet } from './comet'
+import { Constants } from '../../constants'
 import { TextureMap, RingData, TailData, OrbitalLabelActions } from '../../types'
 
 export interface Props {
@@ -36,7 +36,7 @@ export interface Props {
 /**
  * A component to render a single orbital body, its orbit path, and any associated features like an atmosphere or a tail.
  */
-export default function Orbital(props: Props) {
+export function Orbital(props: Props) {
   const {
     eclipticGroupRotation,
     orbitalGroupRotation,

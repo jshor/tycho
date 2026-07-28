@@ -1,12 +1,12 @@
 import { useEffect, useRef } from 'react'
-import useStore from '../store'
-import SpinLabelView from '../components/spinLabel'
-import Constants from '../constants'
+import { useStore } from '../store'
+import { SpinLabel as SpinLabelView } from '../components/spinLabel'
+import { Constants } from '../constants'
 
 /**
  * Prompts the user to spin the camera.
  */
-export default function SpinLabel() {
+export function SpinLabel() {
   const isComplete = useStore((state) => state.isComplete)
   const isAutoOrbitEnabled = useStore((state) => state.isAutoOrbitEnabled)
   const touched = useStore((state) => state.touched)

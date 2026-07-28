@@ -1,1 +1,1 @@
-export { default } from './atmosphere'
+export { Atmosphere } from './atmosphere'

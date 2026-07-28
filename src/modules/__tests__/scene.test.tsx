@@ -1,6 +1,6 @@
 import { fireEvent } from '@testing-library/react'
 import { renderWithStore } from '../../test/render'
-import Scene from '../scene'
+import { Scene } from '../scene'
 import data from './__fixtures__/orbitals.json'
 import { OrbitalData } from '../../types'
 
@@ -20,7 +20,7 @@ const controls = vi.hoisted(() => ({
   enabled: true
 }))
 
-vi.mock('../../utils/Controls', () => ({ default: vi.fn(() => controls) }))
+vi.mock('../../utils/Controls', () => ({ Controls: vi.fn(() => controls) }))
 
 const orbitalData = data as OrbitalData[]
 

@@ -1,6 +1,6 @@
 import { fireEvent, render } from '@testing-library/react'
-import useStore from '../../store'
-import Event from '../event'
+import { useStore } from '../../store'
+import { Event } from '../event'
 
 /** Two fingers the given distance apart, along the x axis. */
 const fingers = (separation: number) => ({

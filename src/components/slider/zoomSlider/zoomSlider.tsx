@@ -1,5 +1,5 @@
-import Slider from '../slider'
-import Constants from '../../../constants'
+import { Slider } from '../slider'
+import { Constants } from '../../../constants'
 
 interface Props {
   /** The current zoom level. */
@@ -11,7 +11,7 @@ interface Props {
 /**
  * The vertical slider that zooms the camera toward and away from an active orbital.
  */
-export default function ZoomSlider({ value, onChange }: Props) {
+export function ZoomSlider({ value, onChange }: Props) {
   const level = value ?? Constants.WebGL.Zoom.MAX
 
   return (

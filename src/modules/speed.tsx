@@ -1,11 +1,11 @@
-import useStore from '../store'
-import SpeedView from '../components/speed'
-import Constants from '../constants'
+import { useStore } from '../store'
+import { Speed as SpeedView } from '../components/speed'
+import { Constants } from '../constants'
 
 /**
  * Connects the speed button to the store.
  */
-export default function Speed() {
+export function Speed() {
   const speed = useStore((state) => state.speed) ?? Constants.UI.Speed.MIN
 
   /**

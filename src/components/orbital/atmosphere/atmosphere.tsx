@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import * as THREE from 'three'
-import Scale, { getVisibleRadius } from '../../../utils/Scale'
-import Constants from '../../../constants'
+import { Scale, getVisibleRadius } from '../../../utils/Scale'
+import { Constants } from '../../../constants'
 import { AtmosphereEntry } from '../../../constants/WebGL'
 
 interface Props {
@@ -87,7 +87,7 @@ const FRAGMENT_SHADER = /* glsl */ `
 /**
  * A thin glowing shell around a body that approximates atmospheric (Rayleigh) scattering.
  */
-export default function Atmosphere({ radius, color, settings }: Props) {
+export function Atmosphere({ radius, color, settings }: Props) {
   const surface = Scale(getVisibleRadius(radius))
   const shellRadius = surface * (1 + settings.THICKNESS)
 

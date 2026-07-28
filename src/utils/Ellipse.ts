@@ -1,8 +1,8 @@
 import * as THREE from 'three'
-import Constants from '../constants'
-import PhysicsService from '../services/PhysicsService'
-import MathService from '../services/MathService'
-import Scale from '../utils/Scale'
+import { Constants } from '../constants'
+import { PhysicsService } from '../services/PhysicsService'
+import { MathService } from '../services/MathService'
+import { Scale } from '../utils/Scale'
 import { Periapses } from '../types'
 
 interface EllipseProps {
@@ -11,7 +11,7 @@ interface EllipseProps {
   eccentricity: number
 }
 
-export default class Ellipse {
+export class Ellipse {
   semimajor: number
   semiminor: number
   eccentricity: number

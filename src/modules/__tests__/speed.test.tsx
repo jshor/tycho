@@ -1,8 +1,8 @@
 import { fireEvent } from '@testing-library/react'
 import { renderWithStore } from '../../test/render'
-import useStore from '../../store'
-import Speed from '../speed'
-import Constants from '../../constants'
+import { useStore } from '../../store'
+import { Speed } from '../speed'
+import { Constants } from '../../constants'
 
 const { MIN, MAX } = Constants.UI.Speed
 

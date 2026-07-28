@@ -1,10 +1,10 @@
-import useStore from '../store'
-import PlayPauseView from '../components/playPause'
+import { useStore } from '../store'
+import { PlayPause as PlayPauseView } from '../components/playPause'
 
 /**
  * Connects the play/pause button to the store.
  */
-export default function PlayPause() {
+export function PlayPause() {
   const playing = useStore((state) => state.playing)
 
   /**

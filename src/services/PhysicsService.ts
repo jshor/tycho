@@ -1,6 +1,6 @@
 import { Periapses, DistanceResult } from '../types'
 
-export default class PhysicsService {
+export class PhysicsService {
   static MAX_ECCENTRICITY = 0.8
 
   static KM_TO_AU = 6.68459e-9

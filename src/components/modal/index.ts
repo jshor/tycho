@@ -1,2 +1,2 @@
 import './modal.scss'
-export { default } from './modal'
+export { Modal } from './modal'

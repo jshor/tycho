@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react'
-import Body from './body'
+import { Body } from './body'
 import { TextureMap } from '../../../types'
 
 describe('Body Component', () => {

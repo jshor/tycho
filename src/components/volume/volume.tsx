@@ -10,7 +10,7 @@ interface Props {
 /**
  * The button that mutes and unmutes the scene's ambience.
  */
-export default function Volume({ playing, onClick }: Props) {
+export function Volume({ playing, onClick }: Props) {
   return (
     <div
       onClick={onClick}
