@@ -1,37 +1,22 @@
 import cx from 'classnames'
-import Settings from '../settings'
 import ZoomSlider from '../slider/zoomSlider'
 import DatePicker from '../../modules/datePicker'
 import PlayPause from '../../modules/playPause'
+import Speed from '../../modules/speed'
 import Volume from '../../modules/volume'
 import Constants from '../../constants'
-import { PageText } from '../../types'
 
 interface Props {
   /** Whether or not the user may interact with the controls. */
   controlsEnabled?: boolean
-  /** Whether or not the settings panel is expanded. */
-  settingsActive?: boolean
   /** The name of the orbital the camera is focused on. */
   targetName?: string
   /** The current zoom level. */
   zoom?: number
-  /** The speed at which time passes in the simulation. */
-  speed?: number
-  /** The scale applied to the size of each body. */
-  scale?: number
   /** Opens the modal of the given type. */
   openModal?: (type: string) => void
   /** Applies a new zoom level. */
   changeZoom?: (zoom: number) => void
-  /** Applies a new simulation speed. */
-  changeSpeed?: (speed: number) => void
-  /** Applies a new body scale. */
-  changeScale?: (scale: number) => void
-  /** Expands and collapses the settings panel. */
-  toggleSetting?: () => void
-  /** The translated page text for the app. */
-  pageText?: PageText
 }
 
 /**
@@ -39,17 +24,10 @@ interface Props {
  */
 export default function UIControls({
   controlsEnabled,
-  settingsActive,
   targetName,
   zoom,
-  speed,
-  scale,
   openModal,
-  changeZoom,
-  changeSpeed,
-  changeScale,
-  toggleSetting,
-  pageText
+  changeZoom
 }: Props) {
   return (
     <div
@@ -59,18 +37,6 @@ export default function UIControls({
         'uicontrols--disabled': !controlsEnabled
       })}
     >
-      <div className="uicontrols__control uicontrols__control--scales">
-        <Settings
-          settingsActive={settingsActive}
-          speed={speed}
-          scale={scale}
-          pageText={pageText}
-          toggleSetting={toggleSetting}
-          changeSpeed={changeSpeed}
-          changeScale={changeScale}
-        />
-      </div>
-
       <div className="uicontrols__control uicontrols__control--target-label">
         <span
           className="uicontrols__control uicontrols__control--stats-modal"
@@ -81,8 +47,11 @@ export default function UIControls({
       </div>
 
       <div className="uicontrols__control uicontrols__control--datetime">
-        <DatePicker />
-        <PlayPause />
+        <div className="uicontrols__row">
+          <DatePicker />
+          <PlayPause />
+        </div>
+        <Speed />
       </div>
 
       <div className="uicontrols__control uicontrols__control--left-bar">

@@ -14,7 +14,6 @@ export interface RingData {
   outerRadius: number
   barycenterTilt: number
   maps: TextureMap[]
-  scale?: number
 }
 
 export interface OrbitalData {
@@ -65,9 +64,6 @@ export interface PageText {
   aboutInfo?: string
   webgl?: WebGLPageText
   start?: string
-  settings?: string
-  speedScale?: string
-  planetScale?: string
   skipTour?: string
   stats?: StatsPageText
   abbreviations?: AbbreviationsPageText
@@ -104,8 +100,6 @@ export interface Store {
   isComplete?: boolean
   /** The current zoom level. */
   zoom?: number
-  /** The scale applied to the size of each body. */
-  scale?: number
   /** The speed at which time passes in the simulation. */
   speed?: number
   /** The time the user picked on the calendar. */
@@ -114,8 +108,6 @@ export interface Store {
   controlsEnabled?: boolean
   /** The type of the modal currently open, if any. */
   activeModal?: string | null
-  /** Whether or not the settings panel is expanded. */
-  settingsActive?: boolean
   /** The volume of the scene's ambience [0, 1]. */
   volume?: number
 
@@ -133,10 +125,6 @@ export interface Store {
   setPercentLoaded: (count: number, total: number) => void
   /** Applies a new zoom level. */
   changeZoom: (zoom: number) => void
-  /** Applies a new simulation speed. */
-  changeSpeed: (speed: number) => void
-  /** Applies a new body scale. */
-  changeScale: (scale: number) => void
 }
 
 export interface TourLabelItem {

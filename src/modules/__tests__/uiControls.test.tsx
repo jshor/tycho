@@ -7,26 +7,8 @@ import { Store } from '../../types'
 
 describe('UI Controls Module', () => {
   const renderModule = (state: Partial<Store> = {}) => {
-    return renderWithStore(<UIControls />, { pageText: {}, ...state })
+    return renderWithStore(<UIControls />, state)
   }
-
-  describe('toggleSetting()', () => {
-    it('should expand the settings panel while it is collapsed', () => {
-      const { container } = renderModule({ settingsActive: false })
-
-      fireEvent.click(container.querySelector('.settings-panel__hamburger'))
-
-      expect(useStore.getState().settingsActive).toBe(true)
-    })
-
-    it('should collapse the settings panel while it is expanded', () => {
-      const { container } = renderModule({ settingsActive: true })
-
-      fireEvent.click(container.querySelector('.settings-panel__hamburger'))
-
-      expect(useStore.getState().settingsActive).toBe(false)
-    })
-  })
 
   describe('openModal()', () => {
     it('should open the stats modal and hide the UI controls', () => {

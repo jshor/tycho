@@ -33,7 +33,6 @@ export const focusCameraImmediately = (
 const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
   const targetId = useStore((state) => state.targetId)
   const animateTargetChange = useStore((state) => state.animateTargetChange)
-  const scale = useStore((state) => state.scale)
   const zoom = useStore((state) => state.zoom)
   const volume = useStore((state) => state.volume)
   const isAutoOrbitEnabled = useStore((state) => state.isAutoOrbitEnabled)
@@ -92,12 +91,12 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
     }
   }, [isAutoOrbitEnabled])
 
-  // prevent camera collision when target or scale changes
+  // prevent camera collision when the target changes
   useEffect(() => {
     if (controlsRef.current) {
-      controlsRef.current.minDistance = CameraService.getMinDistance(orbitalData, targetId, scale)
+      controlsRef.current.minDistance = CameraService.getMinDistance(orbitalData, targetId)
     }
-  }, [targetId, scale, orbitalData])
+  }, [targetId, orbitalData])
 
   // move camera pivot when target changes
   useEffect(() => {

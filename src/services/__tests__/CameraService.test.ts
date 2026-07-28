@@ -66,19 +66,13 @@ describe('Camera Service', () => {
     const { MIN_DISTANCE } = Constants.WebGL.Camera
 
     it('should floor a small orbital to the minimum radius so the camera clears its inflated body', () => {
-      expect(CameraService.getMinDistance(fixture, 'Earth', 1)).toBeCloseTo(
-        Scale(MINIMUM_RADIUS, 1) + MIN_DISTANCE
-      )
-    })
-
-    it('should still apply the scale factor after flooring', () => {
-      expect(CameraService.getMinDistance(fixture, 'Earth', 2)).toBeCloseTo(
-        Scale(MINIMUM_RADIUS, 2) + MIN_DISTANCE
+      expect(CameraService.getMinDistance(fixture, 'Earth')).toBeCloseTo(
+        Scale(MINIMUM_RADIUS) + MIN_DISTANCE
       )
     })
 
     it('should return 0 if the target distance is not available', () => {
-      expect(CameraService.getMinDistance(fixture, 'Bogus', 1)).toEqual(0)
+      expect(CameraService.getMinDistance(fixture, 'Bogus')).toEqual(0)
     })
   })
 

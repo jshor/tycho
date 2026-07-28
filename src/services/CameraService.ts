@@ -13,13 +13,13 @@ export default class CameraService {
     Constants.WebGL.Camera.Z
   )
 
-  static getMinDistance = (orbitals: OrbitalData[], targetId: string, scale: number): number => {
+  static getMinDistance = (orbitals: OrbitalData[], targetId: string): number => {
     const target = OrbitalService.getTargetByName(orbitals, targetId)
 
     if (target) {
       // flooor the radius so the camera stops outside the inflated body of a small
       // orbital (see getVisibleRadius) instead of clipping it
-      return Scale(getVisibleRadius(target.radius), scale) + Constants.WebGL.Camera.MIN_DISTANCE
+      return Scale(getVisibleRadius(target.radius)) + Constants.WebGL.Camera.MIN_DISTANCE
     }
     return 0
   }

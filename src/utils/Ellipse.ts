@@ -9,22 +9,20 @@ interface EllipseProps {
   semimajor: number
   semiminor: number
   eccentricity: number
-  scale?: number
 }
 
 export default class Ellipse {
   semimajor: number
   semiminor: number
   eccentricity: number
-  scale: number
   ellipse: THREE.EllipseCurve
   path: THREE.CurvePath<THREE.Vector2>
 
-  constructor({ semimajor, semiminor, eccentricity, scale }: EllipseProps) {
+  constructor({ semimajor, semiminor, eccentricity }: EllipseProps) {
     this.semimajor = semimajor
     this.semiminor = semiminor
     this.eccentricity = eccentricity
-    this.setScale(scale)
+    this.render()
   }
 
   render = (): void => {
@@ -38,8 +36,8 @@ export default class Ellipse {
   }
 
   getEllipseCurve = (): THREE.EllipseCurve => {
-    const semimajor = Scale(this.semimajor, this.scale)
-    const semiminor = Scale(this.semiminor, this.scale)
+    const semimajor = Scale(this.semimajor)
+    const semiminor = Scale(this.semiminor)
     const focus = MathService.getFocus(semimajor, semiminor)
 
     return new THREE.EllipseCurve(
@@ -72,10 +70,5 @@ export default class Ellipse {
     const percent = PhysicsService.ellipticPercent(this.eccentricity, time, periapses)
 
     return this.ellipse.getUtoTmapping(percent, 0)
-  }
-
-  setScale = (scale: number): void => {
-    this.scale = scale
-    this.render()
   }
 }

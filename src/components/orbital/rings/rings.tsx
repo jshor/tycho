@@ -11,16 +11,14 @@ export interface Props {
   maps: TextureMap[]
   /** The axial tilt of the body the rings encircle, in degrees. */
   barycenterTilt: number
-  /** The scene's current size scale. */
-  scale?: number
 }
 
 /**
  * The flat, textured plane standing in for a body's ring system.
  */
-export default function Rings({ outerRadius, maps, barycenterTilt, scale }: Props) {
+export default function Rings({ outerRadius, maps, barycenterTilt }: Props) {
   const tilt = MathService.toRadians(barycenterTilt)
-  const size = Scale(outerRadius * 2, scale)
+  const size = Scale(outerRadius * 2)
   const rotation = new Euler(tilt, 0, 0)
 
   return (

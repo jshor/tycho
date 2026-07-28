@@ -14,27 +14,25 @@ interface Props {
   rings?: RingData
   /** The texture maps applied to the body's material. */
   maps?: TextureMap[]
-  /** The scene's current size scale. */
-  scale?: number
 }
 
 /**
  * The physical sphere of an orbital, together with any rings encircling it.
  */
-export default function Body({ radius, rotation, rings, maps, scale }: Props) {
+export default function Body({ radius, rotation, rings, maps }: Props) {
   return (
     <group>
       <mesh rotation={rotation}>
         <sphereGeometry
           args={[
-            Scale(getVisibleRadius(radius), scale),
+            Scale(getVisibleRadius(radius)),
             Constants.WebGL.SPHERE_SEGMENTS,
             Constants.WebGL.SPHERE_SEGMENTS
           ]}
         />
         <Texture textures={maps} />
       </mesh>
-      {rings && <Rings {...rings} scale={scale} />}
+      {rings && <Rings {...rings} />}
     </group>
   )
 }

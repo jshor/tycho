@@ -18,7 +18,6 @@ export interface Props extends OrbitalData {
 export default function Orbital(props: Props) {
   const { id, parentId, isSatellite } = props
   const time = useStore((state) => state.time)
-  const scale = useStore((state) => state.scale)
   const targetId = useStore((state) => state.targetId)
   const highlightedOrbitals = useStore((state) => state.highlightedOrbitals)
   const setActiveOrbital = useStore((state) => state.setActiveOrbital)
@@ -31,7 +30,7 @@ export default function Orbital(props: Props) {
   const ellipseRef = useRef<Ellipse>(null)
 
   if (!ellipseRef.current) {
-    ellipseRef.current = new Ellipse({ ...props, scale })
+    ellipseRef.current = new Ellipse(props)
   }
 
   const ellipse = ellipseRef.current
@@ -39,15 +38,6 @@ export default function Orbital(props: Props) {
   // the orbit is only ever tilted once, out of the orbital data it was built from
   const eclipticGroupRotation = useMemo(() => Service.getEclipticGroupRotation(props), []) // eslint-disable-line react-hooks/exhaustive-deps
   const orbitalGroupRotation = useMemo(() => Service.getOrbitalGroupRotation(props), []) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // a satellite's orbit is drawn at the scene's scale, so its path has to be rebuilt to match
-  useMemo(() => {
-    if (isSatellite) {
-      ellipse.setScale(scale)
-    }
-  }, [scale, isSatellite, ellipse])
-
-  const scaleLastUpdate = useMemo(() => time, [scale]) // eslint-disable-line react-hooks/exhaustive-deps
 
   /** Where the body sits along its orbit, and how it is turned, at the current time. */
   const body = useMemo(
@@ -57,7 +47,7 @@ export default function Orbital(props: Props) {
       percent: Service.getBodyPercent({ ...props, time }, ellipse),
       maxDistance: Service.getMaxViewDistance(props)
     }),
-    [time, scale, ellipse] // eslint-disable-line react-hooks/exhaustive-deps
+    [time, ellipse] // eslint-disable-line react-hooks/exhaustive-deps
   )
 
   /** How prominently the orbit path is drawn, given what the user is pointing at. */
@@ -76,7 +66,6 @@ export default function Orbital(props: Props) {
       bodyRotation={body.rotation}
       pathOpacity={pathOpacity}
       atmosphere={props.atmosphere}
-      scaleLastUpdate={scaleLastUpdate}
       maxDistance={body.maxDistance}
       maps={props.maps}
       rings={props.rings}
@@ -86,7 +75,6 @@ export default function Orbital(props: Props) {
       targetId={targetId}
       parentId={parentId}
       isSatellite={isSatellite}
-      scale={scale}
       id={id}
     >
       {props.children}

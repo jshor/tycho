@@ -102,7 +102,7 @@ describe('Orbital Service', () => {
         time: 0,
         periapses: { last: 0, next: 1 }
       }
-      const ellipse = new Ellipse({ semimajor: 1, semiminor: 1, eccentricity: 0, scale: 1 })
+      const ellipse = new Ellipse({ semimajor: 1, semiminor: 1, eccentricity: 0 })
       const spy = vi.spyOn(ellipse, 'getPosition')
 
       OrbitalService.getBodyPosition(props, ellipse)

@@ -2,7 +2,9 @@ import useStore from '../'
 import orbitalFixtures from './__fixtures__/orbitals.json'
 import pageTextFixtures from './__fixtures__/pageText.json'
 
-/** Stands in for the network, handing back the given JSON. */
+/**
+ * Stands in for the network, handing back the given JSON.
+ */
 const mockJsonFetch = (jsonData: object) => {
   return vi.fn().mockResolvedValue({ json: () => jsonData })
 }
@@ -125,23 +127,11 @@ describe('Store', () => {
     })
   })
 
-  describe('changeZoom() / changeSpeed() / changeScale()', () => {
+  describe('changeZoom()', () => {
     it('should apply a new zoom level', () => {
       useStore.getState().changeZoom(50)
 
       expect(useStore.getState().zoom).toEqual(50)
-    })
-
-    it('should apply a new simulation speed', () => {
-      useStore.getState().changeSpeed(2)
-
-      expect(useStore.getState().speed).toEqual(2)
-    })
-
-    it('should apply a new body scale', () => {
-      useStore.getState().changeScale(3)
-
-      expect(useStore.getState().scale).toEqual(3)
     })
   })
 })

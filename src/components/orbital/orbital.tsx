@@ -20,8 +20,6 @@ export interface Props {
   action: OrbitalLabelActions
   atmosphere?: number
   pathOpacity?: number
-  scaleLastUpdate?: number
-  scale?: number
   maps?: TextureMap[]
   targetId?: string
   parentId?: string
@@ -41,12 +39,10 @@ export default function Orbital(props: Props) {
     bodyPercent,
     atmosphere,
     pathOpacity,
-    scaleLastUpdate,
     id,
     radius,
     rings,
     maps,
-    scale,
     children
   } = props
 
@@ -74,14 +70,9 @@ export default function Orbital(props: Props) {
     <group rotation={eclipticGroupRotation}>
       <group rotation={orbitalGroupRotation}>
         <group position={bodyPosition} name={id}>
-          <Body rotation={bodyRotation} radius={radius} rings={rings} maps={maps} scale={scale} />
+          <Body rotation={bodyRotation} radius={radius} rings={rings} maps={maps} />
           {scattering && (
-            <Atmosphere
-              radius={radius}
-              color={atmosphere ?? 0xffffff}
-              settings={scattering}
-              scale={scale}
-            />
+            <Atmosphere radius={radius} color={atmosphere ?? 0xffffff} settings={scattering} />
           )}
           <Label
             text={props.text}
@@ -96,7 +87,7 @@ export default function Orbital(props: Props) {
         </group>
 
         <Line
-          key={`path-${id}-${scaleLastUpdate}`}
+          key={`path-${id}`}
           points={pathVertices}
           color="#ffffff"
           vertexColors={pathColors}

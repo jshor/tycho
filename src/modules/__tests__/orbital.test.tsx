@@ -62,39 +62,6 @@ describe('Orbital Module', () => {
 
       expect(spy).not.toHaveBeenCalled()
     })
-
-    it('should reposition the body when the scale changes', () => {
-      const spy = vi.spyOn(OrbitalService, 'getBodyPosition')
-
-      renderModule({ scale: 1 })
-      spy.mockClear()
-
-      act(() => useStore.setState({ scale: 2 }))
-
-      expect(spy).toHaveBeenCalledTimes(1)
-    })
-  })
-
-  describe('scale', () => {
-    it("should rescale a satellite's orbit when the scale changes", () => {
-      const spy = vi.spyOn(OrbitalService, 'getMaxViewDistance')
-
-      renderModule({ scale: 1 }, { isSatellite: true })
-      spy.mockClear()
-
-      act(() => useStore.setState({ scale: 2 }))
-
-      expect(spy).toHaveBeenCalledTimes(1)
-    })
-
-    it('should rebuild the orbit path when the scale changes', () => {
-      const { container } = renderModule({ scale: 1 }, { isSatellite: true })
-      const before = container.innerHTML
-
-      act(() => useStore.setState({ scale: 2 }))
-
-      expect(container.innerHTML).not.toEqual(before)
-    })
   })
 
   describe('pathOpacity', () => {

@@ -3,7 +3,7 @@
 .date-picker {
   display: inline-flex;
   min-width: 250px;
-  padding: $base-spacing;
+  padding-right: $base-spacing;
   z-index: $z-index-top;
 
   &__display {

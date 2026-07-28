@@ -2,7 +2,7 @@
 
 /* slider var names are w.r.t. a horizontal orientation */
 $slider-handle-height: 6px;
-$slider-handle-width: 32px;
+$slider-handle-width: $icon-size;
 $slider-track-width: 4px;
 
 .slider {

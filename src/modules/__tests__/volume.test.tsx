@@ -21,12 +21,16 @@ describe('Volume Module', () => {
   })
 
   describe('setVolume()', () => {
-    it.skip('should store the volume level in localStorage', () => {
-      const spy = vi.spyOn(localStorage, 'setItem')
-
+    it('should store the volume level in localStorage', () => {
       setVolume(1)
 
-      expect(spy).toHaveBeenCalledWith('volume', '1')
+      expect(localStorage.getItem('volume')).toEqual('1')
+    })
+
+    it('should store a muted scene as zero', () => {
+      setVolume(0)
+
+      expect(localStorage.getItem('volume')).toEqual('0')
     })
   })
 

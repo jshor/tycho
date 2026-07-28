@@ -55,17 +55,7 @@ const useStore = create<Store>()((set) => ({
   /**
    * Changes the zoom level.
    */
-  changeZoom: (zoom) => set({ zoom }),
-
-  /**
-   * Changes the simulation speed.
-   */
-  changeSpeed: (speed) => set({ speed }),
-
-  /**
-   * Changes the body scale.
-   */
-  changeScale: (scale) => set({ scale })
+  changeZoom: (zoom) => set({ zoom })
 }))
 
 export default useStore

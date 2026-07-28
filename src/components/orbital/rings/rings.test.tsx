@@ -3,7 +3,7 @@ import Rings, { Props } from './rings'
 
 describe('Rings Component', () => {
   it('should render without crashing', () => {
-    const props: Props = { outerRadius: 2000, barycenterTilt: 27, maps: [], scale: 1 }
+    const props: Props = { outerRadius: 2000, barycenterTilt: 27, maps: [] }
     expect(() => render(<Rings {...props} />)).not.toThrow()
   })
 })

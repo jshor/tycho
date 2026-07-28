@@ -1,0 +1,29 @@
+@import 'globals.scss';
+
+.speed {
+  cursor: pointer;
+  margin-top: $base-spacing;
+
+
+  &__button {
+    width: $icon-size;
+    height: $icon-size;
+    background-color: $brand-primary;
+    color: $brand-secondary;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: $font-size-tiny;
+    font-weight: bold;
+    line-height: 1;
+
+    &:hover {
+      box-shadow: $text-shadow;
+    }
+  }
+
+  &__exponent {
+    font-size: 0.7em;
+  }
+}

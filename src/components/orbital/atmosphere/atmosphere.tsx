@@ -11,8 +11,6 @@ interface Props {
   color: number
   /** Scattering parameters for this particular body. */
   settings: AtmosphereEntry
-  /** The scene's current size scale. */
-  scale?: number
 }
 
 // modelMatrix, viewMatrix, projectionMatrix and cameraPosition are all injected automatically by
@@ -89,8 +87,8 @@ const FRAGMENT_SHADER = /* glsl */ `
 /**
  * A thin glowing shell around a body that approximates atmospheric (Rayleigh) scattering.
  */
-export default function Atmosphere({ radius, color, settings, scale }: Props) {
-  const surface = Scale(getVisibleRadius(radius), scale)
+export default function Atmosphere({ radius, color, settings }: Props) {
+  const surface = Scale(getVisibleRadius(radius))
   const shellRadius = surface * (1 + settings.THICKNESS)
 
   const material = useMemo(() => {

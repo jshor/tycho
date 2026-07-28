@@ -1,12 +1,7 @@
-export const Sliders = {
-  Scale: {
-    MIN: 1,
-    MAX: 10
-  },
-  Speed: {
-    MIN: 0,
-    MAX: 10
-  }
+/** The powers of ten the simulation clock steps through. */
+export const Speed = {
+  MIN: 0,
+  MAX: 10
 }
 
 export const ModalTypes = {
@@ -28,6 +23,12 @@ export const ZOOM_LABEL_TRIGGER = 25
 export const SPIN_LABEL_ARROW_COUNT = 4
 
 export const WHEEL_DELTA_DIVISOR = 100000
+
+/**
+ * How much wheel delta one pixel of finger separation is worth when pinching, so that a pinch
+ * zooms at roughly the same rate as the wheel does for the same amount of effort.
+ */
+export const PINCH_DELTA_SCALE = 50
 
 export const HOVER_OPACITY_ON = 1
 
