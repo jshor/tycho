@@ -11,7 +11,9 @@ describe('Spin Label Module', () => {
     return renderWithStore(<SpinLabel />, { touched: 0, controlsEnabled: false, ...state })
   }
 
-  /** Reaches for the scene, the way the event module does. */
+  /**
+   * Reaches for the scene, the way the event module does.
+   */
   const touchScene = () => act(() => useStore.setState({ touched: 1 }))
 
   describe('isVisible()', () => {

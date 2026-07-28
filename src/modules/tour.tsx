@@ -20,19 +20,25 @@ export default function Tour({ labels }: Props) {
 
   const hasInitialized = useRef(false)
 
-  /** Ends the tour and hands the scene back to the user. */
+  /**
+   * Ends the tour and hands the scene back to the user.
+   */
   const skipTour = () => {
     useStore.setState({ isComplete: true, isAutoOrbitEnabled: false, controlsEnabled: true })
     localStorage.setItem('tourViewed', 'true')
   }
 
-  /** Marks the tour as viewed once its last label has played. */
+  /**
+   * Marks the tour as viewed once its last label has played.
+   */
   const onTourComplete = () => {
     localStorage.setItem('tourViewed', 'true')
     useStore.setState({ isComplete: true })
   }
 
-  /** Takes the scene away from the user and orbits it for the length of the tour. */
+  /**
+   * Takes the scene away from the user and orbits it for the length of the tour.
+   */
   const initializeTour = () => {
     const duration = labels.reduce((cur, next) => {
       return cur + next.duration + Constants.Tour.SEPARATION_INTERVAL
@@ -45,7 +51,9 @@ export default function Tour({ labels }: Props) {
     setTimeout(onTourComplete, duration)
   }
 
-  /** Starts the tour on the user's first visit, and skips it on every visit after. */
+  /**
+   * Starts the tour on the user's first visit, and skips it on every visit after.
+   */
   useEffect(() => {
     if (hasInitialized.current || !playing) return
 
@@ -58,7 +66,9 @@ export default function Tour({ labels }: Props) {
     }
   }) // eslint-disable-line react-hooks/exhaustive-deps
 
-  /** Builds a label for each item of narration, timed to play one after the other. */
+  /**
+   * Builds a label for each item of narration, timed to play one after the other.
+   */
   const getLabels = (labels: TourLabelItem[]) => {
     let totalTime = 0
 

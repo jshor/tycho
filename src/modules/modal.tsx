@@ -14,7 +14,9 @@ interface Props {
 /** The key code that dismisses an open modal. */
 const ESCAPE_KEY_CODE = 27
 
-/** Reads the title a modal of the given type wears, out of the store. */
+/**
+ * Reads the title a modal of the given type wears, out of the store.
+ */
 const selectTitle = (type: string) => (state: Store) => {
   return type === Constants.UI.ModalTypes.STATS_MODAL
     ? state.targetName
@@ -28,15 +30,21 @@ export default function Modal({ type, children }: Props) {
   const activeModal = useStore((state) => state.activeModal)
   const title = useStore(selectTitle(type))
 
-  /** Whether this module's modal is the one currently open. */
+  /**
+   * Whether this module's modal is the one currently open.
+   */
   const isModalActive = (): boolean => activeModal === type
 
-  /** Closes the modal and hands interactivity back to the UI controls. */
+  /**
+   * Closes the modal and hands interactivity back to the UI controls.
+   */
   const closeModal = useCallback(() => {
     useStore.setState({ activeModal: null, controlsEnabled: true })
   }, [])
 
-  /** Dismisses the modal when escape is pressed while it is open. */
+  /**
+   * Dismisses the modal when escape is pressed while it is open.
+   */
   useEffect(() => {
     const onKeyPressed = (evt: KeyboardEvent) => {
       if (evt.keyCode === ESCAPE_KEY_CODE && activeModal === type) {

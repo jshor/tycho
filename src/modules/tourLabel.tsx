@@ -16,7 +16,9 @@ interface Props {
 export default function TourLabel({ text, start, end }: Props) {
   const [modifier, setModifier] = useState('hide')
 
-  /** Reveals the label at its start time and hides it again at its end time. */
+  /**
+   * Reveals the label at its start time and hides it again at its end time.
+   */
   useEffect(() => {
     const timeouts = [
       setTimeout(() => setModifier('show'), start),

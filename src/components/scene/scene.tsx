@@ -14,7 +14,9 @@ interface Props {
  * Every orbital in the Solar System, orbiting the Sun.
  */
 export default function Scene({ orbitalData }: Props) {
-  /** Recursively renders the given orbitals, nesting each one's satellites within it. */
+  /**
+   * Recursively renders the given orbitals, nesting each one's satellites within it.
+   */
   const getOrbitalElements = (
     orbitals: OrbitalData[],
     isSatellite?: boolean,

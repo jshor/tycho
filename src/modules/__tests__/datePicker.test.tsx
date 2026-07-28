@@ -5,7 +5,9 @@ import DatePicker from '../datePicker'
 import moment from 'moment'
 import Constants from '../../constants'
 
-/** The display text for the given simulation time, as the module formats it. */
+/**
+ * The display text for the given simulation time, as the module formats it.
+ */
 const formatted = (time: number) => {
   return moment(time * 1000).format(Constants.UI.UX_DATE_FORMAT)
 }

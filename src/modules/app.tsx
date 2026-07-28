@@ -27,7 +27,9 @@ export default function App() {
 
   const clock = clockRef.current
 
-  /** Returns true if the clock has moved on since the last store update. */
+  /**
+   * Returns true if the clock has moved on since the last store update.
+   */
   const shouldUpdateTime = (): boolean => {
     if (clock.getTime() !== lastTime.current) {
       return !!playing
@@ -35,7 +37,9 @@ export default function App() {
     return false
   }
 
-  /** Updates the store with the clock's current time. */
+  /**
+   * Updates the store with the clock's current time.
+   */
   const updateClock = (force?: boolean) => {
     if (force || shouldUpdateTime()) {
       lastTime.current = clock.getTime()
@@ -43,21 +47,27 @@ export default function App() {
     }
   }
 
-  /** Restarts the clock once the simulation resumes. */
+  /**
+   * Restarts the clock once the simulation resumes.
+   */
   const continueClock = () => {
     if (playing && clock.stopped) {
       clock.continue()
     }
   }
 
-  /** Halts the clock once the simulation pauses. */
+  /**
+   * Halts the clock once the simulation pauses.
+   */
   const stopClock = () => {
     if (!playing && !clock.stopped) {
       clock.stop()
     }
   }
 
-  /** Advances the simulation by one frame. */
+  /**
+   * Advances the simulation by one frame.
+   */
   const onAnimate = () => {
     updateClock()
     continueClock()
@@ -67,14 +77,18 @@ export default function App() {
     clock.update()
   }
 
-  /** Fetches the data the app needs, and starts the clock. */
+  /**
+   * Fetches the data the app needs, and starts the clock.
+   */
   useEffect(() => {
     requestOrbitalData()
     requestPageText()
     updateClock(true)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  /** Moves the running clock to the time the user picked. */
+  /**
+   * Moves the running clock to the time the user picked.
+   */
   useEffect(() => {
     if (previousOffset.current === timeOffset) return
 

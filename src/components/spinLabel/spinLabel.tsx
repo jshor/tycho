@@ -11,7 +11,9 @@ interface Props {
  * The prompt inviting the user to spin the camera around the scene.
  */
 export default function SpinLabel({ show, count }: Props) {
-  /** Builds a row of arrows pointing in the given direction. */
+  /**
+   * Builds a row of arrows pointing in the given direction.
+   */
   const createArrowSet = (modifier: string, count: number) => {
     const base = 'spin__arrow'
     const arrows: React.ReactNode[] = []

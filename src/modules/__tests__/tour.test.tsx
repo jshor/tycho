@@ -22,7 +22,9 @@ const TOUR_DURATION = labels.reduce(
   Constants.Tour.SEPARATION_INTERVAL
 )
 
-/** Advances timers inside `act()` so the labels' scheduled state changes are flushed. */
+/**
+ * Advances timers inside `act()` so the labels' scheduled state changes are flushed.
+ */
 const advanceTimers = (ms: number) => act(() => void vi.advanceTimersByTime(ms))
 
 describe('Tour Module', () => {
@@ -139,7 +141,9 @@ describe('Tour Module', () => {
       const { container } = renderModule({ playing: true })
       const separation = Constants.Tour.SEPARATION_INTERVAL
 
-      /** The label currently on screen, if any. */
+      /**
+       * The label currently on screen, if any.
+       */
       const shown = () => {
         const label = container.querySelector('.tour-label__text--show')
 

@@ -16,7 +16,9 @@ interface Props {
  * The loading screen shown until the scene is ready to enter.
  */
 export default function SplashScreen({ show, pageText, percent, enterScene }: Props) {
-  /** Renders the anchor that enters the scene. */
+  /**
+   * Renders the anchor that enters the scene.
+   */
   const renderEnterButton = () => {
     return (
       <div className="splash-screen__button">
@@ -27,7 +29,9 @@ export default function SplashScreen({ show, pageText, percent, enterScene }: Pr
     )
   }
 
-  /** Renders the bar tracking how much of the scene has loaded. */
+  /**
+   * Renders the bar tracking how much of the scene has loaded.
+   */
   const renderLoadingBar = () => {
     return (
       <div className="splash-screen__loading">
@@ -36,7 +40,9 @@ export default function SplashScreen({ show, pageText, percent, enterScene }: Pr
     )
   }
 
-  /** Renders the enter button once loading completes, and the loading bar until then. */
+  /**
+   * Renders the enter button once loading completes, and the loading bar until then.
+   */
   const renderUserPrompt = () => {
     if (percent === 100) {
       return renderEnterButton()

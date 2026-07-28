@@ -13,10 +13,14 @@ export default function SpinLabel() {
 
   const previousTouched = useRef(touched)
 
-  /** Whether or not the prompt is visible. */
+  /**
+   * Whether or not the prompt is visible.
+   */
   const isVisible = (): boolean => isComplete && isAutoOrbitEnabled
 
-  /** Hands the camera to the user the first time they reach for the scene. */
+  /**
+   * Hands the camera to the user the first time they reach for the scene.
+   */
   useEffect(() => {
     if (previousTouched.current === touched) return
 

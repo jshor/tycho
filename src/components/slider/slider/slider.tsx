@@ -23,7 +23,9 @@ interface Props {
  * A thin wrapper around `ReactSlider` that applies the app's slider styling.
  */
 export default function Slider({ orientation, step, min, max, value, onChange, invert }: Props) {
-  /** Returns the BEM class name for the given slider part, in the slider's orientation. */
+  /**
+   * Returns the BEM class name for the given slider part, in the slider's orientation.
+   */
   const getClassName = (subName?: string): string => {
     let baseName = 'slider'
 

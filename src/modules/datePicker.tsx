@@ -21,12 +21,16 @@ export default function DatePicker() {
   const isOpen = useRef(false)
   const pickerRef = useRef<DatetimePicker>(null)
 
-  /** Formats the given time for display using non-breaking spaces. */
+  /**
+   * Formats the given time for display using non-breaking spaces.
+   */
   const getUXTime = (timeInstance: moment.Moment): string => {
     return timeInstance.format(Constants.UI.UX_DATE_FORMAT).replace(/ /g, ' ')
   }
 
-  /** Re-reads the clock whenever it ticks, unless the calendar is open. */
+  /**
+   * Re-reads the clock whenever it ticks, unless the calendar is open.
+   */
   useEffect(() => {
     if (isOpen.current || time === undefined) return
 
@@ -36,12 +40,16 @@ export default function DatePicker() {
     setRealTime(timeInstance.toDate())
   }, [time])
 
-  /** Releases the clock once the calendar closes. */
+  /**
+   * Releases the clock once the calendar closes.
+   */
   const hidePicker = () => {
     isOpen.current = false
   }
 
-  /** Opens the calendar. */
+  /**
+   * Opens the calendar.
+   */
   const showPicker = () => {
     const picker = pickerRef.current
 
@@ -51,7 +59,9 @@ export default function DatePicker() {
     }
   }
 
-  /** Advances (or regresses) the simulation time to the given one. */
+  /**
+   * Advances (or regresses) the simulation time to the given one.
+   */
   const changeTime = (value: moment.Moment | string) => {
     // react-datetime emits the raw input string while a partially typed date is still
     // unparseable, and only hands back a Moment once it resolves.

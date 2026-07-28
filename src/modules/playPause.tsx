@@ -7,7 +7,9 @@ import PlayPauseView from '../components/playPause'
 export default function PlayPause() {
   const playing = useStore((state) => state.playing)
 
-  /** Starts the simulation when it is paused, and pauses it when it is playing. */
+  /**
+   * Starts the simulation when it is paused, and pauses it when it is playing.
+   */
   const togglePlayer = () => {
     useStore.setState({ playing: !playing })
   }

@@ -5,7 +5,9 @@ import TourLabel from '../tourLabel'
 vi.useFakeTimers()
 
 describe('Tour Label Module', () => {
-  /** Advances timers inside `act()` so the label's scheduled state changes are flushed. */
+  /**
+   * Advances timers inside `act()` so the label's scheduled state changes are flushed.
+   */
   const advanceTimers = (ms: number) => act(() => void vi.advanceTimersByTime(ms))
 
   const getModifier = (container: HTMLElement) => {

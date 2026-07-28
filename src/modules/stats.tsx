@@ -29,7 +29,9 @@ export default function Stats() {
 
   const [stats, setStats] = useState<Stat>({})
 
-  /** Recomputes the statistics whenever the target changes or the clock ticks. */
+  /**
+   * Recomputes the statistics whenever the target changes or the clock ticks.
+   */
   useEffect(() => {
     const target = OrbitalService.getTargetByName(orbitalData, targetId)
 
@@ -44,7 +46,9 @@ export default function Stats() {
     }
   }, [targetId, time, orbitalData])
 
-  /** Formats the current simulation time for display. */
+  /**
+   * Formats the current simulation time for display.
+   */
   const getTime = (): string => {
     return moment(time * 1000).format(Constants.UI.UX_DATE_FORMAT)
   }
