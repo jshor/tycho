@@ -1,8 +1,9 @@
-import TWEEN, { Tween } from 'tween.js'
+import { Easing, Tween } from '@tweenjs/tween.js'
 import { Vector3, Object3D, Scene as ThreeScene, MathUtils } from 'three'
 import { Constants } from '../constants'
 import { OrbitalService } from './OrbitalService'
 import { Gyroscope } from '../utils/Gyroscope'
+import { tweens } from '../utils/Tween'
 import { Scale, getVisibleRadius } from '../utils/Scale'
 import { OrbitalData } from '../types'
 
@@ -63,9 +64,10 @@ export class CameraService {
       onMovePosition(flight.progress)
     }
 
-    return new TWEEN.Tween(flight)
+    return new Tween(flight)
+      .group(tweens)
       .to({ progress: 1 }, Constants.WebGL.Tween.SLOW)
-      .easing(TWEEN.Easing.Quadratic.InOut)
+      .easing(Easing.Quadratic.InOut)
       .onUpdate(moveToNextPosition)
       .onComplete(CameraService.attachToGyroscope.bind(CameraService, target, group, cb))
       .start()

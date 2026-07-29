@@ -1,4 +1,5 @@
-import TWEEN from 'tween.js'
+import { Tween } from '@tweenjs/tween.js'
+import { tweens } from '../Tween'
 import { Clock } from '../Clock'
 import moment from 'moment'
 
@@ -193,7 +194,7 @@ describe('Clock', () => {
 
       beforeEach(() => {
         clock = new Clock()
-        clock.tween = new TWEEN.Tween({})
+        clock.tween = new Tween({})
       })
 
       it('should stop the Tween in progress', () => {
@@ -253,6 +254,14 @@ describe('Clock', () => {
       vi.runAllTimers()
 
       expect(clock.offset).toEqual(offset)
+    })
+
+    it('should hand its tween to the group that drives them, or it would never run', () => {
+      const clock = new Clock()
+
+      clock.setOffset(1470323035)
+
+      expect(tweens.getAll()).toContain(clock.tween)
     })
   })
 })

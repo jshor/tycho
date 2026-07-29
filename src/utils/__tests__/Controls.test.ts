@@ -1,5 +1,6 @@
 import type { MockInstance } from 'vitest'
-import TWEEN from 'tween.js'
+import { Tween } from '@tweenjs/tween.js'
+import { tweens } from '../Tween'
 import { Camera, Vector3 } from 'three'
 import { Controls } from '../Controls'
 import { Constants } from '../../constants'
@@ -382,7 +383,7 @@ describe('Controls', () => {
     it('should dispose of the tweenBase and tweenData objects', () => {
       const spy = vi.spyOn(controls, 'endTween')
 
-      controls.tweenBase = new TWEEN.Tween({})
+      controls.tweenBase = new Tween({})
       controls.tweenData = { level: 0 }
       controls.completeTween()
 
@@ -393,7 +394,7 @@ describe('Controls', () => {
 
   describe('cancelTween()', () => {
     it('should stop the active tween', () => {
-      controls.tweenBase = new TWEEN.Tween({})
+      controls.tweenBase = new Tween({})
       const spy = vi.spyOn(controls.tweenBase, 'stop')
 
       controls.cancelTween()
@@ -405,7 +406,7 @@ describe('Controls', () => {
     it('should call endTween', () => {
       const spy = vi.spyOn(controls, 'endTween')
 
-      controls.tweenBase = new TWEEN.Tween({})
+      controls.tweenBase = new Tween({})
       controls.cancelTween()
 
       expect(spy).toHaveBeenCalled()
@@ -456,14 +457,20 @@ describe('Controls', () => {
       expect(controls.tweenData.level).toEqual(controls.level)
     })
 
+    it('should hand the tween to the group that drives them, or it would never run', () => {
+      controls.tweenZoom(50, vi.fn())
+
+      expect(tweens.getAll()).toContain(controls.tweenBase)
+    })
+
     it('should assign a new tween to tweenBase', () => {
-      const tween = new TWEEN.Tween()
+      const tween = new Tween({})
 
       controls.tweenBase = tween
       controls.tweenZoom(50, vi.fn())
 
       expect(controls).toHaveProperty('tweenBase')
-      expect(controls.tweenBase).toBeInstanceOf(TWEEN.Tween)
+      expect(controls.tweenBase).toBeInstanceOf(Tween)
     })
   })
 

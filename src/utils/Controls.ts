@@ -1,7 +1,8 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import TWEEN, { Tween } from 'tween.js'
+import { Easing, Tween } from '@tweenjs/tween.js'
 import { Constants } from '../constants'
+import { tweens } from './Tween'
 
 export class Controls extends OrbitControls {
   camera: THREE.Camera
@@ -211,8 +212,9 @@ export class Controls extends OrbitControls {
     this.tweenDone = onDone
     this.tweenData = { level: this.level }
 
-    this.tweenBase = new TWEEN.Tween(this.tweenData)
-      .easing(TWEEN.Easing.Quadratic.InOut)
+    this.tweenBase = new Tween(this.tweenData)
+      .group(tweens)
+      .easing(Easing.Quadratic.InOut)
       .to({ level }, Constants.WebGL.Tween.SLOW)
       .onUpdate(this.updateTween)
       .onComplete(this.completeTween)

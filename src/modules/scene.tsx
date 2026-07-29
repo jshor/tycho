@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react'
-import TWEEN from 'tween.js'
 import { CubeTextureLoader } from 'three'
 import { Canvas, useThree, useFrame } from '@react-three/fiber'
 import { useStore } from '../store'
@@ -7,6 +6,7 @@ import { Scene as SceneView } from '../components/scene/scene'
 import { Constants } from '../constants'
 import { Camera, CameraHandle } from './camera'
 import { Event } from './event'
+import { updateTweens } from '../utils/Tween'
 
 interface Props {
   /** Invoked on every animation frame of the scene. */
@@ -41,7 +41,7 @@ function SkyboxSetup(): null {
 function AnimationTick({ onAnimate }: { onAnimate: () => void }): null {
   useFrame(() => {
     onAnimate()
-    TWEEN.update()
+    updateTweens()
   })
 
   return null

@@ -36,6 +36,7 @@
   "dependencies": {
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.1",
+    "@tweenjs/tween.js": "^25.0.0",
     "moment": "^2.19.3",
     "react": "^19.2.8",
     "react-datetime": "^3.2.0",
@@ -43,7 +44,6 @@
     "react-markdown": "^9.0.0",
     "react-slider": "^2.0.6",
     "three": "^0.165.0",
-    "tween.js": "16.6.0",
     "webgl-detect": "^0.0.1",
     "zustand": "^5.0.0"
   },

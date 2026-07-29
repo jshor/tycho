@@ -1,7 +1,8 @@
 import { Vector3, Object3D, Scene } from 'three'
-import TWEEN, { Tween } from 'tween.js'
+import { Tween } from '@tweenjs/tween.js'
 import { CameraService } from '../CameraService'
 import { Gyroscope } from '../../utils/Gyroscope'
+import { tweens } from '../../utils/Tween'
 import { Scale } from '../../utils/Scale'
 import { Constants } from '../../constants'
 import fixture from './__fixtures__/planets.json'
@@ -15,18 +16,15 @@ describe('Camera Service', () => {
     let target: Object3D
 
     const movePosition = (onMovePosition = vi.fn(), onDone = vi.fn()) => {
-      return CameraService.getPivotTween(
-        new Vector3(),
-        target,
-        pivot,
-        offset,
-        onMovePosition,
-        onDone
-      ).start(0)
+      return (
+        CameraService.getPivotTween(new Vector3(), target, pivot, offset, onMovePosition, onDone)
+          .stop()
+          .start(0)
+      )
     }
 
     beforeEach(() => {
-      TWEEN.removeAll()
+      tweens.removeAll()
 
       scene = new Scene()
       pivot = new Object3D()
@@ -40,7 +38,13 @@ describe('Camera Service', () => {
       const tween = movePosition()
 
       expect(tween).toBeDefined()
-      expect(tween).toBeInstanceOf(TWEEN.Tween)
+      expect(tween).toBeInstanceOf(Tween)
+    })
+
+    it('should hand the tween to the group that drives them, or it would never run', () => {
+      const tween = movePosition()
+
+      expect(tweens.getAll()).toContain(tween)
     })
 
     it('should fly the pivot the whole way over to its target', () => {
