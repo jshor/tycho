@@ -18,6 +18,9 @@ export const Targets = {
 
 export const UX_DATE_FORMAT = 'MMM DD, YYYY h:mm:ss a'
 
+/** Minutes between the times the calendar offers to pick from. */
+export const PICKER_TIME_INTERVAL = 15
+
 export const ZOOM_LABEL_TRIGGER = 25
 
 export const SPIN_LABEL_ARROW_COUNT = 4

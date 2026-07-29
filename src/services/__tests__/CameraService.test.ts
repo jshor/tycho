@@ -16,11 +16,16 @@ describe('Camera Service', () => {
     let target: Object3D
 
     const movePosition = (onMovePosition = vi.fn(), onDone = vi.fn()) => {
-      return (
-        CameraService.getPivotTween(new Vector3(), target, pivot, offset, onMovePosition, onDone)
-          .stop()
-          .start(0)
+      return CameraService.getPivotTween(
+        new Vector3(),
+        target,
+        pivot,
+        offset,
+        onMovePosition,
+        onDone
       )
+        .stop()
+        .start(0)
     }
 
     beforeEach(() => {

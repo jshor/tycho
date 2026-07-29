@@ -5,6 +5,10 @@
   z-index: var(--z-index-top);
 
   &__display {
+    padding: 0;
+    border: 0;
+    background: none;
+    font-family: inherit;
     font-size: var(--font-size-medium);
     color: var(--brand-primary);
     transition: text-shadow var(--transition-speed);
@@ -15,36 +19,93 @@
     }
   }
 
-  &__picker {
-    display: flex;
-    justify-content: flex-end;
-    color: var(--brand-primary);
-    font-size: var(--font-size-tiny);
-    margin-top: calc(var(--base-spacing) / 2);
+  /* override react-datepicker styles */
+  &__calendar {
+    font-size: var(--font-size-medium);
 
-    .rdtPicker {
-      background: var(--brand-secondary);
-      margin-top: var(--font-size-medium);
-
-      th,
-      td {
-        &:hover {
-          background-color: var(--brand-tertiary) !important;
+    .react-datepicker {
+      &,
+      &__header,
+      &__time-container,
+      &__time,
+      &__time-box {
+        font-family: var(--font-family-serif);
+        background: var(--brand-secondary);
+        border-color: var(--brand-tertiary);
+        color: var(--brand-primary);
+        
+        .react-datepicker__time-box
+          ul.react-datepicker__time-list
+          li.react-datepicker__time-list-item:hover {
+          background: var(--brand-tertiary);
+        }
+        
+        .react-datepicker__time-box
+          ul.react-datepicker__time-list
+          li.react-datepicker__time-list-item--selected {
+          &, &:hover {
+            background: var(--brand-primary);
+            color: var(--brand-secondary);
+          }
         }
       }
 
-      .rdtPrev,
-      .rdtNext {
-        border-color: var(--brand-secondary);
+      &__current-month,
+      &__day-name,
+      &__day,
+      &-time__header,
+      &__time-list-item {
+        color: var(--brand-primary);
       }
 
-      .rdtCounter .rdtBtn:hover {
-        background-color: var(--brand-secondary);
+      &__day--outside-month,
+      &__time-list-item--disabled {
+        color: var(--brand-tertiary);
+      }
+
+      &__day:hover,
+      &__time-list-item:hover {
+        background-color: var(--brand-tertiary);
+      }
+
+      &__day--selected,
+      &__day--keyboard-selected,
+      &__time-list-item--selected {
+        background-color: var(--brand-primary);
+        color: var(--brand-secondary);
+
+        &:hover {
+          background-color: var(--brand-primary);
+        }
+      }
+
+      &__day--today {
+        text-shadow: var(--text-shadow);
+      }
+
+      /* the year dropdown is a native select, so its list is painted too */
+      &__year-select {
+        font-family: inherit;
+        font-size: inherit;
+        border-color: var(--brand-tertiary);
+        color: var(--brand-primary);
+        cursor: pointer;
+
+        option {
+          background: var(--brand-secondary);
+          color: var(--brand-primary);
+        }
+      }
+
+      &__navigation-icon::before {
+        border-color: var(--brand-primary);
+      }
+
+      &__triangle {
+        fill: var(--brand-secondary) !important;
+        color: var(--brand-secondary) !important;
+        stroke: var(--brand-tertiary) !important;
       }
     }
-  }
-
-  &__input {
-    display: none;
   }
 }

@@ -1,25 +1,63 @@
 import React from 'react'
+import Calendar from 'react-datepicker'
+import { Constants } from '../../constants'
+import 'react-datepicker/dist/react-datepicker.css'
 import './datePicker.scss'
 
-interface Props {
-  /** Toggles the calendar open and closed. */
-  onClick: () => void
+interface DisplayProps {
   /** The current user-friendly simulation time. */
   uxTime?: string
-  /** The calendar rendered beneath the display. */
-  children?: React.ReactNode
+  /** Opens the calendar. Handed down by the calendar this readout stands in for. */
+  onClick?: React.MouseEventHandler<HTMLButtonElement>
+  /** Likewise: what the calendar hangs itself off, and hands focus back to when it closes. */
+  ref?: React.Ref<HTMLButtonElement>
 }
 
 /**
- * The clock readout that opens the scene's date picker.
+ * The visual date/time rendered on the scene.
  */
-export function DatePicker({ onClick, uxTime, children }: Props) {
+function Display({ uxTime, onClick, ref }: DisplayProps) {
+  return (
+    <button type="button" className="date-picker__display" onClick={onClick} ref={ref}>
+      {uxTime}
+    </button>
+  )
+}
+
+interface Props {
+  /** The current user-friendly simulation time. */
+  uxTime?: string
+  /** The time the calendar opens on. */
+  value?: Date
+  /** Invoked with the time the user picked. */
+  onChange?: (time: Date) => void
+  /** Invoked once the calendar opens. */
+  onOpen?: () => void
+  /** Invoked once the calendar closes. */
+  onClose?: () => void
+}
+
+/**
+ * The clock readout that opens the scene's calendar.
+ */
+export function DatePicker({ uxTime, value, onChange, onOpen, onClose }: Props) {
   return (
     <div className="date-picker">
-      <span className="date-picker__display" onClick={onClick}>
-        {uxTime}
-      </span>
-      {children}
+      <Calendar
+        selected={value}
+        onChange={(time: Date | null) => time && onChange?.(time)}
+        onCalendarOpen={onOpen}
+        onCalendarClose={onClose}
+        customInput={<Display uxTime={uxTime} />}
+        popperClassName="date-picker__calendar"
+        timeIntervals={Constants.UI.PICKER_TIME_INTERVAL}
+        timeCaption="Time"
+        // the year is picked from the dropdown, so the heading is left to name the month alone
+        dateFormatCalendar="LLLL"
+        dropdownMode="select"
+        showYearDropdown
+        showTimeSelect
+      />
     </div>
   )
 }
