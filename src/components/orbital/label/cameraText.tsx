@@ -167,6 +167,9 @@ export function CameraText({
     background.position.set((minX + maxX) / 2, (minY + maxY) / 2, 0)
   }
 
+  /**
+   * Updates the label's position, scale, and orientation each frame.
+   */
   useFrame(() => {
     const text = ref.current
     const group = groupRef.current

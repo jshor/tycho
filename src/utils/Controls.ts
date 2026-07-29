@@ -4,14 +4,24 @@ import TWEEN, { Tween } from 'tween.js'
 import { Constants } from '../constants'
 
 export class Controls extends OrbitControls {
-  static LOCAL_FOCUS: THREE.Vector3 = new THREE.Vector3(0, 0, 0)
-
   camera: THREE.Camera
   level: number
   tweenData: { level: number }
   tweenBase?: Tween
   tweenDone: ((level: number) => void) | undefined
   lookMatrix: THREE.Matrix4 = new THREE.Matrix4()
+
+  /** Current matrix rotation of the lookAt target. */
+  lookRotation: THREE.Quaternion = new THREE.Quaternion()
+
+  /** The active focus point of the camera. */
+  focus: THREE.Vector3 = new THREE.Vector3()
+
+  /** The point at which the camera was previously looking (i.e., the previous target's lookAt). */
+  lookOrigin: THREE.Vector3 = new THREE.Vector3()
+
+  /** Percentage of completion [0, 1] of the camera's turn from the previous target to its next focus. */
+  lookPercentCompleted: number = 0
 
   constructor(camera: THREE.Camera, domElement: HTMLElement) {
     super(camera, domElement)
@@ -33,10 +43,52 @@ export class Controls extends OrbitControls {
   faceTarget = (): void => {
     const { position, up, quaternion } = this.camera
 
-    if (position.lengthSq() > 0) {
-      this.lookMatrix.lookAt(position, Controls.LOCAL_FOCUS, up)
+    if (position.distanceToSquared(this.lookOrigin) > 0) {
+      // reorient the camera to look at the origin first
+      this.lookMatrix.lookAt(position, this.lookOrigin, up)
       quaternion.setFromRotationMatrix(this.lookMatrix)
     }
+
+    if (this.lookPercentCompleted > 0 && position.distanceToSquared(this.focus) > 0) {
+      // move the camera to reorient toward the new target (this.focus)
+      this.lookMatrix.lookAt(position, this.focus, up)
+      this.lookRotation.setFromRotationMatrix(this.lookMatrix)
+      quaternion.slerp(this.lookRotation, this.lookPercentCompleted)
+    }
+  }
+
+  /**
+   * Locks the camera onto the next target (or toward the origin if not looking at anything).
+   */
+  lockCameraOntoTarget = (): void => {
+    if (this.lookPercentCompleted > 0) {
+      this.lookOrigin
+        .set(0, 0, -1)
+        .applyQuaternion(this.camera.quaternion)
+        .multiplyScalar(this.maxDistance)
+        .add(this.camera.position)
+    } else {
+      this.lookOrigin.copy(Constants.WebGL.ORIGIN_POINT)
+    }
+
+    this.lookPercentCompleted = 0
+  }
+
+  /**
+   * Turns the camera by the given percentage toward the given point.
+   */
+  lookToward = (point: THREE.Vector3, percent: number): void => {
+    this.focus.copy(point)
+    this.lookPercentCompleted = THREE.MathUtils.smoothstep(percent, 0, 1)
+  }
+
+  /**
+   * Frames the camera back on the origin of its own pivot, wherever that pivot now sits.
+   */
+  resetLook = (): void => {
+    this.focus.copy(Constants.WebGL.ORIGIN_POINT)
+    this.lookOrigin.copy(Constants.WebGL.ORIGIN_POINT)
+    this.lookPercentCompleted = 0
   }
 
   zoom = (level: number): void => {
@@ -150,6 +202,9 @@ export class Controls extends OrbitControls {
     this.endTween()
   }
 
+  /**
+   * Dollies the camera to the given zoom level (with easing).
+   */
   tweenZoom = (level: number, onDone: (level: number) => void): void => {
     this.cancelTween()
 
@@ -157,7 +212,7 @@ export class Controls extends OrbitControls {
     this.tweenData = { level: this.level }
 
     this.tweenBase = new TWEEN.Tween(this.tweenData)
-      .easing(TWEEN.Easing.Quadratic.Out)
+      .easing(TWEEN.Easing.Quadratic.InOut)
       .to({ level }, Constants.WebGL.Tween.SLOW)
       .onUpdate(this.updateTween)
       .onComplete(this.completeTween)

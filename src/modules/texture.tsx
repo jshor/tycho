@@ -94,7 +94,7 @@ export function Texture({ textures, transparent, side = THREE.FrontSide }: Props
     <meshPhongMaterial
       ref={materialRef}
       color={Constants.WebGL.MESH_DEFAULT_COLOR}
-      // phong defaults specular to 0x111111 which puts a faint sheen on every rocky body in
+      // TODO: phong defaults specular to 0x111111 which puts a faint sheen on every rocky body in
       // the system - starting from black keeps bodies without a specularMap looking exactly as they
       // did under lambert, so this material swap is opt-in rather than scene-wide
       specular={0x000000}

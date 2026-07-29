@@ -28,6 +28,7 @@ export const focusCameraImmediately = (
 ): void => {
   controls?.cancelTween()
   CameraService.attachToGyroscope(target, pivot, () => {})
+  controls?.resetLook()
   controls?.zoom(Constants.WebGL.Zoom.MIN)
   changeZoom?.(Constants.WebGL.Zoom.MIN)
 }
@@ -43,7 +44,6 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
   const isAutoOrbitEnabled = useStore((state) => state.isAutoOrbitEnabled)
   const orbitalData = useStore((state) => state.orbitalData)
   const changeZoom = useStore((state) => state.changeZoom)
-
   const pivotRef = useRef<THREE.Group>(null)
   const controlsRef = useRef<Controls>(null)
   const ambienceRef = useRef<Ambience>(null)
@@ -130,13 +130,21 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
       }
 
       setInteractivity(false)
-      const v = CameraService.getWorldPosition(target)
-      const w = CameraService.getWorldPosition(pivot)
 
-      CameraService.attachToWorld(scene, pivot, w)
+      const worldPosiiton = CameraService.getWorldPosition(pivot)
+
+      CameraService.attachToWorld(scene, pivot, worldPosiiton)
       cancelTween()
       zoomInFull()
-      tweenBaseRef.current = CameraService.getPivotTween(w, v, target, pivot, endTween)
+      controlsRef.current?.lockCameraOntoTarget()
+      tweenBaseRef.current = CameraService.getPivotTween(
+        worldPosiiton,
+        target,
+        pivot,
+        controlsRef.current?.minDistance ?? Constants.WebGL.Camera.MIN_DISTANCE,
+        turnTo(target),
+        endTween
+      )
     }
   }, [targetId, animateTargetChange]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -151,6 +159,27 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
   })
 
   /**
+   * Returns a function that turns the camera toward the new target.
+   */
+  const turnTo = (
+    /** The target object to turn the camera toward. */
+    target: THREE.Object3D
+  ) => (
+    /** The percentage of progress of travel [0, 1]. */
+    progress: number
+  ) => {
+    const pivot = pivotRef.current
+
+    if (!pivot) return
+
+    pivot.updateMatrixWorld()
+    controlsRef.current?.lookToward(pivot.worldToLocal(
+      CameraService.getWorldPosition(target)),
+      progress
+    )
+  }
+
+  /**
    * Cancels dollying the camera.
    */
   const cancelTween = () => {
@@ -163,7 +192,10 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
   /**
    * Completes the dolly animation.
    */
-  const endTween = () => setInteractivity(true)
+  const endTween = () => {
+    controlsRef.current?.resetLook()
+    setInteractivity(true)
+  }
 
   /**
    * Enables or disables interactivity with the camera.

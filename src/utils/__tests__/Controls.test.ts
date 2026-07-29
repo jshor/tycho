@@ -222,6 +222,110 @@ describe('Controls', () => {
 
       expect(controls.camera.quaternion.equals(original)).toBe(true)
     })
+
+    it('should orient the camera onto whatever it has been turned toward', () => {
+      const point = new Vector3(0, 0, 40)
+
+      controls.camera.position.set(10, 0, 0)
+      controls.lookToward(point, 1)
+      controls.faceTarget()
+
+      const forward = new Vector3(0, 0, -1).applyQuaternion(controls.camera.quaternion)
+      const expected = point.clone().sub(controls.camera.position).normalize()
+
+      expect(forward.x).toBeCloseTo(expected.x)
+      expect(forward.y).toBeCloseTo(expected.y)
+      expect(forward.z).toBeCloseTo(expected.z)
+    })
+  })
+
+  describe('lookToward()', () => {
+    const point = new Vector3(0, 0, 100)
+
+    /** How far off the given point the camera is framed, once turned the given part of the way. */
+    const turn = (blend: number) => {
+      controls.lookToward(point, blend)
+      controls.faceTarget()
+
+      const forward = new Vector3(0, 0, -1).applyQuaternion(controls.camera.quaternion)
+
+      return forward.angleTo(point.clone().sub(controls.camera.position))
+    }
+
+    /** How far off it the camera is while still framed on the origin of its own pivot. */
+    const framed = () => {
+      controls.resetLook()
+
+      return turn(0)
+    }
+
+    beforeEach(() => {
+      controls.camera.position.set(10, 0, 0)
+    })
+
+    it('should still be framed on its pivot at the outset of the flight', () => {
+      expect(turn(0)).toBeCloseTo(framed())
+    })
+
+    it('should have come around onto the point by the end of the flight', () => {
+      expect(turn(1)).toBeCloseTo(0)
+    })
+
+    it('should turn no further than onto the point, however far it is asked to', () => {
+      expect(turn(4)).toBeCloseTo(0)
+    })
+
+    it('should sweep steadily around over the course of the flight', () => {
+      const full = framed()
+      const quarter = turn(0.25)
+      const half = turn(0.5)
+      const rest = turn(0.75)
+
+      expect(quarter).toBeLessThan(full)
+      expect(half).toBeLessThan(quarter)
+      expect(rest).toBeLessThan(half)
+      expect(half).toBeCloseTo(full / 2)
+    })
+
+    it('should ease into the turn rather than whip away from what it was framed on', () => {
+      expect(turn(0.1)).toBeGreaterThan(framed() * 0.9)
+    })
+
+    it('should set out framed on its pivot when it was at rest, whatever the camera was left at', () => {
+      controls.camera.quaternion.identity()
+      controls.lockCameraOntoTarget()
+
+      expect(controls.lookOrigin).toEqual(new Vector3(0, 0, 0))
+    })
+
+    it('should turn from where it left off, so a flight cut short by another does not snap', () => {
+      const interrupted = turn(0.5)
+
+      controls.lockCameraOntoTarget()
+      controls.lookToward(new Vector3(0, 0, 200), 0)
+      controls.faceTarget()
+
+      const forward = new Vector3(0, 0, -1).applyQuaternion(controls.camera.quaternion)
+
+      expect(forward.angleTo(point.clone().sub(controls.camera.position))).toBeCloseTo(interrupted)
+    })
+  })
+
+  describe('resetLook()', () => {
+    it('should frame the camera back on the origin of its own pivot', () => {
+      controls.camera.position.set(10, 0, 0)
+      controls.lookToward(new Vector3(0, 0, 100), 1)
+      controls.lockCameraOntoTarget()
+      controls.resetLook()
+      controls.faceTarget()
+
+      const forward = new Vector3(0, 0, -1).applyQuaternion(controls.camera.quaternion)
+
+      expect(forward.x).toBeCloseTo(-1)
+      expect(controls.focus).toEqual(new Vector3(0, 0, 0))
+      expect(controls.lookOrigin).toEqual(new Vector3(0, 0, 0))
+      expect(controls.lookPercentCompleted).toEqual(0)
+    })
   })
 
   describe('enable()', () => {

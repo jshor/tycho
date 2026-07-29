@@ -187,6 +187,9 @@ export function Comet({ radius, settings, pathVertices, bodyPercent }: Props) {
   const orientation = useMemo(() => new THREE.Quaternion(), [])
   const trailing = useMemo(() => new THREE.Vector3(), [])
 
+  /**
+   * Updates the tail's orientation and length to match the comet's current position and the camera's view.
+   */
   useFrame(({ camera, clock }) => {
     const group = groupRef.current
     const tail = tailRef.current

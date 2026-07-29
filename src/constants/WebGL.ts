@@ -1,6 +1,9 @@
 import * as THREE from 'three'
 import { HOVER_OPACITY_OFF } from './UI'
 
+/** The origin (0, 0, 0). */
+export const ORIGIN_POINT = new THREE.Vector3(0, 0, 0)
+
 export const SPECULAR_COLOR = 0x333333 // TODO: ought to be determined by albedo, not a constant
 
 export const SHININESS = 40 // TODO: ought to be determined by albedo, not a constant

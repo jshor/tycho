@@ -44,13 +44,13 @@ export const Label = React.memo(
     isSatellite,
     maxDistance
   }: Props) => {
-    // the focused orbital is the one the camera is sitting on, where its name is already given
-    // over the foot of the scene and a label would only be in the way of the body it names
     if (isFocused) {
+      // don't show the label when the orbital is focused
       return null
     }
 
     if (isSatellite && parentId !== systemId) {
+      // don't show the label for satellites whose barycenter isn't focused
       return null
     }
 

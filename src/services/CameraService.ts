@@ -38,19 +38,52 @@ export class CameraService {
     return Scale(extent) / Math.sin((field * Constants.WebGL.Camera.FOCUS_FILL) / 2)
   }
 
+  /**
+   * Returns the tween for the camera's pivot from where it sits to the given target.
+   */
   static getPivotTween = (
     from: Vector3,
-    to: Vector3,
     target: Object3D,
     group: Object3D,
+    offset: number,
+    onMovePosition: (progress: number) => void,
     cb: () => void
   ): Tween => {
-    return new TWEEN.Tween(from)
-      .to(to, Constants.WebGL.Tween.SLOW)
-      .easing(TWEEN.Easing.Quadratic.Out)
-      .onUpdate(CameraService.setPivotPosition.bind(CameraService, group, from))
+    const origin = from.clone()
+    const flight = { progress: 0 }
+
+    /**
+     * Moves the camera position onto the next target, based on percentage of completion of the movement.
+     */
+    const moveToNextPosition = () => {
+      const to = CameraService.getWorldPosition(target)
+      const covered = CameraService.getApproach(origin.distanceTo(to), offset, flight.progress)
+
+      CameraService.setPivotPosition(group, origin.clone().lerp(to, covered))
+      onMovePosition(flight.progress)
+    }
+
+    return new TWEEN.Tween(flight)
+      .to({ progress: 1 }, Constants.WebGL.Tween.SLOW)
+      .easing(TWEEN.Easing.Quadratic.InOut)
+      .onUpdate(moveToNextPosition)
       .onComplete(CameraService.attachToGyroscope.bind(CameraService, target, group, cb))
       .start()
+  }
+
+  /**
+   * Returns the percentage of the distance covered from the origin to the target.
+   */
+  static getApproach = (distance: number, offset: number, progress: number): number => {
+    if (distance <= 0) {
+      return 1
+    }
+
+    const scale = Math.max(offset, Number.EPSILON)
+    const range = Math.log1p(distance / scale)
+    const remaining = scale * Math.expm1(range * (1 - progress))
+
+    return 1 - remaining / distance
   }
 
   static setPivotPosition = (
