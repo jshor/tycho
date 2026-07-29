@@ -72,7 +72,7 @@ export function Texture({ textures, transparent, side = THREE.FrontSide }: Props
         mat[key] = texture
 
         if (key === 'emissiveMap') {
-          mat.emissive.set(0x7d7d7d) // TODO: probably ought to be related to albedo, not a constant
+          mat.emissive.set(0x555555) // TODO: probably ought to be related to albedo, not a constant
         }
 
         if (key === 'specularMap') {
