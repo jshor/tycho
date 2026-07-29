@@ -2,6 +2,7 @@ import React from 'react'
 import { SpinLabel } from '../../modules/spinLabel'
 import cx from 'classnames'
 import { PageText } from '../../types'
+import './tour.scss'
 
 interface Props {
   /** Whether the tour has finished playing. */

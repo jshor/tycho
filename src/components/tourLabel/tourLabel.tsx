@@ -1,3 +1,4 @@
+import './tourLabel.scss'
 interface Props {
   /** The CSS BEM modifier controlling the label's visibility. */
   modifier?: string

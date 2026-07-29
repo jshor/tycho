@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import { Constants } from '../../../constants'
 import { Scale, getVisibleRadius } from '../../../utils/Scale'
 import { Texture } from '../../../modules/texture'
-import { Rings } from '../../orbital/rings'
+import { Rings } from '../../orbital/rings/rings'
 import { TextureMap, RingData } from '../../../types'
 
 interface Props {

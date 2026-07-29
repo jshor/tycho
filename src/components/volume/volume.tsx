@@ -1,4 +1,5 @@
 import cx from 'classnames'
+import './volume.scss'
 
 interface Props {
   /** Whether the ambience is currently audible. */

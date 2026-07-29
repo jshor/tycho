@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useStore } from '../store'
 import { TourLabel } from './tourLabel'
-import { Tour as TourView } from '../components/tour'
+import { Tour as TourView } from '../components/tour/tour'
 import { Constants } from '../constants'
 import { TourLabelItem } from '../types'
 

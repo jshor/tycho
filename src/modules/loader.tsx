@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { DefaultLoadingManager } from 'three'
 import { useStore } from '../store'
-import { SplashScreen } from '../components/splashScreen'
+import { SplashScreen } from '../components/splashScreen/splashScreen'
 
 /**
  * Holds the splash screen in front of the scene until its assets have loaded.

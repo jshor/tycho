@@ -1,6 +1,6 @@
 import React from 'react'
 import { Orbital } from '../../modules/orbital'
-import { Sun } from '../sun'
+import { Sun } from '../sun/sun'
 import { OrbitalData } from '../../types'
 
 interface Props {

@@ -1,4 +1,5 @@
 import React from 'react'
+import './datePicker.scss'
 
 interface Props {
   /** Toggles the calendar open and closed. */

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { TourLabel as TourLabelView } from '../components/tourLabel'
+import { TourLabel as TourLabelView } from '../components/tourLabel/tourLabel'
 
 interface Props {
   /** The text to display. */

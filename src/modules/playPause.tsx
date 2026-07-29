@@ -1,5 +1,5 @@
 import { useStore } from '../store'
-import { PlayPause as PlayPauseView } from '../components/playPause'
+import { PlayPause as PlayPauseView } from '../components/playPause/playPause'
 
 /**
  * Connects the play/pause button to the store.

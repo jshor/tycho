@@ -1,5 +1,6 @@
 import React from 'react'
 import cx from 'classnames'
+import './modal.scss'
 
 interface Props {
   /** Whether the modal is currently open. */

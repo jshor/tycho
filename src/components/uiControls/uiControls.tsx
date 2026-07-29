@@ -1,10 +1,11 @@
 import cx from 'classnames'
-import { ZoomSlider } from '../slider/zoomSlider'
+import { ZoomSlider } from '../slider/zoomSlider/zoomSlider'
 import { DatePicker } from '../../modules/datePicker'
 import { PlayPause } from '../../modules/playPause'
 import { Speed } from '../../modules/speed'
 import { Volume } from '../../modules/volume'
 import { Constants } from '../../constants'
+import './uiControls.scss'
 
 interface Props {
   /** Whether or not the user may interact with the controls. */

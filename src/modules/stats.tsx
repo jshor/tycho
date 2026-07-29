@@ -3,7 +3,7 @@ import moment from 'moment'
 import { useStore } from '../store'
 import { OrbitalService } from '../services/OrbitalService'
 import { Constants } from '../constants'
-import { Stats as StatsView } from '../components/stats'
+import { Stats as StatsView } from '../components/stats/stats'
 
 interface Stat {
   /** The name of the orbital the statistics describe. */

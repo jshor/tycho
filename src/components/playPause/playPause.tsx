@@ -1,4 +1,5 @@
 import cx from 'classnames'
+import './playPause.scss'
 
 interface Props {
   /** Toggles playback of the simulation. */

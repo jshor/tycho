@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { renderWithStore } from '../../test/render'
-import { Scene } from '../scene'
+import { Scene } from './scene'
 import data from './__fixtures__/orbitals.json'
 import { OrbitalData } from '../../types'
 

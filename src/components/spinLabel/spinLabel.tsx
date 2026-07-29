@@ -1,4 +1,5 @@
 import React from 'react'
+import './spinLabel.scss'
 
 interface Props {
   /** Whether or not the prompt is visible. */

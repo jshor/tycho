@@ -1,4 +1,5 @@
 import ReactMarkdown from 'react-markdown'
+import './markdown.scss'
 
 interface Props {
   /** The markdown source to render. */

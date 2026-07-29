@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import Datetime from 'react-datetime'
 import moment from 'moment'
 import { useStore } from '../store'
-import { DatePicker as DatePickerView } from '../components/datePicker'
+import { DatePicker as DatePickerView } from '../components/datePicker/datePicker'
 import { Constants } from '../constants'
 
 type DatetimePicker = Datetime & {

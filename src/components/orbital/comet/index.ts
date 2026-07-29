@@ -1,1 +1,0 @@
-export { Comet } from './comet'

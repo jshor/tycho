@@ -1,4 +1,5 @@
 import { PageText } from '../../types'
+import './noWebGL.scss'
 
 interface Props {
   /** The translated page text for the app. */

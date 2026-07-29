@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react'
 import { useStore } from '../store'
 import { Clock } from '../utils/Clock'
-import { App as AppView } from '../components/app'
-// import NoWebGL from '../components/noWebGL';
-import { SplashScreen } from '../components/splashScreen'
+import { App as AppView } from '../components/app/app'
+// import NoWebGL from '../components/noWebGL/noWebGL';
+import { SplashScreen } from '../components/splashScreen/splashScreen'
 
 /**
  * Drives the simulation clock, holding the app behind a splash screen until its data arrives.

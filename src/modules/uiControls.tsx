@@ -1,5 +1,5 @@
 import { useStore } from '../store'
-import { UIControls as UIControlsView } from '../components/uiControls'
+import { UIControls as UIControlsView } from '../components/uiControls/uiControls'
 
 /**
  * Connects the heads-up display to the store.

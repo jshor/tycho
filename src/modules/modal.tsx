@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from 'react'
 import { useStore } from '../store'
 import { Constants } from '../constants'
-import { Modal as ModalView } from '../components/modal'
+import { Modal as ModalView } from '../components/modal/modal'
 import { Store } from '../types'
 
 interface Props {

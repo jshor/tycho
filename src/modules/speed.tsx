@@ -1,5 +1,5 @@
 import { useStore } from '../store'
-import { Speed as SpeedView } from '../components/speed'
+import { Speed as SpeedView } from '../components/speed/speed'
 import { Constants } from '../constants'
 
 /**

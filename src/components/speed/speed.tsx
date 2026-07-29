@@ -1,3 +1,4 @@
+import './speed.scss'
 interface Props {
   /** The power of ten the simulation clock runs at. */
   speed?: number

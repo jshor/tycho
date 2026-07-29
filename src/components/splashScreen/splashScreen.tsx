@@ -1,5 +1,6 @@
 import cx from 'classnames'
 import { PageText } from '../../types'
+import './splashScreen.scss'
 
 interface Props {
   /** Whether or not the splash screen should be visible. */

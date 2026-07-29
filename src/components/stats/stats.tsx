@@ -1,5 +1,6 @@
-import { Markdown } from '../markdown'
+import { Markdown } from '../markdown/markdown'
 import { PageText } from '../../types'
+import './stats.scss'
 
 interface Props {
   /** The encyclopedic description of the active orbital. */

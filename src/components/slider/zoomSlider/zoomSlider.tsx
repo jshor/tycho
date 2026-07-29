@@ -1,4 +1,4 @@
-import { Slider } from '../slider'
+import { Slider } from '../slider/slider'
 import { Constants } from '../../../constants'
 
 interface Props {

@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useStore } from '../store'
-import { Volume as VolumeView } from '../components/volume'
+import { Volume as VolumeView } from '../components/volume/volume'
 
 /**
  * Reads the volume the user last chose, defaulting to audible.

@@ -1,4 +1,5 @@
 import ReactSlider from 'react-slider'
+import './slider.scss'
 
 interface Props {
   /** The axis the slider travels along. */

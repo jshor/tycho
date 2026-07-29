@@ -161,23 +161,25 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
   /**
    * Returns a function that turns the camera toward the new target.
    */
-  const turnTo = (
-    /** The target object to turn the camera toward. */
-    target: THREE.Object3D
-  ) => (
-    /** The percentage of progress of travel [0, 1]. */
-    progress: number
-  ) => {
-    const pivot = pivotRef.current
+  const turnTo =
+    (
+      /** The target object to turn the camera toward. */
+      target: THREE.Object3D
+    ) =>
+    (
+      /** The percentage of progress of travel [0, 1]. */
+      progress: number
+    ) => {
+      const pivot = pivotRef.current
 
-    if (!pivot) return
+      if (!pivot) return
 
-    pivot.updateMatrixWorld()
-    controlsRef.current?.lookToward(pivot.worldToLocal(
-      CameraService.getWorldPosition(target)),
-      progress
-    )
-  }
+      pivot.updateMatrixWorld()
+      controlsRef.current?.lookToward(
+        pivot.worldToLocal(CameraService.getWorldPosition(target)),
+        progress
+      )
+    }
 
   /**
    * Cancels dollying the camera.

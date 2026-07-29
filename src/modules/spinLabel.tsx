@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useStore } from '../store'
-import { SpinLabel as SpinLabelView } from '../components/spinLabel'
+import { SpinLabel as SpinLabelView } from '../components/spinLabel/spinLabel'
 import { Constants } from '../constants'
 
 /**

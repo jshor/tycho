@@ -2,7 +2,7 @@ import React, { useMemo, useRef } from 'react'
 import { useStore } from '../store'
 import { Ellipse } from '../utils/Ellipse'
 import { OrbitalService as Service } from '../services/OrbitalService'
-import { Orbital as OrbitalView } from '../components/orbital'
+import { Orbital as OrbitalView } from '../components/orbital/orbital'
 import { OrbitalData } from '../types'
 
 export interface Props extends OrbitalData {

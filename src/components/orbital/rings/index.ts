@@ -1,1 +1,0 @@
-export { Rings } from './rings'

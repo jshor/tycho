@@ -1,4 +1,4 @@
-import { Markdown } from '../markdown'
+import { Markdown } from '../markdown/markdown'
 import { Scene } from '../../modules/scene'
 import { UIControls } from '../../modules/uiControls'
 import { Loader } from '../../modules/loader'
