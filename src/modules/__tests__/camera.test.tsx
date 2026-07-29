@@ -26,7 +26,7 @@ describe('Camera Module', () => {
         controls.zoom(50)
 
         expect(controls.level).toBe(50)
-        expect(spy).toHaveBeenCalledWith(50 / 100)
+        expect(spy).toHaveBeenCalledWith(50)
       })
 
       it('should not pan when the level is unchanged', () => {

@@ -49,26 +49,6 @@ export const Camera = {
   SATELLITE_LABEL_RANGE: 7
 }
 
-export interface ScrollScaleEntry {
-  distance: number
-  scale: number
-}
-
-export const ScrollScale: ScrollScaleEntry[] = [
-  {
-    distance: 0.2,
-    scale: 0.005
-  },
-  {
-    distance: 0.1,
-    scale: 0.05
-  },
-  {
-    distance: 0.05,
-    scale: 0.1
-  }
-]
-
 export interface LensFlareEntry {
   url: string
   distance: number

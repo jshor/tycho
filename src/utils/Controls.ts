@@ -41,7 +41,7 @@ export class Controls extends OrbitControls {
 
   zoom = (level: number): void => {
     if (this.level !== level) {
-      this.pan(level / 100)
+      this.pan(level)
       this.level = level
     }
   }
@@ -51,7 +51,7 @@ export class Controls extends OrbitControls {
    */
   setMinDistance = (distance: number): void => {
     this.minDistance = distance
-    this.pan(this.level / 100)
+    this.pan(this.level)
   }
 
   wheelZoom = (ev: { deltaY: number }, action: (zoom: number) => void): void => {
@@ -70,40 +70,36 @@ export class Controls extends OrbitControls {
     this.wheelZoom({ deltaY: -separationDelta * Constants.UI.PINCH_DELTA_SCALE }, action)
   }
 
+  /**
+   * Returns the zoom level by the given wheel delta.
+   */
   getZoomDelta = (delta: number): number => {
-    let zoom = this.level
+    const zoom = this.level + delta / Constants.UI.WHEEL_DELTA_DIVISOR
 
-    zoom += delta / this.getWheelDeltaDivisor(zoom)
-    zoom = Math.max(zoom, 0)
-    zoom = Math.min(zoom, 100)
-
-    return zoom
+    return THREE.MathUtils.clamp(zoom, Constants.WebGL.Zoom.MIN, Constants.WebGL.Zoom.MAX)
   }
 
-  getWheelDeltaDivisor = (level: number): number => {
-    let delta = Constants.UI.WHEEL_DELTA_DIVISOR
-    let match = false
+  /**
+   * Returns how far out the camera is at the given zoom level.
+   *
+   * The distance grows geometrically with the level
+   * (i.e., speed of zoom incrememnts increases as the camera moves out).
+   */
+  getZoomDistance = (level: number): number => {
+    const min = Math.max(this.minDistance, Number.EPSILON)
+    const max = Math.max(this.maxDistance, min)
+    const percent = THREE.MathUtils.clamp(level / Constants.WebGL.Zoom.MAX, 0, 1)
 
-    Constants.WebGL.ScrollScale.forEach(({ distance, scale }) => {
-      if (level > distance && !match) {
-        delta *= scale
-        match = true
-      }
-    })
-
-    return delta
+    return min * Math.pow(max / min, percent)
   }
 
-  pan = (percent: number): void => {
+  /**
+   * Pans the camera to the given zoom level.
+   */
+  pan = (level: number): void => {
     const position = this.camera.position
-    const newVector = this.getZoomVector(position, this.maxDistance * percent)
-    const minVector = this.getZoomVector(position, this.minDistance)
 
-    if (newVector.length() >= this.minDistance) {
-      position.copy(newVector)
-    } else {
-      position.copy(minVector)
-    }
+    position.copy(this.getZoomVector(position, this.getZoomDistance(level)))
   }
 
   getZoomVector = (vector: THREE.Vector3, scalar: number): THREE.Vector3 => {

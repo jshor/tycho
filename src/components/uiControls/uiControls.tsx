@@ -22,13 +22,7 @@ interface Props {
 /**
  * The heads-up display overlaying the scene.
  */
-export function UIControls({
-  controlsEnabled,
-  targetName,
-  zoom,
-  openModal,
-  changeZoom
-}: Props) {
+export function UIControls({ controlsEnabled, targetName, zoom, openModal, changeZoom }: Props) {
   return (
     <div
       className={cx({

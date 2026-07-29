@@ -19,14 +19,7 @@ interface Props {
 /**
  * The readout of the active orbital's description and live orbital statistics.
  */
-export function Stats({
-  description,
-  velocity,
-  magnitude,
-  trueAnomaly,
-  time,
-  pageText
-}: Props) {
+export function Stats({ description, velocity, magnitude, trueAnomaly, time, pageText }: Props) {
   return (
     <div className="stats">
       <Markdown text={description || ''} />

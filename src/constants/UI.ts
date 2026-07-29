@@ -22,16 +22,14 @@ export const ZOOM_LABEL_TRIGGER = 25
 
 export const SPIN_LABEL_ARROW_COUNT = 4
 
-export const WHEEL_DELTA_DIVISOR = 100000
+/** Value of one notch of a zoom wheel. */
+export const WHEEL_DELTA_DIVISOR = 100
 
 /** * How far a pointer may drift between press and release to count as a tap. */
 export const FAT_FINGER = 12
 
-/**
- * How much wheel delta one pixel of finger separation is worth when pinching, so that a pinch
- * zooms at roughly the same rate as the wheel does for the same amount of effort.
- */
-export const PINCH_DELTA_SCALE = 50
+/** Value of one increment of a pinch gesture. */
+export const PINCH_DELTA_SCALE = 10
 
 export const HOVER_OPACITY_ON = 1
 

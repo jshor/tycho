@@ -29,9 +29,9 @@ describe('Controls', () => {
         expect(controls.level).toEqual(newLevel)
       })
 
-      it('should call pan with `newLevel` converted to a decimal percentage', () => {
+      it('should call pan with the new level', () => {
         expect(spy).toHaveBeenCalledTimes(1)
-        expect(spy).toHaveBeenCalledWith(newLevel / 100)
+        expect(spy).toHaveBeenCalledWith(newLevel)
       })
     })
 
@@ -72,14 +72,16 @@ describe('Controls', () => {
       expect(controls.camera.position.length()).toBeCloseTo(2)
     })
 
-    it('should leave a camera that is not zoomed all the way in where it is', () => {
+    it('should re-scale a camera part-way in, since the near limit anchors the zoom scale', () => {
+      controls.minDistance = 1
+      controls.maxDistance = 10000
       controls.zoom(50)
 
-      const distance = controls.camera.position.length()
+      expect(controls.camera.position.length()).toBeCloseTo(100)
 
-      controls.setMinDistance(2)
+      controls.setMinDistance(100)
 
-      expect(controls.camera.position.length()).toBeCloseTo(distance)
+      expect(controls.camera.position.length()).toBeCloseTo(1000)
     })
   })
 
@@ -89,40 +91,84 @@ describe('Controls', () => {
       const result = controls.getZoomDelta(-40)
 
       expect(typeof result).toBe('number')
-      expect(result).toEqual(49.92)
+      expect(result).toEqual(49.6)
+    })
+
+    it('should step by the same amount of level wherever the camera sits', () => {
+      controls.level = 90
+      const far = controls.getZoomDelta(-100)
+
+      controls.level = 10
+      const near = controls.getZoomDelta(-100)
+
+      expect(90 - far).toBeCloseTo(10 - near)
+    })
+
+    it('should not zoom past either limit', () => {
+      controls.level = Constants.WebGL.Zoom.MIN
+
+      expect(controls.getZoomDelta(-100000)).toEqual(Constants.WebGL.Zoom.MIN)
+
+      controls.level = Constants.WebGL.Zoom.MAX
+
+      expect(controls.getZoomDelta(100000)).toEqual(Constants.WebGL.Zoom.MAX)
     })
   })
 
-  describe('getWheelDeltaDivisor()', () => {
-    it('should calculate the proper wheel delta divisor', () => {
-      controls.level = 50
-      const result = controls.getWheelDeltaDivisor(0.3)
+  describe('getZoomDistance()', () => {
+    beforeEach(() => {
+      controls.minDistance = 1
+      controls.maxDistance = 10000
+    })
 
-      expect(typeof result).toBe('number')
-      expect(result).toEqual(500)
+    it('should sit at the limits at either end of the scale', () => {
+      expect(controls.getZoomDistance(Constants.WebGL.Zoom.MIN)).toBeCloseTo(1)
+      expect(controls.getZoomDistance(Constants.WebGL.Zoom.MAX)).toBeCloseTo(10000)
+    })
+
+    it('should move the camera by the same ratio for every step of the level', () => {
+      const near = controls.getZoomDistance(25) / controls.getZoomDistance(20)
+      const far = controls.getZoomDistance(80) / controls.getZoomDistance(75)
+
+      expect(near).toBeCloseTo(far)
+    })
+
+    it('should cover less ground per step the closer the camera gets', () => {
+      const near = controls.getZoomDistance(25) - controls.getZoomDistance(20)
+      const far = controls.getZoomDistance(80) - controls.getZoomDistance(75)
+
+      expect(near).toBeLessThan(far)
     })
   })
 
   describe('pan()', () => {
-    it('should set the camera position vector to the new zoom vector', () => {
-      const zoomVector = new Vector3(1, 2, 3)
-
-      controls.getZoomVector = () => zoomVector
+    it('should set the camera position to the distance the given level stands off at', () => {
+      controls.minDistance = 1
+      controls.maxDistance = 10000
+      controls.camera.position.set(0, 0, 5)
       controls.pan(50)
 
       expect(controls.camera.position).toBeInstanceOf(Vector3)
-      expect(controls.camera.position).toEqual(zoomVector)
+      expect(controls.camera.position.length()).toBeCloseTo(100)
     })
 
-    it('should set the camera position vector to the smallest possible zoom vector', () => {
-      const zoomVector = new Vector3(0, 0, 0)
+    it('should keep the camera pointed the way it already was', () => {
+      const direction = new Vector3(1, 2, 3).normalize()
 
+      controls.camera.position.set(1, 2, 3)
+      controls.pan(50)
+
+      expect(controls.camera.position.clone().normalize().x).toBeCloseTo(direction.x)
+      expect(controls.camera.position.clone().normalize().y).toBeCloseTo(direction.y)
+      expect(controls.camera.position.clone().normalize().z).toBeCloseTo(direction.z)
+    })
+
+    it('should not pan the camera nearer than the smallest distance allowed', () => {
       controls.minDistance = 1
-      controls.getZoomVector = () => zoomVector
-      controls.pan(0)
+      controls.camera.position.set(0, 0, 5)
+      controls.pan(Constants.WebGL.Zoom.MIN)
 
-      expect(controls.camera.position).toBeInstanceOf(Vector3)
-      expect(controls.camera.position).toEqual(zoomVector)
+      expect(controls.camera.position.length()).toBeCloseTo(1)
     })
   })
 
