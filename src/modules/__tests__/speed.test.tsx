@@ -1,5 +1,5 @@
 import { fireEvent } from '@testing-library/react'
-import { renderWithStore } from '../../test/render'
+import { renderWithStore } from '../../test/helpers'
 import { useStore } from '../../store'
 import { Speed } from '../speed'
 import { Constants } from '../../constants'

@@ -3,7 +3,12 @@ import { useStore } from '../store'
 import { Ellipse } from '../utils/Ellipse'
 import { OrbitalService as Service } from '../services/OrbitalService'
 import { Orbital as OrbitalView } from '../components/orbital/orbital'
-import { OrbitalData } from '../types'
+import { Texture } from './texture'
+import { OrbitalData, TextureMap } from '../types'
+import { DoubleSide, Euler } from 'three'
+import { Constants } from '../constants'
+import { Scale, getVisibleRadius } from '../utils/Scale'
+import { MathService } from '../services/MathService'
 
 export interface Props extends OrbitalData {
   /** The ID of the orbital this one orbits, if it is a satellite. */
@@ -17,18 +22,26 @@ export interface Props extends OrbitalData {
  */
 export function Orbital(props: Props) {
   const { id, parentId, isSatellite } = props
+  const ellipseRef = useRef<Ellipse>(null)
   const time = useStore((state) => state.time)
   const targetId = useStore((state) => state.targetId)
   const orbitalData = useStore((state) => state.orbitalData)
   const highlightedOrbitals = useStore((state) => state.highlightedOrbitals)
+
+  /** Sets the currently-focused orbital. */
   const setActiveOrbital = useStore((state) => state.setActiveOrbital)
+
+  /** Adds the given orbital to the list of highlighted ones. */
   const addHighlightedOrbital = useStore((state) => state.addHighlightedOrbital)
+
+  /** Removes the given orbital from the list of highlighted ones. */
   const removeHighlightedOrbital = useStore((state) => state.removeHighlightedOrbital)
+
+  /** Store actions. */
   const action = useMemo(
     () => ({ setActiveOrbital, addHighlightedOrbital, removeHighlightedOrbital }),
     [setActiveOrbital, addHighlightedOrbital, removeHighlightedOrbital]
   )
-  const ellipseRef = useRef<Ellipse>(null)
 
   if (!ellipseRef.current) {
     ellipseRef.current = new Ellipse(props)
@@ -70,12 +83,9 @@ export function Orbital(props: Props) {
       pathVertices={ellipse.getVertices()}
       bodyPosition={body.position}
       bodyPercent={body.percent}
-      bodyRotation={body.rotation}
       pathOpacity={pathOpacity}
       atmosphere={props.atmosphere}
       maxDistance={body.maxDistance}
-      maps={props.maps}
-      rings={props.rings}
       tail={props.tail}
       text={props.name}
       radius={props.radius}
@@ -86,7 +96,50 @@ export function Orbital(props: Props) {
       isSatellite={isSatellite}
       id={id}
     >
+      <group>
+        {/* the orbital body */}
+        <mesh rotation={body.rotation}>
+          <sphereGeometry
+            args={[
+              Scale(getVisibleRadius(props.radius)),
+              Constants.WebGL.SPHERE_SEGMENTS,
+              Constants.WebGL.SPHERE_SEGMENTS
+            ]}
+          />
+          <Texture textures={props.maps} />
+        </mesh>
+
+        {/* planetary rings (if any) */}
+        {props.rings && <Rings {...props.rings} />}
+      </group>
       {props.children}
     </OrbitalView>
+  )
+}
+
+/**
+ * The flat, textured plane standing in for a body's ring system.
+ */
+export function Rings({
+  outerRadius,
+  maps,
+  barycenterTilt
+}: {
+  /** The distance from the body's centre to the outer edge of the rings, in km. */
+  outerRadius: number
+  /** The texture maps applied to the rings' material. */
+  maps: TextureMap[]
+  /** The axial tilt of the body the rings encircle, in degrees. */
+  barycenterTilt: number
+}) {
+  const tilt = MathService.toRadians(barycenterTilt)
+  const size = Scale(outerRadius * 2)
+  const rotation = new Euler(tilt, 0, 0)
+
+  return (
+    <mesh rotation={rotation}>
+      <planeGeometry args={[size, size]} />
+      <Texture transparent={true} side={DoubleSide} textures={maps} />
+    </mesh>
   )
 }

@@ -1,4 +1,4 @@
-import { renderWithStore } from '../../test/render'
+import { renderWithStore } from '../../test/helpers'
 import { NoWebGL } from './noWebGL'
 import { PageText } from '../../types'
 

@@ -5,7 +5,7 @@
 <br>
 
 <p align="center">
-  <a href="https://codecov.io/gh/jshor/tycho"><img
+  <a href="https://app.codecov.io/gh/jshor/tycho.io/tree/main"><img
     src="https://img.shields.io/codecov/c/github/jshor/tycho?logo=codecov&style=for-the-badge"
     alt="Code coverage"></a> <a href="https://github.com/jshor/tycho/actions"><img 
     src="https://img.shields.io/github/actions/workflow/status/jshor/tycho/merge.yml?logo=github&style=for-the-badge"

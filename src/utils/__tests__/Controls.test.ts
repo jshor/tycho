@@ -5,6 +5,19 @@ import { Camera, Vector3 } from 'three'
 import { Controls } from '../Controls'
 import { Constants } from '../../constants'
 
+vi.mock('three/examples/jsm/controls/OrbitControls.js', () => ({
+  OrbitControls: class {
+    constructor(protected camera: Camera) {}
+
+    update = vi.fn()
+    dispose = vi.fn()
+    touches = {
+      ONE: 3,
+      TWO: 3
+    }
+  }
+}))
+
 describe('Controls', () => {
   let camera: Camera
   let controls: Controls

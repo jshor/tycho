@@ -1,19 +1,17 @@
 import React, { useMemo } from 'react'
 import * as THREE from 'three'
 import { Line } from '@react-three/drei'
-import { Body } from './body/body'
 import { Label } from './label/label'
 import { Atmosphere } from './atmosphere/atmosphere'
 import { Comet } from './comet/comet'
 import { Constants } from '../../constants'
-import { TextureMap, RingData, TailData, OrbitalLabelActions } from '../../types'
+import { TailData, OrbitalLabelActions } from '../../types'
 
 export interface Props {
   eclipticGroupRotation: THREE.Euler
   orbitalGroupRotation: THREE.Euler
   pathVertices: THREE.Vector3[]
   bodyPosition: THREE.Vector3
-  bodyRotation: THREE.Euler
   bodyPercent?: number
   radius: number
   id: string
@@ -21,7 +19,6 @@ export interface Props {
   action: OrbitalLabelActions
   atmosphere?: number
   pathOpacity?: number
-  maps?: TextureMap[]
   /** The orbital at the centre of the system the camera is watching. */
   systemId?: string
   /** Whether or not the camera is focused on this orbital itself. */
@@ -29,7 +26,6 @@ export interface Props {
   parentId?: string
   isSatellite?: boolean
   maxDistance?: number
-  rings?: RingData
   /** Orbital tail settings (i.e., for comets). */
   tail?: TailData
   children?: React.ReactNode
@@ -44,15 +40,12 @@ export function Orbital(props: Props) {
     orbitalGroupRotation,
     pathVertices,
     bodyPosition,
-    bodyRotation,
     bodyPercent,
     atmosphere,
     pathOpacity,
     id,
     radius,
-    rings,
     tail,
-    maps,
     children
   } = props
 
@@ -84,7 +77,6 @@ export function Orbital(props: Props) {
     <group rotation={eclipticGroupRotation}>
       <group rotation={orbitalGroupRotation}>
         <group position={bodyPosition} name={id}>
-          <Body rotation={bodyRotation} radius={radius} rings={rings} maps={maps} />
           {scattering && <Atmosphere radius={radius} color={bodyColor} settings={scattering} />}
           {tail && (
             <Comet

@@ -1,10 +1,9 @@
 import { fireEvent } from '@testing-library/react'
-import { renderWithStore } from '../../test/render'
+import { renderWithStore } from '../../test/helpers'
 import { Scene } from '../scene'
 import data from './__fixtures__/orbitals.json'
 import { OrbitalData } from '../../types'
 
-/** Controls' methods are instance properties, so the whole module stands in for the real thing. */
 const controls = vi.hoisted(() => ({
   wheelZoom: vi.fn(),
   pinchZoom: vi.fn(),
@@ -20,11 +19,21 @@ const controls = vi.hoisted(() => ({
   enabled: true
 }))
 
-vi.mock('../../utils/Controls', () => ({ Controls: vi.fn(() => controls) }))
+vi.mock('../../utils/Ambience')
+vi.mock('../../utils/Controls', () => ({
+  // eslint-disable-next-line prefer-arrow-callback
+  Controls: vi.fn(function () {
+    return controls
+  })
+}))
 
 const orbitalData = data as OrbitalData[]
 
-const baseProps = { onAnimate: vi.fn(), width: 500, height: 300 }
+const baseProps = {
+  onAnimate: vi.fn(),
+  width: 500,
+  height: 300
+}
 
 describe('Scene Module', () => {
   beforeEach(() => {

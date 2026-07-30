@@ -1,5 +1,5 @@
 import { act } from '@testing-library/react'
-import { renderWithStore } from '../../test/render'
+import { renderWithStore } from '../../test/helpers'
 import { useStore } from '../../store'
 import { Stats } from '../stats'
 import { OrbitalService } from '../../services/OrbitalService'

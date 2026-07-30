@@ -1,5 +1,5 @@
 import { act, fireEvent } from '@testing-library/react'
-import { renderWithStore } from '../../test/render'
+import { renderWithStore } from '../../test/helpers'
 import { useStore } from '../../store'
 import { Tour } from '../tour'
 import { Constants } from '../../constants'

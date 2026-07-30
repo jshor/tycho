@@ -1,4 +1,4 @@
-import { renderWithStore } from '../../test/render'
+import { renderWithStore } from '../../test/helpers'
 import { UIControls } from './uiControls'
 
 describe('UIControls Component', () => {

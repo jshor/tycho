@@ -36,6 +36,25 @@ describe('Clock', () => {
 
       expect(typeof clock.getTime()).toBe('number')
     })
+
+    it('should read the same time until the simulation is advanced', () => {
+      const clock = new Clock()
+
+      clock.timer.update(performance.now() + 1000)
+
+      expect(clock.getTime()).toEqual(clock.getTime())
+    })
+
+    it('should run on at the speed the simulation is set to', () => {
+      const clock = new Clock()
+
+      clock.speed(1) // ten seconds of simulation for every second that passes
+      clock.setTime(1000)
+      clock.timer.update(performance.now() + 1000)
+
+      expect(clock.getTime()).toBeGreaterThanOrEqual(1010)
+      expect(clock.getTime()).toBeLessThan(1012)
+    })
   })
 
   describe('update()', () => {
@@ -48,7 +67,7 @@ describe('Clock', () => {
       const clock = new Clock()
 
       clock.elapsedTime = 0
-      clock.clock.getElapsedTime = () => 1
+      clock.timer.getElapsed = () => 1
 
       clock.update()
 
@@ -61,7 +80,7 @@ describe('Clock', () => {
       const clock = new Clock()
 
       clock.elapsedTime = elapsedTime
-      clock.clock.getElapsedTime = () => elapsedTime
+      clock.timer.getElapsed = () => elapsedTime
 
       clock.update()
 
@@ -75,26 +94,33 @@ describe('Clock', () => {
       const input = 5
       const scale = 6
       const clock = new Clock()
-      const spy = vi.spyOn(clock, 'start')
 
       clock.scale = scale
       clock.speed(input)
 
       expect(clock.scale).toBe(Math.pow(10, input))
-      expect(spy).toHaveBeenCalled()
-      expect(spy).toHaveBeenCalledTimes(1)
+      expect(clock.timer.getTimescale()).toBe(Math.pow(10, input))
     })
 
     it('should not change the scale if unchanged', () => {
       const input = 5
       const clock = new Clock()
-      const spy = vi.spyOn(clock, 'start')
+      const spy = vi.spyOn(clock.timer, 'setTimescale')
 
       clock.scale = Math.pow(10, input)
       clock.speed(input)
 
       expect(clock.scale).toBe(Math.pow(10, input))
       expect(spy).not.toHaveBeenCalled()
+    })
+
+    it('should leave a stopped simulation stopped', () => {
+      const clock = new Clock()
+
+      clock.stop()
+      clock.speed(5)
+
+      expect(clock.stopped).toEqual(true)
     })
 
     it('should fallback to an exponent of 0 if param undefined', () => {
@@ -114,8 +140,8 @@ describe('Clock', () => {
       clock = new Clock()
     })
 
-    it('should call clock.start()', () => {
-      const spy = vi.spyOn(clock.clock, 'start')
+    it('should not count the time it stood still against the simulation', () => {
+      const spy = vi.spyOn(clock.timer, 'reset')
 
       clock.start()
 
@@ -138,8 +164,8 @@ describe('Clock', () => {
       clock = new Clock()
     })
 
-    it('should call clock.start()', () => {
-      const spy = vi.spyOn(clock.clock, 'start')
+    it('should not count the time it stood still against the simulation', () => {
+      const spy = vi.spyOn(clock.timer, 'reset')
 
       clock.continue()
 
@@ -147,13 +173,15 @@ describe('Clock', () => {
       expect(spy).toHaveBeenCalledTimes(1)
     })
 
-    it("should not reset the clock's `elapsedTime`", () => {
-      const elapsedTime = 1234
+    it('should pick the simulation up where it left off', () => {
+      clock.timer.update(performance.now() + 1000)
 
-      clock.clock.elapsedTime = elapsedTime
+      const time = clock.getTime()
+
+      clock.stop()
       clock.continue()
 
-      expect(clock.clock.elapsedTime).toEqual(elapsedTime)
+      expect(clock.getTime()).toEqual(time)
     })
 
     it('should set stopped = false', () => {
@@ -171,13 +199,15 @@ describe('Clock', () => {
       clock = new Clock()
     })
 
-    it('should call clock.stop()', () => {
-      const spy = vi.spyOn(clock.clock, 'stop')
+    it('should hold the simulation where it is', () => {
+      const spy = vi.spyOn(clock.timer, 'update')
+      const time = clock.getTime()
 
       clock.stop()
+      clock.update()
 
-      expect(spy).toHaveBeenCalled()
-      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).not.toHaveBeenCalled()
+      expect(clock.getTime()).toEqual(time)
     })
 
     it('should set stopped = true', () => {
@@ -206,15 +236,15 @@ describe('Clock', () => {
         expect(spy).toHaveBeenCalledTimes(1)
       })
 
-      it('should set the offset to the destination offset', () => {
-        clock.destinationOffset = 1000
+      it('should leave the simulation on the time the tween was making for', () => {
+        clock.destinationTime = 1000
         clock.stopTween()
 
-        expect(clock.offset).toEqual(1000)
+        expect(clock.getTime()).toEqual(1000)
       })
 
-      it('should start the clock', () => {
-        const spy = vi.spyOn(clock.clock, 'start')
+      it('should set the simulation running again', () => {
+        const spy = vi.spyOn(clock, 'start')
 
         clock.stopTween()
 
@@ -231,15 +261,24 @@ describe('Clock', () => {
     })
   })
 
-  describe('updateTweenOffset()', () => {
-    it('should update the current offset time with current tween offset', () => {
+  describe('updateTweenTime()', () => {
+    it('should move the simulation to the time the tween has reached', () => {
       const clock = new Clock()
 
-      clock.offset = 100
-      clock.tweenData = { offset: 200 }
-      clock.updateTweenOffset()
+      clock.tweenData = { time: 200 }
+      clock.updateTweenTime()
 
-      expect(clock.offset).toEqual(clock.tweenData.offset)
+      expect(clock.getTime()).toEqual(clock.tweenData.time)
+    })
+
+    it('should hold that time however far the timer has run on', () => {
+      const clock = new Clock()
+
+      clock.timer.update(performance.now() + 5000)
+      clock.tweenData = { time: 200 }
+      clock.updateTweenTime()
+
+      expect(clock.getTime()).toEqual(200)
     })
   })
 

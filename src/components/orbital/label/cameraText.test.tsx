@@ -1,4 +1,5 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, screen, waitFor } from '@testing-library/react'
+import { renderInScene } from '../../../test/helpers'
 import userEvent from '@testing-library/user-event'
 import * as THREE from 'three'
 import { CameraText } from './cameraText'
@@ -63,20 +64,20 @@ describe('Camera Text Component', () => {
   })
 
   it('should render the text it is given', () => {
-    render(<CameraText>Earth</CameraText>)
+    renderInScene(<CameraText>Earth</CameraText>)
 
     expect(screen.getByText('Earth')).toBeInTheDocument()
   })
 
   it('should back the text with a plane, to keep it legible over whatever lies behind it', () => {
-    const { container } = render(<CameraText>Earth</CameraText>)
+    const { container } = renderInScene(<CameraText>Earth</CameraText>)
 
     expect(container.querySelector('mesh planeGeometry')).not.toBeNull()
   })
 
   it('should report a plain click', async () => {
     const user = userEvent.setup()
-    render(<CameraText {...handlers}>Earth</CameraText>)
+    renderInScene(<CameraText {...handlers}>Earth</CameraText>)
 
     await user.click(screen.getByText('Earth'))
 
@@ -99,7 +100,7 @@ describe('Camera Text Component', () => {
     }
 
     it('should report a finger that lands and lifts in the same place', () => {
-      render(<CameraText {...handlers}>Earth</CameraText>)
+      renderInScene(<CameraText {...handlers}>Earth</CameraText>)
 
       tap(0)
 
@@ -107,7 +108,7 @@ describe('Camera Text Component', () => {
     })
 
     it('should forgive a finger that drifts as it lifts', () => {
-      render(<CameraText {...handlers}>Earth</CameraText>)
+      renderInScene(<CameraText {...handlers}>Earth</CameraText>)
 
       tap(Constants.UI.FAT_FINGER - 1)
 
@@ -115,7 +116,7 @@ describe('Camera Text Component', () => {
     })
 
     it('should say nothing when the scene was dragged instead', () => {
-      render(<CameraText {...handlers}>Earth</CameraText>)
+      renderInScene(<CameraText {...handlers}>Earth</CameraText>)
 
       tap(Constants.UI.FAT_FINGER + 1)
 
@@ -123,7 +124,7 @@ describe('Camera Text Component', () => {
     })
 
     it('should say nothing when a release arrives without a press', () => {
-      render(<CameraText {...handlers}>Earth</CameraText>)
+      renderInScene(<CameraText {...handlers}>Earth</CameraText>)
 
       fireEvent(
         screen.getByText('Earth'),
@@ -134,7 +135,7 @@ describe('Camera Text Component', () => {
     })
 
     it('should hold on to the finger that pressed it, so a drag off it still reports back', () => {
-      render(<CameraText {...handlers}>Earth</CameraText>)
+      renderInScene(<CameraText {...handlers}>Earth</CameraText>)
 
       const label = screen.getByText('Earth')
       const capture = vi.fn()
@@ -156,7 +157,7 @@ describe('Camera Text Component', () => {
   describe('hovering', () => {
     it('should report a pointer arriving', async () => {
       const user = userEvent.setup()
-      render(<CameraText {...handlers}>Earth</CameraText>)
+      renderInScene(<CameraText {...handlers}>Earth</CameraText>)
 
       await user.hover(screen.getByText('Earth'))
 
@@ -165,7 +166,7 @@ describe('Camera Text Component', () => {
 
     it('should report a pointer leaving only once it has stayed away', async () => {
       const user = userEvent.setup()
-      render(<CameraText {...handlers}>Earth</CameraText>)
+      renderInScene(<CameraText {...handlers}>Earth</CameraText>)
 
       await user.hover(screen.getByText('Earth'))
       await user.unhover(screen.getByText('Earth'))
@@ -178,7 +179,7 @@ describe('Camera Text Component', () => {
 
     it('should say nothing when the pointer flickers off and straight back on', async () => {
       const user = userEvent.setup()
-      render(<CameraText {...handlers}>Earth</CameraText>)
+      renderInScene(<CameraText {...handlers}>Earth</CameraText>)
       const label = screen.getByText('Earth')
 
       await user.hover(label)
@@ -193,7 +194,7 @@ describe('Camera Text Component', () => {
 
     it('should drop a departure still pending when the label goes away', async () => {
       const user = userEvent.setup()
-      const { unmount } = render(<CameraText {...handlers}>Earth</CameraText>)
+      const { unmount } = renderInScene(<CameraText {...handlers}>Earth</CameraText>)
 
       await user.hover(screen.getByText('Earth'))
       await user.unhover(screen.getByText('Earth'))
@@ -208,6 +209,9 @@ describe('Camera Text Component', () => {
 
   describe('on each frame', () => {
     const camera = () => scene.three.camera as THREE.PerspectiveCamera
+
+    /** Runs one frame, from inside React's update cycle: the loop can drop the highlight. */
+    const advanceFrame = () => act(() => scene.frame?.())
 
     /**
      * jsdom renders r3f's primitives as plain elements, so the pieces of a THREE.Object3D that the
@@ -243,7 +247,7 @@ describe('Camera Text Component', () => {
       cameraAt?: THREE.Vector3
       barycenterName?: string
     } = {}) => {
-      const { container } = render(
+      const { container } = renderInScene(
         <CameraText standoff={standoff} barycenterId={barycenterId} maxDistance={maxDistance}>
           Earth
         </CameraText>
@@ -265,17 +269,17 @@ describe('Camera Text Component', () => {
       camera().position.copy(cameraAt)
       camera().updateMatrixWorld(true)
 
-      scene.frame?.()
+      advanceFrame()
 
       return { group, background, body }
     }
 
     it('should leave everything alone until the label is hung off a body', () => {
-      const { container } = render(<CameraText standoff={1}>Earth</CameraText>)
+      const { container } = renderInScene(<CameraText standoff={1}>Earth</CameraText>)
       const group = asObject3D(container.querySelector('group'))
 
       // no parent yet, so there is nothing to place the label against
-      expect(() => scene.frame?.()).not.toThrow()
+      expect(advanceFrame).not.toThrow()
       expect(group.position.length()).toEqual(0)
     })
 
@@ -409,7 +413,7 @@ describe('Camera Text Component', () => {
       describe('once it has fallen out of range', () => {
         /** Renders the text, hangs it off a body, then pulls the camera away out of range. */
         const cull = () => {
-          const result = render(
+          const result = renderInScene(
             <CameraText {...handlers} barycenterId="system" maxDistance={1}>
               Earth
             </CameraText>
@@ -431,7 +435,7 @@ describe('Camera Text Component', () => {
 
         it('should ignore a finger landing on where it used to be', () => {
           cull()
-          scene.frame?.()
+          advanceFrame()
 
           const label = screen.getByText('Earth')
           const press = { bubbles: true, clientX: 100, clientY: 100 }
@@ -446,7 +450,7 @@ describe('Camera Text Component', () => {
           const user = userEvent.setup()
 
           cull()
-          scene.frame?.()
+          advanceFrame()
 
           await user.hover(screen.getByText('Earth'))
 
@@ -461,7 +465,7 @@ describe('Camera Text Component', () => {
 
           // pressed while still on screen, culled before the finger came off again
           fireEvent(label, new MouseEvent('pointerdown', press))
-          scene.frame?.()
+          advanceFrame()
           fireEvent(label, new MouseEvent('pointerup', press))
 
           expect(handlers.onClick).not.toHaveBeenCalled()
@@ -470,7 +474,7 @@ describe('Camera Text Component', () => {
 
       it('should let go of the highlight when it falls out of range while hovered', async () => {
         const user = userEvent.setup()
-        const { container } = render(
+        const { container } = renderInScene(
           <CameraText {...handlers} barycenterId="system" maxDistance={1}>
             Earth
           </CameraText>
@@ -491,7 +495,7 @@ describe('Camera Text Component', () => {
         camera().position.set(0, 0, 500)
         camera().updateMatrixWorld(true)
 
-        scene.frame?.()
+        advanceFrame()
 
         expect(group.visible).toBe(false)
       })

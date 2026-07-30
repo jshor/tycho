@@ -1,13 +1,36 @@
-import 'web-audio-mock'
 import { Camera } from 'three'
 import { Ambience } from '../Ambience'
 
+vi.mock('three', async (importOriginal) => ({
+  ...((await importOriginal()) as unknown as Promise<typeof import('three')>),
+  AudioLoader: class {
+    load = vi.fn()
+  },
+  AudioListener: class {
+    add = vi.fn()
+  },
+  Audio: class {
+    setBuffer = vi.fn()
+    setLoop = vi.fn()
+    play = vi.fn()
+    pause = vi.fn()
+    setVolume = vi.fn()
+  }
+}))
+
 describe('Ambience Utility', () => {
-  const camera = new Camera()
+  let camera: Camera
   let ambience: Ambience
 
   beforeEach(() => {
+    camera = new Camera()
+    vi.spyOn(camera, 'add').mockImplementation(vi.fn())
     ambience = new Ambience(camera)
+  })
+
+  afterEach(() => {
+    vi.clearAllMocks()
+    vi.resetAllMocks()
   })
 
   it('should render correctly', () => {
@@ -16,12 +39,13 @@ describe('Ambience Utility', () => {
 
   describe('constructor', () => {
     it('should attach itself to the camera', () => {
-      expect(camera.children).toContain(ambience)
+      expect(camera.add).toHaveBeenCalledTimes(1)
+      expect(camera.add).toHaveBeenCalledWith(ambience)
     })
   })
 
   describe('loaded()', () => {
-    const buffer = new AudioContext().createBuffer(1, 1, 44100)
+    const buffer = new ArrayBuffer() as unknown as AudioBuffer
 
     it('should call setBuffer with the given buffer', () => {
       const spy = vi.spyOn(ambience.sound, 'setBuffer')

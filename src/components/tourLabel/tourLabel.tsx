@@ -1,4 +1,5 @@
 import './tourLabel.scss'
+
 interface Props {
   /** The CSS BEM modifier controlling the label's visibility. */
   modifier?: string
@@ -14,8 +15,8 @@ export function TourLabel({ modifier, text }: Props) {
     <div className="tour-label">
       <span
         className={`
-                    tour-label__text
-                    tour-label__text--${modifier}`}
+          tour-label__text
+          tour-label__text--${modifier}`}
       >
         {text}
       </span>

@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react'
+import { renderInScene } from '../../test/helpers'
 import { Orbital, Props } from './orbital'
 import { Euler, Vector3 } from 'three'
 import { TailData } from '../../types'
@@ -19,7 +19,6 @@ describe('Orbital Component', () => {
     orbitalGroupRotation: new Euler(0, 0, 0),
     pathVertices: [new Vector3(0, 0, 0), new Vector3(1, 0, 0)],
     bodyPosition: new Vector3(0, 0, 0),
-    bodyRotation: new Euler(0, 0, 0),
     radius: 100,
     id: 'Earth',
     text: 'Earth',
@@ -31,17 +30,17 @@ describe('Orbital Component', () => {
   }
 
   it('should render without crashing', () => {
-    expect(() => render(<Orbital {...props} />)).not.toThrow()
+    expect(() => renderInScene(<Orbital {...props} />)).not.toThrow()
   })
 
   it('should grow a tail on an orbital configured with one', () => {
-    const { container } = render(<Orbital {...props} id="halley" radius={15} tail={tail} />)
+    const { container } = renderInScene(<Orbital {...props} id="halley" radius={15} tail={tail} />)
 
     expect(container.querySelector('group[name="comet"]')).not.toBeNull()
   })
 
   it('should leave an orbital with no tail configured tailless', () => {
-    const { container } = render(<Orbital {...props} id="halley" radius={15} />)
+    const { container } = renderInScene(<Orbital {...props} id="halley" radius={15} />)
 
     expect(container.querySelector('group[name="comet"]')).toBeNull()
   })

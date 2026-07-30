@@ -2,11 +2,13 @@ import React, { useEffect, useRef } from 'react'
 import { CubeTextureLoader } from 'three'
 import { Canvas, useThree, useFrame } from '@react-three/fiber'
 import { useStore } from '../store'
-import { Scene as SceneView } from '../components/scene/scene'
 import { Constants } from '../constants'
 import { Camera, CameraHandle } from './camera'
 import { Event } from './event'
 import { updateTweens } from '../utils/Tween'
+import { Sun } from '../components/sun/sun'
+import { OrbitalData } from '../types'
+import { Orbital } from './orbital'
 
 interface Props {
   /** Invoked on every animation frame of the scene. */
@@ -59,6 +61,17 @@ interface CanvasContentProps {
 }
 
 /**
+ * Recursively renders the given orbitals, nesting each one's satellites within it.
+ */
+function getOrbitalElements(orbitals: OrbitalData[], isSatellite?: boolean, parentId?: string) {
+  return orbitals.map((orbital) => (
+    <Orbital {...orbital} key={orbital.id} isSatellite={isSatellite} parentId={parentId}>
+      {orbital.satellites && getOrbitalElements(orbital.satellites, !isSatellite, orbital.id)}
+    </Orbital>
+  ))
+}
+
+/**
  * Everything rendered inside the canvas: the camera, the skybox, and the scene itself.
  */
 function CanvasContent({ ratio, cameraRef, onAnimate, children }: CanvasContentProps) {
@@ -69,7 +82,11 @@ function CanvasContent({ ratio, cameraRef, onAnimate, children }: CanvasContentP
       <SkyboxSetup />
       <AnimationTick onAnimate={onAnimate} />
       <Camera ref={cameraRef} ratio={ratio} />
-      <SceneView orbitalData={orbitalData}>{children}</SceneView>
+      <group>
+        {getOrbitalElements(orbitalData)}
+        <Sun />
+        {children}
+      </group>
     </>
   )
 }

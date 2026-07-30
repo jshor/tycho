@@ -1,14 +1,16 @@
-import { render } from '@testing-library/react'
+import { renderInScene } from '../../test/helpers'
 import { Sun } from './sun'
 import { LensFlareHelper } from '../../utils/LensFlare'
 
+vi.mock('../../utils/LensFlare')
+
 describe('Sun Component', () => {
   it('should render without crashing', () => {
-    expect(() => render(<Sun />)).not.toThrow()
+    expect(() => renderInScene(<Sun />)).not.toThrow()
   })
 
   it('should instantiate LensFlareHelper on mount', () => {
-    render(<Sun />)
+    renderInScene(<Sun />)
     expect(LensFlareHelper).toHaveBeenCalled()
   })
 })

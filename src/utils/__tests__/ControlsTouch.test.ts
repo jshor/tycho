@@ -31,6 +31,8 @@ describe('Controls touch gestures', () => {
   beforeEach(() => {
     canvas = document.createElement('canvas')
 
+    document.body.appendChild(canvas)
+
     Object.defineProperty(canvas, 'clientWidth', { value: 400 })
     Object.defineProperty(canvas, 'clientHeight', { value: 800 })
 
@@ -42,7 +44,10 @@ describe('Controls touch gestures', () => {
     controls = new Controls(camera, canvas)
   })
 
-  afterEach(() => controls.dispose())
+  afterEach(() => {
+    controls.dispose()
+    canvas.remove()
+  })
 
   it('should orbit the camera when one finger drags across the scene', () => {
     const before = heading()

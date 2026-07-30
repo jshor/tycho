@@ -1,4 +1,4 @@
-import { renderWithStore } from '../../test/render'
+import { renderWithStore } from '../../test/helpers'
 import { Tour } from './tour'
 
 describe('Tour Component', () => {

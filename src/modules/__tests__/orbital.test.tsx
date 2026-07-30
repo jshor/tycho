@@ -1,6 +1,6 @@
 import { Vector3 } from 'three'
 import { act, fireEvent } from '@testing-library/react'
-import { renderWithStore } from '../../test/render'
+import { renderInScene } from '../../test/helpers'
 import { useStore } from '../../store'
 import data from './__fixtures__/orbitals.json'
 import { Orbital } from '../orbital'
@@ -20,7 +20,7 @@ describe('Orbital Module', () => {
   })
 
   const renderModule = (state: Partial<Store> = {}, props = {}) => {
-    return renderWithStore(<Orbital {...orbital} {...props} />, { time: 1, ...state })
+    return renderInScene(<Orbital {...orbital} {...props} />, { time: 1, ...state })
   }
 
   describe('render()', () => {

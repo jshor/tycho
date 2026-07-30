@@ -1,5 +1,5 @@
-import { fireEvent } from '@testing-library/react'
-import { renderWithStore } from '../../test/render'
+import { act, fireEvent } from '@testing-library/react'
+import { renderWithStore } from '../../test/helpers'
 import { DefaultLoadingManager } from 'three'
 import { useStore } from '../../store'
 import { Loader } from '../loader'
@@ -12,7 +12,7 @@ describe('Loader Module', () => {
     it('should report three.js loading progress to the store', () => {
       renderModule()
 
-      DefaultLoadingManager.onProgress('tex.png', 2, 4)
+      act(() => DefaultLoadingManager.onProgress('tex.png', 2, 4))
 
       const { percent, url } = useStore.getState()
 

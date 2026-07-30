@@ -1,9 +1,16 @@
 import { useEffect, useRef } from 'react'
 import { useStore } from '../store'
 import { Clock } from '../utils/Clock'
-import { App as AppView } from '../components/app/app'
 // import NoWebGL from '../components/noWebGL/noWebGL';
 import { SplashScreen } from '../components/splashScreen/splashScreen'
+import { Markdown } from '../components/markdown/markdown'
+import { Constants } from '../constants'
+import { Loader } from './loader'
+import { Modal } from './modal'
+import { Tour } from './tour'
+import { Scene } from './scene'
+import { Stats } from './stats'
+import { UIControls } from './uiControls'
 
 /**
  * Drives the simulation clock, holding the app behind a splash screen until its data arrives.
@@ -102,7 +109,20 @@ export function App() {
     // if (!webglEnabled) {
     //     return <NoWebGL pageText={pageText} />;
     // }
-    return <AppView onAnimate={onAnimate} pageText={pageText} />
+    return (
+      <>
+        <Scene onAnimate={onAnimate} width={window.innerWidth} height={window.innerHeight} />
+        <UIControls />
+        <Loader />
+        <Tour labels={Constants.Tour.LABELS} />
+        <Modal type={Constants.UI.ModalTypes.STATS_MODAL}>
+          <Stats />
+        </Modal>
+        <Modal type={Constants.UI.ModalTypes.ABOUT_MODAL}>
+          <Markdown text={pageText.aboutInfo} />
+        </Modal>
+      </>
+    )
   }
   return <SplashScreen />
 }

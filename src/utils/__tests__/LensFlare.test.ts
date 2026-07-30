@@ -2,7 +2,20 @@ import { Texture, TextureLoader } from 'three'
 import { LensFlareHelper } from '../LensFlare'
 import { Constants } from '../../constants'
 
-// The jsm Lensflare/LensflareElement are mocked globally in src/test/setup.ts
+vi.mock('three/examples/jsm/objects/Lensflare.js', () => ({
+  Lensflare: vi.fn().mockImplementation(function (this: {
+    position: {
+      set: () => void
+    }
+    addElement: () => void
+  }) {
+    this.position = {
+      set: vi.fn()
+    }
+    this.addElement = vi.fn()
+  }),
+  LensflareElement: vi.fn()
+}))
 
 describe('LensFlare', () => {
   let lensFlare: LensFlareHelper
@@ -21,14 +34,11 @@ describe('LensFlare', () => {
     })
 
     it('should call addEntry() for each LENS_FLARE constant', () => {
-      // addEntry runs during construction, so the only way to observe it is to watch what it
-      // does — load one texture per configured flare — with the spy installed beforehand.
       const spy = vi.spyOn(TextureLoader.prototype, 'load').mockImplementation(() => new Texture())
 
       new LensFlareHelper()
 
       expect(spy).toHaveBeenCalledTimes(Constants.WebGL.LENS_FLARES.length)
-
       spy.mockRestore()
     })
   })
@@ -36,9 +46,8 @@ describe('LensFlare', () => {
   describe('addEntry()', () => {
     it('should load a texture and add a LensflareElement', () => {
       const entry = Constants.WebGL.LENS_FLARES[0]
-
-      // TextureLoader.load is async; addEntry should invoke textureLoader.load
       const loadSpy = vi.spyOn(lensFlare.textureLoader, 'load')
+
       lensFlare.addEntry(entry)
 
       expect(loadSpy).toHaveBeenCalledTimes(1)

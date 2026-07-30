@@ -1,7 +1,6 @@
-// Modules without bundled TypeScript definitions
-declare module 'webgl-detect'
-declare module 'web-audio-mock'
+/// <reference types="vitest/globals" />
+/// <reference types="vite/client" />
 
-// CSS/SCSS imports
+declare module 'webgl-detect'
 declare module '*.css'
 declare module '*.scss'

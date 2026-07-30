@@ -1,11 +1,11 @@
 import { act } from '@testing-library/react'
 import { useFrame } from '@react-three/fiber'
-import { renderWithStore } from '../../test/render'
+import { renderWithStore } from '../../test/helpers'
 import { useStore } from '../../store'
 import { App } from '../app'
 import { OrbitalData, PageText, Store } from '../../types'
+import { Camera } from 'three'
 
-/** Clock's methods are instance properties, so the whole module stands in for the real clock. */
 const clock = vi.hoisted(() => ({
   getTime: vi.fn(),
   speed: vi.fn(),
@@ -16,7 +16,27 @@ const clock = vi.hoisted(() => ({
   stopped: false
 }))
 
-vi.mock('../../utils/Clock', () => ({ Clock: vi.fn(() => clock) }))
+vi.mock('../../utils/Clock', () => ({
+  // eslint-disable-next-line prefer-arrow-callback
+  Clock: vi.fn(function () {
+    return clock
+  })
+}))
+
+vi.mock('../../utils/Ambience')
+
+vi.mock('three/examples/jsm/controls/OrbitControls.js', () => ({
+  OrbitControls: class {
+    constructor(protected camera: Camera) {}
+
+    update = vi.fn()
+    dispose = vi.fn()
+    touches = {
+      ONE: 3,
+      TWO: 3
+    }
+  }
+}))
 
 const requestOrbitalData = vi.fn()
 const requestPageText = vi.fn()
@@ -32,7 +52,8 @@ const withData = { orbitalData, pageText: {} as PageText }
 const advanceFrame = () => {
   const [tick] = vi.mocked(useFrame).mock.calls[0]
 
-  tick(null, 0, null)
+  // the tick reports the clock on to the store, which the UI beneath the app renders off
+  act(() => tick(null, 0, null))
 }
 
 describe('App Module', () => {
@@ -91,7 +112,7 @@ describe('App Module', () => {
     it('should not report a time that has not changed', () => {
       renderModule({ ...withData, playing: true })
 
-      useStore.setState({ time: undefined })
+      act(() => useStore.setState({ time: undefined }))
       advanceFrame()
 
       expect(useStore.getState().time).toBeUndefined()
@@ -101,7 +122,7 @@ describe('App Module', () => {
       renderModule({ ...withData, playing: false })
 
       clock.getTime.mockReturnValue(2)
-      useStore.setState({ time: undefined })
+      act(() => useStore.setState({ time: undefined }))
       advanceFrame()
 
       expect(useStore.getState().time).toBeUndefined()

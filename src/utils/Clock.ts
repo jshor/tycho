@@ -1,24 +1,28 @@
-import * as THREE from 'three'
+import { Timer } from 'three'
 import { Easing, Tween } from '@tweenjs/tween.js'
 import moment from 'moment'
 import { Constants } from '../constants'
 import { tweens, updateTweens } from './Tween'
 
 export class Clock {
-  clock: THREE.Clock
+  timer: Timer
+  /** The simulation time that the timer's own elapsed time counts up from. */
   offset: number
   scale: number
   stopped: boolean = false
   elapsedTime: number = 0
   tween?: Tween
-  tweenData: { offset: number }
-  destinationOffset: number
+  tweenData: {
+    time: number
+  }
+  destinationTime: number
 
   constructor() {
-    this.clock = new THREE.Clock()
-    this.offset = this.getOffset()
-    this.start()
+    this.timer = new Timer()
+    this.timer.connect(document)
     this.scale = 1
+    this.setTime(this.getOffset())
+    this.start()
   }
 
   getOffset = (time?: number): number => {
@@ -28,78 +32,98 @@ export class Clock {
     return moment().unix()
   }
 
+  /**
+   * Returns the time the simulation has reached.
+   */
   getTime = (): number => {
-    let time = this.clock.getElapsedTime()
-    time *= this.scale
-    time += this.offset
-
-    return Math.ceil(time)
+    return Math.ceil(this.offset + this.timer.getElapsed())
   }
 
-  update = (): void => {
-    const elapsedTime = this.clock.getElapsedTime()
+  /**
+   * Sets the simulation time to the given one.
+   */
+  setTime = (time: number): void => {
+    this.offset = time - this.timer.getElapsed()
+  }
 
-    if (elapsedTime !== this.elapsedTime) {
-      this.elapsedTime = elapsedTime
+  /**
+   * Advances the simulation, and its tweens, by however long the last frame took.
+   */
+  update = (): void => {
+    if (!this.stopped) {
+      this.timer.update()
     }
+
+    this.elapsedTime = this.timer.getElapsed()
+
     updateTweens()
   }
 
+  /**
+   * Runs the simulation at ten to the power of the given exponent, in seconds.
+   */
   speed = (e?: number): void => {
     const scale = Math.pow(10, e || 0)
 
     if (scale !== this.scale) {
       this.stopTween()
-      this.offset = this.getTime()
       this.scale = scale
-      this.start()
+      this.timer.setTimescale(scale)
     }
   }
 
+  /**
+   * Starts the clock.
+   */
   start = (): void => {
     this.stopped = false
-    this.clock.start()
+    this.timer.reset()
   }
 
+  /**
+   * Resumes the simulation clock from where it left off.
+   */
   continue = (): void => {
-    const { elapsedTime } = this.clock
-
-    this.stopped = false
-    this.clock.start()
-    this.clock.elapsedTime = elapsedTime
+    this.start()
   }
 
   stop = (): void => {
     this.stopped = true
-    this.clock.stop()
+  }
+
+  /**
+   * Disposes the visibility handler the timer in the document.
+   */
+  dispose = (): void => {
+    this.timer.dispose()
   }
 
   stopTween = (): void => {
     if (this.tween) {
       this.tween.stop()
-      this.offset = this.destinationOffset
+      this.setTime(this.destinationTime)
       this.start()
       delete this.tween
     }
   }
 
-  updateTweenOffset = (): void => {
-    this.offset = this.tweenData.offset
+  updateTweenTime = (): void => {
+    this.setTime(this.tweenData.time)
   }
 
   setOffset = (time: number): void => {
     this.stop()
     this.stopTween()
     this.tweenData = {
-      offset: this.offset
+      time: this.getTime()
     }
-    this.destinationOffset = time
+    this.destinationTime = time
 
     this.tween = new Tween(this.tweenData)
       .group(tweens)
       .easing(Easing.Quadratic.Out)
-      .to({ offset: time }, Constants.WebGL.Tween.NORMAL)
-      .onUpdate(this.updateTweenOffset)
+      .to({ time }, Constants.WebGL.Tween.NORMAL)
+      .onUpdate(this.updateTweenTime)
       .onComplete(this.start)
       .start()
   }

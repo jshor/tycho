@@ -1,5 +1,5 @@
-import { fireEvent } from '@testing-library/react'
-import { renderWithStore } from '../../test/render'
+import { act, fireEvent } from '@testing-library/react'
+import { renderWithStore } from '../../test/helpers'
 import { useStore } from '../../store'
 import { UIControls } from '../uiControls'
 import { Constants } from '../../constants'
@@ -45,7 +45,7 @@ describe('UI Controls Module', () => {
 
     it('should zoom the camera as the zoom slider moves', () => {
       renderModule({ zoom: 50 })
-      useStore.getState().changeZoom(25)
+      act(() => useStore.getState().changeZoom(25))
 
       expect(useStore.getState().zoom).toEqual(25)
     })

@@ -24,6 +24,10 @@
     font-size: var(--font-size-medium);
 
     .react-datepicker {
+      &__time-container {
+        width: 80px;
+      }
+
       &,
       &__header,
       &__time-container,
@@ -33,17 +37,18 @@
         background: var(--brand-secondary);
         border-color: var(--brand-tertiary);
         color: var(--brand-primary);
-        
+
         .react-datepicker__time-box
           ul.react-datepicker__time-list
           li.react-datepicker__time-list-item:hover {
           background: var(--brand-tertiary);
         }
-        
+
         .react-datepicker__time-box
           ul.react-datepicker__time-list
           li.react-datepicker__time-list-item--selected {
-          &, &:hover {
+          &,
+          &:hover {
             background: var(--brand-primary);
             color: var(--brand-secondary);
           }

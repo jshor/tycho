@@ -1,21 +1,14 @@
 {
   "name": "tycho",
-  "version": "1.0.1",
+  "version": "3.0.0",
   "private": true,
-  "homepage": "https://www.tycho.io",
-  "description": "A real-time, WebGL-based interactive simulation of our solar system.",
+  "homepage": "https://tycho.io",
+  "description": "A real-time, WebGL-based interactive simulation of the solar system.",
   "type": "module",
   "author": {
     "name": "Josh Shor",
     "email": "jpshor@gmail.com",
-    "url": "https://www.josh.so/"
-  },
-  "bugs": {
-    "url": "https://github.com/jshor/tycho/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/jshor/tycho.git"
+    "url": "https://josh.so/"
   },
   "license": "MIT",
   "scripts": {
@@ -43,39 +36,38 @@
     "react-dom": "^19.2.8",
     "react-markdown": "^9.0.0",
     "react-slider": "^2.0.6",
-    "three": "^0.165.0",
+    "three": "^0.185.1",
     "webgl-detect": "^0.0.1",
     "zustand": "^5.0.0"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.1",
-    "@testing-library/jest-dom": "^6.4.0",
-    "@testing-library/react": "^16.0.0",
-    "@testing-library/user-event": "^14.5.0",
-    "@types/node": "^18.0.0",
+    "@testing-library/jest-dom": "^7.0.0",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/node": "^26.1.2",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@types/react-slider": "^1.3.6",
-    "@types/three": "^0.165.0",
-    "@typescript-eslint/eslint-plugin": "^7.18.0",
-    "@typescript-eslint/parser": "^7.18.0",
-    "@vitejs/plugin-react": "^4.3.0",
-    "@vitest/coverage-v8": "^1.6.0",
+    "@types/three": "^0.185.1",
+    "@typescript-eslint/eslint-plugin": "^8.65.0",
+    "@typescript-eslint/parser": "^8.65.0",
+    "@vitejs/plugin-react": "^6.0.4",
+    "@vitest/coverage-v8": "^4.1.10",
     "classnames": "^2.5.1",
     "codecov": "^3.8.3",
-    "eslint": "^8.57.1",
-    "eslint-config-prettier": "^9.1.2",
-    "eslint-plugin-import": "^2.6.0",
-    "eslint-plugin-jsx-a11y": "^6.0.2",
-    "eslint-plugin-react": "^7.1.0",
-    "eslint-plugin-react-hooks": "^4.6.2",
-    "jsdom": "^24.0.0",
+    "eslint": "^10.8.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "jsdom": "^30.0.1",
     "prettier": "^3.9.6",
-    "sass": "^1.77.0",
+    "sass": "^1.102.0",
     "tycho-scripts": "^1.0.3",
-    "typescript": "^5.4.0",
-    "vite": "^5.3.0",
-    "vitest": "^1.6.0",
-    "web-audio-mock": "^0.1.9"
+    "typescript": "^7.0.2",
+    "vite": "^8.1.5",
+    "vitest": "^4.1.10"
   }
 }

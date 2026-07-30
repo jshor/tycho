@@ -1,4 +1,5 @@
-import { render } from '@testing-library/react'
+import { renderInScene } from '../../../test/helpers'
+import { useFrame } from '@react-three/fiber'
 import { Quaternion, Vector3 } from 'three'
 import { Comet, getActivity, getHeading, getPlumeOrientation } from './comet'
 import { Constants } from '../../../constants'
@@ -27,12 +28,12 @@ const path = [
 describe('Comet Component', () => {
   it('should render without crashing', () => {
     expect(() =>
-      render(<Comet radius={15} settings={settings} pathVertices={path} bodyPercent={0} />)
+      renderInScene(<Comet radius={15} settings={settings} pathVertices={path} bodyPercent={0} />)
     ).not.toThrow()
   })
 
   it('should render a flat coma and a conical tail', () => {
-    const { container } = render(
+    const { container } = renderInScene(
       <Comet radius={15} settings={settings} pathVertices={path} bodyPercent={0} />
     )
     const comet = container.querySelector('group[name="comet"]')
@@ -144,6 +145,132 @@ describe('Comet Component', () => {
       expect(
         getPlumeOrientation(axis, new Vector3(0, 0, 100), new Vector3(0, 0, 500), orientation)
       ).toBe(false)
+    })
+  })
+
+  describe('useFrame()', () => {
+    /** The tail lies along this once the comet sits at the start of the square orbit above. */
+    const TAIL_AXIS = new Vector3(1, 0, -1).normalize()
+
+    /** Where the comet is placed in the scene, and so how hard it is venting. */
+    const WORLD_POSITION = new Vector3(0, 0, 100)
+
+    type Tick = (
+      state: { camera: { position: Vector3 }; clock: { getElapsedTime: () => number } },
+      delta: number
+    ) => void
+
+    /**
+     * Stands the three objects the frame loop reaches for behind the rendered elements, which are
+     * the DOM's under test rather than three's own.
+     */
+    const stubBody = (container: HTMLElement) => {
+      const group = container.querySelector('group[name="comet"]') as Element
+      const tail = group.querySelector('mesh') as Element
+      const parent = {
+        updateWorldMatrix: vi.fn(),
+        getWorldQuaternion: vi.fn((into: Quaternion) => into.identity())
+      }
+
+      Object.assign(group, {
+        parent,
+        getWorldPosition: vi.fn((into: Vector3) => into.copy(WORLD_POSITION)),
+        quaternion: new Quaternion()
+      })
+
+      Object.assign(tail, {
+        scale: { setY: vi.fn() },
+        position: { setY: vi.fn() },
+        material: { uniforms: { activity: { value: 0 }, elapsed: { value: 0 } } }
+      })
+
+      return {
+        parent,
+        group: group as unknown as { quaternion: Quaternion },
+        tail: tail as unknown as {
+          scale: { setY: ReturnType<typeof vi.fn> }
+          position: { setY: ReturnType<typeof vi.fn> }
+          material: { uniforms: { activity: { value: number }; elapsed: { value: number } } }
+        }
+      }
+    }
+
+    /**
+     * Runs the frame callback the comet registered, which the mocked `useFrame` only records.
+     */
+    const advanceFrame = (cameraPosition: Vector3, elapsed = 5) => {
+      const { calls } = vi.mocked(useFrame).mock
+      const tick = calls[calls.length - 1][0] as unknown as Tick
+
+      tick({ camera: { position: cameraPosition }, clock: { getElapsedTime: () => elapsed } }, 0)
+    }
+
+    const renderComet = (bodyPercent?: number) =>
+      renderInScene(
+        <Comet radius={15} settings={settings} pathVertices={path} bodyPercent={bodyPercent} />
+      )
+
+    it('should leave the tail alone until the comet is standing in a scene', () => {
+      renderComet(0)
+
+      expect(() => advanceFrame(new Vector3(0, 500, 0))).not.toThrow()
+    })
+
+    it('should grow the tail to match how hard the comet is venting', () => {
+      const { tail, parent } = stubBody(renderComet(0).container)
+      const activity = getActivity(WORLD_POSITION.length(), settings)
+
+      advanceFrame(new Vector3(0, 500, 0))
+
+      expect(parent.updateWorldMatrix).toHaveBeenCalledWith(true, false)
+      expect(tail.scale.setY).toHaveBeenCalledWith(activity)
+      expect(tail.position.setY).toHaveBeenCalledWith((settings.length * activity) / 2)
+    })
+
+    it('should report the venting and the clock to the shader', () => {
+      const { tail } = stubBody(renderComet(0).container)
+
+      advanceFrame(new Vector3(0, 500, 0), 12)
+
+      expect(tail.material.uniforms.activity.value).toEqual(
+        getActivity(WORLD_POSITION.length(), settings)
+      )
+      expect(tail.material.uniforms.elapsed.value).toEqual(12)
+    })
+
+    it('should turn the plume to face the camera', () => {
+      const { group } = stubBody(renderComet(0).container)
+
+      advanceFrame(new Vector3(0, 500, 0))
+
+      expect(group.quaternion.equals(new Quaternion())).toBe(false)
+    })
+
+    it('should leave the plume as it was when the camera looks straight down the tail', () => {
+      const { group } = stubBody(renderComet(0).container)
+      const downTheTail = WORLD_POSITION.clone().add(TAIL_AXIS.clone().multiplyScalar(100))
+
+      advanceFrame(downTheTail)
+
+      expect(group.quaternion.equals(new Quaternion())).toBe(true)
+    })
+
+    it('should work in the same vectors from one frame to the next', () => {
+      const { tail } = stubBody(renderComet(0).container)
+
+      advanceFrame(new Vector3(0, 500, 0), 1)
+      advanceFrame(new Vector3(0, 500, 0), 2)
+
+      expect(tail.scale.setY).toHaveBeenCalledTimes(2)
+      expect(tail.material.uniforms.elapsed.value).toEqual(2)
+    })
+
+    it('should trail a comet with no place on its orbit from the start of it', () => {
+      const { tail } = stubBody(renderComet().container)
+
+      advanceFrame(new Vector3(0, 500, 0))
+
+      expect(tail.scale.setY).toHaveBeenCalledWith(getActivity(WORLD_POSITION.length(), settings))
     })
   })
 })
