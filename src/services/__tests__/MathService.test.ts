@@ -54,4 +54,25 @@ describe('Math Service', () => {
       expect(result).toEqual(0.002777777777777778)
     })
   })
+
+  describe('getGeometricStep()', () => {
+    it('should start at the distance it is leaving', () => {
+      expect(MathService.getGeometricStep(10, 1000, 0)).toBeCloseTo(10)
+    })
+
+    it('should land on the distance it is closing in on', () => {
+      expect(MathService.getGeometricStep(10, 1000, 1)).toBeCloseTo(1000)
+    })
+
+    it('should close in just the same when the destination is nearer than the start', () => {
+      expect(MathService.getGeometricStep(1000, 10, 1)).toBeCloseTo(10)
+    })
+
+    it('should cover the same ratio of ground for every equal step of progress', () => {
+      const quarter = MathService.getGeometricStep(1, 10000, 0.25)
+      const half = MathService.getGeometricStep(1, 10000, 0.5)
+
+      expect(half / quarter).toBeCloseTo(quarter / 1)
+    })
+  })
 })

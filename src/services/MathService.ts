@@ -26,4 +26,14 @@ export class MathService {
   static arcSecToDeg(time: number, rotation: number): number {
     return (time * (rotation / 3600)) % 360
   }
+
+  /**
+   * Returns the percent traveled between the given two numbers, geometrically.
+   */
+  static getGeometricStep(from: number, to: number, percent: number) {
+    const start = Math.max(from, Number.EPSILON)
+    const end = Math.max(to, Number.EPSILON)
+
+    return start * Math.pow(end / start, percent)
+  }
 }

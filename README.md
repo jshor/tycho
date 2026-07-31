@@ -34,16 +34,18 @@ This is a real-time, WebGL-based, 3D visualization of our Solar System. It's a c
 - [Available Scripts](#available-scripts)
   - [yarn start](#yarn-start)
   - [yarn test](#yarn-test)
+  - [yarn test:watch](#yarn-testwatch)
   - [yarn test:coverage](#yarn-testcoverage)
   - [yarn lint](#yarn-lint)
   - [yarn lint:fix](#yarn-lintfix)
+  - [yarn typecheck](#yarn-typecheck)
+  - [yarn format](#yarn-format)
   - [yarn build](#yarn-build)
-  - [yarn deploy](#yarn-deploy)
-    - [yarn deploy:upload](#yarn-deployupload)
-    - [yarn deploy:invalidate](#yarn-deployinvalidate)
+  - [yarn preview](#yarn-preview)
   - [yarn orbitals](#yarn-orbitals)
   - [yarn ephemeris](#yarn-ephemeris)
-- [Supported Language Features and Polyfills](#supported-language-features-and-polyfills)
+- [Deployment](#deployment)
+- [Language Features](#language-features)
 - [Credits](#credits)
 
 ## Running the app
@@ -51,7 +53,7 @@ This is a real-time, WebGL-based, 3D visualization of our Solar System. It's a c
 1. Clone this repo.
 
 ```sh
-git clone https://github.com/jshor/tycho2.git
+git clone https://github.com/jshor/tycho.git
 ```
 
 2. Use the right node version.
@@ -80,31 +82,31 @@ Using [Yarn](https://yarnpkg.com/en/).
 
 ### Framework + Libraries
 
-This app is built using [React.js](https://facebook.github.io/react/)/[Redux](http://redux.js.org/), [THREE.js](https://threejs.org), and uses [react-three-renderer](https://github.com/toxicFork/react-three-renderer) for THREE-based React components. It's bootstrapped using [Create React App](https://github.com/facebookincubator/create-react-app).
+This app is written in [TypeScript](https://www.typescriptlang.org/) and built using [React.js](https://react.dev/), [THREE.js](https://threejs.org), and [zustand](https://github.com/pmndrs/zustand) for state. It uses [react-three-fiber](https://github.com/pmndrs/react-three-fiber) for THREE-based React components, along with its [drei](https://github.com/pmndrs/drei) helpers. It's bundled using [Vite](https://vite.dev/).
 
 ### Styling
 
-Each DOM component contains a corresponding [Sass](http://sass-lang.com/) stylesheet and employs the [BEM](http://getbem.com/) CSS design pattern. This app uses [node-sass-chokidar](https://www.npmjs.com/package/node-sass-chokidar) for Sass compilation.
+Each DOM component contains a corresponding [Sass](http://sass-lang.com/) stylesheet and employs the [BEM](http://getbem.com/) CSS design pattern. Vite compiles the Sass as part of the build.
 
 ### Testing
 
-Tests use [Jest](https://facebook.github.io/jest/), [enzyme](https://github.com/airbnb/enzyme), and [snapshot testing](https://facebook.github.io/jest/docs/en/snapshot-testing.html#content) for components.
+Tests use [Vitest](https://vitest.dev/) and [Testing Library](https://testing-library.com/docs/react-testing-library/intro), running against [jsdom](https://github.com/jsdom/jsdom). Shared setup lives in `src/test`, which stubs the browser APIs jsdom lacks and stands in for react-three-fiber, so that scene code can be rendered and asserted on without a WebGL context.
 
 #### Testing Guidelines
 
 - The importance of code coverage should not supercede the importance of writing good quality tests.
-- Methods for containers should contain a corresponding unit test, and is ideally written as a pure function.
+- Methods for modules should contain a corresponding unit test, and is ideally written as a pure function.
 - For exceptions, such as when a local state is updated, there should be a corresponding integration test.
-- Components should be [snapshot tested](https://facebook.github.io/jest/docs/en/snapshot-testing.html#content).
+- Components should be rendered and asserted on through what the user of them would see, rather than through their internals.
 - [TDD](https://en.wikipedia.org/wiki/Test-driven_development) and [BDD](https://en.wikipedia.org/wiki/Behavior-driven_development).
 
 ## Application Architecture
 
-The overall architecture uses the [React/Redux container pattern](http://www.thegreatcodeadventure.com/the-react-plus-redux-container-pattern/). In a nutshell, containers in this app leverage tasks such as handling state and minor front-end logic, while components simply handle the presentation. Physics calculations and business logic is delegated to services, and some critical components, such as the Camera, have dedicated services.
+The overall architecture follows a container pattern, split between `src/modules` and `src/components`. In a nutshell, modules in this app leverage tasks such as handling state and minor front-end logic, while components simply handle the presentation. Physics calculations and business logic is delegated to services, and some critical components, such as the Camera, have dedicated services.
 
 ### State management
 
-All shared-state data is stored in the Redux store. This includes the 2D and 3D positions of objects and the current time. This enables unidirectional data flow (see [advantages of Redux](https://www.reddit.com/r/javascript/comments/3w8uey/what_are_the_real_benefits_of_using_fluxredux/)). In rare cases, some components will use the local state for things internal to that component, when appropriate.
+All shared-state data is stored in the [zustand](https://github.com/pmndrs/zustand) store, which lives in `src/store`. This includes the 2D and 3D positions of objects and the current time. Modules subscribe to the slices they need and the store is written to through its actions, which keeps the data flowing in one direction. In rare cases, some components will use the local state for things internal to that component, when appropriate.
 
 ## Static Data
 
@@ -112,11 +114,23 @@ The JSON data for `orbitals.json` is generated by the [yarn orbitals](#yarn-orbi
 
 ## Folder Structure
 
-This project utilizes a typical React app flat directory structure. Tests for each item typically live in `__tests__`. Components have corresponding tests and Sass in the same directory. `__tests__` folders may contain `__snapshots__` and `__fixtures__`.
+This project utilizes a typical React app flat directory structure. Tests for each item typically live in `__tests__`. Components have corresponding tests and Sass in the same directory. `__tests__` folders may contain `__fixtures__`.
+
+The source is laid out as follows:
+
+| Path             | Contents                                                             |
+| ---------------- | -------------------------------------------------------------------- |
+| `src/modules`    | Containers, which hold state and front-end logic                     |
+| `src/components` | Presentational components, with their Sass and tests alongside       |
+| `src/services`   | Physics calculations and business logic                              |
+| `src/store`      | The zustand store shared across the app                              |
+| `src/utils`      | Standalone helpers, such as the clock, camera controls, and ambience |
+| `src/constants`  | Tunable values for the scene, the UI, and the tour                   |
+| `src/test`       | Test setup and helpers                                               |
 
 Note that 3D React components and DOMElement ones coexist in the same general paths.
 
-Static assets, such as textures, media, and data are stored in the `public` folder. The `img`, `js`, `css` and some JSON file contents are generated by build scripts.
+Static assets, such as textures, media, and data are stored in the `public` folder. Some JSON file contents are generated by build scripts.
 
 ## Available Scripts
 
@@ -125,13 +139,15 @@ In the project directory, you can run the following commands:
 ### `yarn start`
 
 Runs the app in the development mode.<br>
-It will also build the CSS using `build-css`.
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
 The page will reload if you make edits.<br>
-You will also see any lint errors in the console.
 
 ### `yarn test`
+
+Runs the whole test suite once, as CI does.<br>
+
+### `yarn test:watch`
 
 Launches the test runner in the interactive watch mode.<br>
 
@@ -141,31 +157,31 @@ Runs all tests and prints out code covfefe.<br>
 
 ### `yarn lint`
 
-Runs the linter using [ESLint](https://eslint.org/).<br>
+Runs the linter using [ESLint](https://eslint.org/), configured in flat format in `eslint.config.cjs`.<br>
+
+Note that the project compiles with TypeScript 7, while typescript-eslint still requires the TypeScript 6 API. Both are installed side by side for that reason: `typescript` is the compiler, and the `typescript-6` alias exists only so the linter can parse. The config seeds the former with the latter, and both it and the extra dependency can go once typescript-eslint supports TypeScript 7.<br>
 
 ### `yarn lint:fix`
 
 Fixes any linting errors discovered by the linter and reports any issues that could not be addressed automatically.<br>
 
+### `yarn typecheck`
+
+Type checks the project without emitting anything.<br>
+
+### `yarn format`
+
+Formats the project using [Prettier](https://prettier.io/). Use `yarn format:check` to report on formatting without writing any changes.<br>
+
 ### `yarn build`
 
-Builds the app for production to the `build` folder.<br>
+Type checks the project and builds the app for production to the `dist` folder.<br>
 It correctly bundles React in production mode and optimizes the build for the best performance.<br>
-It also runs the compilation script for the orbital data json.<br>
 The build is minified and the filenames include the hashes.<br>
 
-### `yarn deploy`
+### `yarn preview`
 
-Performs a full deploy.<br>
-Requires credentials defined at `~/.aws/credentials`. [More info](https://docs.aws.amazon.com/cli/latest/topic/config-vars.html).
-
-#### `yarn deploy:upload`
-
-Uploads the `build/` contents to the designated production AWS S3 bucket.<br>
-
-#### `yarn deploy:invalidate`
-
-[Invalidates](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Invalidation.html) the designated AWS CloudFront instance.<br>
+Serves the built `dist` folder locally, to check a production build before it ships.<br>
 
 ### `yarn orbitals`
 
@@ -175,25 +191,15 @@ Runs the compilation script for the orbital data json.
 
 Takes all orbital JSONs, probes the [NASA/JPL HORIZONS database](<>) for ephemeris data, and updates each JSON accordingly. For more information on this script, and on the prerequisite data format, please see [this wiki page](https://github.com/jshor/tycho2/wiki/Orbital-JSONs#nasa-jpl-horizons).
 
-## Supported Language Features and Polyfills
+## Deployment
 
-This project supports a superset of the latest JavaScript standard.<br>
-In addition to [ES6](https://github.com/lukehoban/es6features) syntax features, it also supports:
+Deployment is handled by [GitHub Actions](https://github.com/jshor/tycho/actions), defined in `.github/workflows/merge.yml`. On every push to `main`, the workflow lints the project, runs the tests with coverage, reports that coverage to [Codecov](https://app.codecov.io/gh/jshor/tycho.io/tree/main), and builds the app. The resulting `dist` folder is then published to the `gh-pages` branch, along with a `CNAME` pointing at [tycho.io](https://tycho.io).
 
-- [Exponentiation Operator](https://github.com/rwaldron/exponentiation-operator) (ES2016).
-- [Async/await](https://github.com/tc39/ecmascript-asyncawait) (ES2017).
-- [Object Rest/Spread Properties](https://github.com/sebmarkbage/ecmascript-rest-spread) (stage 3 proposal).
-- [Dynamic import()](https://github.com/tc39/proposal-dynamic-import) (stage 3 proposal).
-- [Class Fields and Static Properties](https://github.com/tc39/proposal-class-public-fields) (stage 2 proposal).
-- [JSX](https://facebook.github.io/react/docs/introducing-jsx.html).
+## Language Features
 
-Learn more about [different proposal stages](https://babeljs.io/docs/plugins/#presets-stage-x-experimental-presets-).
+This project is written in [TypeScript](https://www.typescriptlang.org/) targeting ES2020, and supports [JSX](https://react.dev/learn/writing-markup-with-jsx). Vite transpiles and bundles the sources, so the syntax available is whatever the compiler supports rather than a set of proposal plugins.
 
-The following ES6 **[polyfills](https://en.wikipedia.org/wiki/Polyfill)** are available:
-
-- [`Object.assign()`](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Object/assign) via [`object-assign`](https://github.com/sindresorhus/object-assign).
-- [`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) via [`promise`](https://github.com/then/promise).
-- [`fetch()`](https://developer.mozilla.org/en/docs/Web/API/Fetch_API) via [`whatwg-fetch`](https://github.com/github/fetch).
+No polyfills are shipped: the app targets evergreen browsers, and needs [WebGL](https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API) to render the scene at all.
 
 ## Credits
 
@@ -201,4 +207,4 @@ The following ES6 **[polyfills](https://en.wikipedia.org/wiki/Polyfill)** are av
 - Planetary ephemerides courtesy of [NASA](https://jpl.nasa.gov/) and the [Jet Propulsion Laboratory](https://www.nasa.gov/).
 - Orbital textures by [James Hastings-Trew](http://planetpixelemporium.com/).
 - Ambient music: [_Ultra Deep Field_](https://soundcloud.com/stellardrone/stellardrone-ultra-deep-field) by [Stellardrone](https://soundcloud.com/stellardrone).
-- Special thanks to the open source community for [React.js](https://facebook.github.io/react/)/[Redux](http://redux.js.org/), [THREE.js](https://threejs.org), and [react-three-renderer](https://github.com/toxicFork/react-three-renderer).
+- Special thanks to the open source community for [React.js](https://react.dev/), [THREE.js](https://threejs.org), and [react-three-fiber](https://github.com/pmndrs/react-three-fiber).

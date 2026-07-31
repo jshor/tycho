@@ -7,6 +7,7 @@ import { CameraService } from '../services/CameraService'
 import { Controls } from '../utils/Controls'
 import { Ambience } from '../utils/Ambience'
 import { Constants } from '../constants'
+import { MathService } from '../services/MathService'
 
 interface Props {
   /** The aspect ratio the camera renders at. */
@@ -48,6 +49,10 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
   const controlsRef = useRef<Controls>(null)
   const ambienceRef = useRef<Ambience>(null)
   const tweenBaseRef = useRef<{ stop(): void } | null>(null)
+
+  /** The target last framed, so a genuine switch of target can be told apart from a mere resize. */
+  const previousTargetIdRef = useRef(targetId)
+
   const { scene, camera, gl } = useThree()
 
   useImperativeHandle(ref, () => ({
@@ -108,10 +113,21 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
    * Frames the target consistently (regardless of size) when the camera closes on it.
    */
   useEffect(() => {
-    if (controlsRef.current) {
-      controlsRef.current.setMinDistance(CameraService.getMinDistance(orbitalData, targetId, ratio))
+    /** Whether or not the camera is departing from the current target. */
+    const isDeparting = [
+      targetId !== previousTargetIdRef.current,
+      animateTargetChange !== false,
+      !!scene.getObjectByName(targetId)
+    ].every(Boolean)
+
+    previousTargetIdRef.current = targetId
+
+    if (!controlsRef.current || isDeparting) {
+      return
     }
-  }, [targetId, orbitalData, ratio])
+
+    controlsRef.current.setMinDistance(CameraService.getMinDistance(orbitalData, targetId, ratio))
+  }, [targetId, orbitalData, ratio]) // eslint-disable-line react-hooks/exhaustive-deps
 
   /**
    * Moves the camera pivot when the target changes.
@@ -129,20 +145,29 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
         return
       }
 
+      const controls = controlsRef.current
+      const fromDistance = controls?.camera.position.length() ?? Constants.WebGL.Camera.MIN_DISTANCE
+      const toDistance = CameraService.getMinDistance(orbitalData, targetId, ratio)
+
       setInteractivity(false)
 
       const worldPosiiton = CameraService.getWorldPosition(pivot)
 
       CameraService.attachToWorld(scene, pivot, worldPosiiton)
       cancelTween()
-      zoomInFull()
-      controlsRef.current?.lockCameraOntoTarget()
+
+      if (controls) {
+        controls.minDistance = toDistance
+        controls.level = Constants.WebGL.Zoom.MIN
+      }
+
+      controls?.lockCameraOntoTarget()
       tweenBaseRef.current = CameraService.getPivotTween(
         worldPosiiton,
         target,
         pivot,
-        controlsRef.current?.minDistance ?? Constants.WebGL.Camera.MIN_DISTANCE,
-        turnTo(target),
+        toDistance,
+        turnTo(target, fromDistance, toDistance),
         endTween
       )
     }
@@ -164,21 +189,27 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
   const turnTo =
     (
       /** The target object to turn the camera toward. */
-      target: THREE.Object3D
+      target: THREE.Object3D,
+      /** Distance from the pivot the camera was framed when it set off. */
+      fromDistance: number,
+      /** Distance from the pivot the camera ought to be framed once it arrives. */
+      toDistance: number
     ) =>
     (
       /** The percentage of progress of travel [0, 1]. */
       progress: number
     ) => {
       const pivot = pivotRef.current
+      const controls = controlsRef.current
 
-      if (!pivot) return
+      if (!pivot || !controls) return
 
       pivot.updateMatrixWorld()
-      controlsRef.current?.lookToward(
-        pivot.worldToLocal(CameraService.getWorldPosition(target)),
-        progress
-      )
+      controls.lookToward(pivot.worldToLocal(CameraService.getWorldPosition(target)), progress)
+
+      const distance = MathService.getGeometricStep(fromDistance, toDistance, progress)
+
+      controls.camera.position.copy(controls.getZoomVector(controls.camera.position, distance))
     }
 
   /**
@@ -207,13 +238,6 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
     if (controlsRef.current) {
       controlsRef.current.enabled = !!enabled
     }
-  }
-
-  /**
-   * Zooms the camera all the way in to the minimum distance allowed.
-   */
-  const zoomInFull = () => {
-    controlsRef.current?.tweenZoom(Constants.WebGL.Zoom.MIN, changeZoom)
   }
 
   return (

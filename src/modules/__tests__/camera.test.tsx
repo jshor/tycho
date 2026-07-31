@@ -1,7 +1,7 @@
 import React from 'react'
 import { act } from '@testing-library/react'
 import { useFrame } from '@react-three/fiber'
-import { Group } from 'three'
+import { Group, Vector3 } from 'three'
 import { renderInScene } from '../../test/helpers'
 import { useStore } from '../../store'
 import { Constants } from '../../constants'
@@ -10,7 +10,16 @@ import { Controls } from '../../utils/Controls'
 import { Ambience } from '../../utils/Ambience'
 import { Store } from '../../types'
 
+const three = vi.hoisted(() => ({
+  camera: { name: 'camera' } as { name: string; position: Vector3 },
+  scene: { getObjectByName: vi.fn(), updateMatrixWorld: vi.fn() },
+  gl: { domElement: { nodeName: 'CANVAS' } }
+}))
+
+three.camera.position = new Vector3(0, 0, 1)
+
 const controls = vi.hoisted(() => ({
+  camera: three.camera,
   dispose: vi.fn(),
   zoom: vi.fn(),
   tweenZoom: vi.fn(),
@@ -21,20 +30,20 @@ const controls = vi.hoisted(() => ({
   resetLook: vi.fn(),
   update: vi.fn(),
   faceTarget: vi.fn(),
+  getZoomVector: vi.fn(
+    (vector: Vector3, scalar: number) => vector
+      .clone()
+      .normalize()
+      .multiplyScalar(scalar)
+  ),
   autoRotate: false,
   minDistance: 7,
+  level: 50,
   enabled: true
 }))
 
 const ambience = vi.hoisted(() => ({
   setVolume: vi.fn()
-}))
-
-/** The camera, canvas and scene react-three-fiber hands the module, held steady across renders. */
-const three = vi.hoisted(() => ({
-  camera: { name: 'camera' },
-  scene: { getObjectByName: vi.fn(), updateMatrixWorld: vi.fn() },
-  gl: { domElement: { nodeName: 'CANVAS' } }
 }))
 
 const cameraService = vi.hoisted(() => ({
@@ -46,18 +55,17 @@ const cameraService = vi.hoisted(() => ({
   getPivotTween: vi.fn()
 }))
 
-vi.mock('../../utils/Controls', () => ({
-  // stands in for a constructor, which an arrow function cannot do
-  // eslint-disable-next-line prefer-arrow-callback
-  Controls: vi.fn(function () {
-    return controls
-  })
-}))
-
 vi.mock('../../utils/Ambience', () => ({
   // eslint-disable-next-line prefer-arrow-callback
   Ambience: vi.fn(function () {
     return ambience
+  })
+}))
+
+vi.mock('../../utils/Controls', () => ({
+  // eslint-disable-next-line prefer-arrow-callback
+  Controls: vi.fn(function () {
+    return controls
   })
 }))
 
@@ -90,6 +98,8 @@ describe('Camera Module', () => {
     controls.autoRotate = false
     controls.enabled = true
     controls.minDistance = 7
+    controls.level = 50
+    three.camera.position.set(0, 0, 1)
 
     tween = { stop: vi.fn() }
 
@@ -102,14 +112,17 @@ describe('Camera Module', () => {
   const renderModule = (state: Partial<Store> = {}, ref?: React.Ref<CameraHandle>) => {
     return renderInScene(<Camera ref={ref} ratio={RATIO} />, state)
   }
-
-  /** Puts an orbital in the scene for the camera to find, and renders it focused on that one. */
+  
   const renderOnTarget = (state: Partial<Store> = {}) => {
     const target = new Group()
 
     three.scene.getObjectByName.mockReturnValue(target)
 
-    const result = renderModule({ targetId: TARGET_ID, ...state })
+    const result = renderModule()
+
+    vi.clearAllMocks()
+    act(() => useStore.setState({ targetId: TARGET_ID, ...state }))
+
     const pivot = result.container.querySelector('group') as Element
 
     // the pivot is the rendered element rather than three's own group, and the travel reads
@@ -199,6 +212,27 @@ describe('Camera Module', () => {
       renderModule({ targetId: TARGET_ID })
 
       expect(cameraService.getMinDistance).toHaveBeenCalledWith(undefined, TARGET_ID, RATIO)
+      expect(controls.setMinDistance).toHaveBeenCalledWith(9)
+    })
+
+    it('should skip the eager reframe for a target that is departing on a flight', () => {
+      renderModule()
+
+      three.scene.getObjectByName.mockReturnValue(new Group())
+      controls.setMinDistance.mockClear()
+
+      act(() => useStore.setState({ targetId: TARGET_ID }))
+
+      expect(controls.setMinDistance).not.toHaveBeenCalled()
+    })
+
+    it('should still frame a newly-picked target that has not reached the scene yet', () => {
+      renderModule()
+
+      controls.setMinDistance.mockClear()
+
+      act(() => useStore.setState({ targetId: TARGET_ID }))
+
       expect(controls.setMinDistance).toHaveBeenCalledWith(9)
     })
   })
@@ -292,18 +326,30 @@ describe('Camera Module', () => {
           expect.anything(),
           target,
           pivot,
-          controls.minDistance,
+          9, // the new target's own minimum distance, from cameraService.getMinDistance
           expect.any(Function),
           expect.any(Function)
         )
       })
 
-      it('should zoom all the way in as it sets off', () => {
+      it("should carry the new target's scale ready for arrival, without re-panning early", () => {
+        renderOnTarget()
+
+        expect(controls.minDistance).toEqual(9)
+        expect(controls.level).toEqual(Constants.WebGL.Zoom.MIN)
+        expect(controls.setMinDistance).not.toHaveBeenCalled()
+      })
+
+      it('should not leave the departing target before the flight has even begun', () => {
+        renderOnTarget()
+        expect(controls.camera.position.length()).toBeCloseTo(1)
+      })
+
+      it('should not lean on the level-based zoom, since the flight itself closes the distance', () => {
         const changeZoom = vi.fn()
 
         renderOnTarget({ changeZoom })
-
-        expect(controls.tweenZoom).toHaveBeenCalledWith(Constants.WebGL.Zoom.MIN, changeZoom)
+        expect(controls.tweenZoom).not.toHaveBeenCalled()
       })
 
       it('should hold the camera still while it travels', () => {
@@ -312,14 +358,6 @@ describe('Camera Module', () => {
         expect(useStore.getState().controlsEnabled).toBe(false)
         expect(useStore.getState().playing).toBe(false)
         expect(controls.enabled).toBe(false)
-      })
-
-      it('should keep its own distance when the controls have none to give', () => {
-        controls.minDistance = undefined as unknown as number
-
-        renderOnTarget()
-
-        expect(travel().minDistance).toEqual(Constants.WebGL.Camera.MIN_DISTANCE)
       })
 
       it('should stop a journey already underway when the target changes again', () => {
@@ -337,6 +375,27 @@ describe('Camera Module', () => {
 
         expect(controls.lookToward).toHaveBeenCalledWith(expect.anything(), 0.5)
         expect(pivot).toHaveProperty('worldToLocal')
+      })
+
+      it('should close the camera in on the new target gradually, not at a stroke', () => {
+        renderOnTarget()
+
+        const { turnTo } = travel()
+
+        turnTo(0)
+        const justSetOff = controls.camera.position.length()
+
+        turnTo(0.5)
+        const halfway = controls.camera.position.length()
+
+        turnTo(1)
+        const arrived = controls.camera.position.length()
+
+        // (0, 0, 1) leaving, the new target's own 9 arriving, from cameraService.getMinDistance
+        expect(justSetOff).toBeCloseTo(1)
+        expect(arrived).toBeCloseTo(9)
+        expect(halfway).toBeGreaterThan(Math.min(justSetOff, arrived))
+        expect(halfway).toBeLessThan(Math.max(justSetOff, arrived))
       })
 
       it('should not turn a camera that has left the scene', () => {
