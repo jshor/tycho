@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useStore } from '../store'
 import { Ellipse } from '../utils/Ellipse'
 import { OrbitalService as Service } from '../services/OrbitalService'
@@ -22,7 +22,9 @@ export interface Props extends OrbitalData {
  */
 export function Orbital(props: Props) {
   const { id, parentId, isSatellite } = props
-  const ellipseRef = useRef<Ellipse>(null)
+
+  // the orbit is traced the once, out of the orbital data the body arrived with
+  const [ellipse] = useState(() => new Ellipse(props))
   const time = useStore((state) => state.time)
   const targetId = useStore((state) => state.targetId)
   const orbitalData = useStore((state) => state.orbitalData)
@@ -42,12 +44,6 @@ export function Orbital(props: Props) {
     () => ({ setActiveOrbital, addHighlightedOrbital, removeHighlightedOrbital }),
     [setActiveOrbital, addHighlightedOrbital, removeHighlightedOrbital]
   )
-
-  if (!ellipseRef.current) {
-    ellipseRef.current = new Ellipse(props)
-  }
-
-  const ellipse = ellipseRef.current
 
   // the orbit is only ever tilted once, out of the orbital data it was built from
   const eclipticGroupRotation = useMemo(() => Service.getEclipticGroupRotation(props), []) // eslint-disable-line react-hooks/exhaustive-deps

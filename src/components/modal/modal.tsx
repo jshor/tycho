@@ -1,5 +1,6 @@
 import React from 'react'
 import cx from 'classnames'
+import { onActivate } from '../../utils/a11y'
 import './modal.scss'
 
 interface Props {
@@ -26,7 +27,13 @@ export function Modal({ modalActive, closeModal, title, children }: Props) {
     >
       <div className="modal__header">
         <span>{title}</span>
-        <span className="modal__close" onClick={closeModal}>
+        <span
+          className="modal__close"
+          role="button"
+          tabIndex={0}
+          onClick={closeModal}
+          onKeyDown={onActivate(closeModal)}
+        >
           &times;
         </span>
       </div>

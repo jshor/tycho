@@ -5,6 +5,7 @@ import { PlayPause } from '../../modules/playPause'
 import { Speed } from '../../modules/speed'
 import { Volume } from '../../modules/volume'
 import { Constants } from '../../constants'
+import { onActivate } from '../../utils/a11y'
 import './uiControls.scss'
 
 interface Props {
@@ -24,6 +25,9 @@ interface Props {
  * The heads-up display overlaying the scene.
  */
 export function UIControls({ controlsEnabled, targetName, zoom, openModal, changeZoom }: Props) {
+  const openStatsModal = openModal && (() => openModal(Constants.UI.ModalTypes.STATS_MODAL))
+  const openAboutModal = openModal && (() => openModal(Constants.UI.ModalTypes.ABOUT_MODAL))
+
   return (
     <div
       className={cx({
@@ -35,7 +39,10 @@ export function UIControls({ controlsEnabled, targetName, zoom, openModal, chang
       <div className="uicontrols__control uicontrols__control--target-label">
         <span
           className="uicontrols__control uicontrols__control--stats-modal"
-          onClick={openModal && (() => openModal(Constants.UI.ModalTypes.STATS_MODAL))}
+          role="button"
+          tabIndex={0}
+          onClick={openStatsModal}
+          onKeyDown={onActivate(openStatsModal)}
         >
           {targetName}
         </span>
@@ -52,7 +59,10 @@ export function UIControls({ controlsEnabled, targetName, zoom, openModal, chang
       <div className="uicontrols__control uicontrols__control--left-bar">
         <div
           className="uicontrols__button uicontrols__button--about-modal"
-          onClick={openModal && (() => openModal(Constants.UI.ModalTypes.ABOUT_MODAL))}
+          role="button"
+          tabIndex={0}
+          onClick={openAboutModal}
+          onKeyDown={onActivate(openAboutModal)}
         ></div>
         <ZoomSlider value={zoom} onChange={changeZoom} />
         <div className="uicontrols__button uicontrols__button--volume">

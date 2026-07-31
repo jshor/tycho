@@ -1,3 +1,4 @@
+import { onActivate } from '../../utils/a11y'
 import './speed.scss'
 interface Props {
   /** The power of ten the simulation clock runs at. */
@@ -11,7 +12,13 @@ interface Props {
  */
 export function Speed({ speed = 0, onClick }: Props) {
   return (
-    <div className="speed" onClick={onClick}>
+    <div
+      className="speed"
+      role="button"
+      tabIndex={0}
+      onClick={onClick}
+      onKeyDown={onActivate(onClick)}
+    >
       <span className="speed__button">
         10<sup className="speed__exponent">{speed}</sup>
       </span>

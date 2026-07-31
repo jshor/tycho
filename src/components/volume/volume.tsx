@@ -1,4 +1,5 @@
 import cx from 'classnames'
+import { onActivate } from '../../utils/a11y'
 import './volume.scss'
 
 interface Props {
@@ -14,7 +15,10 @@ interface Props {
 export function Volume({ playing, onClick }: Props) {
   return (
     <div
+      role="button"
+      tabIndex={0}
       onClick={onClick}
+      onKeyDown={onActivate(onClick)}
       className={cx({
         volume: true,
         'volume volume--playing': playing,

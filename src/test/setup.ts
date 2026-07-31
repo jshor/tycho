@@ -56,27 +56,31 @@ vi.mock('@react-three/fiber', () => ({
 vi.mock('@react-three/drei', async () => {
   const React = (await import('react')).default
 
+  const Text = React.forwardRef<
+    unknown,
+    {
+      children?: React.ReactNode
+      onClick?: React.MouseEventHandler
+      onPointerOver?: React.PointerEventHandler
+      onPointerOut?: React.PointerEventHandler
+    }
+  >(({ children, onClick, onPointerOver, onPointerOut }, _ref): React.ReactElement => {
+    return React.createElement(
+      'span',
+      {
+        onClick,
+        onPointerOver,
+        onPointerOut
+      },
+      children
+    )
+  })
+
+  Text.displayName = 'Text'
+
   return {
     PerspectiveCamera: (): null => null,
     Line: (): null => null,
-    Text: React.forwardRef<
-      unknown,
-      {
-        children?: React.ReactNode
-        onClick?: React.MouseEventHandler
-        onPointerOver?: React.PointerEventHandler
-        onPointerOut?: React.PointerEventHandler
-      }
-    >(({ children, onClick, onPointerOver, onPointerOut }, _ref): React.ReactElement => {
-      return React.createElement(
-        'span',
-        {
-          onClick,
-          onPointerOver,
-          onPointerOut
-        },
-        children
-      )
-    })
+    Text
   }
 })

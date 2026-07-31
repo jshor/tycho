@@ -1,4 +1,5 @@
 import cx from 'classnames'
+import { onActivate } from '../../utils/a11y'
 import './playPause.scss'
 
 interface Props {
@@ -13,7 +14,13 @@ interface Props {
  */
 export function PlayPause({ onClick, playing }: Props) {
   return (
-    <div className="play-pause" onClick={onClick}>
+    <div
+      className="play-pause"
+      role="button"
+      tabIndex={0}
+      onClick={onClick}
+      onKeyDown={onActivate(onClick)}
+    >
       <span
         className={cx({
           'play-pause__button': true,

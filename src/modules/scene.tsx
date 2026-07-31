@@ -30,6 +30,7 @@ function SkyboxSetup(): null {
   useEffect(() => {
     const loader = new CubeTextureLoader()
 
+    // eslint-disable-next-line react-hooks/immutability
     scene.backgroundIntensity = 0.1
     scene.background = loader.load(Constants.WebGL.SKYBOX_TEXTURES)
   }, [scene])

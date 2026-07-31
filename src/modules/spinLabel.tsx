@@ -29,7 +29,7 @@ export function SpinLabel() {
     if (isVisible()) {
       useStore.setState({ isAutoOrbitEnabled: false, controlsEnabled: true })
     }
-  }) // eslint-disable-line react-hooks/exhaustive-deps
+  })
 
   return <SpinLabelView show={isVisible()} count={Constants.UI.SPIN_LABEL_ARROW_COUNT} />
 }

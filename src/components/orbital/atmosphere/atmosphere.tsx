@@ -107,7 +107,6 @@ export function Atmosphere({ radius, color, settings }: Props) {
       depthWrite: false,
       side: THREE.DoubleSide
     })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [color, settings])
 
   return (

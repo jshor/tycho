@@ -28,13 +28,13 @@ interface Props {
 /**
  * Phong assembles its outgoing light from these four terms plus the emissive one.
  */
-const PHONG_OUTGOING_LIGHT =
+export const PHONG_OUTGOING_LIGHT =
   'vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + reflectedLight.directSpecular + reflectedLight.indirectSpecular + totalEmissiveRadiance;'
 
 /**
  * Confines the material's emissive term to the body's night side (i.e., where the sun don't shine).
  */
-const restrictEmissiveToNightSide = (shader: { fragmentShader: string }): void => {
+export const restrictEmissiveToNightSide = (shader: { fragmentShader: string }): void => {
   if (!shader.fragmentShader.includes(PHONG_OUTGOING_LIGHT)) {
     console.warn('Texture: night-side patch found no anchor; emissive maps will not be masked')
     return
@@ -54,7 +54,7 @@ const restrictEmissiveToNightSide = (shader: { fragmentShader: string }): void =
 
 export function Texture({ textures, transparent, side = THREE.FrontSide }: Props) {
   const materialRef = useRef<THREE.MeshPhongMaterial>(null)
-  const [revision, setRevision] = useState(0)
+  const [, setRevision] = useState(0)
 
   useEffect(() => {
     if (!Array.isArray(textures) || textures.length === 0) return

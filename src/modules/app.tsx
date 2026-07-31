@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useStore } from '../store'
 import { Clock } from '../utils/Clock'
 // import NoWebGL from '../components/noWebGL/noWebGL';
@@ -23,15 +23,10 @@ export function App() {
   const playing = useStore((state) => state.playing)
   const requestOrbitalData = useStore((state) => state.requestOrbitalData)
   const requestPageText = useStore((state) => state.requestPageText)
-  const clockRef = useRef<Clock>(null)
+  // the clock outlives every render, and is built the once
+  const [clock] = useState(() => new Clock())
   const lastTime = useRef(0)
   const previousOffset = useRef(timeOffset)
-
-  if (!clockRef.current) {
-    clockRef.current = new Clock()
-  }
-
-  const clock = clockRef.current
 
   /**
    * Returns true if the clock has moved on since the last store update.

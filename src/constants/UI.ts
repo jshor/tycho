@@ -46,3 +46,6 @@ export const HOVER_OPACITY_OFF = 0.4
  * the pointer to return holds the highlight steady through that, without lagging a real departure.
  */
 export const HOVER_LINGER = 100
+
+/** The keys that press a button, per the ARIA button pattern. */
+export const A11Y_ACTIVATION_KEYS = ['Enter', ' ']

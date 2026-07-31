@@ -2,6 +2,7 @@ import React from 'react'
 import { SpinLabel } from '../../modules/spinLabel'
 import cx from 'classnames'
 import { PageText } from '../../types'
+import { onActivate } from '../../utils/a11y'
 import './tour.scss'
 
 interface Props {
@@ -45,7 +46,13 @@ export function Tour({ isComplete, labels, skipTour, pageText }: Props) {
           })}
           style={{ bottom: 0 }}
         >
-          <span className="tour__skip-link" onClick={skipTour}>
+          <span
+            className="tour__skip-link"
+            role="button"
+            tabIndex={0}
+            onClick={skipTour}
+            onKeyDown={onActivate(skipTour)}
+          >
             {pageText && pageText.skipTour}
           </span>
         </div>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useMemo } from 'react'
 import moment from 'moment'
 import { useStore } from '../store'
 import { OrbitalService } from '../services/OrbitalService'
@@ -27,22 +27,20 @@ export function Stats() {
   const pageText = useStore((state) => state.pageText)
   const time = useStore((state) => state.time)
 
-  const [stats, setStats] = useState<Stat>({})
-
   /**
-   * Recomputes the statistics whenever the target changes or the clock ticks.
+   * The statistics of the focused orbital, recomputed as the target changes and the clock ticks.
    */
-  useEffect(() => {
+  const stats = useMemo<Stat>(() => {
     const target = OrbitalService.getTargetByName(orbitalData, targetId)
 
-    if (target) {
-      const { name, description } = target
+    if (!target) return {}
 
-      setStats({
-        name,
-        description,
-        ...OrbitalService.getOrbitalStats(target, time)
-      })
+    const { name, description } = target
+
+    return {
+      name,
+      description,
+      ...OrbitalService.getOrbitalStats(target, time)
     }
   }, [targetId, time, orbitalData])
 

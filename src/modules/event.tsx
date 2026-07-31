@@ -73,6 +73,7 @@ export function Event({ onWheel, onPinch, children }: Props) {
 
   return (
     <div
+      role="presentation"
       onWheel={onWheel}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}

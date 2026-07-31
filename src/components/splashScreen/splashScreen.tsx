@@ -1,5 +1,6 @@
 import cx from 'classnames'
 import { PageText } from '../../types'
+import { onActivate } from '../../utils/a11y'
 import './splashScreen.scss'
 
 interface Props {
@@ -23,7 +24,13 @@ export function SplashScreen({ show, pageText, percent, enterScene }: Props) {
   const renderEnterButton = () => {
     return (
       <div className="splash-screen__button">
-        <a className="splash-screen__button-anchor" onClick={enterScene}>
+        <a
+          className="splash-screen__button-anchor"
+          role="button"
+          tabIndex={0}
+          onClick={enterScene}
+          onKeyDown={onActivate(enterScene)}
+        >
           {pageText && pageText.start}
         </a>
       </div>

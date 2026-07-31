@@ -161,7 +161,7 @@ const TAIL_FRAGMENT_SHADER = /* glsl */ `
 /**
  * The tail of the comet, trailing back along the orbit it is travelling.
  */
-export function Comet({ radius, settings, pathVertices, bodyPercent }: Props) {
+export function Comet({ settings, pathVertices, bodyPercent }: Props) {
   const groupRef = useRef<THREE.Group>(null)
   const tailRef = useRef<THREE.Mesh>(null)
 
@@ -182,10 +182,12 @@ export function Comet({ radius, settings, pathVertices, bodyPercent }: Props) {
     })
   }, [settings])
 
-  const worldPosition = useMemo(() => new THREE.Vector3(), [])
-  const parentQuaternion = useMemo(() => new THREE.Quaternion(), [])
-  const orientation = useMemo(() => new THREE.Quaternion(), [])
-  const trailing = useMemo(() => new THREE.Vector3(), [])
+  const vectors = useRef<{
+    worldPosition: THREE.Vector3
+    parentQuaternion: THREE.Quaternion
+    orientation: THREE.Quaternion
+    trailing: THREE.Vector3
+  } | null>(null)
 
   /**
    * Updates the tail's orientation and length to match the comet's current position and the camera's view.
@@ -195,6 +197,17 @@ export function Comet({ radius, settings, pathVertices, bodyPercent }: Props) {
     const tail = tailRef.current
 
     if (!group?.parent || !tail) return
+
+    if (!vectors.current) {
+      vectors.current = {
+        worldPosition: new THREE.Vector3(),
+        parentQuaternion: new THREE.Quaternion(),
+        orientation: new THREE.Quaternion(),
+        trailing: new THREE.Vector3()
+      }
+    }
+
+    const { worldPosition, parentQuaternion, orientation, trailing } = vectors.current
 
     group.parent.updateWorldMatrix(true, false)
     group.getWorldPosition(worldPosition)
@@ -217,9 +230,10 @@ export function Comet({ radius, settings, pathVertices, bodyPercent }: Props) {
     tail.position.setY((settings.length * activity) / 2)
 
     const elapsed = clock.getElapsedTime()
+    const { uniforms } = tail.material as THREE.ShaderMaterial
 
-    tailMaterial.uniforms.activity.value = activity
-    tailMaterial.uniforms.elapsed.value = elapsed
+    uniforms.activity.value = activity
+    uniforms.elapsed.value = elapsed
   })
 
   return (

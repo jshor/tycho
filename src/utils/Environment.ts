@@ -17,7 +17,7 @@ const environments: EnvironmentEntry[] = [
 export const env = (path: string): string => {
   const windowHost = window.location.host
 
-  environments.forEach(({ host, cdn }) => {
+  environments.forEach(({ host }) => {
     if (windowHost.match(host)) {
       // path = `${cdn}${path}`; // TODO: fix CloudFront CORS issue
     }
