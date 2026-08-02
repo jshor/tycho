@@ -11,6 +11,7 @@
 
   /* animations */
   --transition-speed: 1s;
+  --transition-speed-fast: 0.2s;
 
   /* font sizes */
   --font-size-tiny: 0.9em;
@@ -35,6 +36,11 @@
   --slider-handle-height: 6px;
   --slider-handle-width: var(--icon-size);
   --slider-track-width: 4px;
+
+  /* popovers hanging off a control */
+  --popover-arrow-size: 6px;
+  --popover-border-width: 1px;
+  --speed-popover-width: 180px;
 
   /* splash screen */
   --splash-button-height: 50px;

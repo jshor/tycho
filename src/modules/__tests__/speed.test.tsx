@@ -4,15 +4,9 @@ import { useStore } from '../../store'
 import { Speed } from '../speed'
 import { Constants } from '../../constants'
 
-const { MIN, MAX } = Constants.UI.Speed
+const { MIN } = Constants.UI.Speed
 
 describe('Speed Module', () => {
-  const clickSpeed = (speed?: number) => {
-    const { container } = renderWithStore(<Speed />, { speed })
-
-    fireEvent.click(container.querySelector('.speed'))
-  }
-
   describe('render()', () => {
     it('should show the speed the simulation is running at', () => {
       const { container } = renderWithStore(<Speed />, { speed: 3 })
@@ -27,23 +21,34 @@ describe('Speed Module', () => {
     })
   })
 
-  describe('nextSpeed()', () => {
-    it('should step up to the next power of ten when clicked', () => {
-      clickSpeed(2)
+  describe('changeSpeed()', () => {
+    /** Opens the slider and nudges it up a power of ten. */
+    const slideSpeed = (speed?: number) => {
+      const { container } = renderWithStore(<Speed />, { speed })
+
+      fireEvent.click(container.querySelector('.speed__button'))
+      fireEvent.focus(container.querySelector('.slider__handle'))
+      fireEvent.keyDown(document, { key: 'ArrowRight' })
+    }
+
+    it('should run the simulation at the speed the user slid to', () => {
+      slideSpeed(2)
 
       expect(useStore.getState().speed).toEqual(3)
     })
 
     it('should step up from real time when no speed has been chosen', () => {
-      clickSpeed()
+      slideSpeed()
 
       expect(useStore.getState().speed).toEqual(MIN + 1)
     })
 
-    it('should start over once the fastest speed has played', () => {
-      clickSpeed(MAX)
+    it('should leave the speed alone when the button is only opening the slider', () => {
+      const { container } = renderWithStore(<Speed />, { speed: 2 })
 
-      expect(useStore.getState().speed).toEqual(MIN)
+      fireEvent.click(container.querySelector('.speed__button'))
+
+      expect(useStore.getState().speed).toEqual(2)
     })
   })
 })

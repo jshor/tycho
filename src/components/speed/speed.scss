@@ -1,4 +1,5 @@
 .speed {
+  position: relative;
   cursor: pointer;
   margin-top: var(--base-spacing);
 
@@ -22,5 +23,50 @@
 
   &__exponent {
     font-size: 0.7em;
+  }
+
+  &__popover {
+    position: absolute;
+    top: 50%;
+    right: calc(100% + var(--popover-arrow-size) + var(--base-spacing));
+    box-sizing: border-box;
+    width: var(--speed-popover-width);
+    padding: calc(var(--base-spacing) / 2) var(--base-spacing);
+    background-color: var(--opaque-backdrop);
+    border: var(--popover-border-width) solid var(--brand-primary);
+    color: var(--brand-primary);
+    cursor: default;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translate(calc(var(--base-spacing) / 2), -50%);
+    transition-property: opacity, visibility, transform;
+    transition-duration: var(--transition-speed-fast);
+    &:before,
+    &:after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 100%;
+      transform: translateY(-50%);
+      border: solid transparent;
+    }
+
+    &:before {
+      border-width: calc(var(--popover-arrow-size) + var(--popover-border-width));
+      border-left-color: var(--brand-primary);
+    }
+
+    &:after {
+      border-width: var(--popover-arrow-size);
+      border-left-color: var(--opaque-backdrop);
+    }
+  }
+
+  &--open &__popover {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translate(0, -50%);
   }
 }

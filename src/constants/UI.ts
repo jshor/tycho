@@ -1,7 +1,8 @@
 /** The powers of ten the simulation clock steps through. */
 export const Speed = {
   MIN: 0,
-  MAX: 10
+  MAX: 10,
+  STEP: 1
 }
 
 export const ModalTypes = {

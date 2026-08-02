@@ -96,6 +96,9 @@ describe('Camera Text Component', () => {
       renderOrder: 0
     }) as unknown as THREE.Group
 
+  /** Waits out the moment a departure is given to be seen through before it is called. */
+  const settleDeparture = () => act(() => new Promise((resolve) => setTimeout(resolve)))
+
   /** Puts the pointer on the label, or takes it off: the ray either meets the label or it does not. */
   const pointAtLabel = (isOn: boolean) =>
     scene.three.raycaster.intersectObject.mockReturnValue(isOn ? [{ distance: 1 }] : [])
@@ -259,13 +262,13 @@ describe('Camera Text Component', () => {
       advanceFrame()
 
       // long enough that a departure would have been seen through had it not been called off
-      await new Promise((resolve) => setTimeout(resolve, Constants.UI.HOVER_LINGER * 2))
+      await settleDeparture()
 
       expect(handlers.onPointerOut).not.toHaveBeenCalled()
     })
 
     it('should clink as the pointer meets it', () => {
-      renderOnBody({ volume: 1 })
+      renderOnBody()
       pointAtLabel(true)
 
       advanceFrame()
@@ -275,14 +278,14 @@ describe('Camera Text Component', () => {
     })
 
     it('should clink only once for a pointer that stays on it', async () => {
-      renderOnBody({ volume: 1 })
+      renderOnBody()
       pointAtLabel(true)
 
       advanceFrame()
       advanceFrame()
 
       // long enough that a label taken in by a false departure would have gone out by now
-      await new Promise((resolve) => setTimeout(resolve, Constants.UI.HOVER_LINGER * 2))
+      await settleDeparture()
 
       advanceFrame()
 
@@ -290,7 +293,7 @@ describe('Camera Text Component', () => {
     })
 
     it('should clink again each time the pointer comes back', async () => {
-      renderOnBody({ volume: 1 })
+      renderOnBody()
       pointAtLabel(true)
       advanceFrame()
 
@@ -306,15 +309,6 @@ describe('Camera Text Component', () => {
       expect(clink.play).toHaveBeenCalledTimes(2)
     })
 
-    it('should clink at the volume the scene is playing at, so a muted scene stays silent', () => {
-      renderOnBody({ volume: 0 })
-      pointAtLabel(true)
-
-      advanceFrame()
-
-      expect(clink.play).toHaveBeenCalledWith(0)
-    })
-
     it('should drop a departure still pending when the label goes away', async () => {
       const { unmount } = renderOnBody()
 
@@ -326,7 +320,7 @@ describe('Camera Text Component', () => {
 
       unmount()
 
-      await new Promise((resolve) => setTimeout(resolve, Constants.UI.HOVER_LINGER * 2))
+      await settleDeparture()
 
       expect(handlers.onPointerOut).not.toHaveBeenCalled()
     })

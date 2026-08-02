@@ -5,7 +5,7 @@
   margin: auto;
 
   &--horizontal {
-    height: calc(var(--slider-track-width) + var(--slider-handle-width));
+    height: calc(var(--slider-track-width) + var(--slider-handle-width) / 2);
   }
 
   &--vertical {
