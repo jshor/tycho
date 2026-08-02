@@ -1,31 +1,14 @@
-.speed {
+.speed-control {
   position: relative;
   cursor: pointer;
-  margin-top: var(--base-spacing);
-
-  &__button {
-    width: var(--icon-size);
-    height: var(--icon-size);
-    background-color: var(--brand-primary);
-    color: var(--brand-secondary);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: var(--font-size-tiny);
-    font-weight: bold;
-    line-height: 1;
-
-    &:hover {
-      box-shadow: var(--text-shadow);
-    }
-  }
 
   &__exponent {
     font-size: 0.7em;
   }
 
   &__popover {
+    pointer-events: all;
+    touch-action: all;
     position: absolute;
     top: 50%;
     right: calc(100% + var(--popover-arrow-size) + var(--base-spacing));

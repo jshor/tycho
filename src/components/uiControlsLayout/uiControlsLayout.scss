@@ -1,0 +1,56 @@
+.ui-controls-layout {
+  pointer-events: none;
+  touch-action: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  z-index: var(--z-index-top);
+  transition: opacity var(--transition-speed);
+  opacity: 0;
+
+  &--enabled {
+    opacity: 1;
+  }
+
+  &--disabled {
+    opacity: 0;
+  }
+
+  &__left, &__middle, &__right {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--base-spacing);
+    padding: var(--base-spacing);
+    box-sizing: border-box;
+  }
+
+  &__top, &__bottom {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  &__middle, &__center {
+    flex: 1;
+  }
+
+  &__label {
+    pointer-events: all;
+    touch-action: auto;
+    font-size: var(--font-size-large);
+    color: var(--color-text);
+    text-align: center;
+    cursor: pointer;
+    transition: text-shadow var(--transition-speed-fast) ease-in-out;
+
+    &:hover {
+      text-shadow: var(--text-shadow);
+    }
+  }
+}

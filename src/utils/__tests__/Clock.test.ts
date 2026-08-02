@@ -1,7 +1,6 @@
 import { Tween } from '@tweenjs/tween.js'
 import { tweens } from '../Tween'
 import { Clock } from '../Clock'
-import moment from 'moment'
 
 describe('Clock', () => {
   describe('getOffset()', () => {
@@ -15,10 +14,7 @@ describe('Clock', () => {
     })
 
     it('should return the current unix time as offset', () => {
-      // because unix time changes within seconds, record the moment
-      // before the clock was initialized and ensure that the offset
-      // time not greater than the pre-start time
-      const start = moment().unix()
+      const start = Math.floor(Date.now() / 1000)
       const clock = new Clock()
       const offset = clock.getOffset()
 

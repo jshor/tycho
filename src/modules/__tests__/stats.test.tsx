@@ -3,8 +3,7 @@ import { renderWithStore } from '../../test/helpers'
 import { useStore } from '../../store'
 import { Stats } from '../stats'
 import { OrbitalService } from '../../services/OrbitalService'
-import { Constants } from '../../constants'
-import moment from 'moment'
+import { formatUnixTime } from '../../utils/DateTime'
 import data from './__fixtures__/orbitals.json'
 import { OrbitalData, Store } from '../../types'
 
@@ -51,9 +50,7 @@ describe('Stats Module', () => {
     it('should display the current simulation time', () => {
       const { container } = renderModule({ time: 1000 })
 
-      expect(container.textContent).toContain(
-        moment(1000 * 1000).format(Constants.UI.UX_DATE_FORMAT)
-      )
+      expect(container.textContent).toContain(formatUnixTime(1000))
     })
   })
 

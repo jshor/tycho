@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import cx from 'classnames'
 import { SpeedSlider } from '../slider/speedSlider/speedSlider'
-import { onActivate } from '../../utils/a11y'
-import './speed.scss'
+import { ControlButton } from '../controlButton/controlButton'
+import './speedControl.scss'
 
 interface Props {
   /** The power of ten the simulation clock runs at. */
@@ -16,7 +16,7 @@ interface Props {
  *
  * Pressing it opens the slider that sets the speed, alongside the button it belongs to.
  */
-export function Speed({ speed = 0, onChange }: Props) {
+export function SpeedControl({ speed = 0, onChange }: Props) {
   const [isOpen, setIsOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -43,21 +43,14 @@ export function Speed({ speed = 0, onChange }: Props) {
   }, [isOpen])
 
   return (
-    <div className={cx('speed', { 'speed--open': isOpen })} ref={ref}>
-      <div className="speed__popover" role="dialog" aria-label="Speed" aria-hidden={!isOpen}>
+    <div className={cx('speed-control', { 'speed-control--open': isOpen })} ref={ref}>
+      <div className="speed-control__popover" role="dialog" aria-label="Speed" aria-hidden={!isOpen}>
         <SpeedSlider value={speed} onChange={onChange} />
       </div>
 
-      <span
-        className="speed__button"
-        role="button"
-        aria-expanded={isOpen}
-        tabIndex={0}
-        onClick={toggle}
-        onKeyDown={onActivate(toggle)}
-      >
-        &times;10<sup className="speed__exponent">{speed}</sup>
-      </span>
+      <ControlButton onClick={toggle} active={isOpen}>
+        &times;10<sup className="speed-control__exponent">{speed}</sup>
+      </ControlButton>
     </div>
   )
 }

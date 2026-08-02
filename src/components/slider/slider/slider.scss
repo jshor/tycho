@@ -3,6 +3,8 @@
 .slider {
   flex: 1;
   margin: auto;
+  pointer-events: all;
+  touch-action: all;
 
   &--horizontal {
     height: calc(var(--slider-track-width) + var(--slider-handle-width) / 2);

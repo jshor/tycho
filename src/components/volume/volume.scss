@@ -1,4 +1,7 @@
 .volume {
+  pointer-events: all;
+  touch-action: all;
+  cursor: pointer;
   position: relative;
   width: var(--icon-size);
   height: var(--icon-size);

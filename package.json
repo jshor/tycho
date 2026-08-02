@@ -30,7 +30,6 @@
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.1",
     "@tweenjs/tween.js": "^25.0.0",
-    "moment": "^2.19.3",
     "react": "^19.2.8",
     "react-datepicker": "^9.1.0",
     "react-dom": "^19.2.8",

@@ -12,18 +12,15 @@
   bottom: 0;
   width: 40vw;
   min-width: var(--modal-min-width);
+  height: 100%;
+  max-height: 100%;
   opacity: 0;
   padding: var(--base-spacing);
-  // parking the panel by its own width puts it off the screen at every size; an offset measured in
-  // vw leaves most of it lying over the scene as soon as min-width or the narrow breakpoint wins,
-  // where it goes on swallowing touches it is too transparent to show it caught
   transform: translateX(100%);
   transition-property: background-color, opacity, transform;
   transition-duration: var(--transition-speed);
   z-index: var(--z-index-top);
 
-  // a media condition is settled before the cascade, so this is the one place the number has to be
-  // substituted in at build time rather than read from --modal-min-width
   @media screen and (max-width: 600px) {
     width: 100%;
     min-width: 100%;
@@ -38,9 +35,13 @@
     border-bottom: var(--dotted-border);
     font-size: var(--font-size-large);
     padding: calc(var(--base-spacing) / 2) 0;
+    flex: 0 0 auto;
   }
 
   &__content {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
     display: flex;
     font-size: var(--font-size-tiny);
     line-height: var(--font-line-height);
@@ -60,9 +61,18 @@
   &__close {
     float: right;
     cursor: pointer;
-    transition: all var(--transition-speed);
+    transition: all var(--transition-speed-fast) ease-in-out;
     &:hover {
       text-shadow: var(--text-shadow);
     }
+  }
+
+  &__overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: var(--z-index-bottom);
   }
 }

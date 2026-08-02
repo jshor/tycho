@@ -1,7 +1,7 @@
 import { Timer } from 'three'
 import { Easing, Tween } from '@tweenjs/tween.js'
-import moment from 'moment'
 import { Constants } from '../constants'
+import { getUnixTime } from './DateTime'
 import { tweens, updateTweens } from './Tween'
 
 export class Clock {
@@ -29,7 +29,7 @@ export class Clock {
     if (time) {
       return time
     }
-    return moment().unix()
+    return getUnixTime()
   }
 
   /**

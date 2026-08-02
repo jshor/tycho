@@ -1,3 +1,11 @@
+@font-face {
+  font-family: 'Monaspace Argon';
+  src: url('/static/fonts/MonaspaceArgon-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   /* colors */
   --brand-primary: #fff;
@@ -14,7 +22,7 @@
   --transition-speed-fast: 0.2s;
 
   /* font sizes */
-  --font-size-tiny: 0.9em;
+  --font-size-tiny: 0.7em;
   --font-size-small: 1em;
   --font-size-medium: 1.5em;
   --font-size-large: 2em;
@@ -23,6 +31,7 @@
   /* font family */
   --font-family-sans-serif: Helvetica, Arial, sans-serif;
   --font-family-serif: 'Droid Serif', Georgia, serif;
+  --font-family-mono: 'Monaspace Argon', ui-monospace, monospace;
 
   /* padding */
   --base-spacing: 1em;

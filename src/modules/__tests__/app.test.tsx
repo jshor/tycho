@@ -72,13 +72,13 @@ describe('App Module', () => {
       const { container } = renderModule()
 
       expect(container.querySelector('.splash-screen')).not.toBeNull()
-      expect(container.querySelector('.uicontrols')).toBeNull()
+      expect(container.querySelector('.ui-controls-layout')).toBeNull()
     })
 
     it('should show the app once the data has arrived', () => {
       const { container } = renderModule(withData)
 
-      expect(container.querySelector('.uicontrols')).not.toBeNull()
+      expect(container.querySelector('.ui-controls-layout')).not.toBeNull()
     })
   })
 

@@ -1,8 +1,7 @@
 import { useMemo } from 'react'
-import moment from 'moment'
 import { useStore } from '../store'
 import { OrbitalService } from '../services/OrbitalService'
-import { Constants } from '../constants'
+import { formatUnixTime } from '../utils/DateTime'
 import { Stats as StatsView } from '../components/stats/stats'
 
 interface Stat {
@@ -48,7 +47,7 @@ export function Stats() {
    * Formats the current simulation time for display.
    */
   const getTime = (): string => {
-    return moment(time * 1000).format(Constants.UI.UX_DATE_FORMAT)
+    return time === undefined ? '' : formatUnixTime(time)
   }
 
   return (

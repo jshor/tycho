@@ -17,7 +17,20 @@ export const Targets = {
   DEFAULT: ['earth', 'Earth'] as [string, string]
 }
 
-export const UX_DATE_FORMAT = 'MMM DD, YYYY h:mm:ss a'
+/** Locale of the clock format. */
+export const UX_DATE_LOCALE = 'en-US'
+
+/** The pieces the clock reads the simulation time out in, as `DD MMM YYYY HH:mm:ss`. */
+export const UX_DATE_FORMAT: Intl.DateTimeFormatOptions = {
+  day: '2-digit',
+  month: 'short',
+  year: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  // midnight reads as 00, rather than the 24 an h24 cycle would give it
+  hourCycle: 'h23'
+}
 
 /** Minutes between the times the calendar offers to pick from. */
 export const PICKER_TIME_INTERVAL = 15

@@ -1,29 +1,33 @@
 .date-picker {
   display: inline-flex;
-  min-width: 250px;
   padding-right: var(--base-spacing);
   z-index: var(--z-index-top);
+  pointer-events: all;
+  touch-action: all;
 
   &__display {
     padding: 0;
     border: 0;
     background: none;
-    font-family: inherit;
-    font-size: var(--font-size-medium);
+    font-size: var(--font-size-small);
     color: var(--brand-primary);
-    transition: text-shadow var(--transition-speed);
+    transition: all var(--transition-speed-fast) ease-in-out;
     cursor: pointer;
+    font-family: var(--font-family-mono);
+    opacity: 0.5;
 
     &:hover {
       text-shadow: var(--text-shadow);
+      opacity: 1;
     }
   }
 
   /* override react-datepicker styles */
   &__calendar {
-    font-size: var(--font-size-medium);
-
     .react-datepicker {
+      font-family: var(--font-family-mono);
+      font-size: var(--font-size-tiny);
+
       &__time-container {
         width: 80px;
       }
@@ -33,7 +37,6 @@
       &__time-container,
       &__time,
       &__time-box {
-        font-family: var(--font-family-serif);
         background: var(--brand-secondary);
         border-color: var(--brand-tertiary);
         color: var(--brand-primary);

@@ -19,26 +19,29 @@ interface Props {
  */
 export function Modal({ modalActive, closeModal, title, children }: Props) {
   return (
-    <div
-      className={`modal modal--${cx({
-        open: modalActive,
-        closed: !modalActive
-      })}`}
-    >
-      <div className="modal__header">
-        <span>{title}</span>
-        <span
-          className="modal__close"
-          role="button"
-          tabIndex={0}
-          onClick={closeModal}
-          onKeyDown={onActivate(closeModal)}
-        >
-          &times;
-        </span>
-      </div>
+    <>
+      {modalActive && <div className="modal__overlay" aria-hidden="true" onClick={closeModal} />}
+      <div
+        className={`modal modal--${cx({
+          open: modalActive,
+          closed: !modalActive
+        })}`}
+      >
+        <div className="modal__header">
+          <span>{title}</span>
+          <span
+            className="modal__close"
+            role="button"
+            tabIndex={0}
+            onClick={closeModal}
+            onKeyDown={onActivate(closeModal)}
+          >
+            &times;
+          </span>
+        </div>
 
-      <div className="modal__content">{children}</div>
-    </div>
+        <div className="modal__content">{children}</div>
+      </div>
+    </>
   )
 }

@@ -1,6 +1,5 @@
-import cx from 'classnames'
-import { onActivate } from '../../utils/a11y'
 import './playPause.scss'
+import { ControlButton } from '../controlButton/controlButton'
 
 interface Props {
   /** Toggles playback of the simulation. */
@@ -14,20 +13,8 @@ interface Props {
  */
 export function PlayPause({ onClick, playing }: Props) {
   return (
-    <div
-      className="play-pause"
-      role="button"
-      tabIndex={0}
-      onClick={onClick}
-      onKeyDown={onActivate(onClick)}
-    >
-      <span
-        className={cx({
-          'play-pause__button': true,
-          'play-pause__button--playing': playing,
-          'play-pause__button--paused': !playing
-        })}
-      />
-    </div>
+    <ControlButton onClick={onClick}>
+      {playing ? '❙ ❙' : '▶'}
+    </ControlButton>
   )
 }

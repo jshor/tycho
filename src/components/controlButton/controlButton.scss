@@ -1,0 +1,28 @@
+.control-button {
+  background-color: transparent;
+  color: var(--brand-primary);
+  border: 2px solid var(--brand-primary);
+  height: var(--icon-size);
+  width: var(--icon-size);
+  cursor: pointer;
+  font-weight: bold;
+  border-radius: 50%;
+  font-style: italic;
+  transition: all 0.2s ease-in-out;
+  pointer-events: all;
+  touch-action: all;
+  font-family: inherit;
+  font-style: normal;
+  text-align: center;
+
+  &--disabled {
+    background-color: var(--brand-secondary);
+    color: var(--brand-primary);
+    cursor: not-allowed;
+  }
+
+  &--active, &:hover {
+    background-color: var(--brand-primary);
+    color: var(--brand-secondary);
+  }
+}
