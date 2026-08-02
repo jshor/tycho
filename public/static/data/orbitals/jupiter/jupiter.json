@@ -1,5 +1,6 @@
 {
     "name": "Jupiter",
+    "symbol": "2643",
     "albedo": 0.52,
     "sidereal": 1234,
     "radius": 69911,

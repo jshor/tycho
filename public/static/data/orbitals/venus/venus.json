@@ -1,5 +1,6 @@
 {
     "name": "Venus",
+    "symbol": "2640",
     "albedo": 0.689,
     "sidereal": -243.025,
     "radius": 6051.8,

@@ -1,5 +1,6 @@
 {
     "name": "Uranus",
+    "symbol": "2645",
     "albedo": 0.51,
     "sidereal": -0.71833,
     "radius": 25362,

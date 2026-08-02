@@ -6,6 +6,15 @@
   font-display: swap;
 }
 
+// the astronomical signs of the bodies, which it draws the moons' with ligatures
+@font-face {
+  font-family: 'Astromoony';
+  src: url('/static/fonts/AstromoonySans.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   /* colors */
   --brand-primary: #fff;
@@ -32,6 +41,7 @@
   --font-family-sans-serif: Helvetica, Arial, sans-serif;
   --font-family-serif: 'Droid Serif', Georgia, serif;
   --font-family-mono: 'Monaspace Argon', ui-monospace, monospace;
+  --font-family-symbol: 'Astromoony', var(--font-family-serif);
 
   /* padding */
   --base-spacing: 1em;

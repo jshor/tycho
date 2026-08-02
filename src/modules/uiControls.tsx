@@ -8,6 +8,8 @@ import { ZoomSlider } from '../components/slider/zoomSlider/zoomSlider'
 import { PlayPause } from '../components/playPause/playPause'
 import { SpeedControl } from '../components/speedControl/speedControl'
 import { Constants } from '../constants'
+import { OrbitalService } from '../services/OrbitalService'
+import { OrbitalSymbol } from '../components/orbitalSymbol/orbitalSymbol'
 import { formatDateTime, getUnixTime } from '../utils/DateTime'
 
 /**
@@ -17,6 +19,9 @@ export function UIControls() {
   const zoom = useStore((state) => state.zoom)
   const controlsEnabled = useStore((state) => state.controlsEnabled)
   const targetName = useStore((state) => state.targetName)
+  const targetSymbol = useStore((state) =>
+    OrbitalService.getSymbol(state.orbitalData, state.targetId)
+  )
   const changeZoom = useStore((state) => state.changeZoom)
   const playing = useStore((state) => state.playing)
   const volume = useStore((state) => state.volume)
@@ -134,7 +139,12 @@ export function UIControls() {
   return (
     <UIControlsLayout
       controlsEnabled={controlsEnabled}
-      label={targetName}
+      label={
+        <>
+          <OrbitalSymbol symbol={targetSymbol} />
+          {targetName}
+        </>
+      }
       onLabelClick={() => openModal(Constants.UI.ModalTypes.STATS_MODAL)}
       left={(
         <>

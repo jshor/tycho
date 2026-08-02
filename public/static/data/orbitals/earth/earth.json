@@ -1,5 +1,6 @@
 {
     "name": "Earth",
+    "symbol": "1f728",
     "albedo": 0.367,
     "sidereal": 0.99726968,
     "radius": 6371,

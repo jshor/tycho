@@ -3,7 +3,7 @@ import { renderWithStore } from '../../test/helpers'
 import { useStore } from '../../store'
 import { UIControls } from '../uiControls'
 import { Constants } from '../../constants'
-import { Store } from '../../types'
+import { OrbitalData, Store } from '../../types'
 import { formatUnixTime, getUnixTime } from '../../utils/DateTime'
 
 const { MIN } = Constants.UI.Speed
@@ -128,6 +128,26 @@ describe('UI Controls Module', () => {
     it('should name the orbital the camera is focused on', () => {
       const { container } = renderModule({ targetName: 'Earth' })
 
+      expect(container.querySelector('.ui-controls-layout__label')?.textContent).toEqual('Earth')
+    })
+
+    it('should wear the sign of the orbital alongside its name', () => {
+      const { container } = renderModule({
+        targetId: 'mars',
+        targetName: 'Mars',
+        orbitalData: [{ id: 'mars', name: 'Mars', symbol: '2642' }] as OrbitalData[]
+      })
+
+      const label = container.querySelector('.ui-controls-layout__label')
+
+      expect(label?.querySelector('.orbital-symbol')?.textContent).toEqual('♂')
+      expect(label?.textContent).toContain('Mars')
+    })
+
+    it('should name a body the data has no sign for all the same', () => {
+      const { container } = renderModule({ targetName: 'Earth' })
+
+      expect(container.querySelector('.orbital-symbol')).toBeNull()
       expect(container.querySelector('.ui-controls-layout__label')?.textContent).toEqual('Earth')
     })
 

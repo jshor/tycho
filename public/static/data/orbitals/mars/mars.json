@@ -1,5 +1,6 @@
 {
     "name": "Mars",
+    "symbol": "2642",
     "albedo": 0.17,
     "sidereal": 1.025957,
     "radius": 3389.5,

@@ -12,7 +12,7 @@ interface Props {
   /** Children to populate in the right pane. */
   right: React.ReactNode
   /** Label to display in the center pane. */
-  label?: string
+  label?: React.ReactNode
   /** Callback when the label is clicked. */
   onLabelClick?: () => void
 }

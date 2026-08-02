@@ -162,6 +162,18 @@ export class OrbitalService {
     return target
   }
 
+  /**
+   * Returns the astronomical sign of the given orbital, before its data has arrived as readily as
+   * after: the scene names a body from the moment it is picked, sign or no sign.
+   */
+  static getSymbol = (orbitals?: OrbitalData[], targetId?: string): string | undefined => {
+    if (!orbitals || !targetId) {
+      return undefined
+    }
+
+    return OrbitalService.getTargetByName(orbitals, targetId)?.symbol
+  }
+
   static formatStat = (x: number): string => {
     return x
       .toFixed(3)

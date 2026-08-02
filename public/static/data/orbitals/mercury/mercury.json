@@ -1,5 +1,6 @@
 {
     "name": "Mercury",
+    "symbol": "263f",
     "albedo": 0.142,
     "sidereal": 58.646,
     "radius": 2439.7,

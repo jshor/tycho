@@ -1,5 +1,6 @@
 {
     "name": "Saturn",
+    "symbol": "2644",
     "albedo": 0.499,
     "sidereal": 0.4395,
     "radius": 58232,

@@ -9,7 +9,7 @@ interface Props {
   /** Closes the modal. */
   closeModal: () => void
   /** The title shown in the modal header. */
-  title?: string
+  title?: React.ReactNode
   /** The contents of the modal. */
   children?: React.ReactNode
 }

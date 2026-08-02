@@ -3,7 +3,7 @@ import { renderWithStore } from '../../test/helpers'
 import { useStore } from '../../store'
 import { Modal } from '../modal'
 import { Constants } from '../../constants'
-import { Store } from '../../types'
+import { OrbitalData, Store } from '../../types'
 
 /** The key code that dismisses an open modal. */
 const ESCAPE = 27
@@ -34,6 +34,26 @@ describe('Modal Module', () => {
       })
 
       expect(container.querySelector('.modal__header')?.textContent).toContain('Earth')
+    })
+
+    it('should wear the sign of the orbital alongside its name', () => {
+      const { container } = renderWithStore(<Modal type={Constants.UI.ModalTypes.STATS_MODAL} />, {
+        targetId: 'mars',
+        targetName: 'Mars',
+        orbitalData: [{ id: 'mars', name: 'Mars', symbol: '2642' }] as OrbitalData[]
+      })
+
+      expect(container.querySelector('.modal__header .orbital-symbol')?.textContent).toEqual('♂')
+    })
+
+    it('should leave the about modal without a sign, having no body to wear one for', () => {
+      const { container } = renderWithStore(<Modal type={Constants.UI.ModalTypes.ABOUT_MODAL} />, {
+        targetId: 'mars',
+        pageText: { aboutTitle: 'About Tycho' },
+        orbitalData: [{ id: 'mars', name: 'Mars', symbol: '2642' }] as OrbitalData[]
+      })
+
+      expect(container.querySelector('.orbital-symbol')).toBeNull()
     })
 
     it('should title the about modal after the page text', () => {

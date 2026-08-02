@@ -53,6 +53,8 @@ export interface TailData {
 export interface OrbitalData {
   id: string
   name: string
+  /** The body's astronomical sign, as the hex codepoints that draw it (e.g. `2643-49` for Io). */
+  symbol?: string
   radius: number
   semimajor: number
   semiminor: number

@@ -2,6 +2,8 @@ import React, { useCallback, useEffect } from 'react'
 import { useStore } from '../store'
 import { Constants } from '../constants'
 import { Modal as ModalView } from '../components/modal/modal'
+import { OrbitalSymbol } from '../components/orbitalSymbol/orbitalSymbol'
+import { OrbitalService } from '../services/OrbitalService'
 import { Store } from '../types'
 
 interface Props {
@@ -24,11 +26,21 @@ const selectTitle = (type: string) => (state: Store) => {
 }
 
 /**
+ * Reads the sign of the body a statistics modal describes, out of the store.
+ */
+const selectSymbol = (type: string) => (state: Store) => {
+  return type === Constants.UI.ModalTypes.STATS_MODAL
+    ? OrbitalService.getSymbol(state.orbitalData, state.targetId)
+    : undefined
+}
+
+/**
  * Connects a modal to the store, closing it on escape.
  */
 export function Modal({ type, children }: Props) {
   const activeModal = useStore((state) => state.activeModal)
   const title = useStore(selectTitle(type))
+  const symbol = useStore(selectSymbol(type))
 
   /**
    * Whether this module's modal is the one currently open.
@@ -58,7 +70,16 @@ export function Modal({ type, children }: Props) {
   }, [activeModal, type, closeModal])
 
   return (
-    <ModalView modalActive={isModalActive()} title={title} closeModal={closeModal}>
+    <ModalView
+      modalActive={isModalActive()}
+      title={
+        <>
+          <OrbitalSymbol symbol={symbol} />
+          {title}
+        </>
+      }
+      closeModal={closeModal}
+    >
       {children}
     </ModalView>
   )
