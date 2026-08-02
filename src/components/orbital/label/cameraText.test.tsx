@@ -4,6 +4,9 @@ import userEvent from '@testing-library/user-event'
 import * as THREE from 'three'
 import { CameraText } from './cameraText'
 import { Constants } from '../../../constants'
+import { clink } from '../../../utils/Sound'
+
+vi.mock('../../../utils/Sound', () => ({ clink: { play: vi.fn() } }))
 
 /**
  * The frame loop and the camera it runs against, which the component is otherwise given no way to
@@ -190,6 +193,56 @@ describe('Camera Text Component', () => {
       await new Promise((resolve) => setTimeout(resolve, Constants.UI.HOVER_LINGER * 2))
 
       expect(handlers.onPointerOut).not.toHaveBeenCalled()
+    })
+
+    it('should clink as the pointer meets it', async () => {
+      const user = userEvent.setup()
+      renderInScene(<CameraText {...handlers}>Earth</CameraText>, { volume: 1 })
+
+      await user.hover(screen.getByText('Earth'))
+
+      expect(clink.play).toHaveBeenCalledTimes(1)
+      expect(clink.play).toHaveBeenCalledWith(1)
+    })
+
+    it('should clink again each time the pointer comes back', async () => {
+      const user = userEvent.setup()
+      renderInScene(<CameraText {...handlers}>Earth</CameraText>, { volume: 1 })
+      const label = screen.getByText('Earth')
+
+      await user.hover(label)
+      await user.unhover(label)
+
+      // the pointer has to have stayed away for the label to count it as gone
+      await waitFor(() => expect(handlers.onPointerOut).toHaveBeenCalled())
+
+      await user.hover(label)
+
+      expect(clink.play).toHaveBeenCalledTimes(2)
+    })
+
+    it('should clink only once for a pointer that stays on it', async () => {
+      const user = userEvent.setup()
+      renderInScene(<CameraText {...handlers}>Earth</CameraText>, { volume: 1 })
+      const label = screen.getByText('Earth')
+
+      await user.hover(label)
+      await user.unhover(label)
+      await user.hover(label)
+
+      // long enough that a departure would have been seen through had it not been called off
+      await new Promise((resolve) => setTimeout(resolve, Constants.UI.HOVER_LINGER * 2))
+
+      expect(clink.play).toHaveBeenCalledTimes(1)
+    })
+
+    it('should clink at the volume the scene is playing at, so a muted scene stays silent', async () => {
+      const user = userEvent.setup()
+      renderInScene(<CameraText {...handlers}>Earth</CameraText>, { volume: 0 })
+
+      await user.hover(screen.getByText('Earth'))
+
+      expect(clink.play).toHaveBeenCalledWith(0)
     })
 
     it('should drop a departure still pending when the label goes away', async () => {

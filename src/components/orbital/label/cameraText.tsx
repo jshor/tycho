@@ -3,6 +3,8 @@ import * as THREE from 'three'
 import { Text } from '@react-three/drei'
 import { useRef, useState, useMemo, useEffect } from 'react'
 import { Constants } from '../../../constants'
+import { useStore } from '../../../store'
+import { clink } from '../../../utils/Sound'
 
 interface TroikaText extends THREE.Mesh {
   textRenderInfo?: {
@@ -49,6 +51,7 @@ export function CameraText({
   onPointerOut,
   ...props
 }: Props) {
+  const volume = useStore((state) => state.volume)
   const ref = useRef<TroikaText>(null)
   const groupRef = useRef<THREE.Group>(null)
   const backgroundRef = useRef<THREE.Mesh>(null)
@@ -270,6 +273,18 @@ export function CameraText({
 
   // a label that goes away mid-departure would otherwise leave the timer to fire into nothing
   useEffect(() => cancelLeaving, [])
+
+  /**
+   * Clinks as the pointer meets the label, once for each arrival.
+   *
+   * This follows the highlight rather than the pointer itself, so a pointer that flickers off the
+   * label and straight back on is the one hover it looks like, and sounds only the once.
+   */
+  useEffect(() => {
+    if (hovered) {
+      clink.play(volume)
+    }
+  }, [hovered]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <group
