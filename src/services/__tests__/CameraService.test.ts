@@ -5,7 +5,6 @@ import { Gyroscope } from '../../utils/Gyroscope'
 import { tweens } from '../../utils/Tween'
 import { Scale } from '../../utils/Scale'
 import { Constants } from '../../constants'
-import fixture from './__fixtures__/planets.json'
 
 describe('Camera Service', () => {
   describe('getPivotTween()', () => {
@@ -202,7 +201,7 @@ describe('Camera Service', () => {
 
   describe('getMinDistance()', () => {
     const { MINIMUM_RADIUS } = Constants.WebGL
-    const { MIN_DISTANCE, FOV, FOCUS_FILL } = Constants.WebGL.Camera
+    const { FOV, FOCUS_FILL } = Constants.WebGL.Camera
     const framing = (radius: number, aspect = 1) => {
       const vertical = (FOV * Math.PI) / 180
       const field = Math.min(vertical, 2 * Math.atan(Math.tan(vertical / 2) * aspect))
@@ -210,38 +209,28 @@ describe('Camera Service', () => {
       return Scale(radius) / Math.sin((field * FOCUS_FILL) / 2)
     }
 
-    it('should floor a small orbital to the minimum radius so the camera clears its inflated body', () => {
-      expect(CameraService.getMinDistance(fixture, 'Earth')).toBeCloseTo(framing(MINIMUM_RADIUS))
+    it('should frame the orbital to fill the given portion of the camera field', () => {
+      const radius = MINIMUM_RADIUS * 5
+
+      expect(CameraService.getMinDistance(radius, 1)).toBeCloseTo(framing(radius))
     })
 
-    it('should stand off a ringed orbital far enough to take in its rings', () => {
-      const outerRadius = 120700
-      const ringed = [{ ...fixture[1], id: 'Ringed', rings: { outerRadius } }]
-
-      expect(CameraService.getMinDistance(ringed as never, 'Ringed')).toBeCloseTo(
-        framing(outerRadius)
-      )
+    it('should floor a small orbital to the minimum radius so the camera clears its inflated body', () => {
+      expect(CameraService.getMinDistance(1, 1)).toBeCloseTo(framing(MINIMUM_RADIUS))
     })
 
     it('should show a large orbital at the same size on screen as a small one', () => {
-      const small = [{ ...fixture[1], id: 'Small', radius: MINIMUM_RADIUS }]
-      const large = [{ ...fixture[1], id: 'Large', radius: MINIMUM_RADIUS * 11 }]
-
-      const near = CameraService.getMinDistance(small as never, 'Small')
-      const far = CameraService.getMinDistance(large as never, 'Large')
+      const near = CameraService.getMinDistance(MINIMUM_RADIUS, 1)
+      const far = CameraService.getMinDistance(MINIMUM_RADIUS * 11, 1)
 
       expect(far / near).toBeCloseTo(11)
     })
 
     it('should stand further off on a screen narrower than the camera field', () => {
-      const wide = CameraService.getMinDistance(fixture, 'Earth', 16 / 9)
-      const tall = CameraService.getMinDistance(fixture, 'Earth', 9 / 16)
+      const wide = CameraService.getMinDistance(MINIMUM_RADIUS, 16 / 9)
+      const tall = CameraService.getMinDistance(MINIMUM_RADIUS, 9 / 16)
 
       expect(tall).toBeGreaterThan(wide)
-    })
-
-    it('should fall back to the closest the camera may ever get if there is no target', () => {
-      expect(CameraService.getMinDistance(fixture, 'Bogus')).toEqual(MIN_DISTANCE)
     })
   })
 

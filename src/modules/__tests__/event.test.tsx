@@ -1,4 +1,4 @@
-import { fireEvent, render } from '@testing-library/react'
+import { createEvent, fireEvent, render } from '@testing-library/react'
 import { useStore } from '../../store'
 import { Event } from '../event'
 
@@ -139,8 +139,30 @@ describe('Event Module', () => {
       expect(onWheel).toHaveBeenCalledTimes(1)
     })
 
-    it.skip('should leave the pinch gesture to the scene rather than the browser', () => {
-      expect(renderModule().style.touchAction).toEqual('none')
+    it('should ask the browser to leave the pinch gesture to the scene', () => {
+      const scene = renderModule(vi.fn())
+
+      fireEvent.touchStart(scene, fingers(100))
+
+      const pinch = createEvent.touchMove(scene, fingers(160))
+      const prevented = vi.spyOn(pinch, 'preventDefault')
+
+      fireEvent(scene, pinch)
+
+      expect(prevented).toHaveBeenCalled()
+    })
+
+    it('should leave a single finger to the browser, so the page still scrolls', () => {
+      const scene = renderModule(vi.fn())
+
+      fireEvent.touchStart(scene, finger)
+
+      const move = createEvent.touchMove(scene, finger)
+      const prevented = vi.spyOn(move, 'preventDefault')
+
+      fireEvent(scene, move)
+
+      expect(prevented).not.toHaveBeenCalled()
     })
 
     it('should render its children', () => {

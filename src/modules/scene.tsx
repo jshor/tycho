@@ -102,19 +102,30 @@ export function Scene({ onAnimate, width, height, children }: Props) {
   /**
    * Zooms the camera by however far the user scrolled.
    */
-  const changeZoom: React.WheelEventHandler<HTMLDivElement> = (ev) => {
-    cameraRef.current?.controls?.wheelZoom(ev, changeZoomLevel)
+  const onWheel: React.WheelEventHandler<HTMLDivElement> = (ev) => {
+    const controls = cameraRef.current?.controls
+
+    if (!controls) return
+
+    const zoom = controls.getZoomDelta(ev.deltaY)
+    const current = Math.round(controls.level * 100)
+
+    if (current !== zoom) {
+      changeZoomLevel(zoom)
+    }
   }
 
   /**
    * Zooms the camera by however far the user pinched.
    */
-  const pinchZoom = (separationDelta: number) => {
-    cameraRef.current?.controls?.pinchZoom(separationDelta, changeZoomLevel)
+  const onPinch = (separationDelta: number) => {
+    onWheel({
+      deltaY: -separationDelta * Constants.UI.PINCH_DELTA_SCALE
+    } as React.WheelEvent<HTMLDivElement>)
   }
 
   return (
-    <Event onWheel={changeZoom} onPinch={pinchZoom}>
+    <Event onWheel={onWheel} onPinch={onPinch}>
       <Canvas gl={{ antialias: true, alpha: true }}>
         <CanvasContent ratio={width / height} cameraRef={cameraRef} onAnimate={onAnimate}>
           {children}

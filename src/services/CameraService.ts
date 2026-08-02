@@ -18,21 +18,10 @@ export class CameraService {
    * Returns the minimum distance the camera may get to the given orbital.
    */
   static getMinDistance = (
-    orbitals: OrbitalData[],
-    targetId: string,
-    aspect: number = 1
+    radius: number,
+    aspect: number
   ): number => {
-    const target = OrbitalService.getTargetByName(orbitals, targetId)
-
-    if (!target) {
-      return Constants.WebGL.Camera.MIN_DISTANCE
-    }
-
-    // floor the radius so the camera stops outside the inflated body of a small orbital
-    const extent = Math.max(getVisibleRadius(target.radius), target.rings?.outerRadius ?? 0)
-
-    // the field of view is the vertical one, so a screen taller than it is wide is narrower than
-    // the camera's own field and is what the orbital actually has to fit inside
+    const extent = getVisibleRadius(radius)
     const vertical = MathUtils.degToRad(Constants.WebGL.Camera.FOV)
     const field = Math.min(vertical, 2 * Math.atan(Math.tan(vertical / 2) * aspect))
 

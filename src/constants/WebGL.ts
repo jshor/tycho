@@ -41,15 +41,17 @@ export const Camera = {
   NEAR: 0.001,
   FAR: 18000,
   FOV: 50,
-  X: 0,
+  X: 10000,
   Y: 12000,
-  Z: 0,
+  Z: 1000,
   MAX_DISTANCE: 12000,
-  MIN_DISTANCE: 0.001,
+  MIN_DISTANCE: 0,
   /** Percentage of FOV for the fully-zoomed orbital to show. */
-  FOCUS_FILL: 0.7,
+  FOCUS_FILL: 0.9,
   /** Distance range of the satellite to appear when its system is in focus. */
-  SATELLITE_LABEL_RANGE: 7
+  SATELLITE_LABEL_RANGE: 7,
+  /** Speed of the camera's auto-rotation. */
+  AUTOROTATE_SPEED: 0.2
 }
 
 export interface LensFlareEntry {

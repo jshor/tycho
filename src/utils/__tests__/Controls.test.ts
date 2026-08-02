@@ -62,43 +62,6 @@ describe('Controls', () => {
     })
   })
 
-  describe('setMinDistance()', () => {
-    beforeEach(() => {
-      controls.camera.position.set(0, 0, 10)
-    })
-
-    it('should pull the camera in to the new limit', () => {
-      controls.setMinDistance(2)
-      controls.zoom(0)
-
-      expect(controls.camera.position.length()).toBeCloseTo(2)
-    })
-
-    it('should re-frame a camera already sitting at the old limit, whose zoom has not changed', () => {
-      controls.setMinDistance(8)
-      controls.zoom(0)
-
-      expect(controls.camera.position.length()).toBeCloseTo(8)
-
-      controls.setMinDistance(2)
-
-      expect(controls.level).toEqual(0)
-      expect(controls.camera.position.length()).toBeCloseTo(2)
-    })
-
-    it('should re-scale a camera part-way in, since the near limit anchors the zoom scale', () => {
-      controls.minDistance = 1
-      controls.maxDistance = 10000
-      controls.zoom(50)
-
-      expect(controls.camera.position.length()).toBeCloseTo(100)
-
-      controls.setMinDistance(100)
-
-      expect(controls.camera.position.length()).toBeCloseTo(1000)
-    })
-  })
-
   describe('getZoomDelta()', () => {
     it('should calculate the proper zoom delta', () => {
       controls.level = 50
@@ -484,89 +447,6 @@ describe('Controls', () => {
 
       expect(controls).toHaveProperty('tweenBase')
       expect(controls.tweenBase).toBeInstanceOf(Tween)
-    })
-  })
-
-  describe('wheelZoom()', () => {
-    let action: { changeZoom: (zoom: number) => void }
-    let spy: MockInstance
-
-    beforeEach(() => {
-      action = { changeZoom: vi.fn() }
-      spy = vi.spyOn(action, 'changeZoom')
-    })
-
-    it('should call the given action callback with the calculated zoom, if changed', () => {
-      const newZoom = 20
-
-      controls.getZoomDelta = () => newZoom
-      controls.wheelZoom({ deltaY: 0 }, action.changeZoom)
-
-      expect(spy).toHaveBeenCalledTimes(1)
-      expect(spy).toHaveBeenCalledWith(newZoom)
-    })
-
-    it('should not call the given callback if the zoom stays the same', () => {
-      const newZoom = 20
-
-      controls.getZoomDelta = () => newZoom
-      controls.level = newZoom / 100
-      controls.wheelZoom({ deltaY: 0 }, action.changeZoom)
-
-      expect(spy).not.toHaveBeenCalled()
-    })
-  })
-
-  describe('pinchZoom()', () => {
-    let action: { changeZoom: (zoom: number) => void }
-    let spy: MockInstance
-
-    beforeEach(() => {
-      action = { changeZoom: vi.fn() }
-      spy = vi.spyOn(action, 'changeZoom')
-    })
-
-    it('should zoom in when the fingers spread apart', () => {
-      const level = controls.level
-
-      controls.pinchZoom(10, action.changeZoom)
-
-      expect(spy).toHaveBeenCalledTimes(1)
-      expect(spy.mock.calls[0][0]).toBeLessThan(level)
-    })
-
-    it('should zoom out when the fingers come together', () => {
-      controls.level = 50
-
-      controls.pinchZoom(-10, action.changeZoom)
-
-      expect(spy).toHaveBeenCalledTimes(1)
-      expect(spy.mock.calls[0][0]).toBeGreaterThan(50)
-    })
-
-    it('should zoom by the same amount the wheel would for an equivalent delta', () => {
-      const separation = 10
-      const wheeled = controls.getZoomDelta(-separation * Constants.UI.PINCH_DELTA_SCALE)
-
-      controls.pinchZoom(separation, action.changeZoom)
-
-      expect(spy).toHaveBeenCalledWith(wheeled)
-    })
-
-    it('should not zoom past the closest the camera may get', () => {
-      controls.level = 0
-
-      controls.pinchZoom(1000, action.changeZoom)
-
-      expect(spy).not.toHaveBeenCalled()
-    })
-
-    it('should not zoom past the furthest the camera may get', () => {
-      controls.level = Constants.WebGL.Zoom.MAX
-
-      controls.pinchZoom(-1000, action.changeZoom)
-
-      expect(spy).toHaveBeenCalledWith(Constants.WebGL.Zoom.MAX)
     })
   })
 })

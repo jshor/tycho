@@ -8,6 +8,7 @@ import { Controls } from '../utils/Controls'
 import { Ambience } from '../utils/Ambience'
 import { Constants } from '../constants'
 import { MathService } from '../services/MathService'
+import { OrbitalService } from '../services/OrbitalService'
 
 interface Props {
   /** The aspect ratio the camera renders at. */
@@ -49,9 +50,6 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
   const controlsRef = useRef<Controls>(null)
   const ambienceRef = useRef<Ambience>(null)
   const tweenBaseRef = useRef<{ stop(): void } | null>(null)
-
-  /** The target last framed, so a genuine switch of target can be told apart from a mere resize. */
-  const previousTargetIdRef = useRef(targetId)
 
   const { scene, camera, gl } = useThree()
 
@@ -110,67 +108,44 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
   }, [isAutoOrbitEnabled])
 
   /**
-   * Frames the target consistently (regardless of size) when the camera closes on it.
-   */
-  useEffect(() => {
-    /** Whether or not the camera is departing from the current target. */
-    const isDeparting = [
-      targetId !== previousTargetIdRef.current,
-      animateTargetChange !== false,
-      !!scene.getObjectByName(targetId)
-    ].every(Boolean)
-
-    previousTargetIdRef.current = targetId
-
-    if (!controlsRef.current || isDeparting) {
-      return
-    }
-
-    controlsRef.current.setMinDistance(CameraService.getMinDistance(orbitalData, targetId, ratio))
-  }, [targetId, orbitalData, ratio]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  /**
    * Moves the camera pivot when the target changes.
    */
   useEffect(() => {
-    if (!targetId) return
-
     const pivot = pivotRef.current
     const target = scene.getObjectByName(targetId)
+    const radius = OrbitalService.getTargetByName(orbitalData, targetId)?.radius
 
-    if (target) {
-      if (animateTargetChange === false) {
-        cancelTween() // TODO: is this necessary? cancelTween() will happen twice?
-        focusCameraImmediately(target, pivot, controlsRef.current, changeZoom)
-        return
-      }
+    if (!target || !radius) return
 
-      const controls = controlsRef.current
-      const fromDistance = controls?.camera.position.length() ?? Constants.WebGL.Camera.MIN_DISTANCE
-      const toDistance = CameraService.getMinDistance(orbitalData, targetId, ratio)
-
-      setInteractivity(false)
-
-      const worldPosiiton = CameraService.getWorldPosition(pivot)
-
-      CameraService.attachToWorld(scene, pivot, worldPosiiton)
-      cancelTween()
-
-      if (controls) {
-        controls.minDistance = toDistance
-        controls.level = Constants.WebGL.Zoom.MIN
-      }
-
-      controls?.lockCameraOntoTarget()
-      tweenBaseRef.current = CameraService.getPivotTween(
-        worldPosiiton,
-        target,
-        pivot,
-        toDistance,
-        turnTo(target, fromDistance, toDistance),
-        endTween
-      )
+    if (animateTargetChange === false) {
+      cancelTween() // TODO: is this necessary? cancelTween() will happen twice?
+      focusCameraImmediately(target, pivot, controlsRef.current, changeZoom)
+      return
     }
+
+    const controls = controlsRef.current
+    const fromDistance = controls?.camera.position.length() ?? Constants.WebGL.Camera.MIN_DISTANCE
+    const toDistance = CameraService.getMinDistance(radius, ratio)
+    const worldPosiiton = CameraService.getWorldPosition(pivot)
+
+    CameraService.attachToWorld(scene, pivot, worldPosiiton)
+
+    setInteractivity(false)
+    cancelTween()
+
+    if (controls) {
+      // assume the orbital can be zoomed into fully to allow the camera to move freely to avoid janky camera movement
+      controls.minDistance = 0
+    }
+
+    tweenBaseRef.current = CameraService.getPivotTween(
+      worldPosiiton,
+      target,
+      pivot,
+      toDistance,
+      turnToward.bind(null, { target, fromDistance, toDistance }),
+      endTween.bind(null, toDistance)
+    )
   }, [targetId, animateTargetChange]) // eslint-disable-line react-hooks/exhaustive-deps
 
   /**
@@ -186,31 +161,26 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
   /**
    * Returns a function that turns the camera toward the new target.
    */
-  const turnTo =
-    (
-      /** The target object to turn the camera toward. */
-      target: THREE.Object3D,
-      /** Distance from the pivot the camera was framed when it set off. */
-      fromDistance: number,
-      /** Distance from the pivot the camera ought to be framed once it arrives. */
-      toDistance: number
-    ) =>
-    (
-      /** The percentage of progress of travel [0, 1]. */
-      progress: number
-    ) => {
-      const pivot = pivotRef.current
-      const controls = controlsRef.current
+  const turnToward = ({ target, fromDistance, toDistance }: {
+    /** The target object to turn the camera toward. */
+    target: THREE.Object3D,
+    /** Distance from the pivot the camera was framed when it set off. */
+    fromDistance: number,
+    /** Distance from the pivot the camera ought to be framed once it arrives. */
+    toDistance: number
+  }, progress: number) => {
+    const pivot = pivotRef.current
+    const controls = controlsRef.current
 
-      if (!pivot || !controls) return
+    if (!pivot || !controls) return
 
-      pivot.updateMatrixWorld()
-      controls.lookToward(pivot.worldToLocal(CameraService.getWorldPosition(target)), progress)
+    pivot.updateMatrixWorld()
+    controls.lookToward(pivot.worldToLocal(CameraService.getWorldPosition(target)), progress)
 
-      const distance = MathService.getGeometricStep(fromDistance, toDistance, progress)
+    const distance = MathService.getGeometricStep(fromDistance, toDistance, progress)
 
-      controls.camera.position.copy(controls.getZoomVector(controls.camera.position, distance))
-    }
+    controls.camera.position.copy(controls.getZoomVector(controls.camera.position, distance))
+  }
 
   /**
    * Cancels dollying the camera.
@@ -225,9 +195,18 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
   /**
    * Completes the dolly animation.
    */
-  const endTween = () => {
-    controlsRef.current?.resetLook()
+  const endTween = (toDistance: number) => {
     setInteractivity(true)
+    changeZoom(0)
+    
+    if (controlsRef.current) {
+      controlsRef.current.resetLook()
+      controlsRef.current.lockCameraOntoTarget()
+      // TODO: get autorotate to stop once user interaction is detected, and then re-enable it after a timeout
+      // controlsRef.current.startAutoRotate(Constants.WebGL.Camera.AUTOROTATE_SPEED)
+      controlsRef.current.minDistance = toDistance
+      controlsRef.current.level = 0
+    }
   }
 
   /**

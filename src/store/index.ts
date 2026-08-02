@@ -25,7 +25,7 @@ export const useStore = create<Store>()((set) => ({
    * Sets the active orbital target.
    */
   setActiveOrbital: (targetId, targetName, animateTargetChange = true) =>
-    set({ targetId, targetName, animateTargetChange }),
+    set({ targetId, targetName, animateTargetChange, activeModal: null }),
 
   /**
    * Adds the given orbital to the list of highlighted orbitals.

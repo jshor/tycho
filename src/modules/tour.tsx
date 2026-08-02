@@ -59,7 +59,7 @@ export function Tour({ labels }: Props) {
 
     hasInitialized.current = true
 
-    if (localStorage.getItem('tourViewed') === 'true_TEST') {
+    if (localStorage.getItem('tourViewed') === 'true') {
       skipTour()
     } else {
       initializeTour()

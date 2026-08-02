@@ -100,30 +100,6 @@ export class Controls extends OrbitControls {
   }
 
   /**
-   * Sets the minimum distance that the camera may pivot into its target.
-   */
-  setMinDistance = (distance: number): void => {
-    this.minDistance = distance
-    this.pan(this.level)
-  }
-
-  wheelZoom = (ev: { deltaY: number }, action: (zoom: number) => void): void => {
-    const zoom = this.getZoomDelta(ev.deltaY)
-    const current = Math.round(this.level * 100)
-
-    if (current !== zoom) {
-      action(zoom)
-    }
-  }
-
-  /**
-   * Zooms by however far apart the user's fingers moved, in the steps the wheel zooms in.
-   */
-  pinchZoom = (separationDelta: number, action: (zoom: number) => void): void => {
-    this.wheelZoom({ deltaY: -separationDelta * Constants.UI.PINCH_DELTA_SCALE }, action)
-  }
-
-  /**
    * Returns the zoom level by the given wheel delta.
    */
   getZoomDelta = (delta: number): number => {

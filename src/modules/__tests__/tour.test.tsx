@@ -14,7 +14,7 @@ const labels = [
 ]
 
 /** The value the tour compares `tourViewed` against when deciding to skip itself. */
-const TOUR_VIEWED_SKIP_VALUE = 'true_TEST'
+const TOUR_VIEWED_SKIP_VALUE = 'true'
 
 /** One separation interval leads each label, plus one before the first. */
 const TOUR_DURATION = labels.reduce(
