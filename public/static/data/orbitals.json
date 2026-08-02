@@ -401,7 +401,7 @@
             "nasaBarycenterCode": "0",
             "revolutionOrder": "y"
         },
-        "textures": [
+        "maps": [
             {
                 "slot": "map",
                 "url": "Mercury.jpg"
@@ -899,7 +899,7 @@
                 "maps": [
                     {
                         "slot": "map",
-                        "url": "Miranda.png"
+                        "url": "Miranda.jpg"
                     }
                 ],
                 "argumentOfPeriapsis": 244.0701800710327,

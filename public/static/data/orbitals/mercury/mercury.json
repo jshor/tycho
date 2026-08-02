@@ -14,7 +14,7 @@
         "nasaBarycenterCode": "0",
         "revolutionOrder": "y"
     },
-    "textures": [
+    "maps": [
         {
             "slot": "map",
             "url": "Mercury.jpg"
