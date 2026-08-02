@@ -3,6 +3,7 @@ import * as THREE from 'three'
 import { Constants } from '../constants'
 import { env } from '../utils/Environment'
 import { TextureMap } from '../types'
+import NIGHT_SIDE_EMISSIVE from '../shaders/nightSideEmissive.glsl?raw'
 
 /**
  * The MeshPhongMaterial properties that hold a texture.
@@ -42,13 +43,7 @@ export const restrictEmissiveToNightSide = (shader: { fragmentShader: string }):
 
   shader.fragmentShader = shader.fragmentShader.replace(
     PHONG_OUTGOING_LIGHT,
-    /* glsl */ `
-    #ifdef USE_EMISSIVEMAP
-      vec3 sunDirection = normalize( viewMatrix[ 3 ].xyz + vViewPosition );
-      float dayFactor = smoothstep( - 0.15, 0.25, dot( nonPerturbedNormal, sunDirection ) );
-      totalEmissiveRadiance *= 1.0 - dayFactor;
-    #endif
-    ${PHONG_OUTGOING_LIGHT}`
+    `${NIGHT_SIDE_EMISSIVE}\n${PHONG_OUTGOING_LIGHT}`
   )
 }
 

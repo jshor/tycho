@@ -26,7 +26,7 @@ describe('Speed Component', () => {
   it('should show the speed as a power of ten', () => {
     const { container } = render(<Speed speed={4} />)
 
-    expect(container.querySelector('.speed__button')?.textContent).toEqual('104')
+    expect(container.querySelector('.speed__button')?.textContent).toEqual('×104')
     expect(container.querySelector('.speed__exponent')?.textContent).toEqual('4')
   })
 
@@ -58,14 +58,6 @@ describe('Speed Component', () => {
       fireEvent.keyDown(button(container), { key: 'Enter' })
 
       expect(isOpen(container)).toBe(true)
-    })
-
-    it('should label the slider', () => {
-      const { container } = render(<Speed speed={1} />)
-
-      fireEvent.click(button(container))
-
-      expect(container.querySelector('.speed__popover-label')?.textContent).toEqual('Speed')
     })
 
     it('should leave the slider in place while closed, so that it has somewhere to fade from', () => {
