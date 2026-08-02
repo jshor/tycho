@@ -18,7 +18,14 @@ global.ResizeObserver = class MockResizeObserver implements ResizeObserver {
 }
 
 // stub react-three-fiber's intrinsics (`<group>`, `<mesh>`, etc.) which are not real DOM elements
-const object3dMethods = ['add', 'remove', 'clear', 'lookAt', 'updateMatrixWorld'] as const
+const object3dMethods = [
+  'add',
+  'remove',
+  'clear',
+  'lookAt',
+  'updateMatrixWorld',
+  'updateWorldMatrix'
+] as const
 
 object3dMethods.forEach((method) => {
   if (!(method in SVGElement.prototype)) {

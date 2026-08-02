@@ -5,8 +5,13 @@ import * as THREE from 'three'
 import { CameraText } from './cameraText'
 import { Constants } from '../../../constants'
 import { clink } from '../../../utils/Sound'
+import { Store } from '../../../types'
 
-vi.mock('../../../utils/Sound', () => ({ clink: { play: vi.fn() } }))
+vi.mock('../../../utils/Sound', () => ({
+  clink: {
+    play: vi.fn()
+  }
+}))
 
 /**
  * The frame loop and the camera it runs against, which the component is otherwise given no way to
@@ -17,7 +22,13 @@ const scene = vi.hoisted(() => ({
   frame: undefined as undefined | (() => void),
   three: {
     camera: undefined as unknown,
-    size: { width: 800, height: 600 }
+    size: { width: 800, height: 600 },
+    pointer: { x: 0, y: 0 },
+    /** Stands in for the ray cast from the pointer, which decides what it is resting on. */
+    raycaster: {
+      setFromCamera: vi.fn(),
+      intersectObject: vi.fn(() => [] as unknown[])
+    }
   },
   /** Whether the text reports laid-out bounds yet, which the backing plane is fitted to. */
   hasBounds: true
@@ -58,6 +69,7 @@ describe('Camera Text Component', () => {
     vi.clearAllMocks()
     scene.frame = undefined
     scene.hasBounds = true
+    scene.three.raycaster.intersectObject.mockReturnValue([])
     scene.three.camera = new THREE.PerspectiveCamera(
       Constants.WebGL.Camera.FOV,
       4 / 3,
@@ -65,6 +77,28 @@ describe('Camera Text Component', () => {
       18000
     )
   })
+
+  const camera = () => scene.three.camera as THREE.PerspectiveCamera
+
+  /** Runs one frame, from inside React's update cycle: the loop settles the highlight. */
+  const advanceFrame = () => act(() => scene.frame?.())
+
+  /**
+   * jsdom renders r3f's primitives as plain elements, so the pieces of a THREE.Object3D that the
+   * frame loop reads off them and writes back are grafted on here.
+   */
+  const asObject3D = (element: Element | null) =>
+    Object.assign(element as object, {
+      visible: true,
+      position: new THREE.Vector3(),
+      scale: new THREE.Vector3(1, 1, 1),
+      quaternion: new THREE.Quaternion(),
+      renderOrder: 0
+    }) as unknown as THREE.Group
+
+  /** Puts the pointer on the label, or takes it off: the ray either meets the label or it does not. */
+  const pointAtLabel = (isOn: boolean) =>
+    scene.three.raycaster.intersectObject.mockReturnValue(isOn ? [{ distance: 1 }] : [])
 
   it('should render the text it is given', () => {
     renderInScene(<CameraText>Earth</CameraText>)
@@ -158,21 +192,53 @@ describe('Camera Text Component', () => {
   })
 
   describe('hovering', () => {
-    it('should report a pointer arriving', async () => {
-      const user = userEvent.setup()
-      renderInScene(<CameraText {...handlers}>Earth</CameraText>)
+    /**
+     * Renders the label hung off a body, ready for the frame loop to place it and to settle where
+     * the pointer is against it.
+     */
+    const renderOnBody = (state: Partial<Store> = {}) => {
+      const result = renderInScene(<CameraText {...handlers}>Earth</CameraText>, state)
+      const body = new THREE.Group()
 
-      await user.hover(screen.getByText('Earth'))
+      body.updateMatrixWorld(true)
+      asObject3D(result.container.querySelector('mesh'))
+      asObject3D(result.container.querySelector('group')).parent = body
 
-      expect(handlers.onPointerOver).toHaveBeenCalled()
+      camera().position.set(0, 0, 10)
+      camera().updateMatrixWorld(true)
+
+      return result
+    }
+
+    it('should report a pointer arriving', () => {
+      renderOnBody()
+      pointAtLabel(true)
+
+      advanceFrame()
+
+      expect(handlers.onPointerOver).toHaveBeenCalledTimes(1)
+    })
+
+    it('should hold on to a pointer moving about within it', () => {
+      renderOnBody()
+      pointAtLabel(true)
+
+      // the pointer never leaves the label, however much of it it wanders across
+      advanceFrame()
+      advanceFrame()
+      advanceFrame()
+
+      expect(handlers.onPointerOver).toHaveBeenCalledTimes(1)
+      expect(handlers.onPointerOut).not.toHaveBeenCalled()
     })
 
     it('should report a pointer leaving only once it has stayed away', async () => {
-      const user = userEvent.setup()
-      renderInScene(<CameraText {...handlers}>Earth</CameraText>)
+      renderOnBody()
+      pointAtLabel(true)
+      advanceFrame()
 
-      await user.hover(screen.getByText('Earth'))
-      await user.unhover(screen.getByText('Earth'))
+      pointAtLabel(false)
+      advanceFrame()
 
       // it holds on for a moment first, in case the pointer is coming back
       expect(handlers.onPointerOut).not.toHaveBeenCalled()
@@ -181,13 +247,16 @@ describe('Camera Text Component', () => {
     })
 
     it('should say nothing when the pointer flickers off and straight back on', async () => {
-      const user = userEvent.setup()
-      renderInScene(<CameraText {...handlers}>Earth</CameraText>)
-      const label = screen.getByText('Earth')
+      renderOnBody()
+      pointAtLabel(true)
+      advanceFrame()
 
-      await user.hover(label)
-      await user.unhover(label)
-      await user.hover(label)
+      // the label re-lays itself out every frame, so the pointer can fall through it for one
+      pointAtLabel(false)
+      advanceFrame()
+
+      pointAtLabel(true)
+      advanceFrame()
 
       // long enough that a departure would have been seen through had it not been called off
       await new Promise((resolve) => setTimeout(resolve, Constants.UI.HOVER_LINGER * 2))
@@ -195,62 +264,65 @@ describe('Camera Text Component', () => {
       expect(handlers.onPointerOut).not.toHaveBeenCalled()
     })
 
-    it('should clink as the pointer meets it', async () => {
-      const user = userEvent.setup()
-      renderInScene(<CameraText {...handlers}>Earth</CameraText>, { volume: 1 })
+    it('should clink as the pointer meets it', () => {
+      renderOnBody({ volume: 1 })
+      pointAtLabel(true)
 
-      await user.hover(screen.getByText('Earth'))
+      advanceFrame()
 
       expect(clink.play).toHaveBeenCalledTimes(1)
       expect(clink.play).toHaveBeenCalledWith(1)
     })
 
-    it('should clink again each time the pointer comes back', async () => {
-      const user = userEvent.setup()
-      renderInScene(<CameraText {...handlers}>Earth</CameraText>, { volume: 1 })
-      const label = screen.getByText('Earth')
-
-      await user.hover(label)
-      await user.unhover(label)
-
-      // the pointer has to have stayed away for the label to count it as gone
-      await waitFor(() => expect(handlers.onPointerOut).toHaveBeenCalled())
-
-      await user.hover(label)
-
-      expect(clink.play).toHaveBeenCalledTimes(2)
-    })
-
     it('should clink only once for a pointer that stays on it', async () => {
-      const user = userEvent.setup()
-      renderInScene(<CameraText {...handlers}>Earth</CameraText>, { volume: 1 })
-      const label = screen.getByText('Earth')
+      renderOnBody({ volume: 1 })
+      pointAtLabel(true)
 
-      await user.hover(label)
-      await user.unhover(label)
-      await user.hover(label)
+      advanceFrame()
+      advanceFrame()
 
-      // long enough that a departure would have been seen through had it not been called off
+      // long enough that a label taken in by a false departure would have gone out by now
       await new Promise((resolve) => setTimeout(resolve, Constants.UI.HOVER_LINGER * 2))
+
+      advanceFrame()
 
       expect(clink.play).toHaveBeenCalledTimes(1)
     })
 
-    it('should clink at the volume the scene is playing at, so a muted scene stays silent', async () => {
-      const user = userEvent.setup()
-      renderInScene(<CameraText {...handlers}>Earth</CameraText>, { volume: 0 })
+    it('should clink again each time the pointer comes back', async () => {
+      renderOnBody({ volume: 1 })
+      pointAtLabel(true)
+      advanceFrame()
 
-      await user.hover(screen.getByText('Earth'))
+      pointAtLabel(false)
+      advanceFrame()
+
+      // the pointer has to have stayed away for the label to count it as gone
+      await waitFor(() => expect(handlers.onPointerOut).toHaveBeenCalled())
+
+      pointAtLabel(true)
+      advanceFrame()
+
+      expect(clink.play).toHaveBeenCalledTimes(2)
+    })
+
+    it('should clink at the volume the scene is playing at, so a muted scene stays silent', () => {
+      renderOnBody({ volume: 0 })
+      pointAtLabel(true)
+
+      advanceFrame()
 
       expect(clink.play).toHaveBeenCalledWith(0)
     })
 
     it('should drop a departure still pending when the label goes away', async () => {
-      const user = userEvent.setup()
-      const { unmount } = renderInScene(<CameraText {...handlers}>Earth</CameraText>)
+      const { unmount } = renderOnBody()
 
-      await user.hover(screen.getByText('Earth'))
-      await user.unhover(screen.getByText('Earth'))
+      pointAtLabel(true)
+      advanceFrame()
+
+      pointAtLabel(false)
+      advanceFrame()
 
       unmount()
 
@@ -261,24 +333,6 @@ describe('Camera Text Component', () => {
   })
 
   describe('on each frame', () => {
-    const camera = () => scene.three.camera as THREE.PerspectiveCamera
-
-    /** Runs one frame, from inside React's update cycle: the loop can drop the highlight. */
-    const advanceFrame = () => act(() => scene.frame?.())
-
-    /**
-     * jsdom renders r3f's primitives as plain elements, so the pieces of a THREE.Object3D that the
-     * frame loop reads off them and writes back are grafted on here.
-     */
-    const asObject3D = (element: Element | null) =>
-      Object.assign(element as object, {
-        visible: true,
-        position: new THREE.Vector3(),
-        scale: new THREE.Vector3(1, 1, 1),
-        quaternion: new THREE.Quaternion(),
-        renderOrder: 0
-      }) as unknown as THREE.Group
-
     /**
      * Renders the text hanging off a body, and runs a frame against it.
      *
@@ -499,13 +553,12 @@ describe('Camera Text Component', () => {
           expect(handlers.onClick).not.toHaveBeenCalled()
         })
 
-        it('should ignore a pointer coming to rest over where it used to be', async () => {
-          const user = userEvent.setup()
-
+        it('should ignore a pointer coming to rest over where it used to be', () => {
           cull()
-          advanceFrame()
 
-          await user.hover(screen.getByText('Earth'))
+          // the ray still meets the plane, which is only hidden rather than taken out of the scene
+          pointAtLabel(true)
+          advanceFrame()
 
           expect(handlers.onPointerOver).not.toHaveBeenCalled()
         })
@@ -525,15 +578,12 @@ describe('Camera Text Component', () => {
         })
       })
 
-      it('should let go of the highlight when it falls out of range while hovered', async () => {
-        const user = userEvent.setup()
+      it('should let go of the highlight when it falls out of range while hovered', () => {
         const { container } = renderInScene(
-          <CameraText {...handlers} barycenterId="system" maxDistance={1}>
+          <CameraText {...handlers} barycenterId="system" maxDistance={100}>
             Earth
           </CameraText>
         )
-
-        await user.hover(screen.getByText('Earth'))
 
         const system = new THREE.Group()
         const body = new THREE.Group()
@@ -542,15 +592,27 @@ describe('Camera Text Component', () => {
         system.add(body)
         system.updateMatrixWorld(true)
 
+        asObject3D(container.querySelector('mesh'))
+
         const group = asObject3D(container.querySelector('group'))
 
         group.parent = body
+        camera().position.set(0, 0, 10)
+        camera().updateMatrixWorld(true)
+
+        pointAtLabel(true)
+        advanceFrame()
+
+        expect(handlers.onPointerOver).toHaveBeenCalled()
+
+        // the camera pulls away and takes the label off screen, pointer or no pointer
         camera().position.set(0, 0, 500)
         camera().updateMatrixWorld(true)
 
         advanceFrame()
 
         expect(group.visible).toBe(false)
+        expect(handlers.onPointerOut).toHaveBeenCalled()
       })
     })
   })

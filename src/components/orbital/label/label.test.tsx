@@ -169,13 +169,13 @@ describe('Orbital Label Component', () => {
     })
 
     it('should highlight the orbital while the pointer is over its text', () => {
-      textProps().onPointerOver?.(null as never)
+      textProps().onPointerOver?.()
 
       expect(action.addHighlightedOrbital).toHaveBeenCalledWith('earth')
     })
 
     it('should drop the highlight once the pointer has left its text', () => {
-      textProps().onPointerOut?.(null as never)
+      textProps().onPointerOut?.()
 
       expect(action.removeHighlightedOrbital).toHaveBeenCalledWith('earth')
     })

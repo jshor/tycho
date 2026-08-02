@@ -3,7 +3,6 @@ import * as THREE from 'three'
 import { Text } from '@react-three/drei'
 import { useRef, useState, useMemo, useEffect } from 'react'
 import { Constants } from '../../../constants'
-import { useStore } from '../../../store'
 import { clink } from '../../../utils/Sound'
 
 interface TroikaText extends THREE.Mesh {
@@ -27,9 +26,9 @@ interface Props {
   /** Click or tap callback event. */
   onClick?: (event: ThreeEvent<PointerEvent>) => void
   /** Pointer over callback event. */
-  onPointerOver?: (event: ThreeEvent<PointerEvent>) => void
+  onPointerOver?: () => void
   /** Pointer out callback event. */
-  onPointerOut?: (event: ThreeEvent<PointerEvent>) => void
+  onPointerOut?: () => void
   /** Color of the text. */
   color?: THREE.ColorRepresentation
   /** Path to the font file for the text. */
@@ -51,14 +50,17 @@ export function CameraText({
   onPointerOut,
   ...props
 }: Props) {
-  const volume = useStore((state) => state.volume)
   const ref = useRef<TroikaText>(null)
   const groupRef = useRef<THREE.Group>(null)
   const backgroundRef = useRef<THREE.Mesh>(null)
-  const { camera, size } = useThree()
+  const { camera, size, raycaster, pointer } = useThree()
   const isVisible = useRef(true)
   const pressedAt = useRef<{ x: number; y: number } | null>(null)
   const leaving = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  /** Whether the pointer is on the label, as of the last frame it was placed on screen. */
+  const isHovered = useRef(false)
+
   const [hovered, setHovered] = useState(false)
   const textPosition = useMemo(() => new THREE.Vector3(), [])
   const bodyPosition = useMemo(() => new THREE.Vector3(), [])
@@ -70,6 +72,29 @@ export function CameraText({
   const parentQuaternion = useMemo(() => new THREE.Quaternion(), [])
   const inverseParent = useMemo(() => new THREE.Quaternion(), [])
   const parentScale = useMemo(() => new THREE.Vector3(), [])
+
+  /**
+   * Abandons a departure the pointer has not seen through.
+   */
+  const cancelLeaving = () => {
+    if (leaving.current !== null) {
+      clearTimeout(leaving.current)
+      leaving.current = null
+    }
+  }
+
+  /**
+   * Lets go of the label, wherever the pointer has got to.
+   */
+  const releaseHover = (): void => {
+    cancelLeaving()
+
+    if (!isHovered.current) return
+
+    isHovered.current = false
+    setHovered(false)
+    onPointerOut?.()
+  }
 
   /**
    * Applies the threshold range to the given group to apply its hover state.
@@ -94,8 +119,9 @@ export function CameraText({
     isVisible.current = withinRange
     group.visible = withinRange
 
-    if (!withinRange && hovered) {
-      setHovered(false)
+    if (!withinRange) {
+      // there is nothing left on screen for the pointer to be on
+      releaseHover()
     }
 
     return withinRange
@@ -171,6 +197,36 @@ export function CameraText({
   }
 
   /**
+   * Highlights the label while the pointer rests anywhere on the plane it is drawn on.
+   */
+  const applyPointerHoverState = (): void => {
+    const background = backgroundRef.current
+
+    if (!background) return
+
+    // the plane was moved, turned and re-fitted above, and is raycast where it now sits
+    background.updateWorldMatrix(true, false)
+    raycaster.setFromCamera(pointer, camera)
+
+    if (!raycaster.intersectObject(background, false).length) {
+      // the pointer can skim an edge, or fall through the label for a frame as it re-lays itself
+      // out, so a departure is given a moment to be seen through before it is called
+      if (isHovered.current && leaving.current === null) {
+        leaving.current = setTimeout(releaseHover)
+      }
+      return
+    }
+
+    cancelLeaving()
+
+    if (isHovered.current) return
+
+    isHovered.current = true
+    setHovered(true)
+    onPointerOver?.()
+  }
+
+  /**
    * Updates the label's position, scale, and orientation each frame.
    */
   useFrame(() => {
@@ -197,6 +253,7 @@ export function CameraText({
     scaleLabelToScreen(group, distance)
     faceCamera(group)
     applyBackgroundPlane(text)
+    applyPointerHoverState()
   })
 
   /**
@@ -234,66 +291,20 @@ export function CameraText({
     onClick?.(event)
   }
 
-  /**
-   * Abandons a departure the pointer has not seen through.
-   */
-  const cancelLeaving = () => {
-    if (leaving.current !== null) {
-      clearTimeout(leaving.current)
-      leaving.current = null
-    }
-  }
-
-  /**
-   * Label hover (mouseover or touch)event handler.
-   */
-  const onHover = (event: ThreeEvent<PointerEvent>) => {
-    if (!isVisible.current) return
-
-    cancelLeaving()
-    event.stopPropagation()
-    setHovered(true)
-    onPointerOver?.(event)
-  }
-
-  /**
-   * Label leave (mouseleave or touch) event handler.
-   *
-   * This has a timeout to keep the label highlighted until its expiry (to circumvent UI flickering).
-   */
-  const onLeave = (event: ThreeEvent<PointerEvent>) => {
-    cancelLeaving()
-
-    leaving.current = setTimeout(() => {
-      leaving.current = null
-      setHovered(false)
-      onPointerOut?.(event)
-    }, Constants.UI.HOVER_LINGER)
-  }
-
   // a label that goes away mid-departure would otherwise leave the timer to fire into nothing
   useEffect(() => cancelLeaving, [])
 
   /**
-   * Clinks as the pointer meets the label, once for each arrival.
-   *
-   * This follows the highlight rather than the pointer itself, so a pointer that flickers off the
-   * label and straight back on is the one hover it looks like, and sounds only the once.
+   * Plays a "clink" sound when the pointer hovers over the label.
    */
   useEffect(() => {
     if (hovered) {
-      clink.play(volume)
+      clink.play(1)
     }
-  }, [hovered]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [hovered])
 
   return (
-    <group
-      ref={groupRef}
-      onPointerDown={onPress}
-      onPointerUp={onRelease}
-      onPointerOver={onHover}
-      onPointerOut={onLeave}
-    >
+    <group ref={groupRef} onPointerDown={onPress} onPointerUp={onRelease}>
       <mesh
         ref={backgroundRef}
         material={Constants.WebGL.LABEL_BACKGROUND_MATERIAL}

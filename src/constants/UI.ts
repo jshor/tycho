@@ -38,14 +38,5 @@ export const HOVER_OPACITY_ON = 1
 
 export const HOVER_OPACITY_OFF = 0.4
 
-/**
- * How long a label stays lit after the pointer leaves it, in ms.
- *
- * A label is re-oriented and re-scaled every frame, so a pointer crossing it can fall through the
- * gaps for a frame or two and blink the highlight off and straight back on. Waiting this long for
- * the pointer to return holds the highlight steady through that, without lagging a real departure.
- */
-export const HOVER_LINGER = 100
-
 /** The keys that press a button, per the ARIA button pattern. */
 export const A11Y_ACTIVATION_KEYS = ['Enter', ' ']

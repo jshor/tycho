@@ -64,7 +64,7 @@ export function Tour({ labels }: Props) {
     } else {
       initializeTour()
     }
-  })  
+  })
 
   /**
    * Builds a label for each item of narration, timed to play one after the other.

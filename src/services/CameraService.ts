@@ -1,11 +1,9 @@
 import { Easing, Tween } from '@tweenjs/tween.js'
 import { Vector3, Object3D, Scene as ThreeScene, MathUtils } from 'three'
 import { Constants } from '../constants'
-import { OrbitalService } from './OrbitalService'
 import { Gyroscope } from '../utils/Gyroscope'
 import { tweens } from '../utils/Tween'
 import { Scale, getVisibleRadius } from '../utils/Scale'
-import { OrbitalData } from '../types'
 
 export class CameraService {
   static CAMERA_INITIAL_POSITION: Vector3 = new Vector3(
@@ -17,10 +15,7 @@ export class CameraService {
   /**
    * Returns the minimum distance the camera may get to the given orbital.
    */
-  static getMinDistance = (
-    radius: number,
-    aspect: number
-  ): number => {
+  static getMinDistance = (radius: number, aspect: number): number => {
     const extent = getVisibleRadius(radius)
     const vertical = MathUtils.degToRad(Constants.WebGL.Camera.FOV)
     const field = Math.min(vertical, 2 * Math.atan(Math.tan(vertical / 2) * aspect))

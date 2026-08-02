@@ -29,11 +29,8 @@ const controls = vi.hoisted(() => ({
   resetLook: vi.fn(),
   update: vi.fn(),
   faceTarget: vi.fn(),
-  getZoomVector: vi.fn(
-    (vector: Vector3, scalar: number) => vector
-      .clone()
-      .normalize()
-      .multiplyScalar(scalar)
+  getZoomVector: vi.fn((vector: Vector3, scalar: number) =>
+    vector.clone().normalize().multiplyScalar(scalar)
   ),
   autoRotate: false,
   minDistance: 7,
@@ -126,7 +123,6 @@ describe('Camera Module', () => {
   const renderModule = (state: Partial<Store> = {}, ref?: React.Ref<CameraHandle>) => {
     return renderInScene(<Camera ref={ref} ratio={RATIO} />, { orbitalData, ...state })
   }
-
 
   const renderOnTarget = (state: Partial<Store> = {}) => {
     const target = new Group()

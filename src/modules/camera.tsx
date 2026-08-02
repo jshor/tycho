@@ -161,14 +161,21 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
   /**
    * Returns a function that turns the camera toward the new target.
    */
-  const turnToward = ({ target, fromDistance, toDistance }: {
-    /** The target object to turn the camera toward. */
-    target: THREE.Object3D,
-    /** Distance from the pivot the camera was framed when it set off. */
-    fromDistance: number,
-    /** Distance from the pivot the camera ought to be framed once it arrives. */
-    toDistance: number
-  }, progress: number) => {
+  const turnToward = (
+    {
+      target,
+      fromDistance,
+      toDistance
+    }: {
+      /** The target object to turn the camera toward. */
+      target: THREE.Object3D
+      /** Distance from the pivot the camera was framed when it set off. */
+      fromDistance: number
+      /** Distance from the pivot the camera ought to be framed once it arrives. */
+      toDistance: number
+    },
+    progress: number
+  ) => {
     const pivot = pivotRef.current
     const controls = controlsRef.current
 
@@ -198,7 +205,7 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
   const endTween = (toDistance: number) => {
     setInteractivity(true)
     changeZoom(0)
-    
+
     if (controlsRef.current) {
       controlsRef.current.resetLook()
       controlsRef.current.lockCameraOntoTarget()
