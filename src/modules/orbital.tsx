@@ -3,6 +3,7 @@ import { useStore } from '../store'
 import { Ellipse } from '../utils/Ellipse'
 import { OrbitalService as Service } from '../services/OrbitalService'
 import { Orbital as OrbitalView } from '../components/orbital/orbital'
+import { Clouds } from '../components/orbital/clouds/clouds'
 import { Texture } from './texture'
 import { OrbitalData, TextureMap } from '../types'
 import { DoubleSide, Euler } from 'three'
@@ -106,6 +107,10 @@ export function Orbital(props: Props) {
           />
           <Texture textures={props.maps} />
         </mesh>
+
+        {props.clouds && (
+          <Clouds radius={props.radius} url={props.clouds} rotation={body.rotation} />
+        )}
 
         {/* planetary rings (if any) */}
         {props.rings && <Rings {...props.rings} />}

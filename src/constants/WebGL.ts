@@ -121,11 +121,21 @@ export const Atmosphere: AtmosphereEntry = {
   // TODO: make these configurable in JSON too, as the height and colour now are
   POWER: 3,
   INTENSITY: 1.4,
-  TERMINATOR_SOFTNESS: 0.6,
+  TERMINATOR_SOFTNESS: 0.1,
   DUSK_COLOR: 0xffbe94,
   DENSITY_FALLOFF: 2,
   HEIGHT_SCALE: 1,
   DEPTH_BIAS: 2
+}
+
+/**
+ * The cloud deck drawn over a body that wears one, above its surface and inside its atmosphere.
+ */
+export const Clouds = {
+  /** Scale of the height of the cloud deck relative to the body's radius. */
+  HEIGHT_SCALE: 0.01,
+  /** How far toward the camera the deck's depth is nudged, in depth-buffer units. */
+  DEPTH_BIAS: 8
 }
 
 /**

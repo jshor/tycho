@@ -53,6 +53,7 @@
             "nasaBarycenterCode": "0",
             "revolutionOrder": "y"
         },
+        "clouds": "Earth_clouds.jpg",
         "maps": [
             {
                 "slot": "map",
