@@ -1,5 +1,6 @@
 {
     "name": "Pluto",
+    "symbol": "2647",
     "albedo": 0.66,
     "sidereal": 6.38723,
     "radius": 1189.9,
@@ -8,6 +9,8 @@
     "centralMass": 1.989e+30,
     "axialTilt": 119.591,
     "inclination": 17.151394,
+    "atmosphereHeightKm": 200,
+    "atmosphereColor": "#8CAAC7",
     "atmosphere": 13872777,
     "satellites": [
         "charon"

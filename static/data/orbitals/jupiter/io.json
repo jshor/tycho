@@ -1,11 +1,14 @@
 {
     "name": "Io",
+    "symbol": "2643-49",
     "albedo": 0.63,
     "radius": 1821.6,
     "mass": 8.931938e+22,
     "centralMass": 1.898e+27,
     "axialTilt": 0,
     "inclination": 0.05,
+    "atmosphereHeightKm": 120,
+    "atmosphereColor": "#E9D36B",
     "atmosphere": 10521177,
     "ephemeris": {
         "nasaOrbitalCode": "501",

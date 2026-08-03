@@ -1,5 +1,6 @@
 {
     "name": "Europa",
+    "symbol": "2643-49-49",
     "albedo": 0.67,
     "radius": 1560.8,
     "markdown": "europa.md",

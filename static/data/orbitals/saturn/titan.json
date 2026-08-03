@@ -1,11 +1,14 @@
 {
     "name": "Titan",
+    "symbol": "2644-56-49",
     "albedo": 0.22,
     "radius": 2575.5,
     "mass": 1.3452e+23,
     "centralMass": 5.6836e+26,
     "axialTilt": 0,
     "inclination": 0.34854,
+    "atmosphereHeightKm": 600,
+    "atmosphereColor": "#D9984C",
     "atmosphere": 16634447,
     "ephemeris": {
         "nasaOrbitalCode": "606",

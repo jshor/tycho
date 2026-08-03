@@ -1,6 +1,7 @@
 [
     {
         "name": "Earth",
+        "symbol": "1f728",
         "albedo": 0.367,
         "sidereal": 0.99726968,
         "radius": 6371,
@@ -9,9 +10,12 @@
         "axialTilt": 23.4392811,
         "inclination": 7.155,
         "atmosphere": 35260,
+        "atmosphereHeightKm": 100,
+        "atmosphereColor": "#5DA9E9",
         "satellites": [
             {
                 "name": "Moon",
+                "symbol": "263e",
                 "albedo": 0.136,
                 "sidereal": 0.99726968,
                 "radius": 1737.1,
@@ -112,6 +116,7 @@
     },
     {
         "name": "Jupiter",
+        "symbol": "2643",
         "albedo": 0.52,
         "sidereal": 1234,
         "radius": 69911,
@@ -120,9 +125,12 @@
         "axialTilt": 3.13,
         "inclination": 1.303,
         "atmosphere": 9996148,
+        "atmosphereHeightKm": 3000,
+        "atmosphereColor": "#D8C3A5",
         "satellites": [
             {
                 "name": "Io",
+                "symbol": "2643-49",
                 "albedo": 0.63,
                 "radius": 1821.6,
                 "mass": 8.931938e+22,
@@ -130,6 +138,8 @@
                 "axialTilt": 0,
                 "inclination": 0.05,
                 "atmosphere": 10521177,
+                "atmosphereHeightKm": 120,
+                "atmosphereColor": "#E9D36B",
                 "ephemeris": {
                     "nasaOrbitalCode": "501",
                     "nasaBarycenterCode": "5",
@@ -155,6 +165,7 @@
             },
             {
                 "name": "Callisto",
+                "symbol": "2643-49-56",
                 "albedo": 0.17,
                 "radius": 2410.3,
                 "markdown": "callisto.md",
@@ -188,6 +199,7 @@
             },
             {
                 "name": "Europa",
+                "symbol": "2643-49-49",
                 "albedo": 0.67,
                 "radius": 1560.8,
                 "markdown": "europa.md",
@@ -221,6 +233,7 @@
             },
             {
                 "name": "Ganymede",
+                "symbol": "2643-49-49-49",
                 "albedo": 0.43,
                 "radius": 2634.1,
                 "markdown": "ganymeade.md",
@@ -278,6 +291,7 @@
     },
     {
         "name": "Mars",
+        "symbol": "2642",
         "albedo": 0.17,
         "sidereal": 1.025957,
         "radius": 3389.5,
@@ -286,9 +300,12 @@
         "axialTilt": 25.19,
         "inclination": 5.65,
         "atmosphere": 12746585,
+        "atmosphereHeightKm": 80,
+        "atmosphereColor": "#D88C63",
         "satellites": [
             {
                 "name": "Phobos",
+                "symbol": "2642-49",
                 "albedo": 0.071,
                 "radius": 11.2667,
                 "mass": 10659000000000000,
@@ -321,6 +338,7 @@
             },
             {
                 "name": "Deimos",
+                "symbol": "2642-49-49",
                 "albedo": 0.068,
                 "radius": 6.2,
                 "mass": 1476200000000000,
@@ -377,6 +395,7 @@
     },
     {
         "name": "Mercury",
+        "symbol": "263f",
         "albedo": 0.142,
         "sidereal": 58.646,
         "radius": 2439.7,
@@ -390,7 +409,7 @@
             "nasaBarycenterCode": "0",
             "revolutionOrder": "y"
         },
-        "textures": [
+        "maps": [
             {
                 "slot": "map",
                 "url": "Mercury.jpg"
@@ -410,6 +429,7 @@
     },
     {
         "name": "Neptune",
+        "symbol": "2646",
         "albedo": 0.41,
         "sidereal": 0.6713,
         "radius": 24622,
@@ -418,9 +438,12 @@
         "axialTilt": 28.32,
         "inclination": 1.767975,
         "atmosphere": 4871817,
+        "atmosphereHeightKm": 1500,
+        "atmosphereColor": "#3F6FE5",
         "satellites": [
             {
                 "name": "Triton",
+                "symbol": "2646-49",
                 "albedo": 0.76,
                 "radius": 1353.4,
                 "mass": 2.14e+24,
@@ -428,6 +451,8 @@
                 "axialTilt": 0,
                 "inclination": 156.885,
                 "atmosphere": 4871817,
+                "atmosphereHeightKm": 100,
+                "atmosphereColor": "#8EAFC8",
                 "ephemeris": {
                     "nasaOrbitalCode": "801",
                     "nasaBarycenterCode": "0",
@@ -477,6 +502,7 @@
     },
     {
         "name": "Pluto",
+        "symbol": "2647",
         "albedo": 0.66,
         "sidereal": 6.38723,
         "radius": 1189.9,
@@ -486,9 +512,12 @@
         "axialTilt": 119.591,
         "inclination": 17.151394,
         "atmosphere": 13872777,
+        "atmosphereHeightKm": 200,
+        "atmosphereColor": "#8CAAC7",
         "satellites": [
             {
                 "name": "Charon",
+                "symbol": "2647-49",
                 "albedo": 0.35,
                 "radius": 1189.9,
                 "mass": 1.586e+21,
@@ -545,6 +574,7 @@
     },
     {
         "name": "Saturn",
+        "symbol": "2644",
         "albedo": 0.499,
         "sidereal": 0.4395,
         "radius": 58232,
@@ -553,9 +583,12 @@
         "axialTilt": 26.73,
         "inclination": 2.485,
         "atmosphere": 9931069,
+        "atmosphereHeightKm": 2500,
+        "atmosphereColor": "#E6D3A3",
         "satellites": [
             {
                 "name": "Dione",
+                "symbol": "2644-49-56",
                 "albedo": 0.998,
                 "radius": 561.4,
                 "mass": 1.095452e+21,
@@ -588,6 +621,7 @@
             },
             {
                 "name": "Enceladus",
+                "symbol": "2644-49-49",
                 "albedo": 1.375,
                 "radius": 252.1,
                 "mass": 108022000000000000000,
@@ -620,6 +654,7 @@
             },
             {
                 "name": "Mimas",
+                "symbol": "2644-49",
                 "albedo": 0.962,
                 "radius": 198.2,
                 "mass": 37493000000000000000,
@@ -652,6 +687,7 @@
             },
             {
                 "name": "Rhea",
+                "symbol": "2644-56",
                 "albedo": 0.949,
                 "radius": 763.8,
                 "mass": 2.306518e+21,
@@ -684,6 +720,7 @@
             },
             {
                 "name": "Tethys",
+                "symbol": "2644-49-49-49",
                 "albedo": 1.229,
                 "radius": 531.1,
                 "mass": 617449000000000000000,
@@ -716,6 +753,7 @@
             },
             {
                 "name": "Titan",
+                "symbol": "2644-56-49",
                 "albedo": 0.22,
                 "radius": 2575.5,
                 "mass": 1.3452e+23,
@@ -723,6 +761,8 @@
                 "axialTilt": 0,
                 "inclination": 0.34854,
                 "atmosphere": 16634447,
+                "atmosphereHeightKm": 600,
+                "atmosphereColor": "#D9984C",
                 "ephemeris": {
                     "nasaOrbitalCode": "606",
                     "nasaBarycenterCode": "6",
@@ -748,6 +788,7 @@
             },
             {
                 "name": "Iapetus",
+                "symbol": "2644-56-49-49-49",
                 "albedo": 0.25,
                 "radius": 734.5,
                 "mass": 1.805635e+21,
@@ -815,6 +856,7 @@
     },
     {
         "name": "Uranus",
+        "symbol": "2645",
         "albedo": 0.51,
         "sidereal": -0.71833,
         "radius": 25362,
@@ -823,9 +865,12 @@
         "axialTilt": 97.77,
         "inclination": 0.77,
         "atmosphere": 5804449,
+        "atmosphereHeightKm": 1500,
+        "atmosphereColor": "#83D8E8",
         "satellites": [
             {
                 "name": "Ariel",
+                "symbol": "2645-49",
                 "albedo": 0.53,
                 "radius": 578.9,
                 "mass": 1.353e+21,
@@ -858,6 +903,7 @@
             },
             {
                 "name": "Miranda",
+                "symbol": "2645-56",
                 "albedo": 0.32,
                 "radius": 235.8,
                 "mass": 65900000000000000000,
@@ -873,7 +919,7 @@
                 "maps": [
                     {
                         "slot": "map",
-                        "url": "Miranda.png"
+                        "url": "Miranda.jpg"
                     }
                 ],
                 "argumentOfPeriapsis": 244.0701800710327,
@@ -890,6 +936,7 @@
             },
             {
                 "name": "Oberon",
+                "symbol": "2645-49-56",
                 "albedo": 0.31,
                 "radius": 761.4,
                 "mass": 3.014e+21,
@@ -922,6 +969,7 @@
             },
             {
                 "name": "Titania",
+                "symbol": "2645-49-49-49",
                 "albedo": 0.35,
                 "radius": 788.4,
                 "mass": 3.527e+21,
@@ -954,6 +1002,7 @@
             },
             {
                 "name": "Umbriel",
+                "symbol": "2645-49-49",
                 "albedo": 0.26,
                 "radius": 584.7,
                 "mass": 1.172e+21,
@@ -1010,6 +1059,7 @@
     },
     {
         "name": "Venus",
+        "symbol": "2640",
         "albedo": 0.689,
         "sidereal": -243.025,
         "radius": 6051.8,
@@ -1018,6 +1068,8 @@
         "axialTilt": 2.64,
         "inclination": 3.86,
         "atmosphere": 16052641,
+        "atmosphereHeightKm": 150,
+        "atmosphereColor": "#F4D6A0",
         "ephemeris": {
             "nasaOrbitalCode": "2",
             "nasaBarycenterCode": "0",

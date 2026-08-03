@@ -1,5 +1,6 @@
 {
     "name": "Saturn",
+    "symbol": "2644",
     "albedo": 0.499,
     "sidereal": 0.4395,
     "radius": 58232,
@@ -7,6 +8,8 @@
     "centralMass": 1.989e+30,
     "axialTilt": 26.73,
     "inclination": 2.485,
+    "atmosphereHeightKm": 2500,
+    "atmosphereColor": "#E6D3A3",
     "atmosphere": 9931069,
     "satellites": [
         "dione",

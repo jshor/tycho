@@ -1,5 +1,6 @@
 {
     "name": "Moon",
+    "symbol": "263e",
     "albedo": 0.136,
     "sidereal": 0.99726968,
     "radius": 1737.1,
