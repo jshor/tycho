@@ -81,6 +81,8 @@ export function Orbital(props: Props) {
       bodyPercent={body.percent}
       pathOpacity={pathOpacity}
       atmosphere={props.atmosphere}
+      atmosphereHeightKm={props.atmosphereHeightKm}
+      atmosphereColor={props.atmosphereColor}
       maxDistance={body.maxDistance}
       tail={props.tail}
       text={props.name}

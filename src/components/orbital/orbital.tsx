@@ -4,7 +4,6 @@ import { Line } from '@react-three/drei'
 import { Label } from './label/label'
 import { Atmosphere } from './atmosphere/atmosphere'
 import { Comet } from './comet/comet'
-import { Constants } from '../../constants'
 import { TailData, OrbitalLabelActions } from '../../types'
 
 export interface Props {
@@ -18,6 +17,10 @@ export interface Props {
   text: string
   action: OrbitalLabelActions
   atmosphere?: number
+  /** How far the body's atmosphere reaches above its surface, in km. */
+  atmosphereHeightKm?: number
+  /** The colour that atmosphere scatters the sunlight into. */
+  atmosphereColor?: string
   pathOpacity?: number
   /** The orbital at the centre of the system the camera is watching. */
   systemId?: string
@@ -42,6 +45,8 @@ export function Orbital(props: Props) {
     bodyPosition,
     bodyPercent,
     atmosphere,
+    atmosphereHeightKm,
+    atmosphereColor,
     pathOpacity,
     id,
     radius,
@@ -71,13 +76,19 @@ export function Orbital(props: Props) {
     return colors
   }, [pathVertices.length, bodyPercent, lineColor])
 
-  const scattering = Constants.WebGL.Atmospheres[id]
+  const hasAtmosphere = !!atmosphereHeightKm && !!atmosphereColor
 
   return (
     <group rotation={eclipticGroupRotation}>
       <group rotation={orbitalGroupRotation}>
         <group position={bodyPosition} name={id}>
-          {scattering && <Atmosphere radius={radius} color={bodyColor} settings={scattering} />}
+          {hasAtmosphere && (
+            <Atmosphere
+              radius={radius}
+              height={atmosphereHeightKm as number}
+              color={atmosphereColor as string}
+            />
+          )}
           {tail && (
             <Comet
               radius={radius}

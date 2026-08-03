@@ -9,6 +9,8 @@
     "centralMass": 1.989e+30,
     "axialTilt": 119.591,
     "inclination": 17.151394,
+    "atmosphereHeightKm": 200,
+    "atmosphereColor": "#8CAAC7",
     "atmosphere": 13872777,
     "satellites": [
         "charon"

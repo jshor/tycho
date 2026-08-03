@@ -8,6 +8,8 @@
     "centralMass": 1.989e+30,
     "axialTilt": 2.64,
     "inclination": 3.86,
+    "atmosphereHeightKm": 150,
+    "atmosphereColor": "#F4D6A0",
     "atmosphere": 16052641,
     "ephemeris": {
         "nasaOrbitalCode": "2",

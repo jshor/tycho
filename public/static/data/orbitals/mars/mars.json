@@ -8,6 +8,8 @@
     "centralMass": 1.989e+30,
     "axialTilt": 25.19,
     "inclination": 5.65,
+    "atmosphereHeightKm": 80,
+    "atmosphereColor": "#D88C63",
     "atmosphere": 12746585,
     "satellites": [
         "phobos",

@@ -101,9 +101,7 @@ export const Sunlight = {
 }
 
 export interface AtmosphereEntry {
-  /** Depth of the atmospheric shell above the surface, as a fraction of the body's radius. */
-  THICKNESS: number
-  /** Sharpness of the limb glow: how tightly it hugs the grazing edge of the disc. */
+  /** Apparent thickness of the atmosphere (air). */
   POWER: number
   /** Overall brightness of the scattering. */
   INTENSITY: number
@@ -111,20 +109,23 @@ export interface AtmosphereEntry {
   TERMINATOR_SOFTNESS: number
   /** Warm colour blended in near the terminator (i.e., dusk/dawn). */
   DUSK_COLOR: number
+  /** How steeply the air thins with height, in scale heights across the whole shell. */
+  DENSITY_FALLOFF: number
+  /** How much taller than life the shell is drawn. */
+  HEIGHT_SCALE: number
+  /** How far toward the camera the shell's depth is nudged, in depth-buffer units. */
+  DEPTH_BIAS: number
 }
 
-/**
- * Atmospheric scattering settings for bodies that have an atmosphere.
- */
-export const Atmospheres: Record<string, AtmosphereEntry> = {
-  earth: {
-    // TODO: make this configurable in JSON
-    THICKNESS: 0.03,
-    POWER: 3,
-    INTENSITY: 1.4,
-    TERMINATOR_SOFTNESS: 0.1,
-    DUSK_COLOR: 0xffbe94
-  }
+export const Atmosphere: AtmosphereEntry = {
+  // TODO: make these configurable in JSON too, as the height and colour now are
+  POWER: 3,
+  INTENSITY: 1.4,
+  TERMINATOR_SOFTNESS: 0.6,
+  DUSK_COLOR: 0xffbe94,
+  DENSITY_FALLOFF: 2,
+  HEIGHT_SCALE: 1,
+  DEPTH_BIAS: 2
 }
 
 /**

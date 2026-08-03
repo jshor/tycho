@@ -44,4 +44,27 @@ describe('Orbital Component', () => {
 
     expect(container.querySelector('group[name="comet"]')).toBeNull()
   })
+
+  /** The shell is the sphere drawn around the body, alongside the body's own. */
+  const shells = (container: HTMLElement) => container.querySelectorAll('mesh sphereGeometry')
+
+  it('should wrap an orbital the data gives an atmosphere in a shell', () => {
+    const { container } = renderInScene(
+      <Orbital {...props} atmosphereHeightKm={100} atmosphereColor="#5DA9E9" />
+    )
+
+    expect(shells(container)).toHaveLength(1)
+  })
+
+  it('should leave an orbital the data gives no atmosphere bare', () => {
+    const { container } = renderInScene(<Orbital {...props} />)
+
+    expect(shells(container)).toHaveLength(0)
+  })
+
+  it('should leave an orbital given a height but no colour bare, having nothing to scatter', () => {
+    const { container } = renderInScene(<Orbital {...props} atmosphereHeightKm={100} />)
+
+    expect(shells(container)).toHaveLength(0)
+  })
 })
