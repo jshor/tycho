@@ -37,8 +37,15 @@ export const createAtmosphereMaterial = (
   surfaceRadius: number,
   shellRadius: number
 ): THREE.ShaderMaterial => {
-  const { POWER, INTENSITY, TERMINATOR_SOFTNESS, DUSK_COLOR, DENSITY_FALLOFF, DEPTH_BIAS } =
-    Constants.WebGL.Atmosphere
+  const {
+    POWER,
+    INTENSITY,
+    TERMINATOR_SOFTNESS,
+    DUSK_COLOR,
+    DENSITY_FALLOFF,
+    DEPTH_BIAS,
+    HEAD_ON_FADE
+  } = Constants.WebGL.Atmosphere
 
   return new THREE.ShaderMaterial({
     vertexShader: VERTEX_SHADER,
@@ -51,7 +58,8 @@ export const createAtmosphereMaterial = (
       terminatorSoftness: { value: TERMINATOR_SOFTNESS },
       surfaceRadius: { value: surfaceRadius },
       shellRadius: { value: shellRadius },
-      densityFalloff: { value: DENSITY_FALLOFF }
+      densityFalloff: { value: DENSITY_FALLOFF },
+      headOnFade: { value: HEAD_ON_FADE }
     },
     transparent: true,
     blending: THREE.AdditiveBlending,

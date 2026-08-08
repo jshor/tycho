@@ -85,6 +85,12 @@ describe('Atmosphere Component', () => {
       expect(uniforms.shellRadius.value).toBeGreaterThan(uniforms.surfaceRadius.value)
     })
 
+    it('should thin the haze over a disc lit from behind the eye', () => {
+      const { uniforms } = createAtmosphereMaterial(EARTH.color, SURFACE, SHELL)
+
+      expect(uniforms.headOnFade.value).toEqual(Constants.WebGL.Atmosphere.HEAD_ON_FADE)
+    })
+
     it('should thin the air with height, so the glow fades before the shell ends', () => {
       const { uniforms } = createAtmosphereMaterial(EARTH.color, SURFACE, SHELL)
 
@@ -112,7 +118,7 @@ describe('Atmosphere Component', () => {
     it('should be built from the shaders that draw the scattering', () => {
       const material = createAtmosphereMaterial(EARTH.color, SURFACE, SHELL)
 
-      expect(material.vertexShader).toContain('vWorldNormal')
+      expect(material.vertexShader).toContain('vViewNormal')
       expect(material.fragmentShader).toContain('terminatorSoftness')
     })
 

@@ -115,6 +115,8 @@ export interface AtmosphereEntry {
   HEIGHT_SCALE: number
   /** How far toward the camera the shell's depth is nudged, in depth-buffer units. */
   DEPTH_BIAS: number
+  /** Level of glow to fade out by when sunlight shines on it. */
+  HEAD_ON_FADE: number
 }
 
 export const Atmosphere: AtmosphereEntry = {
@@ -125,7 +127,8 @@ export const Atmosphere: AtmosphereEntry = {
   DUSK_COLOR: 0xffbe94,
   DENSITY_FALLOFF: 2,
   HEIGHT_SCALE: 1,
-  DEPTH_BIAS: 2
+  DEPTH_BIAS: 2,
+  HEAD_ON_FADE: 1
 }
 
 /**

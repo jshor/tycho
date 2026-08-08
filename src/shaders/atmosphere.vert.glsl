@@ -1,11 +1,10 @@
-// modelMatrix, modelViewMatrix, projectionMatrix and cameraPosition are all injected automatically
-// by three.js into every ShaderMaterial — see three.module.js's WebGLProgram prefix generation —
-// so only the values this shader actually needs beyond those are declared here.
+// modelViewMatrix, normalMatrix, projectionMatrix and viewMatrix are all injected automatically by
+// three.js into every ShaderMaterial — see three.module.js's WebGLProgram prefix generation — so
+// only the values this shader actually needs beyond those are declared here.
 
 varying vec3 vViewPosition;
 varying vec3 vViewCenter;
-varying vec3 vWorldPosition;
-varying vec3 vWorldNormal;
+varying vec3 vViewNormal;
 
 void main() {
   // The shell is placed against the camera rather than against the world origin, because three
@@ -22,14 +21,10 @@ void main() {
   // where the body this shell is wrapped around sits, which the sight line is measured against
   vViewCenter = (modelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
 
-  // the sun sits at the world origin, so the light still has to be worked out in world terms. That
-  // one is only ever a direction, which holds up at any distance where a difference would not.
-  vWorldPosition = (modelMatrix * vec4(position, 1.0)).xyz;
-
-  // The shell is only ever uniformly scaled (see Scale() / getVisibleRadius()), so the model
-  // matrix's rotation block can carry the normal into world space directly, without the
-  // inverse-transpose correction non-uniform scaling would otherwise require.
-  vWorldNormal = normalize(mat3(modelMatrix) * normal);
+  // The shell is only ever uniformly scaled (see Scale() / getVisibleRadius()), so the normal
+  // matrix carries the normal into view space without the inverse-transpose correction that
+  // non-uniform scaling would otherwise require.
+  vViewNormal = normalize(normalMatrix * normal);
 
   gl_Position = projectionMatrix * viewPosition;
 }
