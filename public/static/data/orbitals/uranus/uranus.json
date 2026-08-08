@@ -10,7 +10,7 @@
     "inclination": 0.77,
     "atmosphereHeightKm": 1500,
     "atmosphereColor": "#83D8E8",
-    "atmosphere": 5804449,
+    "labelColor": 5804449,
     "satellites": [
         "ariel",
         "miranda",

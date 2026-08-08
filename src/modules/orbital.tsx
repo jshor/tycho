@@ -23,8 +23,6 @@ export interface Props extends OrbitalData {
  */
 export function Orbital(props: Props) {
   const { id, parentId, isSatellite } = props
-
-  // the orbit is traced the once, out of the orbital data the body arrived with
   const [ellipse] = useState(() => new Ellipse(props))
   const time = useStore((state) => state.time)
   const targetId = useStore((state) => state.targetId)
@@ -54,8 +52,6 @@ export function Orbital(props: Props) {
   const body = useMemo(
     () => ({
       rotation: Service.getBodyRotation({ ...props, time }),
-      position: Service.getBodyPosition({ ...props, time }, ellipse),
-      percent: Service.getBodyPercent({ ...props, time }, ellipse),
       maxDistance: Service.getMaxViewDistance(props)
     }),
     [time, ellipse] // eslint-disable-line react-hooks/exhaustive-deps
@@ -73,15 +69,15 @@ export function Orbital(props: Props) {
     [orbitalData, targetId]
   )
 
+  /** Updates the orbital path's time. */
+  useMemo(() => ellipse.updateTime(time), [time, ellipse])
+
   return (
     <OrbitalView
       eclipticGroupRotation={eclipticGroupRotation}
       orbitalGroupRotation={orbitalGroupRotation}
-      pathVertices={ellipse.getVertices()}
-      bodyPosition={body.position}
-      bodyPercent={body.percent}
+      ellipse={ellipse}
       pathOpacity={pathOpacity}
-      atmosphere={props.atmosphere}
       atmosphereHeightKm={props.atmosphereHeightKm}
       atmosphereColor={props.atmosphereColor}
       maxDistance={body.maxDistance}
@@ -108,6 +104,7 @@ export function Orbital(props: Props) {
           <Texture textures={props.maps} />
         </mesh>
 
+        {/* clouds (if any) */}
         {props.clouds && (
           <Clouds radius={props.radius} url={props.clouds} rotation={body.rotation} />
         )}

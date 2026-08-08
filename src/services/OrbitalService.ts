@@ -2,8 +2,7 @@ import * as THREE from 'three'
 import { MathService } from './MathService'
 import { PhysicsService } from './PhysicsService'
 import { Constants } from '../constants'
-import { OrbitalData, OrbitalStats, Periapses } from '../types'
-import { Ellipse } from '../utils/Ellipse'
+import { OrbitalData, OrbitalStats } from '../types'
 
 interface RotationCoords {
   x?: number
@@ -62,23 +61,6 @@ export class OrbitalService {
     // TODO: 0.6 is the offset needed to make earth align to the sun at the right time; add this as a constant to the config JSON
     const percentRotated = unixTimeToDays / sidereal + (0.6 % 1)
     return percentRotated * 360
-  }
-
-  /**
-   *Returns the percentage of travel along the elliptical path [0, 1] to its periapsis.
-   */
-  static getBodyPercent = (
-    { periapses, time }: { periapses: Periapses; time?: number },
-    ellipse: Ellipse
-  ): number => {
-    return ellipse.getVertexPercent(time, periapses)
-  }
-
-  static getBodyPosition = (
-    { periapses, time }: { periapses: Periapses; time?: number },
-    ellipse: Ellipse
-  ): THREE.Vector3 => {
-    return ellipse.getPosition(time, periapses)
   }
 
   static getPathOpacity = (

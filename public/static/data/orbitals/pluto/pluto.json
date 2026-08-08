@@ -11,7 +11,7 @@
     "inclination": 17.151394,
     "atmosphereHeightKm": 200,
     "atmosphereColor": "#8CAAC7",
-    "atmosphere": 13872777,
+    "labelColor": 13872777,
     "satellites": [
         "charon"
     ],

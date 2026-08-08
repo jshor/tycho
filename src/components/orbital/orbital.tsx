@@ -5,32 +5,41 @@ import { Label } from './label/label'
 import { Atmosphere } from './atmosphere/atmosphere'
 import { Comet } from './comet/comet'
 import { TailData, OrbitalLabelActions } from '../../types'
+import { Ellipse } from '../../utils/Ellipse'
 
 export interface Props {
   eclipticGroupRotation: THREE.Euler
   orbitalGroupRotation: THREE.Euler
-  pathVertices: THREE.Vector3[]
-  bodyPosition: THREE.Vector3
-  bodyPercent?: number
+  /** The orbital path's `Ellipse` instance. */
+  ellipse: Ellipse
+  /** The radius of the orbital body. */
   radius: number
+  /** The ID of the orbital body. */
   id: string
+  /** The ID of the parent orbital body (if this is a satellite). */
+  parentId?: string
+  /** Whether this orbital body is a satellite. */
+  isSatellite?: boolean
+  /** The text to display on the orbital label. */
   text: string
-  action: OrbitalLabelActions
-  atmosphere?: number
+  action: OrbitalLabelActions // TODO: don't pass actions like this!
   /** How far the body's atmosphere reaches above its surface, in km. */
   atmosphereHeightKm?: number
-  /** The colour that atmosphere scatters the sunlight into. */
+  /** The color that atmosphere scatters the sunlight into. */
   atmosphereColor?: string
+  /** The color of the label and its visual orbital path ellipse. */
+  labelColor?: number
+  /** The percentage of opacity for the orbital path ellipse. */
   pathOpacity?: number
   /** The orbital at the centre of the system the camera is watching. */
   systemId?: string
   /** Whether or not the camera is focused on this orbital itself. */
   isFocused?: boolean
-  parentId?: string
-  isSatellite?: boolean
+  /** The maximum distance at which the camera can be zoomed out to. */
   maxDistance?: number
   /** Orbital tail settings (i.e., for comets). */
   tail?: TailData
+  /** Any children elements to render within the barycenter. */
   children?: React.ReactNode
 }
 
@@ -41,10 +50,7 @@ export function Orbital(props: Props) {
   const {
     eclipticGroupRotation,
     orbitalGroupRotation,
-    pathVertices,
-    bodyPosition,
-    bodyPercent,
-    atmosphere,
+    ellipse,
     atmosphereHeightKm,
     atmosphereColor,
     pathOpacity,
@@ -54,34 +60,12 @@ export function Orbital(props: Props) {
     children
   } = props
 
-  /** The color this body wears throughout the scene: its atmosphere, its orbit path, and its label. */
-  const bodyColor = atmosphere ?? 0xffffff
-
-  /** The basic (100% opacity) color of the orbit path. */
-  const lineColor = useMemo(() => new THREE.Color(bodyColor), [bodyColor])
-
-  /** The fading gradient colors along the path of the ellipse */
-  const pathColors = useMemo(() => {
-    // fades the orbit path into a trail
-    const { r, g, b } = lineColor
-    const total = pathVertices.length
-    const colors: [number, number, number, number][] = new Array(total)
-
-    for (let i = 0; i < total; i++) {
-      // fraction of an orbit this vertex sits ahead of the body in the direction of travel
-      const ahead = (((i / (total - 1) - (bodyPercent ?? 0) + 1) % 1) + 1) % 1
-
-      colors[i] = [r, g, b, ahead]
-    }
-    return colors
-  }, [pathVertices.length, bodyPercent, lineColor])
-
   const hasAtmosphere = !!atmosphereHeightKm && !!atmosphereColor
 
   return (
     <group rotation={eclipticGroupRotation}>
       <group rotation={orbitalGroupRotation}>
-        <group position={bodyPosition} name={id}>
+        <group position={ellipse.getPosition()} name={id}>
           {hasAtmosphere && (
             <Atmosphere
               radius={radius}
@@ -93,14 +77,14 @@ export function Orbital(props: Props) {
             <Comet
               radius={radius}
               settings={tail}
-              pathVertices={pathVertices}
-              bodyPercent={bodyPercent}
+              pathVertices={ellipse.pathVertices}
+              bodyPercent={ellipse.getVertexPercent()}
             />
           )}
           <Label
             text={props.text}
             id={id}
-            color={bodyColor}
+            color={ellipse.color}
             radius={radius}
             action={props.action}
             systemId={props.systemId}
@@ -114,9 +98,9 @@ export function Orbital(props: Props) {
 
         <Line
           key={`path-${id}`}
-          points={pathVertices}
-          color="#ffffff"
-          vertexColors={pathColors}
+          points={ellipse.trailVertices}
+          color={props.labelColor}
+          vertexColors={ellipse.getTrailingPathColors()}
           opacity={pathOpacity ?? 1}
           transparent
           depthWrite={false}

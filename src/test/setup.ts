@@ -87,7 +87,7 @@ vi.mock('@react-three/drei', async () => {
 
   return {
     PerspectiveCamera: (): null => null,
-    Line: (): null => null,
+    Line: vi.fn((): null => null),
     Text
   }
 })

@@ -10,7 +10,7 @@
     "inclination": 1.303,
     "atmosphereHeightKm": 3000,
     "atmosphereColor": "#D8C3A5",
-    "atmosphere": 9996148,
+    "labelColor": 9996148,
     "satellites": [
         "io",
         "callisto",

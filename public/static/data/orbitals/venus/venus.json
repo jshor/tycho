@@ -10,7 +10,7 @@
     "inclination": 3.86,
     "atmosphereHeightKm": 150,
     "atmosphereColor": "#F4D6A0",
-    "atmosphere": 16052641,
+    "labelColor": 16052641,
     "ephemeris": {
         "nasaOrbitalCode": "2",
         "nasaBarycenterCode": "0",
