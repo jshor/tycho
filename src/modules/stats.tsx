@@ -1,63 +1,63 @@
 import { useMemo } from 'react'
 import { useStore } from '../store'
-import { OrbitalService } from '../services/OrbitalService'
+import { PhysicsService } from '../services/PhysicsService'
 import { formatUnixTime } from '../utils/DateTime'
 import { Stats as StatsView } from '../components/stats/stats'
+import { OrbitalStats } from '../types'
 
-interface Stat {
-  /** The name of the orbital the statistics describe. */
-  name?: string
-  /** The encyclopedic description of the orbital. */
-  description?: string
-  /** The orbital's distance from the body it orbits. */
-  magnitude?: string
-  /** The orbital's velocity along its current vector. */
-  velocity?: string
-  /** The orbital's angle from its periapsis. */
-  trueAnomaly?: string
+/**
+ * Returns a number as it is read out: to three places, and grouped in thousands.
+ */
+const format = (x: number): string => {
+  return x
+    .toFixed(3)
+    .toString()
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 }
 
 /**
  * Reports the live orbital statistics of the orbital the camera is focused on.
  */
 export function Stats() {
-  const targetId = useStore((state) => state.targetId)
-  const orbitalData = useStore((state) => state.orbitalData)
   const pageText = useStore((state) => state.pageText)
+  const target = useStore((state) => state.target)
   const time = useStore((state) => state.time)
 
   /**
-   * The statistics of the focused orbital, recomputed as the target changes and the clock ticks.
+   * The statistics of the focused orbital, read out anew as the clock ticks.
    */
-  const stats = useMemo<Stat>(() => {
-    const target = OrbitalService.getTargetByName(orbitalData, targetId)
+  const stats = useMemo<OrbitalStats>(() => {
+    if (!target || time === undefined) {
+      return {
+        magnitude: 'N/A',
+        velocity: 'N/A',
+        trueAnomaly: 'N/A'
+      }
+    }
 
-    if (!target) return {}
-
-    const { name, description } = target
+    const { eccentricity, periapses, centralMass, semimajor } = target
+    const { distance, trueAnomaly } = PhysicsService.getDistanceFromAttractingBody(
+      eccentricity,
+      time,
+      periapses,
+      semimajor
+    )
 
     return {
-      name,
-      description,
-      ...OrbitalService.getOrbitalStats(target, time)
+      magnitude: format(distance),
+      velocity: format(PhysicsService.orbitalEnergyConservation(centralMass, distance, semimajor)),
+      trueAnomaly: format(trueAnomaly)
     }
-  }, [targetId, time, orbitalData])
-
-  /**
-   * Formats the current simulation time for display.
-   */
-  const getTime = (): string => {
-    return time === undefined ? '' : formatUnixTime(time)
-  }
+  }, [target, time])
 
   return (
     <StatsView
-      description={stats.description}
+      description={target?.description}
       velocity={stats.velocity}
       magnitude={stats.magnitude}
       trueAnomaly={stats.trueAnomaly}
       pageText={pageText}
-      time={getTime()}
+      time={time === undefined ? '' : formatUnixTime(time)}
     />
   )
 }

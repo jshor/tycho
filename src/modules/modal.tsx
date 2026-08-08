@@ -3,8 +3,6 @@ import { useStore } from '../store'
 import { Constants } from '../constants'
 import { Modal as ModalView } from '../components/modal/modal'
 import { OrbitalSymbol } from '../components/orbitalSymbol/orbitalSymbol'
-import { OrbitalService } from '../services/OrbitalService'
-import { Store } from '../types'
 
 interface Props {
   /** The type of modal this module renders. */
@@ -17,38 +15,23 @@ interface Props {
 const ESCAPE_KEY_CODE = 27
 
 /**
- * Reads the title a modal of the given type wears, out of the store.
- */
-const selectTitle = (type: string) => (state: Store) => {
-  return type === Constants.UI.ModalTypes.STATS_MODAL
-    ? state.targetName
-    : state.pageText?.aboutTitle
-}
-
-/**
- * Reads the sign of the body a statistics modal describes, out of the store.
- */
-const selectSymbol = (type: string) => (state: Store) => {
-  return type === Constants.UI.ModalTypes.STATS_MODAL
-    ? OrbitalService.getSymbol(state.orbitalData, state.targetId)
-    : undefined
-}
-
-/**
  * Connects a modal to the store, closing it on escape.
  */
 export function Modal({ type, children }: Props) {
   const activeModal = useStore((state) => state.activeModal)
-  const title = useStore(selectTitle(type))
-  const symbol = useStore(selectSymbol(type))
+  const targetName = useStore((state) => state.targetName)
+  const aboutTitle = useStore((state) => state.pageText?.aboutTitle)
+  // the sign is the one thing about the target that has to be looked up in the data
+  const targetSymbol = useStore((state) => state.target?.symbol)
 
-  /**
-   * Whether this module's modal is the one currently open.
-   */
+  /** Whether or not this module's modal is the one currently open. */
   const isModalActive = (): boolean => activeModal === type
 
+  /** Whether this modal describes the orbital the camera is watching, rather than the app. */
+  const isStatsModal = type === Constants.UI.ModalTypes.STATS_MODAL
+
   /**
-   * Closes the modal and hands interactivity back to the UI controls.
+   * Closes the modal to hand interactivity back to the UI controls.
    */
   const closeModal = useCallback(() => {
     useStore.setState({ activeModal: null, controlsEnabled: true })
@@ -73,10 +56,14 @@ export function Modal({ type, children }: Props) {
     <ModalView
       modalActive={isModalActive()}
       title={
-        <>
-          <OrbitalSymbol symbol={symbol} />
-          {title}
-        </>
+        isStatsModal ? (
+          <>
+            <OrbitalSymbol symbol={targetSymbol} />
+            {targetName}
+          </>
+        ) : (
+          aboutTitle
+        )
       }
       closeModal={closeModal}
     >

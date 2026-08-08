@@ -1,12 +1,11 @@
 import React, { useMemo, useState } from 'react'
 import { useStore } from '../store'
 import { Ellipse } from '../utils/Ellipse'
-import { OrbitalService as Service } from '../services/OrbitalService'
 import { Orbital as OrbitalView } from '../components/orbital/orbital'
 import { Clouds } from '../components/orbital/clouds/clouds'
 import { Texture } from './texture'
 import { OrbitalData, TextureMap } from '../types'
-import { DoubleSide, Euler } from 'three'
+import { DoubleSide, Euler, Vector3Like } from 'three'
 import { Constants } from '../constants'
 import { Scale, getVisibleRadius } from '../utils/Scale'
 import { MathService } from '../services/MathService'
@@ -26,48 +25,74 @@ export function Orbital(props: Props) {
   const [ellipse] = useState(() => new Ellipse(props))
   const time = useStore((state) => state.time)
   const targetId = useStore((state) => state.targetId)
-  const orbitalData = useStore((state) => state.orbitalData)
-  const highlightedOrbitals = useStore((state) => state.highlightedOrbitals)
+  const setActiveOrbitalId = useStore((state) => state.setActiveOrbitalId)
+  const setHighlightedId = useStore((state) => state.setHighlightedId)
+  const isHighlighted = useStore((state) => state.highlightedId === id)
+  const ASCENSION = 90
 
-  /** Sets the currently-focused orbital. */
-  const setActiveOrbital = useStore((state) => state.setActiveOrbital)
+  /**
+   * Converts a set of rotation coordinates in degrees to a `THREE.Euler` instance.
+   */
+  function toEuler({ x, y, z }: Partial<Vector3Like>): Euler {
+    /** Degrees tp radians. */
+    const rad = (v?: number): number => {
+      if (v) {
+        return MathService.toRadians(v)
+      }
+      return 0
+    }
+    return new Euler(rad(x), rad(y), rad(z))
+  }
 
-  /** Adds the given orbital to the list of highlighted ones. */
-  const addHighlightedOrbital = useStore((state) => state.addHighlightedOrbital)
+  /**
+   * Rotation with respect to the **ecliptic** plane.
+   */
+  const eclipticGroupRotation = useMemo(() => {
+    const ascension = isSatellite ? 0 : -ASCENSION
 
-  /** Removes the given orbital from the list of highlighted ones. */
-  const removeHighlightedOrbital = useStore((state) => state.removeHighlightedOrbital)
+    return toEuler({
+      x: ascension,
+      z: ASCENSION + props.longitudeOfAscendingNode
+    })
+  }, [isSatellite, props.longitudeOfAscendingNode])
 
-  /** Store actions. */
-  const action = useMemo(
-    () => ({ setActiveOrbital, addHighlightedOrbital, removeHighlightedOrbital }),
-    [setActiveOrbital, addHighlightedOrbital, removeHighlightedOrbital]
-  )
+  /**
+   * Rotation with respect to the **orbital** plane.
+   */
+  const orbitalGroupRotation = useMemo(() => {
+    return toEuler({
+      x: props.inclination,
+      z: ASCENSION + props.argumentOfPeriapsis
+    })
+  }, [props.inclination, props.argumentOfPeriapsis])
 
-  // the orbit is only ever tilted once, out of the orbital data it was built from
-  const eclipticGroupRotation = useMemo(() => Service.getEclipticGroupRotation(props), []) // eslint-disable-line react-hooks/exhaustive-deps
-  const orbitalGroupRotation = useMemo(() => Service.getOrbitalGroupRotation(props), []) // eslint-disable-line react-hooks/exhaustive-deps
+  /**
+   * The current rotation of the orbital body itself, with respect to its own axis.
+   */
+  const orbitalRotation = useMemo(() => {
+    const unixTimeToDays = time / 60 / 60 / 24
+    // TODO: 0.6 is the offset needed to make earth align to the sun at the right time; add this as a constant to the config JSON
+    const percentRotated = unixTimeToDays / props.sidereal + (0.6 % 1)
 
-  /** Where the body sits along its orbit, and how it is turned, at the current time. */
-  const body = useMemo(
-    () => ({
-      rotation: Service.getBodyRotation({ ...props, time }),
-      maxDistance: Service.getMaxViewDistance(props)
-    }),
-    [time, ellipse] // eslint-disable-line react-hooks/exhaustive-deps
-  )
+    return toEuler({
+      x: ASCENSION + props.axialTilt,
+      y: percentRotated * 360
+    })
+  }, [time, props.axialTilt, props.sidereal])
 
-  /** How prominently the orbit path is drawn, given what the user is pointing at. */
-  const pathOpacity = useMemo(
-    () => Service.getPathOpacity(props, highlightedOrbitals, id === targetId),
-    [highlightedOrbitals, id, targetId] // eslint-disable-line react-hooks/exhaustive-deps
-  )
+  /**
+   * The maximum distance at which the camera can be zoomed out to and still see the orbital's label.
+   */
+  const maxDistance = useMemo(() => {
+    return isSatellite ? Constants.WebGL.Camera.SATELLITE_LABEL_RANGE : Infinity
+  }, [isSatellite])
 
-  /** The system the camera is watching, every orbital of which shows its label. */
-  const systemId = useMemo(
-    () => Service.getSystemId(orbitalData ?? [], targetId),
-    [orbitalData, targetId]
-  )
+  /**
+   * Opacity of the orbital path.
+   */
+  const pathOpacity = useMemo(() => {
+    return isHighlighted ? Constants.UI.HOVER_OPACITY_ON : Constants.UI.HOVER_OPACITY_OFF
+  }, [isHighlighted])
 
   /** Updates the orbital path's time. */
   useMemo(() => ellipse.updateTime(time), [time, ellipse])
@@ -80,20 +105,21 @@ export function Orbital(props: Props) {
       pathOpacity={pathOpacity}
       atmosphereHeightKm={props.atmosphereHeightKm}
       atmosphereColor={props.atmosphereColor}
-      maxDistance={body.maxDistance}
+      maxDistance={maxDistance}
       tail={props.tail}
       text={props.name}
       radius={props.radius}
-      action={action}
-      systemId={systemId}
       isFocused={id === targetId}
       parentId={parentId}
       isSatellite={isSatellite}
       id={id}
+      onFocus={() => setActiveOrbitalId(id)}
+      onHover={() => setHighlightedId(id)}
+      onLeave={() => setHighlightedId(undefined)}
     >
       <group>
         {/* the orbital body */}
-        <mesh rotation={body.rotation}>
+        <mesh rotation={orbitalRotation}>
           <sphereGeometry
             args={[
               Scale(getVisibleRadius(props.radius)),
@@ -106,7 +132,7 @@ export function Orbital(props: Props) {
 
         {/* clouds (if any) */}
         {props.clouds && (
-          <Clouds radius={props.radius} url={props.clouds} rotation={body.rotation} />
+          <Clouds radius={props.radius} url={props.clouds} rotation={orbitalRotation} />
         )}
 
         {/* planetary rings (if any) */}

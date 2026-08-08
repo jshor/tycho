@@ -8,7 +8,6 @@ import { ZoomSlider } from '../components/slider/zoomSlider/zoomSlider'
 import { PlayPause } from '../components/playPause/playPause'
 import { SpeedControl } from '../components/speedControl/speedControl'
 import { Constants } from '../constants'
-import { OrbitalService } from '../services/OrbitalService'
 import { OrbitalSymbol } from '../components/orbitalSymbol/orbitalSymbol'
 import { formatDateTime, getUnixTime } from '../utils/DateTime'
 
@@ -19,9 +18,8 @@ export function UIControls() {
   const zoom = useStore((state) => state.zoom)
   const controlsEnabled = useStore((state) => state.controlsEnabled)
   const targetName = useStore((state) => state.targetName)
-  const targetSymbol = useStore((state) =>
-    OrbitalService.getSymbol(state.orbitalData, state.targetId)
-  )
+  // the sign is the one thing about the target that has to be looked up in the data
+  const targetSymbol = useStore((state) => state.target?.symbol)
   const changeZoom = useStore((state) => state.changeZoom)
   const playing = useStore((state) => state.playing)
   const volume = useStore((state) => state.volume)
@@ -146,7 +144,7 @@ export function UIControls() {
         </>
       }
       onLabelClick={() => openModal(Constants.UI.ModalTypes.STATS_MODAL)}
-      left={(
+      left={
         <>
           <ControlButton onClick={() => openModal(Constants.UI.ModalTypes.ABOUT_MODAL)}>
             <span style={{ fontSize: '1.25rem' }}>i</span>
@@ -154,14 +152,14 @@ export function UIControls() {
           <ZoomSlider value={zoom} onChange={changeZoom} />
           <Volume onClick={triggerVolume} playing={!!volume} />
         </>
-      )}
-      right={(
+      }
+      right={
         <>
           <PlayPause playing={playing} onClick={togglePlayer} />
           <SpeedControl speed={speed} onChange={changeSpeed} />
         </>
-      )}
-      bottom={(
+      }
+      bottom={
         <DatePicker
           uxTime={uxTime}
           value={realTime}
@@ -169,7 +167,7 @@ export function UIControls() {
           onOpen={showPicker}
           onClose={hidePicker}
         />
-      )}
+      }
     />
   )
 }

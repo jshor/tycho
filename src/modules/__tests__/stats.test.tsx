@@ -2,49 +2,75 @@ import { act } from '@testing-library/react'
 import { renderWithStore } from '../../test/helpers'
 import { useStore } from '../../store'
 import { Stats } from '../stats'
-import { OrbitalService } from '../../services/OrbitalService'
+import { PhysicsService } from '../../services/PhysicsService'
 import { formatUnixTime } from '../../utils/DateTime'
 import data from './__fixtures__/orbitals.json'
 import { OrbitalData, Store } from '../../types'
 
 const orbitalData = data as OrbitalData[]
 
+/** The orbital the camera is watching, which the store hands over alongside its ID. */
+const target = { ...orbitalData[1], description: 'The third rock from the sun.' }
+
+/** The orbital the camera turns to next. */
+const other = orbitalData[0]
+
 const baseState = { orbitalData, pageText: {}, time: 1 }
 
-const stats = {
-  magnitude: '1AU',
-  velocity: '10km/s',
-  trueAnomaly: '45°'
-}
-
 describe('Stats Module', () => {
-  beforeEach(() => {
-    vi.spyOn(OrbitalService, 'getOrbitalStats').mockReturnValue(stats)
-  })
+  const renderModule = (state: Partial<Store> = {}) => {
+    return renderWithStore(<Stats />, { ...baseState, ...state })
+  }
+
+  /** Renders the readout of an orbital whose statistics work out to the given figures. */
+  const renderReadout = (distance: number, trueAnomaly: number, energy: number) => {
+    vi.spyOn(PhysicsService, 'getDistanceFromAttractingBody').mockReturnValue({
+      distance,
+      trueAnomaly
+    })
+    vi.spyOn(PhysicsService, 'orbitalEnergyConservation').mockReturnValue(energy)
+
+    return renderModule({ targetId: target.id, target })
+  }
 
   afterEach(() => {
     vi.restoreAllMocks()
   })
 
-  const renderModule = (state: Partial<Store> = {}) => {
-    return renderWithStore(<Stats />, { ...baseState, ...state })
-  }
-
   describe('render()', () => {
-    it('should report the stats of the active orbital', () => {
-      const { container } = renderModule({ targetId: 'dummyParent' })
+    it('should report the statistics of the orbital the camera is focused on', () => {
+      const { container } = renderReadout(149598261.4567, 45.6789, 29.7859)
       const text = container.textContent
 
-      expect(text).toContain(stats.velocity)
-      expect(text).toContain(stats.magnitude)
-      expect(text).toContain(stats.trueAnomaly)
+      expect(text).toContain('149,598,261.457')
+      expect(text).toContain('45.679')
+      expect(text).toContain('29.786')
     })
 
-    it('should report no stats while no orbital is active', () => {
+    it('should read the statistics off the orbital at the moment the clock stands at', () => {
+      renderReadout(1, 2, 3)
+
+      expect(PhysicsService.getDistanceFromAttractingBody).toHaveBeenCalledWith(
+        target.eccentricity,
+        1,
+        target.periapses,
+        target.semimajor
+      )
+    })
+
+    it('should describe the orbital the camera is focused on', () => {
+      const { container } = renderModule({ targetId: target.id, target })
+
+      expect(container.querySelector('.stats__description')?.textContent).toContain(
+        target.description
+      )
+    })
+
+    it('should report no statistics while the camera is focused on nothing', () => {
       const { container } = renderModule()
 
-      expect(OrbitalService.getOrbitalStats).not.toHaveBeenCalled()
-      expect(container.textContent).not.toContain(stats.velocity)
+      expect(container.textContent).toContain('N/A')
+      expect(container.querySelector('.stats__description')?.textContent).toEqual('')
     })
 
     it('should display the current simulation time', () => {
@@ -54,30 +80,32 @@ describe('Stats Module', () => {
     })
   })
 
-  describe('updateOrbitalStats()', () => {
-    it('should recompute the stats as the clock ticks', () => {
-      renderModule({ targetId: 'dummyParent' })
+  describe('as the scene moves on', () => {
+    it('should read the statistics out anew as the clock ticks', () => {
+      const { container } = renderModule({ targetId: target.id, target })
+      const before = container.textContent
 
-      act(() => useStore.setState({ time: 2 }))
+      act(() => useStore.setState({ time: 20000000 }))
 
-      expect(OrbitalService.getOrbitalStats).toHaveBeenCalledTimes(2)
-      expect(OrbitalService.getOrbitalStats).toHaveBeenLastCalledWith(expect.anything(), 2)
+      expect(container.textContent).not.toEqual(before)
     })
 
-    it('should recompute the stats when the active orbital changes', () => {
-      renderModule({ targetId: 'dummyParent' })
+    it('should read out the statistics of whichever orbital the camera turns to', () => {
+      const { container } = renderModule({ targetId: target.id, target })
+      const before = container.textContent
 
-      act(() => useStore.setState({ targetId: 'dummyOuter' }))
+      act(() => useStore.setState({ targetId: other.id, target: other }))
 
-      expect(OrbitalService.getOrbitalStats).toHaveBeenCalledTimes(2)
+      expect(container.textContent).not.toEqual(before)
     })
 
-    it('should not recompute the stats when nothing has changed', () => {
-      renderModule({ targetId: 'dummyParent' })
+    it('should leave the readout as it is while nothing has moved', () => {
+      const { container } = renderModule({ targetId: target.id, target })
+      const before = container.textContent
 
-      act(() => useStore.setState({ targetId: 'dummyParent' }))
+      act(() => useStore.setState({ zoom: 50 }))
 
-      expect(OrbitalService.getOrbitalStats).toHaveBeenCalledTimes(1)
+      expect(container.textContent).toEqual(before)
     })
   })
 })

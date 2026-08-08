@@ -29,6 +29,8 @@ export function ControlButton({ onClick, active, disabled, children }: Props) {
       onClick={onClick}
       onKeyDown={() => onActivate(onClick)}
       disabled={disabled}
-  >{children}</button>
+    >
+      {children}
+    </button>
   )
 }

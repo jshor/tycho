@@ -22,7 +22,9 @@
     opacity: 0;
   }
 
-  &__left, &__middle, &__right {
+  &__left,
+  &__middle,
+  &__right {
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -31,13 +33,15 @@
     box-sizing: border-box;
   }
 
-  &__top, &__bottom {
+  &__top,
+  &__bottom {
     display: flex;
     justify-content: center;
     align-items: center;
   }
 
-  &__middle, &__center {
+  &__middle,
+  &__center {
     flex: 1;
   }
 

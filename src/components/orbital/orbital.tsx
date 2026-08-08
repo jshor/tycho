@@ -1,10 +1,10 @@
-import React, { useMemo } from 'react'
+import React from 'react'
 import * as THREE from 'three'
 import { Line } from '@react-three/drei'
 import { Label } from './label/label'
 import { Atmosphere } from './atmosphere/atmosphere'
 import { Comet } from './comet/comet'
-import { TailData, OrbitalLabelActions } from '../../types'
+import { TailData } from '../../types'
 import { Ellipse } from '../../utils/Ellipse'
 
 export interface Props {
@@ -22,7 +22,6 @@ export interface Props {
   isSatellite?: boolean
   /** The text to display on the orbital label. */
   text: string
-  action: OrbitalLabelActions // TODO: don't pass actions like this!
   /** How far the body's atmosphere reaches above its surface, in km. */
   atmosphereHeightKm?: number
   /** The color that atmosphere scatters the sunlight into. */
@@ -31,8 +30,6 @@ export interface Props {
   labelColor?: number
   /** The percentage of opacity for the orbital path ellipse. */
   pathOpacity?: number
-  /** The orbital at the centre of the system the camera is watching. */
-  systemId?: string
   /** Whether or not the camera is focused on this orbital itself. */
   isFocused?: boolean
   /** The maximum distance at which the camera can be zoomed out to. */
@@ -41,6 +38,12 @@ export interface Props {
   tail?: TailData
   /** Any children elements to render within the barycenter. */
   children?: React.ReactNode
+  /** Callback function when the orbital is hovered. */
+  onHover?: () => void
+  /** Callback function when the orbital is no longer hovered. */
+  onLeave?: () => void
+  /** Callback function when the orbital is focused. */
+  onFocus?: () => void
 }
 
 /**
@@ -83,11 +86,11 @@ export function Orbital(props: Props) {
           )}
           <Label
             text={props.text}
-            id={id}
             color={ellipse.color}
             radius={radius}
-            action={props.action}
-            systemId={props.systemId}
+            onFocus={props.onFocus}
+            onHover={props.onHover}
+            onLeave={props.onLeave}
             isFocused={props.isFocused}
             parentId={props.parentId}
             isSatellite={props.isSatellite}

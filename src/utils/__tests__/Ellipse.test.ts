@@ -1,4 +1,4 @@
-import { EllipseCurve, CurvePath, Vector2, Vector3 } from 'three'
+import { Color, EllipseCurve, CurvePath, Vector2, Vector3 } from 'three'
 import { Ellipse } from '../Ellipse'
 import data from './__fixtures__/orbitals.json'
 
@@ -60,9 +60,9 @@ describe('Ellipse', () => {
     })
   })
 
-  describe('getVertices()', () => {
+  describe('getPathVertices()', () => {
     it('should return an array of Vector3 instances', () => {
-      const vertices = ellipse.getVertices()
+      const vertices = ellipse.getPathVertices()
 
       expect(Array.isArray(vertices)).toBe(true)
       expect(vertices.length).toBeGreaterThan(0)
@@ -70,14 +70,91 @@ describe('Ellipse', () => {
     })
 
     it('should return vertices with z = 0 (2D ellipse projected into 3D)', () => {
-      const vertices = ellipse.getVertices()
+      const vertices = ellipse.getPathVertices()
       vertices.forEach((v: Vector3) => expect(v.z).toBe(0))
     })
   })
 
   describe('getPosition()', () => {
     it('should return an instance of Vector3', () => {
-      expect(ellipse.getPosition(0, { last: 0, next: 1 })).toBeInstanceOf(Vector3)
+      expect(ellipse.getPosition()).toBeInstanceOf(Vector3)
+    })
+  })
+
+  describe('updateTime()', () => {
+    it('should take the clock on to the given time', () => {
+      ellipse.updateTime(20000000)
+
+      expect(ellipse.time).toEqual(20000000)
+    })
+
+    it('should trace the path and the trail anew for the time it was given', () => {
+      ellipse.updateTime(20000000)
+
+      expect(ellipse.pathVertices.length).toBeGreaterThan(0)
+      expect(ellipse.trailVertices).toHaveLength(ellipse.pathVertices.length)
+    })
+  })
+
+  describe('getTrailingVertices()', () => {
+    const bodyPosition = new Vector3(1, 0.5, 0)
+    const orbit = [
+      new Vector3(0, 0, 0),
+      new Vector3(1, 0, 0),
+      new Vector3(1, 1, 0),
+      new Vector3(0, 1, 0),
+      new Vector3(0, 0, 0)
+    ]
+
+    /** The trail as it runs once the body has travelled the given way around its orbit. */
+    const trailAt = (bodyPercent: number) => {
+      ellipse.pathVertices = orbit
+      ellipse.getPosition = () => bodyPosition
+      ellipse.getVertexPercent = () => bodyPercent
+
+      return ellipse.getTrailingVertices()
+    }
+
+    it('should set the trail out from the body itself, so that nothing runs on ahead of it', () => {
+      expect(trailAt(0.3)[0]).toBe(bodyPosition)
+    })
+
+    it('should trail back behind the body, away from where it is headed', () => {
+      expect(trailAt(0.3).slice(1)).toEqual([orbit[1], orbit[0], orbit[3], orbit[2]])
+    })
+
+    it('should carry once around the orbit, without redrawing where it closes', () => {
+      const trail = trailAt(0.3)
+
+      expect(trail).toHaveLength(orbit.length)
+      expect(new Set(trail.slice(1)).size).toEqual(orbit.length - 1)
+    })
+
+    it('should pick up from the vertex the body has just passed', () => {
+      expect(trailAt(0.8)[1]).toBe(orbit[3])
+    })
+  })
+
+  describe('getTrailingPathColors()', () => {
+    it('should fade the trail out along its length, from the body to its far end', () => {
+      ellipse.updateTime(1)
+
+      const alphas = ellipse.getTrailingPathColors().map(([, , , alpha]) => alpha)
+
+      expect(alphas[0]).toEqual(1)
+      expect(alphas[alphas.length - 1]).toEqual(0)
+      expect(alphas).toEqual([...alphas].sort((a, b) => b - a))
+    })
+
+    it('should dress the trail in the colour the orbital wears elsewhere', () => {
+      const { r, g, b } = new Color('#0089bc')
+
+      ellipse = new Ellipse({ ...data[0], labelColor: '#0089bc' })
+      ellipse.updateTime(1)
+
+      ellipse.getTrailingPathColors().forEach(([red, green, blue]) => {
+        expect([red, green, blue]).toEqual([r, g, b])
+      })
     })
   })
 })

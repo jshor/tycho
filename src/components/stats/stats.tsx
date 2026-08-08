@@ -23,7 +23,7 @@ interface Props {
 export function Stats({ description, velocity, magnitude, trueAnomaly, time, pageText }: Props) {
   return (
     <div className="stats">
-      <div  className="stats__description">
+      <div className="stats__description">
         <Markdown text={description || ''} />
       </div>
 

@@ -13,12 +13,6 @@ vi.mock('./cameraText', () => ({
   )
 }))
 
-const action = {
-  setActiveOrbital: vi.fn(),
-  addHighlightedOrbital: vi.fn(),
-  removeHighlightedOrbital: vi.fn()
-}
-
 describe('Orbital Label Component', () => {
   /** The props the label handed to the text it renders. */
   const textProps = () => vi.mocked(CameraText).mock.calls[0][0]
@@ -28,53 +22,14 @@ describe('Orbital Label Component', () => {
   })
 
   it('should render the label text', () => {
-    render(<Label text="Earth" id="Earth" action={action} />)
+    render(<Label text="Earth" />)
 
     expect(screen.getByText('Earth')).toBeInTheDocument()
   })
 
   describe('which labels show', () => {
-    it('should hide a satellite label while another system is being watched', () => {
-      render(
-        <Label text="Moon" id="Moon" action={action} isSatellite parentId="Earth" systemId="Mars" />
-      )
-
-      expect(screen.queryByText('Moon')).not.toBeInTheDocument()
-    })
-
-    it('should show a satellite label while its own system is being watched', () => {
-      render(
-        <Label
-          text="Moon"
-          id="Moon"
-          action={action}
-          isSatellite
-          parentId="Earth"
-          systemId="Earth"
-        />
-      )
-
-      expect(screen.getByText('Moon')).toBeInTheDocument()
-    })
-
-    it('should show a satellite label whose sibling is the one focused', () => {
-      // focusing Io leaves the camera in Jupiter's system, which Callisto shares with it
-      render(
-        <Label
-          text="Callisto"
-          id="callisto"
-          action={action}
-          isSatellite
-          parentId="jupiter"
-          systemId="jupiter"
-        />
-      )
-
-      expect(screen.getByText('Callisto')).toBeInTheDocument()
-    })
-
-    it('should always show a non-satellite (planet) label', () => {
-      render(<Label text="Earth" id="Earth" action={action} systemId="Mars" />)
+    it('should show the label of an orbital the camera is not focused on', () => {
+      render(<Label text="Earth" />)
 
       expect(screen.getByText('Earth')).toBeInTheDocument()
     })
@@ -82,28 +37,27 @@ describe('Orbital Label Component', () => {
     it('should hide the label of the orbital the camera is focused on', () => {
       // the camera is sitting on it and the display names it at the foot of the scene, so a label
       // would only be in the way of the body it names
-      render(<Label text="Earth" id="Earth" action={action} systemId="Earth" isFocused />)
+      render(<Label text="Earth" isFocused />)
 
       expect(screen.queryByText('Earth')).not.toBeInTheDocument()
     })
 
-    it('should still show the planet whose satellite is the one focused', () => {
-      // focusing Io leaves the camera in Jupiter's system without focusing Jupiter itself
-      render(<Label text="Jupiter" id="jupiter" action={action} systemId="jupiter" />)
+    it('should leave a satellite label to be culled by range rather than hiding it outright', () => {
+      render(<Label text="Moon" isSatellite parentId="Earth" maxDistance={7} />)
 
-      expect(screen.getByText('Jupiter')).toBeInTheDocument()
+      expect(screen.getByText('Moon')).toBeInTheDocument()
     })
   })
 
   describe('how the text is set up', () => {
     it('should dress the text in the colour the orbital wears elsewhere', () => {
-      render(<Label text="Earth" id="Earth" action={action} color={0x0089bc} />)
+      render(<Label text="Earth" color={0x0089bc} />)
 
       expect(textProps().color).toEqual(0x0089bc)
     })
 
     it('should leave the text white when the orbital has no colour of its own', () => {
-      render(<Label text="Earth" id="Earth" action={action} />)
+      render(<Label text="Earth" />)
 
       expect(textProps().color).toEqual('white')
     })
@@ -111,21 +65,17 @@ describe('Orbital Label Component', () => {
     it('should stand the text off just clear of the surface of the orbital it names', () => {
       const radius = 69911
 
-      render(<Label text="Jupiter" id="jupiter" action={action} radius={radius} />)
+      render(<Label text="Jupiter" radius={radius} />)
 
       const drawn = Scale(radius)
 
-      // clear of the surface, so the two do not fight over the same depth, but only just, so the
-      // label still reads as sitting on the body
       expect(textProps().standoff).toBeGreaterThan(drawn)
       expect(textProps().standoff).toBeCloseTo(drawn * Constants.WebGL.LABEL_STANDOFF, 8)
     })
 
     it('should stand off a small orbital by the size it is inflated to, not its own', () => {
-      render(<Label text="Halley" id="halley" action={action} radius={15} />)
+      render(<Label text="Halley" radius={15} />)
 
-      // a 15km nucleus is drawn at the minimum visible radius, and standing off by 15km would
-      // leave the label buried inside it
       expect(textProps().standoff).toBeGreaterThan(Scale(15))
       expect(textProps().standoff).toBeCloseTo(
         Scale(Constants.WebGL.MINIMUM_RADIUS) * Constants.WebGL.LABEL_STANDOFF,
@@ -134,50 +84,55 @@ describe('Orbital Label Component', () => {
     })
 
     it('should measure a satellite from the orbital it orbits, so it is culled with it', () => {
-      render(
-        <Label
-          text="Moon"
-          id="Moon"
-          action={action}
-          isSatellite
-          parentId="Earth"
-          systemId="Earth"
-          maxDistance={7}
-        />
-      )
+      render(<Label text="Moon" isSatellite parentId="Earth" maxDistance={7} />)
 
       expect(textProps().barycenterId).toEqual('Earth')
       expect(textProps().maxDistance).toEqual(7)
     })
 
     it('should measure a planet from nothing, so it is never culled by range', () => {
-      render(<Label text="Earth" id="Earth" action={action} parentId="sun" />)
+      render(<Label text="Earth" parentId="sun" />)
 
       expect(textProps().barycenterId).toBeUndefined()
     })
   })
 
   describe('what the text reports back', () => {
+    const onFocus = vi.fn()
+    const onHover = vi.fn()
+    const onLeave = vi.fn()
+
     beforeEach(() => {
-      render(<Label text="Earth" id="earth" action={action} />)
+      render(<Label text="Earth" onFocus={onFocus} onHover={onHover} onLeave={onLeave} />)
     })
 
     it('should focus the orbital when its text is chosen', () => {
       textProps().onClick?.(null as never)
 
-      expect(action.setActiveOrbital).toHaveBeenCalledWith('earth', 'Earth')
+      expect(onFocus).toHaveBeenCalledTimes(1)
     })
 
     it('should highlight the orbital while the pointer is over its text', () => {
       textProps().onPointerOver?.()
 
-      expect(action.addHighlightedOrbital).toHaveBeenCalledWith('earth')
+      expect(onHover).toHaveBeenCalledTimes(1)
     })
 
     it('should drop the highlight once the pointer has left its text', () => {
       textProps().onPointerOut?.()
 
-      expect(action.removeHighlightedOrbital).toHaveBeenCalledWith('earth')
+      expect(onLeave).toHaveBeenCalledTimes(1)
+    })
+
+    it('should get by without anyone listening for what it reports', () => {
+      vi.mocked(CameraText).mockClear()
+      render(<Label text="Mars" />)
+
+      expect(() => {
+        textProps().onClick?.(null as never)
+        textProps().onPointerOver?.()
+        textProps().onPointerOut?.()
+      }).not.toThrow()
     })
   })
 })

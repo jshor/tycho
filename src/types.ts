@@ -1,5 +1,3 @@
-// Shared TypeScript interfaces for the Tycho application
-
 export interface Periapses {
   last: number
   next: number
@@ -16,33 +14,18 @@ export interface RingData {
   maps: TextureMap[]
 }
 
-/**
- * How a body's tail is drawn, for the bodies that grow one.
- */
+/** How a comet body's tail is drawn, for the bodies that grow one. */
 export interface TailData {
-  /**
-   * How far the tail streams from the nucleus when fully grown, in scene units. 100 units is
-   * 1e8 km, about the length Halley's tail actually reaches.
-   */
+  /** How far the tail streams from the nucleus when fully grown, in scene units.  */
   length: number
   /** How wide the tail fans out at its far end, in scene units. */
   width: number
-  /**
-   * The radius of the coma, as a multiple of the nucleus' visible radius. The real coma dwarfs
-   * the nucleus by far more than this, but a coma that size would swallow the camera whenever it
-   * focuses on the comet.
-   */
+  /** The radius of the coma, as a multiple of the nucleus' visible radius. */
   comaScale: number
-  /**
-   * How close to the sun the body must come to grow its full tail, in scene units. 450 units is
-   * ~3 AU, inside which a comet's water ice begins to sublimate.
-   */
+  /**Distance to the sun from the body to show its full tail, in scene units. */
   activeDistance: number
   /**
-   * How much of a tail it keeps out where it is too cold to vent, from 0 to 1. A dormant comet is
-   * a bare rock; it keeps a wisp so that it still reads as a comet out at aphelion, where Halley
-   * spends most of its 76 years.
-   */
+   * Percentage of the comet tail too extend to the point where it's too cold to vent [0 to 1]. */
   restActivity: number
   /** Color of the dust the nucleus sheds, which fans out around the tail. */
   dustColor: number
@@ -111,8 +94,6 @@ export interface PageText {
   abbreviations?: AbbreviationsPageText
 }
 
-// Store
-
 export interface Store {
   /** Whether or not the simulation is currently playing. */
   playing?: boolean
@@ -126,6 +107,8 @@ export interface Store {
   touched?: number
   /** The ID of the orbital the camera is focused on. */
   targetId?: string
+  /** The ID of the orbital whose path+label are highlighted. */
+  highlightedId?: string
   /** The name of the orbital the camera is focused on. */
   targetName?: string
   /** Whether or not the camera animates its way to a newly focused orbital. */
@@ -152,17 +135,17 @@ export interface Store {
   activeModal?: string | null
   /** The volume of the scene's ambience [0, 1]. */
   volume?: number
+  /** The currently-focused target orbital. */
+  target?: OrbitalData
 
   /** Fetches the orbital data for the Solar System. */
   requestOrbitalData: () => Promise<void>
   /** Fetches the translated page text for the app. */
   requestPageText: () => Promise<void>
   /** Focuses the camera on the given orbital. */
-  setActiveOrbital: (targetId: string, targetName: string, animateTargetChange?: boolean) => void
-  /** Highlights the given orbital's path. */
-  addHighlightedOrbital: (highlightedOrbital: string) => void
-  /** Stops highlighting the given orbital's path. */
-  removeHighlightedOrbital: (highlightedOrbital: string) => void
+  setActiveOrbitalId: (targetId: string) => void
+  /** Highlights the given orbital's path (or null to un-highlight). */
+  setHighlightedId: (id?: string) => void
   /** Records how far through loading its assets the scene is. */
   setPercentLoaded: (count: number, total: number) => void
   /** Applies a new zoom level. */
@@ -184,9 +167,3 @@ export interface DistanceResult {
   distance: number
   trueAnomaly: number
 }
-
-/** The actions an orbital's label needs, handed down to it by the orbital module. */
-export type OrbitalLabelActions = Pick<
-  Store,
-  'setActiveOrbital' | 'addHighlightedOrbital' | 'removeHighlightedOrbital'
->

@@ -96,6 +96,9 @@ const orbitalData = [
   { id: OTHER_TARGET_ID, radius: 6052 }
 ] as OrbitalData[]
 
+/** The orbital the camera is sent to, as the store hands it over alongside its ID. */
+const [TARGET, OTHER_TARGET] = orbitalData
+
 /** The distance the camera is framed at once it arrives, from `cameraService.getMinDistance`. */
 const MIN_DISTANCE = 9
 
@@ -132,7 +135,7 @@ describe('Camera Module', () => {
     const result = renderModule()
 
     vi.clearAllMocks()
-    act(() => useStore.setState({ targetId: TARGET_ID, ...state }))
+    act(() => useStore.setState({ targetId: TARGET_ID, target: TARGET, ...state }))
 
     const pivot = result.container.querySelector('group') as Element
 
@@ -236,9 +239,11 @@ describe('Camera Module', () => {
     it('should leave the framing alone for a target whose size is unknown', () => {
       three.scene.getObjectByName.mockReturnValue(new Group())
 
-      renderModule({ orbitalData: [] })
+      renderModule()
 
-      act(() => useStore.setState({ targetId: TARGET_ID }))
+      act(() =>
+        useStore.setState({ targetId: TARGET_ID, target: { id: TARGET_ID } as OrbitalData })
+      )
 
       expect(cameraService.getMinDistance).not.toHaveBeenCalled()
       expect(cameraService.getPivotTween).not.toHaveBeenCalled()
@@ -368,7 +373,7 @@ describe('Camera Module', () => {
       it('should stop a journey already underway when the target changes again', () => {
         renderOnTarget()
 
-        act(() => useStore.setState({ targetId: OTHER_TARGET_ID }))
+        act(() => useStore.setState({ targetId: OTHER_TARGET_ID, target: OTHER_TARGET }))
 
         expect(tween.stop).toHaveBeenCalledTimes(1)
       })

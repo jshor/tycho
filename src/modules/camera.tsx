@@ -8,7 +8,6 @@ import { Controls } from '../utils/Controls'
 import { Ambience } from '../utils/Ambience'
 import { Constants } from '../constants'
 import { MathService } from '../services/MathService'
-import { OrbitalService } from '../services/OrbitalService'
 
 interface Props {
   /** The aspect ratio the camera renders at. */
@@ -44,7 +43,7 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
   const zoom = useStore((state) => state.zoom)
   const volume = useStore((state) => state.volume)
   const isAutoOrbitEnabled = useStore((state) => state.isAutoOrbitEnabled)
-  const orbitalData = useStore((state) => state.orbitalData)
+  const radius = useStore((state) => state.target?.radius)
   const changeZoom = useStore((state) => state.changeZoom)
   const pivotRef = useRef<THREE.Group>(null)
   const controlsRef = useRef<Controls>(null)
@@ -113,7 +112,6 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
   useEffect(() => {
     const pivot = pivotRef.current
     const target = scene.getObjectByName(targetId)
-    const radius = OrbitalService.getTargetByName(orbitalData, targetId)?.radius
 
     if (!target || !radius) return
 

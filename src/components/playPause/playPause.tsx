@@ -12,9 +12,5 @@ interface Props {
  * The button that plays and pauses the simulation.
  */
 export function PlayPause({ onClick, playing }: Props) {
-  return (
-    <ControlButton onClick={onClick}>
-      {playing ? '❙ ❙' : '▶'}
-    </ControlButton>
-  )
+  return <ControlButton onClick={onClick}>{playing ? '❙ ❙' : '▶'}</ControlButton>
 }

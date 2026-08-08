@@ -40,7 +40,7 @@ describe('Modal Module', () => {
       const { container } = renderWithStore(<Modal type={Constants.UI.ModalTypes.STATS_MODAL} />, {
         targetId: 'mars',
         targetName: 'Mars',
-        orbitalData: [{ id: 'mars', name: 'Mars', symbol: '2642' }] as OrbitalData[]
+        target: { id: 'mars', name: 'Mars', symbol: '2642' } as OrbitalData
       })
 
       expect(container.querySelector('.modal__header .orbital-symbol')?.textContent).toEqual('♂')
@@ -50,7 +50,7 @@ describe('Modal Module', () => {
       const { container } = renderWithStore(<Modal type={Constants.UI.ModalTypes.ABOUT_MODAL} />, {
         targetId: 'mars',
         pageText: { aboutTitle: 'About Tycho' },
-        orbitalData: [{ id: 'mars', name: 'Mars', symbol: '2642' }] as OrbitalData[]
+        target: { id: 'mars', name: 'Mars', symbol: '2642' } as OrbitalData
       })
 
       expect(container.querySelector('.orbital-symbol')).toBeNull()

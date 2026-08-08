@@ -42,7 +42,9 @@ describe('Speed Control Component', () => {
       const { container } = render(<SpeedControl speed={1} />)
 
       expect(isOpen(container)).toBe(false)
-      expect(container.querySelector('.speed-control__popover')?.getAttribute('aria-hidden')).toEqual('true')
+      expect(
+        container.querySelector('.speed-control__popover')?.getAttribute('aria-hidden')
+      ).toEqual('true')
     })
 
     it('should open the slider when the button is clicked', () => {

@@ -135,7 +135,7 @@ describe('UI Controls Module', () => {
       const { container } = renderModule({
         targetId: 'mars',
         targetName: 'Mars',
-        orbitalData: [{ id: 'mars', name: 'Mars', symbol: '2642' }] as OrbitalData[]
+        target: { id: 'mars', name: 'Mars', symbol: '2642' } as OrbitalData
       })
 
       const label = container.querySelector('.ui-controls-layout__label')

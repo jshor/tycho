@@ -11,7 +11,7 @@ describe('Orbital Symbol Component', () => {
       expect(getSymbolText('1f728')).toEqual('\u{1F728}')
     })
 
-    it("should spell a moon out as its planet and its place in orbit, which the font draws as one", () => {
+    it('should spell a moon out as its planet and its place in orbit, which the font draws as one', () => {
       // Io is Jupiter I, and Iapetus is Saturn VIII
       expect(getSymbolText('2643-49')).toEqual('♃I')
       expect(getSymbolText('2644-56-49-49-49')).toEqual('♄VIII')
@@ -33,7 +33,9 @@ describe('Orbital Symbol Component', () => {
     it('should keep out of the way of a screen reader, which has the name to read out', () => {
       const { container } = render(<OrbitalSymbol symbol="2642" />)
 
-      expect(container.querySelector('.orbital-symbol')?.getAttribute('aria-hidden')).toEqual('true')
+      expect(container.querySelector('.orbital-symbol')?.getAttribute('aria-hidden')).toEqual(
+        'true'
+      )
     })
 
     it('should draw nothing at all for a body with no sign', () => {

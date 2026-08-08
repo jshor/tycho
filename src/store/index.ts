@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { OrbitalData, PageText, Store } from '../types'
 import { env } from '../utils/Environment'
 
-export const useStore = create<Store>()((set) => ({
+export const useStore = create<Store>()((set, get) => ({
   /**
    * Fetches the orbital data.
    */
@@ -24,28 +24,43 @@ export const useStore = create<Store>()((set) => ({
   /**
    * Sets the active orbital target.
    */
-  setActiveOrbital: (targetId, targetName, animateTargetChange = true) =>
-    set({ targetId, targetName, animateTargetChange, activeModal: null }),
+  setActiveOrbitalId: (targetId: string) => {
+    /**
+     * Returns a target of the given system having the given name.
+     */
+    function getTargetByName(targetName: string, orbitals?: OrbitalData[]) {
+      let target: OrbitalData | undefined
+
+      orbitals?.forEach((orbital) => {
+        if (!target) {
+          if (orbital.id === targetName) {
+            target = orbital
+          } else if (orbital.satellites) {
+            target = getTargetByName(targetName, orbital.satellites)
+          }
+        }
+      })
+
+      return target
+    }
+
+    const target = getTargetByName(targetId, get().orbitalData)
+
+    console.log('CHANGING TARGET TO: ', targetId, target?.name)
+
+    set({
+      target,
+      targetId,
+      targetName: target?.name,
+      animateTargetChange: true,
+      activeModal: null
+    })
+  },
 
   /**
-   * Adds the given orbital to the list of highlighted orbitals.
+   * Sets the ID of the orbital that is currently highlighted (i.e., hovered over).
    */
-  addHighlightedOrbital: (highlightedOrbital) =>
-    set(({ highlightedOrbitals }) => ({
-      highlightedOrbitals: Array.isArray(highlightedOrbitals)
-        ? [...highlightedOrbitals, highlightedOrbital]
-        : [highlightedOrbital]
-    })),
-
-  /**
-   * Removes the given orbital from the list of highlighted orbitals.
-   */
-  removeHighlightedOrbital: (highlightedOrbital) =>
-    set(({ highlightedOrbitals }) => ({
-      highlightedOrbitals: Array.isArray(highlightedOrbitals)
-        ? highlightedOrbitals.filter((orbital) => orbital !== highlightedOrbital)
-        : []
-    })),
+  setHighlightedId: (highlightedId) => set({ highlightedId }),
 
   /**
    * Sets the percentage of assets loaded, based on the count and total.

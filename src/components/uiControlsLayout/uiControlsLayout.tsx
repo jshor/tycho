@@ -20,7 +20,14 @@ interface Props {
 /**
  * The heads-up display overlaying the scene.
  */
-export function UIControlsLayout({ controlsEnabled, label, onLabelClick, left, bottom, right }: Props) {
+export function UIControlsLayout({
+  controlsEnabled,
+  label,
+  onLabelClick,
+  left,
+  bottom,
+  right
+}: Props) {
   return (
     <div
       className={cx({

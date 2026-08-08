@@ -1,14 +1,16 @@
-import { Vector3 } from 'three'
 import { act, fireEvent } from '@testing-library/react'
+import { Line } from '@react-three/drei'
 import { renderInScene } from '../../test/helpers'
 import { useStore } from '../../store'
 import data from './__fixtures__/orbitals.json'
 import { Orbital } from '../orbital'
-import { OrbitalService } from '../../services/OrbitalService'
 import { Constants } from '../../constants'
+import { MathService } from '../../services/MathService'
+import { Ellipse } from '../../utils/Ellipse'
 import { OrbitalData, Store } from '../../types'
 
 const orbital = data[0] as OrbitalData
+const ASCENSION = 90
 
 describe('Orbital Module', () => {
   beforeEach(() => {
@@ -29,31 +31,30 @@ describe('Orbital Module', () => {
 
       expect(container.querySelector(`group[name="${orbital.id}"]`)).not.toBeNull()
     })
+  })
 
-    it('should position the body along its orbit at the current time', () => {
-      const position = new Vector3(1, 2, 3)
-      const spy = vi.spyOn(OrbitalService, 'getBodyPosition').mockReturnValue(position)
+  describe('body position', () => {
+    it('should update the ellipse time on first render', () => {
+      const spy = vi.spyOn(Ellipse.prototype, 'updateTime')
 
       renderModule()
 
-      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith(1)
     })
-  })
 
-  describe('body state', () => {
     it('should reposition the body as the clock ticks', () => {
-      const spy = vi.spyOn(OrbitalService, 'getBodyPosition')
+      const spy = vi.spyOn(Ellipse.prototype, 'updateTime')
 
       renderModule()
       spy.mockClear()
 
       act(() => useStore.setState({ time: 2 }))
 
-      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith(2)
     })
 
     it('should leave the body where it is when nothing has changed', () => {
-      const spy = vi.spyOn(OrbitalService, 'getBodyPosition')
+      const spy = vi.spyOn(Ellipse.prototype, 'updateTime')
 
       renderModule()
       spy.mockClear()
@@ -64,33 +65,107 @@ describe('Orbital Module', () => {
     })
   })
 
-  describe('pathOpacity', () => {
-    it('should recompute the path opacity when the highlighted orbitals change', () => {
-      const spy = vi
-        .spyOn(OrbitalService, 'getPathOpacity')
-        .mockReturnValue(Constants.UI.HOVER_OPACITY_ON)
+  describe('eclipticGroupRotation', () => {
+    it('should negate the ascension as the x rotation for non-satellites', () => {
+      const spy = vi.spyOn(MathService, 'toRadians')
 
-      renderModule({ highlightedOrbitals: [] })
-      spy.mockClear()
+      renderModule({}, { isSatellite: false })
 
-      act(() => useStore.setState({ highlightedOrbitals: [orbital.id] }))
-
-      expect(spy).toHaveBeenCalledWith(expect.anything(), [orbital.id], false)
+      expect(spy).toHaveBeenCalledWith(-ASCENSION)
     })
 
-    it('should mark the orbital as the target when the camera is focused on it', () => {
-      const spy = vi.spyOn(OrbitalService, 'getPathOpacity')
+    it('should apply no x rotation for satellites', () => {
+      const spy = vi.spyOn(MathService, 'toRadians')
 
-      renderModule({ targetId: orbital.id })
+      renderModule({}, { isSatellite: true })
 
-      expect(spy).toHaveBeenCalledWith(expect.anything(), undefined, true)
+      expect(spy).not.toHaveBeenCalledWith(-ASCENSION)
+    })
+
+    it('should apply longitudeOfAscendingNode offset to the z rotation', () => {
+      const spy = vi.spyOn(MathService, 'toRadians')
+      const longitudeOfAscendingNode = 15
+
+      renderModule({}, { longitudeOfAscendingNode })
+
+      expect(spy).toHaveBeenCalledWith(ASCENSION + longitudeOfAscendingNode)
+    })
+  })
+
+  describe('orbitalGroupRotation', () => {
+    it('should apply inclination as the x rotation', () => {
+      const spy = vi.spyOn(MathService, 'toRadians')
+      const inclination = 10
+
+      renderModule({}, { inclination })
+
+      expect(spy).toHaveBeenCalledWith(inclination)
+    })
+
+    it('should apply argumentOfPeriapsis offset to the z rotation', () => {
+      const spy = vi.spyOn(MathService, 'toRadians')
+      const argumentOfPeriapsis = 10
+
+      renderModule({}, { argumentOfPeriapsis })
+
+      expect(spy).toHaveBeenCalledWith(ASCENSION + argumentOfPeriapsis)
+    })
+  })
+
+  describe('orbitalRotation', () => {
+    it('should apply ASCENSION + axialTilt as the x rotation', () => {
+      const spy = vi.spyOn(MathService, 'toRadians')
+      const axialTilt = 10
+
+      renderModule({}, { axialTilt })
+
+      expect(spy).toHaveBeenCalledWith(ASCENSION + axialTilt)
+    })
+
+    it('should not call toRadians for the z axis', () => {
+      const spy = vi.spyOn(MathService, 'toRadians')
+      const axialTilt = 10
+
+      renderModule({}, { axialTilt })
+
+      const bodyRotationXCall = spy.mock.calls.find(([v]) => v === ASCENSION + axialTilt)
+      expect(bodyRotationXCall).toBeDefined()
+    })
+  })
+
+  describe('pathOpacity', () => {
+    it('should be OFF when the orbital is not highlighted', () => {
+      renderModule({ highlightedId: undefined })
+
+      const [props] = vi.mocked(Line).mock.calls[0]
+
+      expect(props.opacity).toBe(Constants.UI.HOVER_OPACITY_OFF)
+    })
+
+    it('should be ON when the orbital is highlighted', () => {
+      renderModule({ highlightedId: orbital.id })
+
+      const [props] = vi.mocked(Line).mock.calls[0]
+
+      expect(props.opacity).toBe(Constants.UI.HOVER_OPACITY_ON)
+    })
+
+    it('should update when the highlighted orbital changes', () => {
+      renderModule()
+      vi.mocked(Line).mockClear()
+
+      act(() => useStore.setState({ highlightedId: orbital.id }))
+
+      const [props] = vi.mocked(Line).mock.calls[0]
+
+      expect(props.opacity).toBe(Constants.UI.HOVER_OPACITY_ON)
     })
   })
 
   describe('label actions', () => {
     it('should focus the camera on the orbital when its label is tapped', () => {
-      const setActiveOrbital = vi.fn()
-      const { container } = renderModule({ setActiveOrbital })
+      const setActiveOrbitalId = vi.fn()
+      const { container } = renderModule({ setActiveOrbitalId })
       const label = container.querySelector('span') as Element
       const tap = { bubbles: true, clientX: 100, clientY: 100 }
 
@@ -99,7 +174,7 @@ describe('Orbital Module', () => {
       fireEvent(label, new MouseEvent('pointerdown', tap))
       fireEvent(label, new MouseEvent('pointerup', tap))
 
-      expect(setActiveOrbital).toHaveBeenCalledWith(orbital.id, orbital.name)
+      expect(setActiveOrbitalId).toHaveBeenCalledWith(orbital.id)
     })
   })
 })

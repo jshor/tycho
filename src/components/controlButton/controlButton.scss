@@ -21,7 +21,8 @@
     cursor: not-allowed;
   }
 
-  &--active, &:hover {
+  &--active,
+  &:hover {
     background-color: var(--brand-primary);
     color: var(--brand-secondary);
   }

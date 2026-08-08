@@ -44,7 +44,12 @@ export function SpeedControl({ speed = 0, onChange }: Props) {
 
   return (
     <div className={cx('speed-control', { 'speed-control--open': isOpen })} ref={ref}>
-      <div className="speed-control__popover" role="dialog" aria-label="Speed" aria-hidden={!isOpen}>
+      <div
+        className="speed-control__popover"
+        role="dialog"
+        aria-label="Speed"
+        aria-hidden={!isOpen}
+      >
         <SpeedSlider value={speed} onChange={onChange} />
       </div>
 

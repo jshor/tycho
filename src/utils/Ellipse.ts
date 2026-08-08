@@ -25,7 +25,13 @@ export class Ellipse {
   pathVertices: THREE.Vector3[] = []
   trailVertices: THREE.Vector3[] = []
 
-  constructor({ semimajor, semiminor, eccentricity, periapses, labelColor = '#ffffff' }: EllipseProps) {
+  constructor({
+    semimajor,
+    semiminor,
+    eccentricity,
+    periapses,
+    labelColor = '#ffffff'
+  }: EllipseProps) {
     this.semimajor = semimajor
     this.semiminor = semiminor
     this.eccentricity = eccentricity
@@ -81,7 +87,7 @@ export class Ellipse {
     const pathVertices = this.pathVertices
     const total = pathVertices.length - 1
     const trail: THREE.Vector3[] = new Array(total + 1)
-    const passed = Math.floor((this.getVertexPercent()) * total)
+    const passed = Math.floor(this.getVertexPercent() * total)
 
     trail[0] = this.getPosition()
 

@@ -1,6 +1,7 @@
 import { useStore } from '../'
 import orbitalFixtures from './__fixtures__/orbitals.json'
 import pageTextFixtures from './__fixtures__/pageText.json'
+import { OrbitalData } from '../../types'
 
 /**
  * Stands in for the network, handing back the given JSON.
@@ -60,56 +61,64 @@ describe('Store', () => {
     })
   })
 
-  describe('setActiveOrbital()', () => {
+  describe('setActiveOrbitalId()', () => {
+    const orbitalData = orbitalFixtures as unknown as OrbitalData[]
+
+    beforeEach(() => {
+      useStore.setState({ orbitalData })
+    })
+
     it('should focus the camera on the given orbital', () => {
-      useStore.getState().setActiveOrbital('earth', 'Earth')
+      useStore.getState().setActiveOrbitalId('dummyParent')
 
       const { targetId, targetName } = useStore.getState()
 
-      expect(targetId).toEqual('earth')
-      expect(targetName).toEqual('Earth')
+      expect(targetId).toEqual('dummyParent')
+      expect(targetName).toEqual('Dummy Planet')
     })
 
-    it('should animate its way to the orbital by default', () => {
-      useStore.getState().setActiveOrbital('earth', 'Earth')
+    it('should animate its way to the orbital', () => {
+      useStore.getState().setActiveOrbitalId('dummyParent')
 
       expect(useStore.getState().animateTargetChange).toBe(true)
     })
 
-    it('should snap to the orbital when told not to animate', () => {
-      useStore.getState().setActiveOrbital('earth', 'Earth', false)
+    it('should put away whatever modal was open, so the camera is left a clear view', () => {
+      useStore.setState({ activeModal: 'TEST_MODAL' })
+      useStore.getState().setActiveOrbitalId('dummyParent')
 
-      expect(useStore.getState().animateTargetChange).toBe(false)
+      expect(useStore.getState().activeModal).toBeNull()
+    })
+
+    it('should still focus an orbital the data has never heard of', () => {
+      useStore.getState().setActiveOrbitalId('bogus')
+
+      const { targetId, targetName } = useStore.getState()
+
+      expect(targetId).toEqual('bogus')
+      expect(targetName).toBeUndefined()
     })
   })
 
-  describe('addHighlightedOrbital()', () => {
-    it('should highlight the first orbital', () => {
-      useStore.getState().addHighlightedOrbital('earth')
+  describe('setHighlightedId()', () => {
+    it('should highlight the given orbital', () => {
+      useStore.getState().setHighlightedId('earth')
 
-      expect(useStore.getState().highlightedOrbitals).toEqual(['earth'])
+      expect(useStore.getState().highlightedId).toEqual('earth')
     })
 
-    it('should keep the orbitals already highlighted', () => {
-      useStore.setState({ highlightedOrbitals: ['earth'] })
-      useStore.getState().addHighlightedOrbital('mars')
+    it('should highlight one orbital at a time', () => {
+      useStore.getState().setHighlightedId('earth')
+      useStore.getState().setHighlightedId('mars')
 
-      expect(useStore.getState().highlightedOrbitals).toEqual(['earth', 'mars'])
-    })
-  })
-
-  describe('removeHighlightedOrbital()', () => {
-    it('should stop highlighting the given orbital', () => {
-      useStore.setState({ highlightedOrbitals: ['earth', 'mars'] })
-      useStore.getState().removeHighlightedOrbital('earth')
-
-      expect(useStore.getState().highlightedOrbitals).toEqual(['mars'])
+      expect(useStore.getState().highlightedId).toEqual('mars')
     })
 
-    it('should do nothing when no orbital is highlighted', () => {
-      useStore.getState().removeHighlightedOrbital('earth')
+    it('should drop the highlight when given nothing to highlight', () => {
+      useStore.getState().setHighlightedId('earth')
+      useStore.getState().setHighlightedId(undefined)
 
-      expect(useStore.getState().highlightedOrbitals).toEqual([])
+      expect(useStore.getState().highlightedId).toBeUndefined()
     })
   })
 
@@ -132,6 +141,52 @@ describe('Store', () => {
       useStore.getState().changeZoom(50)
 
       expect(useStore.getState().zoom).toEqual(50)
+    })
+  })
+
+  describe('target', () => {
+    const orbitalData = orbitalFixtures as unknown as OrbitalData[]
+
+    beforeEach(() => {
+      useStore.setState({ orbitalData })
+    })
+
+    it('should give the orbital the camera is focused on', () => {
+      useStore.getState().setActiveOrbitalId('dummyParent')
+
+      expect(useStore.getState().target?.id).toEqual('dummyParent')
+    })
+
+    it('should find a satellite of the orbitals it was given', () => {
+      useStore.getState().setActiveOrbitalId('dummyChild')
+
+      expect(useStore.getState().target?.id).toEqual('dummyChild')
+    })
+
+    it('should follow the camera onto whichever orbital it is sent to next', () => {
+      useStore.getState().setActiveOrbitalId('dummyParent')
+      useStore.getState().setActiveOrbitalId('dummyPlanet')
+
+      expect(useStore.getState().target?.id).toEqual('dummyPlanet')
+    })
+
+    it('should stay with the target no matter how much else has been set since', () => {
+      // the state is merged anew on every change, which once left the target behind
+      useStore.getState().setActiveOrbitalId('dummyParent')
+      useStore.setState({ time: 1 })
+      useStore.setState({ zoom: 50 })
+
+      expect(useStore.getState().target?.id).toEqual('dummyParent')
+    })
+
+    it('should give nothing while the camera is focused on nothing', () => {
+      expect(useStore.getState().target).toBeUndefined()
+    })
+
+    it('should give nothing for an orbital the data has never heard of', () => {
+      useStore.getState().setActiveOrbitalId('bogus')
+
+      expect(useStore.getState().target).toBeUndefined()
     })
   })
 })

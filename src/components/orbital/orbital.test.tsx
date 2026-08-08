@@ -1,7 +1,8 @@
 import { Line } from '@react-three/drei'
 import { renderInScene } from '../../test/helpers'
 import { Orbital, Props } from './orbital'
-import { Euler, Vector3 } from 'three'
+import { Euler } from 'three'
+import { Ellipse } from '../../utils/Ellipse'
 import { TailData } from '../../types'
 
 describe('Orbital Component', () => {
@@ -15,34 +16,34 @@ describe('Orbital Component', () => {
     ionColor: 0x66ccff
   }
 
-  const props: Props = {
-    eclipticGroupRotation: new Euler(0, 0, 0),
-    orbitalGroupRotation: new Euler(0, 0, 0),
-    pathVertices: [new Vector3(0, 0, 0), new Vector3(1, 0, 0)],
-    bodyPosition: new Vector3(0, 0, 0),
-    radius: 100,
-    id: 'Earth',
-    text: 'Earth',
-    action: {
-      setActiveOrbital: vi.fn(),
-      addHighlightedOrbital: vi.fn(),
-      removeHighlightedOrbital: vi.fn()
-    }
-  }
+  let ellipse: Ellipse
 
-  /** A traced orbit of four vertices, closed by repeating the one it set out from. */
-  const orbit = [
-    new Vector3(0, 0, 0),
-    new Vector3(1, 0, 0),
-    new Vector3(1, 1, 0),
-    new Vector3(0, 1, 0),
-    new Vector3(0, 0, 0)
-  ]
+  let props: Props
+
+  beforeEach(() => {
+    ellipse = new Ellipse({
+      semimajor: 149598261,
+      semiminor: 149556483,
+      eccentricity: 0.01671123,
+      periapses: { last: 1136430000, next: 1167987600 }
+    })
+
+    ellipse.updateTime(1)
+
+    props = {
+      eclipticGroupRotation: new Euler(0, 0, 0),
+      orbitalGroupRotation: new Euler(0, 0, 0),
+      ellipse,
+      radius: 100,
+      id: 'Earth',
+      text: 'Earth'
+    }
+  })
 
   /** The path the orbit line was drawn over, in the order the line runs. */
   const drawnPath = () => {
     const [{ points, vertexColors }] = vi.mocked(Line).mock.lastCall as [
-      { points: Vector3[]; vertexColors: [number, number, number, number][] }
+      { points: unknown[]; vertexColors: [number, number, number, number][] }
     ]
 
     return { points, alphas: vertexColors.map(([, , , alpha]) => alpha) }
@@ -50,6 +51,12 @@ describe('Orbital Component', () => {
 
   it('should render without crashing', () => {
     expect(() => renderInScene(<Orbital {...props} />)).not.toThrow()
+  })
+
+  it('should name the body after the orbital, so the scene can find it again', () => {
+    const { container } = renderInScene(<Orbital {...props} />)
+
+    expect(container.querySelector('group[name="Earth"]')).not.toBeNull()
   })
 
   it('should grow a tail on an orbital configured with one', () => {
@@ -65,55 +72,35 @@ describe('Orbital Component', () => {
   })
 
   describe('orbit path', () => {
-    /** The body partway along the segment between the second and third vertices of the orbit. */
-    const bodyPosition = new Vector3(1, 0.5, 0)
+    it('should draw the line over the trail the ellipse traced', () => {
+      renderInScene(<Orbital {...props} />)
 
-    const renderPath = (bodyPercent: number) =>
-      renderInScene(
-        <Orbital
-          {...props}
-          pathVertices={orbit}
-          bodyPosition={bodyPosition}
-          bodyPercent={bodyPercent}
-        />
-      )
-
-    it('should set the path out from the body itself, so that nothing runs on ahead of it', () => {
-      renderPath(0.3)
-
-      expect(drawnPath().points[0]).toBe(bodyPosition)
+      expect(drawnPath().points).toBe(ellipse.trailVertices)
     })
 
-    it('should trail the path back behind the body, away from where it is headed', () => {
-      renderPath(0.3)
-
-      // the body has drawn level with the second vertex, and the path runs back from there
-      expect(drawnPath().points.slice(1)).toEqual([orbit[1], orbit[0], orbit[3], orbit[2]])
-    })
-
-    it('should carry the path once around the orbit, without redrawing where it closes', () => {
-      renderPath(0.3)
-
-      const { points } = drawnPath()
-
-      expect(points).toHaveLength(orbit.length)
-      expect(new Set(points.slice(1)).size).toEqual(orbit.length - 1)
-    })
-
-    it('should pick the path up from the vertex the body has just passed', () => {
-      renderPath(0.8)
-
-      expect(drawnPath().points[1]).toBe(orbit[3])
-    })
-
-    it('should fade the path out along its length, from the body to its far end', () => {
-      renderPath(0.3)
+    it('should fade the line out along its length, from the body to its far end', () => {
+      renderInScene(<Orbital {...props} />)
 
       const { alphas } = drawnPath()
 
       expect(alphas[0]).toEqual(1)
       expect(alphas[alphas.length - 1]).toEqual(0)
-      expect(alphas).toEqual([...alphas].sort((a, b) => b - a))
+    })
+
+    it('should draw the line at the opacity it was given', () => {
+      renderInScene(<Orbital {...props} pathOpacity={0.25} />)
+
+      const [{ opacity }] = vi.mocked(Line).mock.lastCall as [{ opacity: number }]
+
+      expect(opacity).toEqual(0.25)
+    })
+
+    it('should draw the line fully opaque when no opacity was given', () => {
+      renderInScene(<Orbital {...props} />)
+
+      const [{ opacity }] = vi.mocked(Line).mock.lastCall as [{ opacity: number }]
+
+      expect(opacity).toEqual(1)
     })
   })
 
