@@ -7,7 +7,7 @@
     "centralMass": 5.6834e+26,
     "axialTilt": 0,
     "inclination": 0.345,
-    "atmosphere": 4538410,
+    "labelColor": 4538410,
     "ephemeris": {
         "nasaOrbitalCode": "608",
         "nasaBarycenterCode": "6",

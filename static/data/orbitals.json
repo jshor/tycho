@@ -9,7 +9,7 @@
         "centralMass": 1.989e+30,
         "axialTilt": 23.4392811,
         "inclination": 7.155,
-        "atmosphere": 35260,
+        "labelColor": 35260,
         "atmosphereHeightKm": 100,
         "atmosphereColor": "#5DA9E9",
         "satellites": [
@@ -23,7 +23,7 @@
                 "centralMass": 5.97237e+24,
                 "axialTilt": 6.687,
                 "inclination": 5.145,
-                "atmosphere": 10066278,
+                "labelColor": 10066278,
                 "ephemeris": {
                     "nasaOrbitalCode": "301",
                     "nasaBarycenterCode": "3",
@@ -93,7 +93,7 @@
         "centralMass": 1.989e+30,
         "axialTilt": 0,
         "inclination": 162.262691,
-        "atmosphere": 5804449,
+        "labelColor": 5804449,
         "argumentOfPeriapsis": 111.3324851045177,
         "eccentricity": 0.967,
         "longitudeOfAscendingNode": 58.42008097656843,
@@ -125,7 +125,7 @@
         "centralMass": 1.989e+30,
         "axialTilt": 3.13,
         "inclination": 1.303,
-        "atmosphere": 9996148,
+        "labelColor": 9996148,
         "atmosphereHeightKm": 3000,
         "atmosphereColor": "#D8C3A5",
         "satellites": [
@@ -138,7 +138,7 @@
                 "centralMass": 1.898e+27,
                 "axialTilt": 0,
                 "inclination": 0.05,
-                "atmosphere": 10521177,
+                "labelColor": 10521177,
                 "atmosphereHeightKm": 120,
                 "atmosphereColor": "#E9D36B",
                 "ephemeris": {
@@ -174,7 +174,7 @@
                 "centralMass": 1.898e+27,
                 "axialTilt": 0,
                 "inclination": 2.017,
-                "atmosphere": 4601634,
+                "labelColor": 4601634,
                 "ephemeris": {
                     "nasaOrbitalCode": "504",
                     "nasaBarycenterCode": "5",
@@ -208,7 +208,7 @@
                 "centralMass": 1.898e+27,
                 "axialTilt": 0.1,
                 "inclination": 0.47,
-                "atmosphere": 9734782,
+                "labelColor": 9734782,
                 "ephemeris": {
                     "nasaOrbitalCode": "502",
                     "nasaBarycenterCode": "5",
@@ -242,7 +242,7 @@
                 "centralMass": 1.898e+27,
                 "axialTilt": 0.33,
                 "inclination": 0.2,
-                "atmosphere": 8355711,
+                "labelColor": 8355711,
                 "ephemeris": {
                     "nasaOrbitalCode": "503",
                     "nasaBarycenterCode": "5",
@@ -300,7 +300,7 @@
         "centralMass": 1.989e+30,
         "axialTilt": 25.19,
         "inclination": 5.65,
-        "atmosphere": 12746585,
+        "labelColor": 12746585,
         "atmosphereHeightKm": 80,
         "atmosphereColor": "#D88C63",
         "satellites": [
@@ -313,7 +313,7 @@
                 "centralMass": 6.4171e+23,
                 "axialTilt": 0,
                 "inclination": 1.093,
-                "atmosphere": 10523269,
+                "labelColor": 10523269,
                 "ephemeris": {
                     "nasaOrbitalCode": "401",
                     "nasaBarycenterCode": "4",
@@ -346,7 +346,7 @@
                 "centralMass": 6.4171e+23,
                 "axialTilt": 0,
                 "inclination": 0.93,
-                "atmosphere": 12761507,
+                "labelColor": 12761507,
                 "ephemeris": {
                     "nasaOrbitalCode": "402",
                     "nasaBarycenterCode": "4",
@@ -404,7 +404,7 @@
         "centralMass": 1.989e+30,
         "axialTilt": 0.034,
         "inclination": 3.86,
-        "atmosphere": 7829367,
+        "labelColor": 7829367,
         "ephemeris": {
             "nasaOrbitalCode": "1",
             "nasaBarycenterCode": "0",
@@ -438,7 +438,7 @@
         "centralMass": 1.989e+30,
         "axialTilt": 28.32,
         "inclination": 1.767975,
-        "atmosphere": 4871817,
+        "labelColor": 4871817,
         "atmosphereHeightKm": 1500,
         "atmosphereColor": "#3F6FE5",
         "satellites": [
@@ -451,7 +451,7 @@
                 "centralMass": 1.0243e+26,
                 "axialTilt": 0,
                 "inclination": 156.885,
-                "atmosphere": 4871817,
+                "labelColor": 4871817,
                 "atmosphereHeightKm": 100,
                 "atmosphereColor": "#8EAFC8",
                 "ephemeris": {
@@ -512,7 +512,7 @@
         "centralMass": 1.989e+30,
         "axialTilt": 119.591,
         "inclination": 17.151394,
-        "atmosphere": 13872777,
+        "labelColor": 13872777,
         "atmosphereHeightKm": 200,
         "atmosphereColor": "#8CAAC7",
         "satellites": [
@@ -525,7 +525,7 @@
                 "centralMass": 1.303e+22,
                 "axialTilt": 119.591,
                 "inclination": 0.001,
-                "atmosphere": 12759459,
+                "labelColor": 12759459,
                 "ephemeris": {
                     "nasaOrbitalCode": "901",
                     "nasaBarycenterCode": "9",
@@ -583,7 +583,7 @@
         "centralMass": 1.989e+30,
         "axialTilt": 26.73,
         "inclination": 2.485,
-        "atmosphere": 9931069,
+        "labelColor": 9931069,
         "atmosphereHeightKm": 2500,
         "atmosphereColor": "#E6D3A3",
         "satellites": [
@@ -596,7 +596,7 @@
                 "centralMass": 5.6834e+26,
                 "axialTilt": 0,
                 "inclination": 0.019,
-                "atmosphere": 16634447,
+                "labelColor": 16634447,
                 "ephemeris": {
                     "nasaOrbitalCode": "604",
                     "nasaBarycenterCode": "6",
@@ -629,7 +629,7 @@
                 "centralMass": 5.6834e+26,
                 "axialTilt": 0,
                 "inclination": 0.019,
-                "atmosphere": 13417384,
+                "labelColor": 13417384,
                 "ephemeris": {
                     "nasaOrbitalCode": "602",
                     "nasaBarycenterCode": "6",
@@ -662,7 +662,7 @@
                 "centralMass": 5.6834e+26,
                 "axialTilt": 0,
                 "inclination": 1.574,
-                "atmosphere": 12632256,
+                "labelColor": 12632256,
                 "ephemeris": {
                     "nasaOrbitalCode": "601",
                     "nasaBarycenterCode": "6",
@@ -695,7 +695,7 @@
                 "centralMass": 5.6834e+26,
                 "axialTilt": 0,
                 "inclination": 0.345,
-                "atmosphere": 4538410,
+                "labelColor": 4538410,
                 "ephemeris": {
                     "nasaOrbitalCode": "608",
                     "nasaBarycenterCode": "6",
@@ -728,7 +728,7 @@
                 "centralMass": 5.6834e+26,
                 "axialTilt": 0,
                 "inclination": 1.12,
-                "atmosphere": 13087130,
+                "labelColor": 13087130,
                 "ephemeris": {
                     "nasaOrbitalCode": "603",
                     "nasaBarycenterCode": "6",
@@ -761,7 +761,7 @@
                 "centralMass": 5.6836e+26,
                 "axialTilt": 0,
                 "inclination": 0.34854,
-                "atmosphere": 16634447,
+                "labelColor": 16634447,
                 "atmosphereHeightKm": 600,
                 "atmosphereColor": "#D9984C",
                 "ephemeris": {
@@ -796,7 +796,7 @@
                 "centralMass": 5.6834e+26,
                 "axialTilt": 0,
                 "inclination": 15.47,
-                "atmosphere": 12632256,
+                "labelColor": 12632256,
                 "ephemeris": {
                     "nasaOrbitalCode": "608",
                     "nasaBarycenterCode": "6",
@@ -865,7 +865,7 @@
         "centralMass": 1.989e+30,
         "axialTilt": 97.77,
         "inclination": 0.77,
-        "atmosphere": 5804449,
+        "labelColor": 5804449,
         "atmosphereHeightKm": 1500,
         "atmosphereColor": "#83D8E8",
         "satellites": [
@@ -878,7 +878,7 @@
                 "centralMass": 8.681e+25,
                 "axialTilt": 0,
                 "inclination": 0.26,
-                "atmosphere": 8421504,
+                "labelColor": 8421504,
                 "ephemeris": {
                     "nasaOrbitalCode": "701",
                     "nasaBarycenterCode": "7",
@@ -911,7 +911,7 @@
                 "centralMass": 8.681e+25,
                 "axialTilt": 0,
                 "inclination": 4.232,
-                "atmosphere": 8421504,
+                "labelColor": 8421504,
                 "ephemeris": {
                     "nasaOrbitalCode": "705",
                     "nasaBarycenterCode": "7",
@@ -944,7 +944,7 @@
                 "centralMass": 8.681e+25,
                 "axialTilt": 0,
                 "inclination": 0.058,
-                "atmosphere": 8421504,
+                "labelColor": 8421504,
                 "ephemeris": {
                     "nasaOrbitalCode": "704",
                     "nasaBarycenterCode": "7",
@@ -977,7 +977,7 @@
                 "centralMass": 8.681e+25,
                 "axialTilt": 0,
                 "inclination": 0.34,
-                "atmosphere": 8421504,
+                "labelColor": 8421504,
                 "ephemeris": {
                     "nasaOrbitalCode": "703",
                     "nasaBarycenterCode": "7",
@@ -1010,7 +1010,7 @@
                 "centralMass": 8.681e+25,
                 "axialTilt": 0,
                 "inclination": 0.128,
-                "atmosphere": 8421504,
+                "labelColor": 8421504,
                 "ephemeris": {
                     "nasaOrbitalCode": "702",
                     "nasaBarycenterCode": "7",
@@ -1068,7 +1068,7 @@
         "centralMass": 1.989e+30,
         "axialTilt": 2.64,
         "inclination": 3.86,
-        "atmosphere": 16052641,
+        "labelColor": 16052641,
         "atmosphereHeightKm": 150,
         "atmosphereColor": "#F4D6A0",
         "ephemeris": {

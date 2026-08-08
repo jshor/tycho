@@ -10,7 +10,7 @@
     "inclination": 7.155,
     "atmosphereHeightKm": 100,
     "atmosphereColor": "#5DA9E9",
-    "atmosphere": 35260,
+    "labelColor": 35260,
     "satellites": [
         "moon"
     ],

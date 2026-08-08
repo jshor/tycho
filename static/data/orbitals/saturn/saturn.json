@@ -10,7 +10,7 @@
     "inclination": 2.485,
     "atmosphereHeightKm": 2500,
     "atmosphereColor": "#E6D3A3",
-    "atmosphere": 9931069,
+    "labelColor": 9931069,
     "satellites": [
         "dione",
         "enceladus",

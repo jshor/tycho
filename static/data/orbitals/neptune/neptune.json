@@ -10,7 +10,7 @@
     "inclination": 1.767975,
     "atmosphereHeightKm": 1500,
     "atmosphereColor": "#3F6FE5",
-    "atmosphere": 4871817,
+    "labelColor": 4871817,
     "satellites": [
         "triton"
     ],
