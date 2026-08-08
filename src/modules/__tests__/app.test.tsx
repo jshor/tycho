@@ -16,14 +16,14 @@ const clock = vi.hoisted(() => ({
   stopped: false
 }))
 
-vi.mock('../../utils/Clock', () => ({
+vi.mock('../../elements/clock', () => ({
   // eslint-disable-next-line prefer-arrow-callback
   Clock: vi.fn(function () {
     return clock
   })
 }))
 
-vi.mock('../../utils/Ambience')
+vi.mock('../../elements/ambience')
 
 vi.mock('three/examples/jsm/controls/OrbitControls.js', () => ({
   OrbitControls: class {

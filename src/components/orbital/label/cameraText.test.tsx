@@ -4,10 +4,10 @@ import userEvent from '@testing-library/user-event'
 import * as THREE from 'three'
 import { CameraText } from './cameraText'
 import { Constants } from '../../../constants'
-import { clink } from '../../../utils/Sound'
+import { clink } from '../../../elements/sound'
 import { Store } from '../../../types'
 
-vi.mock('../../../utils/Sound', () => ({
+vi.mock('../../../elements/sound', () => ({
   clink: {
     play: vi.fn()
   }

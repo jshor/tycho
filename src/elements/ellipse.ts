@@ -1,8 +1,8 @@
 import * as THREE from 'three'
 import { Constants } from '../constants'
-import { PhysicsService } from '../services/PhysicsService'
-import { MathService } from '../services/MathService'
-import { Scale } from '../utils/Scale'
+import { PhysicsService } from '../utils/physics'
+import { MathService } from '../utils/math'
+import { Scale } from '../utils/scale'
 import { Periapses } from '../types'
 
 interface EllipseProps {

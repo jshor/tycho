@@ -1,5 +1,5 @@
 import { Tween } from '@tweenjs/tween.js'
-import { tweens, updateTweens } from '../Tween'
+import { tweens, updateTweens } from '../tween'
 
 describe('Tween', () => {
   const duration = 1000

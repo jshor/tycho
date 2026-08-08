@@ -1,8 +1,8 @@
 import { renderInScene } from '../../test/helpers'
 import { Sun } from './sun'
-import { LensFlareHelper } from '../../utils/LensFlare'
+import { LensFlareHelper } from '../../elements/lensFlare'
 
-vi.mock('../../utils/LensFlare')
+vi.mock('../../elements/lensFlare')
 
 describe('Sun Component', () => {
   it('should render without crashing', () => {

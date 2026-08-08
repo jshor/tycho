@@ -1,8 +1,8 @@
 import type { MockInstance } from 'vitest'
 import { Tween } from '@tweenjs/tween.js'
-import { tweens } from '../Tween'
+import { tweens } from '../../utils/tween'
 import { Camera, Vector3 } from 'three'
-import { Controls } from '../Controls'
+import { Controls } from '../controls'
 import { Constants } from '../../constants'
 
 vi.mock('three/examples/jsm/controls/OrbitControls.js', () => ({

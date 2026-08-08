@@ -1,9 +1,9 @@
 import { Vector3, Object3D, Scene } from 'three'
 import { Tween } from '@tweenjs/tween.js'
-import { CameraService } from '../CameraService'
-import { Gyroscope } from '../../utils/Gyroscope'
-import { tweens } from '../../utils/Tween'
-import { Scale } from '../../utils/Scale'
+import { CameraService } from '../camera'
+import { Gyroscope } from '../../elements/gyroscope'
+import { tweens } from '../tween'
+import { Scale } from '../scale'
 import { Constants } from '../../constants'
 
 describe('Camera Service', () => {

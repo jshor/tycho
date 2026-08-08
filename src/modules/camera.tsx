@@ -3,11 +3,11 @@ import * as THREE from 'three'
 import { useThree, useFrame } from '@react-three/fiber'
 import { PerspectiveCamera } from '@react-three/drei'
 import { useStore } from '../store'
-import { CameraService } from '../services/CameraService'
-import { Controls } from '../utils/Controls'
-import { Ambience } from '../utils/Ambience'
+import { CameraService } from '../utils/camera'
+import { Controls } from '../elements/controls'
+import { Ambience } from '../elements/ambience'
 import { Constants } from '../constants'
-import { MathService } from '../services/MathService'
+import { MathService } from '../utils/math'
 
 interface Props {
   /** The aspect ratio the camera renders at. */

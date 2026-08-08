@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { Label } from './label'
 import { CameraText } from './cameraText'
 import { Constants } from '../../../constants'
-import { Scale } from '../../../utils/Scale'
+import { Scale } from '../../../utils/scale'
 
 // the text itself is covered by cameraText.test.tsx; what the label decides is whether there is a
 // label at all, and how the text it renders is set up

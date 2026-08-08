@@ -2,7 +2,7 @@ import React from 'react'
 import * as THREE from 'three'
 import { Constants } from '../../../constants'
 import { CameraText } from './cameraText'
-import { Scale, getVisibleRadius } from '../../../utils/Scale'
+import { Scale, getVisibleRadius } from '../../../utils/scale'
 
 interface Props {
   /** The text to display in the label. */

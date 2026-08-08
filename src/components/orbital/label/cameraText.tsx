@@ -3,7 +3,7 @@ import * as THREE from 'three'
 import { Text } from '@react-three/drei'
 import { useRef, useState, useMemo, useEffect } from 'react'
 import { Constants } from '../../../constants'
-import { clink } from '../../../utils/Sound'
+import { clink } from '../../../elements/sound'
 
 interface TroikaText extends THREE.Mesh {
   textRenderInfo?: {

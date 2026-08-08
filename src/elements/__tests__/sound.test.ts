@@ -1,5 +1,5 @@
 import type { Mock } from 'vitest'
-import { Sound, clink } from '../Sound'
+import { Sound, clink } from '../sound'
 
 describe('Sound Utility', () => {
   let sound: Sound

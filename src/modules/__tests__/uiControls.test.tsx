@@ -4,7 +4,7 @@ import { useStore } from '../../store'
 import { UIControls } from '../uiControls'
 import { Constants } from '../../constants'
 import { OrbitalData, Store } from '../../types'
-import { formatUnixTime, getUnixTime } from '../../utils/DateTime'
+import { formatUnixTime, getUnixTime } from '../../utils/time'
 
 const { MIN } = Constants.UI.Speed
 

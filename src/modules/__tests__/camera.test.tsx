@@ -6,8 +6,8 @@ import { renderInScene } from '../../test/helpers'
 import { useStore } from '../../store'
 import { Constants } from '../../constants'
 import { Camera, CameraHandle, focusCameraImmediately } from '../camera'
-import { Controls } from '../../utils/Controls'
-import { Ambience } from '../../utils/Ambience'
+import { Controls } from '../../elements/controls'
+import { Ambience } from '../../elements/ambience'
 import { OrbitalData, Store } from '../../types'
 
 const three = vi.hoisted(() => ({
@@ -51,21 +51,21 @@ const cameraService = vi.hoisted(() => ({
   getPivotTween: vi.fn()
 }))
 
-vi.mock('../../utils/Ambience', () => ({
+vi.mock('../../elements/ambience', () => ({
   // eslint-disable-next-line prefer-arrow-callback
   Ambience: vi.fn(function () {
     return ambience
   })
 }))
 
-vi.mock('../../utils/Controls', () => ({
+vi.mock('../../elements/controls', () => ({
   // eslint-disable-next-line prefer-arrow-callback
   Controls: vi.fn(function () {
     return controls
   })
 }))
 
-vi.mock('../../services/CameraService', () => ({ CameraService: cameraService }))
+vi.mock('../../utils/camera', () => ({ CameraService: cameraService }))
 
 vi.mock('@react-three/fiber', async () => {
   const React = (await import('react')).default

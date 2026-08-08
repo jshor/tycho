@@ -1,14 +1,14 @@
 import React, { useMemo, useState } from 'react'
 import { useStore } from '../store'
-import { Ellipse } from '../utils/Ellipse'
+import { Ellipse } from '../elements/ellipse'
 import { Orbital as OrbitalView } from '../components/orbital/orbital'
 import { Clouds } from '../components/orbital/clouds/clouds'
 import { Texture } from './texture'
 import { OrbitalData, TextureMap } from '../types'
 import { DoubleSide, Euler, Vector3Like } from 'three'
 import { Constants } from '../constants'
-import { Scale, getVisibleRadius } from '../utils/Scale'
-import { MathService } from '../services/MathService'
+import { Scale, getVisibleRadius } from '../utils/scale'
+import { MathService } from '../utils/math'
 
 export interface Props extends OrbitalData {
   /** The ID of the orbital this one orbits, if it is a satellite. */

@@ -1,5 +1,5 @@
 import { Texture, TextureLoader } from 'three'
-import { LensFlareHelper } from '../LensFlare'
+import { LensFlareHelper } from '../lensFlare'
 import { Constants } from '../../constants'
 
 vi.mock('three/examples/jsm/objects/Lensflare.js', () => ({

@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { renderInScene } from '../../../test/helpers'
 import { Constants } from '../../../constants'
-import { Scale } from '../../../utils/Scale'
+import { Scale } from '../../../utils/scale'
 import {
   Atmosphere,
   createAtmosphereMaterial,

@@ -9,7 +9,7 @@ import { PlayPause } from '../components/playPause/playPause'
 import { SpeedControl } from '../components/speedControl/speedControl'
 import { Constants } from '../constants'
 import { OrbitalSymbol } from '../components/orbitalSymbol/orbitalSymbol'
-import { formatDateTime, getUnixTime } from '../utils/DateTime'
+import { formatDateTime, getUnixTime } from '../utils/time'
 
 /**
  * Connects the heads-up display to the store.

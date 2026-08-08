@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import * as THREE from 'three'
-import { Scale, getVisibleRadius } from '../../../utils/Scale'
+import { Scale, getVisibleRadius } from '../../../utils/scale'
 import { Constants } from '../../../constants'
 import VERTEX_SHADER from '../../../shaders/atmosphere.vert.glsl?raw'
 import FRAGMENT_SHADER from '../../../shaders/atmosphere.frag.glsl?raw'

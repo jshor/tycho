@@ -1,9 +1,9 @@
 import { Easing, Tween } from '@tweenjs/tween.js'
 import { Vector3, Object3D, Scene as ThreeScene, MathUtils } from 'three'
 import { Constants } from '../constants'
-import { Gyroscope } from '../utils/Gyroscope'
-import { tweens } from '../utils/Tween'
-import { Scale, getVisibleRadius } from '../utils/Scale'
+import { Gyroscope } from '../elements/gyroscope'
+import { tweens } from './tween'
+import { Scale, getVisibleRadius } from './scale'
 
 export class CameraService {
   static CAMERA_INITIAL_POSITION: Vector3 = new Vector3(

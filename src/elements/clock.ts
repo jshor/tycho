@@ -1,8 +1,8 @@
 import { Timer } from 'three'
 import { Easing, Tween } from '@tweenjs/tween.js'
 import { Constants } from '../constants'
-import { getUnixTime } from './DateTime'
-import { tweens, updateTweens } from './Tween'
+import { getUnixTime } from '../utils/time'
+import { tweens, updateTweens } from '../utils/tween'
 
 export class Clock {
   timer: Timer

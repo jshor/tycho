@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useStore } from '../store'
-import { PhysicsService } from '../services/PhysicsService'
-import { formatUnixTime } from '../utils/DateTime'
+import { PhysicsService } from '../utils/physics'
+import { formatUnixTime } from '../utils/time'
 import { Stats as StatsView } from '../components/stats/stats'
 import { OrbitalStats } from '../types'
 

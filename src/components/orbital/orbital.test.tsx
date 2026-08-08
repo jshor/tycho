@@ -2,7 +2,7 @@ import { Line } from '@react-three/drei'
 import { renderInScene } from '../../test/helpers'
 import { Orbital, Props } from './orbital'
 import { Euler } from 'three'
-import { Ellipse } from '../../utils/Ellipse'
+import { Ellipse } from '../../elements/ellipse'
 import { TailData } from '../../types'
 
 describe('Orbital Component', () => {

@@ -20,8 +20,8 @@ const controls = vi.hoisted(() => ({
   enabled: true
 }))
 
-vi.mock('../../utils/Ambience')
-vi.mock('../../utils/Controls', () => ({
+vi.mock('../../elements/ambience')
+vi.mock('../../elements/controls', () => ({
   // eslint-disable-next-line prefer-arrow-callback
   Controls: vi.fn(function () {
     return controls

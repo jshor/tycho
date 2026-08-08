@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useStore } from '../store'
-import { Clock } from '../utils/Clock'
+import { Clock } from '../elements/clock'
 // import NoWebGL from '../components/noWebGL/noWebGL';
 import { SplashScreen } from '../components/splashScreen/splashScreen'
 import { Markdown } from '../components/markdown/markdown'

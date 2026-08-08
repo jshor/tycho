@@ -1,5 +1,5 @@
 import { Camera } from 'three'
-import { Ambience } from '../Ambience'
+import { Ambience } from '../ambience'
 
 vi.mock('three', async (importOriginal) => ({
   ...((await importOriginal()) as unknown as Promise<typeof import('three')>),

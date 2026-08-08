@@ -1,4 +1,4 @@
-import { formatDateTime, formatUnixTime, getUnixTime } from '../DateTime'
+import { formatDateTime, formatUnixTime, getUnixTime } from '../time'
 
 describe('DateTime Utility', () => {
   /** A time with a two-digit day, a short month and an afternoon hour, in local time. */

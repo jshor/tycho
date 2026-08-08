@@ -1,5 +1,5 @@
 import { Color, EllipseCurve, CurvePath, Vector2, Vector3 } from 'three'
-import { Ellipse } from '../Ellipse'
+import { Ellipse } from '../ellipse'
 import data from './__fixtures__/orbitals.json'
 
 describe('Ellipse', () => {

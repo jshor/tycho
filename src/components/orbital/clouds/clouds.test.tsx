@@ -2,7 +2,7 @@ import { act } from '@testing-library/react'
 import * as THREE from 'three'
 import { renderInScene } from '../../../test/helpers'
 import { Constants } from '../../../constants'
-import { Scale } from '../../../utils/Scale'
+import { Scale } from '../../../utils/scale'
 import { Clouds, applyCloudTexture, createCloudMaterial, getCloudRadius } from './clouds'
 
 describe('Clouds Component', () => {

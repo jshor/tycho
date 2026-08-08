@@ -1,4 +1,4 @@
-import { Scale, getVisibleRadius } from '../Scale'
+import { Scale, getVisibleRadius } from '../scale'
 import { Constants } from '../../constants'
 
 describe('Scale', () => {

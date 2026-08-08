@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react'
 import * as THREE from 'three'
-import { Scale, getVisibleRadius } from '../../../utils/Scale'
+import { Scale, getVisibleRadius } from '../../../utils/scale'
 import { Constants } from '../../../constants'
 import { env } from '../../../utils/Environment'
 

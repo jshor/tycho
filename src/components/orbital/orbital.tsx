@@ -5,7 +5,7 @@ import { Label } from './label/label'
 import { Atmosphere } from './atmosphere/atmosphere'
 import { Comet } from './comet/comet'
 import { TailData } from '../../types'
-import { Ellipse } from '../../utils/Ellipse'
+import { Ellipse } from '../../elements/ellipse'
 
 export interface Props {
   eclipticGroupRotation: THREE.Euler

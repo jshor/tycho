@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { Easing, Tween } from '@tweenjs/tween.js'
 import { Constants } from '../constants'
-import { tweens } from './Tween'
+import { tweens } from '../utils/tween'
 
 export class Controls extends OrbitControls {
   camera: THREE.Camera

@@ -1,4 +1,4 @@
-import { PhysicsService } from '../PhysicsService'
+import { PhysicsService } from '../physics'
 
 describe('Physics Service', () => {
   describe('meanAnomaly()', () => {

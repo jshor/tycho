@@ -1,5 +1,5 @@
 import type { MockInstance } from 'vitest'
-import { Gyroscope } from '../Gyroscope'
+import { Gyroscope } from '../gyroscope'
 import * as THREE from 'three'
 
 describe('Gyroscope', () => {

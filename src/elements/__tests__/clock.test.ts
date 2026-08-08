@@ -1,6 +1,6 @@
 import { Tween } from '@tweenjs/tween.js'
-import { tweens } from '../Tween'
-import { Clock } from '../Clock'
+import { tweens } from '../../utils/tween'
+import { Clock } from '../clock'
 
 describe('Clock', () => {
   describe('getOffset()', () => {
