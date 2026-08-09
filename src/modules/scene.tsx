@@ -107,6 +107,8 @@ export function Scene({ onAnimate, width, height, children }: Props) {
 
     if (!controls) return
 
+    controls.stopAutoRotate()
+
     const zoom = controls.getZoomDelta(delta)
     const current = Math.round(controls.level * 100)
 

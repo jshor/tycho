@@ -38,6 +38,7 @@ export const focusCameraImmediately = (
   attachToGyroscope(target, pivot, () => {})
   controls?.resetLook()
   controls?.zoom(Constants.WebGL.Zoom.MIN)
+  controls?.startAutoRotate(Constants.WebGL.Camera.AUTOROTATE_SPEED)
   changeZoom?.(Constants.WebGL.Zoom.MIN)
 }
 
@@ -121,6 +122,8 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
     const target = scene.getObjectByName(targetId)
 
     if (!target || !radius) return
+
+    controlsRef.current?.stopAutoRotate()
 
     if (animateTargetChange === false) {
       cancelTween() // TODO: is this necessary? cancelTween() will happen twice?
@@ -214,8 +217,7 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
     if (controlsRef.current) {
       controlsRef.current.resetLook()
       controlsRef.current.lockCameraOntoTarget()
-      // TODO: get autorotate to stop once user interaction is detected, and then re-enable it after a timeout
-      // controlsRef.current.startAutoRotate(Constants.WebGL.Camera.AUTOROTATE_SPEED)
+      controlsRef.current.startAutoRotate(Constants.WebGL.Camera.AUTOROTATE_SPEED)
       controlsRef.current.minDistance = toDistance
       controlsRef.current.level = 0
     }

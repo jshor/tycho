@@ -82,6 +82,22 @@ describe('Controls touch gestures', () => {
     expect(camera.position.length()).toEqual(RADIUS)
   })
 
+  it('should stop orbiting on its own as soon as the scene is touched', () => {
+    controls.startAutoRotate(2)
+
+    canvas.dispatchEvent(finger('pointerdown', 1, 100, 100))
+
+    expect(controls.autoRotate).toBe(false)
+  })
+
+  it('should keep orbiting on its own', () => {
+    controls.startAutoRotate(2)
+
+    controls.update()
+
+    expect(controls.autoRotate).toBe(true)
+  })
+
   it('should orbit from where the last finger is once the other one lifts', () => {
     canvas.dispatchEvent(finger('pointerdown', 1, 100, 100))
     canvas.dispatchEvent(finger('pointerdown', 2, 300, 100))

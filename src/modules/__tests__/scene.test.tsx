@@ -12,6 +12,7 @@ const controls = vi.hoisted(() => ({
   tweenZoom: vi.fn(),
   cancelTween: vi.fn(),
   setMinDistance: vi.fn(),
+  stopAutoRotate: vi.fn(),
   update: vi.fn(),
   faceTarget: vi.fn(),
   dispose: vi.fn(),
@@ -91,6 +92,15 @@ describe('Scene Module', () => {
 
       expect(controls.tweenZoom).not.toHaveBeenCalled()
     })
+
+    it('should stop the camera orbiting on its own once the user zooms it themselves', () => {
+      const { container } = renderWithStore(<Scene {...baseProps} />, { orbitalData, time: 1 })
+
+      controls.getZoomDelta.mockReturnValue(0)
+      fireEvent.wheel(container.firstElementChild as HTMLElement, { deltaY: -10 })
+
+      expect(controls.stopAutoRotate).toHaveBeenCalledTimes(1)
+    })
   })
 
   describe('onPinch()', () => {
@@ -134,6 +144,18 @@ describe('Scene Module', () => {
 
       // a pinch reports a delta every frame, so a tween on each would only fight the gesture
       expect(controls.tweenZoom).not.toHaveBeenCalled()
+    })
+
+    it('should stop the camera orbiting on its own once the user pinches it themselves', () => {
+      const { container } = renderWithStore(<Scene {...baseProps} />, { orbitalData, time: 1 })
+      const scene = container.firstElementChild as HTMLElement
+
+      controls.getZoomDelta.mockReturnValue(20)
+
+      fireEvent.touchStart(scene, fingers(100))
+      fireEvent.touchMove(scene, fingers(160))
+
+      expect(controls.stopAutoRotate).toHaveBeenCalledTimes(1)
     })
   })
 })

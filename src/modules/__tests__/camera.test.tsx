@@ -32,6 +32,8 @@ const controls = vi.hoisted(() => ({
   getZoomVector: vi.fn((vector: Vector3, scalar: number) =>
     vector.clone().normalize().multiplyScalar(scalar)
   ),
+  startAutoRotate: vi.fn(),
+  stopAutoRotate: vi.fn(),
   autoRotate: false,
   minDistance: 7,
   level: 50,
@@ -323,6 +325,14 @@ describe('Camera Module', () => {
 
         expect(changeZoom).toHaveBeenCalledWith(Constants.WebGL.Zoom.MIN)
       })
+
+      it('should orbit the target it lands on', () => {
+        renderOnTarget({ animateTargetChange: false })
+
+        expect(controls.startAutoRotate).toHaveBeenCalledWith(
+          Constants.WebGL.Camera.AUTOROTATE_SPEED
+        )
+      })
     })
 
     describe('with animation', () => {
@@ -368,6 +378,14 @@ describe('Camera Module', () => {
         expect(useStore.getState().controlsEnabled).toBe(false)
         expect(useStore.getState().playing).toBe(false)
         expect(controls.enabled).toBe(false)
+      })
+
+      it('should not orbit the target it is still on its way to', () => {
+        renderOnTarget()
+
+        // the orbit keeps turning through the flight otherwise, since it does not run off the controls
+        expect(controls.stopAutoRotate).toHaveBeenCalledTimes(1)
+        expect(controls.startAutoRotate).not.toHaveBeenCalled()
       })
 
       it('should stop a journey already underway when the target changes again', () => {
@@ -440,6 +458,16 @@ describe('Camera Module', () => {
         expect(controls.enabled).toBe(true)
       })
 
+      it('should orbit the target once the camera arrives', () => {
+        renderOnTarget()
+
+        act(() => travel().endTween())
+
+        expect(controls.startAutoRotate).toHaveBeenCalledWith(
+          Constants.WebGL.Camera.AUTOROTATE_SPEED
+        )
+      })
+
       it("should take on the target's own framing once the camera arrives", () => {
         const changeZoom = vi.fn()
 
@@ -470,6 +498,7 @@ describe('Camera Module', () => {
       )
       expect(controls.resetLook).toHaveBeenCalledTimes(1)
       expect(controls.zoom).toHaveBeenCalledWith(Constants.WebGL.Zoom.MIN)
+      expect(controls.startAutoRotate).toHaveBeenCalledWith(Constants.WebGL.Camera.AUTOROTATE_SPEED)
       expect(changeZoom).toHaveBeenCalledWith(Constants.WebGL.Zoom.MIN)
       expect(cameraService.getPivotTween).not.toHaveBeenCalled()
     })

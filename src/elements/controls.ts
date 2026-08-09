@@ -48,6 +48,7 @@ export class Controls extends OrbitControls {
     this.level = Constants.WebGL.Zoom.MAX
     this.minDistance = Constants.WebGL.Camera.MIN_DISTANCE
     this.maxDistance = Constants.WebGL.Camera.MAX_DISTANCE
+    this.addEventListener('start', this.stopAutoRotate)
   }
 
   /**

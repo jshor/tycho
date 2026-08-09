@@ -25,18 +25,25 @@ vi.mock('../../elements/clock', () => ({
 
 vi.mock('../../elements/ambience')
 
-vi.mock('three/examples/jsm/controls/OrbitControls.js', () => ({
-  OrbitControls: class {
-    constructor(protected camera: Camera) {}
+vi.mock('three/examples/jsm/controls/OrbitControls.js', async () => {
+  const { EventDispatcher } = await import('three')
 
-    update = vi.fn()
-    dispose = vi.fn()
-    touches = {
-      ONE: 3,
-      TWO: 3
+  return {
+    // the controls listen for their own events, so the stand-in dispatches them like the real one
+    OrbitControls: class extends EventDispatcher {
+      constructor(protected camera: Camera) {
+        super()
+      }
+
+      update = vi.fn()
+      dispose = vi.fn()
+      touches = {
+        ONE: 3,
+        TWO: 3
+      }
     }
   }
-}))
+})
 
 const requestOrbitalData = vi.fn()
 const requestPageText = vi.fn()

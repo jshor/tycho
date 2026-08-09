@@ -5,18 +5,24 @@ import { Camera, Vector3 } from 'three'
 import { Controls } from '../controls'
 import { Constants } from '../../constants'
 
-vi.mock('three/examples/jsm/controls/OrbitControls.js', () => ({
-  OrbitControls: class {
-    constructor(protected camera: Camera) {}
+vi.mock('three/examples/jsm/controls/OrbitControls.js', async () => {
+  const { EventDispatcher } = await import('three')
 
-    update = vi.fn()
-    dispose = vi.fn()
-    touches = {
-      ONE: 3,
-      TWO: 3
+  return {
+    OrbitControls: class extends EventDispatcher {
+      constructor(protected camera: Camera) {
+        super()
+      }
+
+      update = vi.fn()
+      dispose = vi.fn()
+      touches = {
+        ONE: 3,
+        TWO: 3
+      }
     }
   }
-}))
+})
 
 describe('Controls', () => {
   let camera: Camera
@@ -337,6 +343,13 @@ describe('Controls', () => {
   describe('stopAutoRotate()', () => {
     it('should stop autorotating the scene', () => {
       controls.stopAutoRotate()
+
+      expect(controls.autoRotate).toBe(false)
+    })
+
+    it('should stop autorotating the scene as soon as the user takes hold of the camera', () => {
+      controls.startAutoRotate(2)
+      controls.dispatchEvent({ type: 'start' })
 
       expect(controls.autoRotate).toBe(false)
     })
