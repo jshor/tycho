@@ -839,7 +839,11 @@
             "maps": [
                 {
                     "slot": "map",
-                    "url": "saturn_rings.png"
+                    "url": "saturn_rings_shadow.png"
+                },
+                {
+                    "slot": "emissiveMap",
+                    "url": "saturn_rings_shadow.png"
                 }
             ]
         },
