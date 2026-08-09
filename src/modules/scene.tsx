@@ -133,7 +133,7 @@ export function Scene({ onAnimate, width, height, children }: Props) {
    * Zooms the camera by however far the user pinched.
    */
   const onPinch = (separationDelta: number) => {
-    computeZoom(-separationDelta * Constants.UI.PINCH_DELTA_SCALE, tweenZoom)
+    computeZoom(-separationDelta * Constants.UI.PINCH_DELTA_SCALE, changeZoomLevel)
   }
 
   return (

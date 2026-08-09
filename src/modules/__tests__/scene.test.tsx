@@ -104,9 +104,11 @@ describe('Scene Module', () => {
 
     it('should zoom the camera by however far the user pinched', () => {
       const newZoom = 20
+      const changeZoom = vi.fn()
       const { container } = renderWithStore(<Scene {...baseProps} />, {
         orbitalData,
-        time: 1
+        time: 1,
+        changeZoom
       })
       const scene = container.firstElementChild as HTMLElement
 
@@ -115,10 +117,23 @@ describe('Scene Module', () => {
       fireEvent.touchStart(scene, fingers(100))
       fireEvent.touchMove(scene, fingers(160))
 
-      // the fingers spread 60px apart, which zooms in by the steps the wheel zooms in
       expect(controls.getZoomDelta).toHaveBeenCalledWith(-60 * Constants.UI.PINCH_DELTA_SCALE)
-      expect(controls.tweenZoom).toHaveBeenCalledTimes(1)
-      expect(controls.tweenZoom).toHaveBeenCalledWith(newZoom, expect.any(Function), Constants.WebGL.Tween.ZOOM)
+      expect(changeZoom).toHaveBeenCalledTimes(1)
+      expect(changeZoom).toHaveBeenCalledWith(newZoom)
+    })
+
+    it('should follow the fingers rather than ease after them as the wheel does', () => {
+      const { container } = renderWithStore(<Scene {...baseProps} />, { orbitalData, time: 1 })
+      const scene = container.firstElementChild as HTMLElement
+
+      controls.getZoomDelta.mockReturnValue(20)
+
+      fireEvent.touchStart(scene, fingers(100))
+      fireEvent.touchMove(scene, fingers(160))
+      fireEvent.touchMove(scene, fingers(220))
+
+      // a pinch reports a delta every frame, so a tween on each would only fight the gesture
+      expect(controls.tweenZoom).not.toHaveBeenCalled()
     })
   })
 })

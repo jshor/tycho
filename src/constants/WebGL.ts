@@ -52,7 +52,9 @@ export const Camera = {
   /** Distance range of the satellite to appear when its system is in focus. */
   SATELLITE_LABEL_RANGE: 7,
   /** Speed of the camera's auto-rotation. */
-  AUTOROTATE_SPEED: 0.2
+  AUTOROTATE_SPEED: 0.2,
+  /** Inertia of to orbit drag. */
+  DAMPING_FACTOR: 0.08
 }
 
 export interface LensFlareEntry {

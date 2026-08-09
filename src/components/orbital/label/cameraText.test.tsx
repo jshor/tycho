@@ -92,8 +92,7 @@ describe('Camera Text Component', () => {
       visible: true,
       position: new THREE.Vector3(),
       scale: new THREE.Vector3(1, 1, 1),
-      quaternion: new THREE.Quaternion(),
-      renderOrder: 0
+      quaternion: new THREE.Quaternion()
     }) as unknown as THREE.Group
 
   /** Waits out the moment a departure is given to be seen through before it is called. */

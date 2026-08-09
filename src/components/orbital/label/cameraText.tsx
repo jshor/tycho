@@ -308,7 +308,6 @@ export function CameraText({
       <mesh
         ref={backgroundRef}
         material={Constants.WebGL.LABEL_BACKGROUND_MATERIAL}
-        renderOrder={0} // render behind the text
       >
         <planeGeometry args={[1, 1]} />
       </mesh>

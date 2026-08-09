@@ -42,6 +42,8 @@ export class Controls extends OrbitControls {
     this.enabled = true
     this.enableZoom = false
     this.enablePan = false
+    this.enableDamping = true
+    this.dampingFactor = Constants.WebGL.Camera.DAMPING_FACTOR
     this.touches.TWO = null // two fingers are reserved for custom pinch-to-zoom only
     this.level = Constants.WebGL.Zoom.MAX
     this.minDistance = Constants.WebGL.Camera.MIN_DISTANCE
