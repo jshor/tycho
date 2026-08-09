@@ -11,7 +11,7 @@
     "inclination": 17.151394,
     "atmosphereColor": "#8CAAC7",
     "labelColor": 13872777,
-    "satellites": [
+    "satelliteIds": [
         "charon"
     ],
     "ephemeris": {

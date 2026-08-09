@@ -33,6 +33,15 @@ export interface TailData {
   ionColor: number
 }
 
+export type Ephemeris = {
+  /** Orbital code. See Wiki for list of codes. */
+  nasaOrbitalCode: string
+  /** Barycenter code. See Wiki for list of codes. */
+  nasaBarycenterCode: string
+  /** Revolution order (e.g., `m`, `h`, `d`, etc.) */
+  revolutionOrder: string
+}
+
 export interface OrbitalData {
   id: string
   name: string
@@ -55,10 +64,13 @@ export interface OrbitalData {
   isSatellite?: boolean
   periapses: Periapses
   satellites?: OrbitalData[]
+  satelliteIds?: string[]
   maps?: TextureMap[]
   rings?: RingData
   tail?: TailData
   description?: string
+  /** NASA ephemeris data for the body. */
+  ephemeris?: Ephemeris
 }
 
 export interface WebGLPageText {

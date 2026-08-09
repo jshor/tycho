@@ -1,8 +1,14 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/jshor/tycho2/master/public/static/img/logo-gradient-dark.png" width="450" height="88" />
+  <a href="https://tycho.io"><img src="https://raw.githubusercontent.com/jshor/tycho2/master/public/static/img/logo-gradient-dark.png" width="450" height="88" /></a>
 </p>
 
-<br>
+<p align="center">
+  <h3 align="center"><a href="https://tycho.io">Tycho.io</a></h3>
+</p>
+
+<p align="center">
+  A real-time interactive simulation of the solar system.
+</p>
 
 <p align="center">
   <a href="https://app.codecov.io/gh/jshor/tycho.io/tree/main"><img
@@ -14,125 +20,87 @@
     alt="Version"></a>
 </p>
 
-## About This Project
+## Development
 
-This is a real-time, WebGL-based, 3D visualization of our Solar System. It's a complete re-write of the [original Tycho.io](https://github.com/jshor/tycho.io) project. Check out the full experience at **[tycho.io](https://tycho.io)**!
+<details>
+  <summary>Quick start</summary>
 
-## Table of Contents
-
-- [Running the app](#running-the-app)
-- [Development](#development)
-  - [Package Management](#package-management)
-  - [Framework + Libraries](#framework--libraries)
-  - [Styling](#styling)
-  - [Testing](#testing)
-    - [Testing Guidelines](#testing-guidelines)
-- [Application Architecture](#application-architecture)
-  - [State management](#state-management)
-- [Static Data](#static-data)
-- [Folder Structure](#folder-structure)
-- [Available Scripts](#available-scripts)
-  - [yarn start](#yarn-start)
-  - [yarn test](#yarn-test)
-  - [yarn test:watch](#yarn-testwatch)
-  - [yarn test:coverage](#yarn-testcoverage)
-  - [yarn lint](#yarn-lint)
-  - [yarn lint:fix](#yarn-lintfix)
-  - [yarn typecheck](#yarn-typecheck)
-  - [yarn format](#yarn-format)
-  - [yarn build](#yarn-build)
-  - [yarn preview](#yarn-preview)
-  - [yarn orbitals](#yarn-orbitals)
-  - [yarn ephemeris](#yarn-ephemeris)
-- [Deployment](#deployment)
-- [Language Features](#language-features)
-- [Credits](#credits)
-
-## Running the app
-
-1. Clone this repo.
+1. Clone this repo:
 
 ```sh
 git clone https://github.com/jshor/tycho.git
 ```
 
-2. Use the right node version.
+2. Use the right node version:
 
 ```sh
 nvm use
 ```
 
-3. Install dependencies (via yarn).
+3. Install dependencies (via [Yarn](https://yarnpkg.com/en/)):
 
 ```sh
 yarn
 ```
 
-4. Start
+4. Start:
 
 ```sh
 yarn start
 ```
 
-## Development
+</details>
 
-### Package Management
-
-Using [Yarn](https://yarnpkg.com/en/).
-
-### Framework + Libraries
+<details>
+  <summary>Framework and libraries</summary>
 
 This app is written in [TypeScript](https://www.typescriptlang.org/) and built using [React.js](https://react.dev/), [THREE.js](https://threejs.org), and [zustand](https://github.com/pmndrs/zustand) for state. It uses [react-three-fiber](https://github.com/pmndrs/react-three-fiber) for THREE-based React components, along with its [drei](https://github.com/pmndrs/drei) helpers. It's bundled using [Vite](https://vite.dev/).
+</details>
 
-### Styling
+<details>
+  <summary>Styling</summary>
 
 Each DOM component contains a corresponding [Sass](http://sass-lang.com/) stylesheet and employs the [BEM](http://getbem.com/) CSS design pattern. Vite compiles the Sass as part of the build.
+</details>
 
-### Testing
-
-Tests use [Vitest](https://vitest.dev/) and [Testing Library](https://testing-library.com/docs/react-testing-library/intro), running against [jsdom](https://github.com/jsdom/jsdom). Shared setup lives in `src/test`, which stubs the browser APIs jsdom lacks and stands in for react-three-fiber, so that scene code can be rendered and asserted on without a WebGL context.
-
-#### Testing Guidelines
-
-- The importance of code coverage should not supercede the importance of writing good quality tests.
-- Methods for modules should contain a corresponding unit test, and is ideally written as a pure function.
-- For exceptions, such as when a local state is updated, there should be a corresponding integration test.
-- Components should be rendered and asserted on through what the user of them would see, rather than through their internals.
-- [TDD](https://en.wikipedia.org/wiki/Test-driven_development) and [BDD](https://en.wikipedia.org/wiki/Behavior-driven_development).
-
-## Application Architecture
+<details>
+  <summary>Application Architecture</summary>
 
 The overall architecture follows a container pattern, split between `src/modules` and `src/components`. In a nutshell, modules in this app leverage tasks such as handling state and minor front-end logic, while components simply handle the presentation. Physics calculations and business logic is delegated to services, and some critical components, such as the Camera, have dedicated services.
+</details>
 
-### State management
+<details>
+  <summary>State management</summary>
 
 All shared-state data is stored in the [zustand](https://github.com/pmndrs/zustand) store, which lives in `src/store`. This includes the 2D and 3D positions of objects and the current time. Modules subscribe to the slices they need and the store is written to through its actions, which keeps the data flowing in one direction. In rare cases, some components will use the local state for things internal to that component, when appropriate.
+</details>
 
-## Static Data
-
-The JSON data for `orbitals.json` is generated by the [yarn orbitals](#yarn-orbitals) script. It will look for all of the JSON files in the `public/static/data/orbitals` directory. For information on the file structure for these JSON files, please see the [Wiki](https://github.com/jshor/tycho2/wiki/Orbital-JSONs).
-
-## Folder Structure
+<details>
+  <summary>File structure</summary>
 
 This project utilizes a typical React app flat directory structure. Tests for each item typically live in `__tests__`. Components have corresponding tests and Sass in the same directory. `__tests__` folders may contain `__fixtures__`.
 
 The source is laid out as follows:
 
-| Path             | Contents                                                             |
-| ---------------- | -------------------------------------------------------------------- |
-| `src/modules`    | Containers, which hold state and front-end logic                     |
-| `src/components` | Presentational components, with their Sass and tests alongside       |
-| `src/services`   | Physics calculations and business logic                              |
-| `src/store`      | The zustand store shared across the app                              |
-| `src/utils`      | Standalone helpers, such as the clock, camera controls, and ambience |
-| `src/constants`  | Tunable values for the scene, the UI, and the tour                   |
-| `src/test`       | Test setup and helpers                                               |
+| Path             | Contents                                                           |
+| ---------------- | ------------------------------------------------------------------ |
+| `src/modules`    | Logical components that hold state and front-end logic             |
+| `src/components` | Presentational components with styling                             |
+| `src/utils`      | Functional utilities and helpers, including for math and physics   |
+| `src/store`      | The Zustand store shared across the app                            |
+| `src/shaders`    | GL fragment and vertex shaders for the scene                       |
+| `src/elements`   | Scene aids, such as the clock, camera controls, and ambience audio |
+| `src/constants`  | Tunable values for the scene, the UI, and the tour                 |
+| `src/test`       | Test setup and utilities                                           |
 
-Note that 3D React components and DOMElement ones coexist in the same general paths.
+Note that 3D React components and `DOMElement` ones coexist in the same general paths.
 
 Static assets, such as textures, media, and data are stored in the `public` folder. Some JSON file contents are generated by build scripts.
 
-## Available Scripts
+</details>
+
+<details>
+  <summary>Running the project</summary>
 
 In the project directory, you can run the following commands:
 
@@ -141,7 +109,13 @@ In the project directory, you can run the following commands:
 Runs the app in the development mode.<br>
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-The page will reload if you make edits.<br>
+The page will hot reload if you make edits.<br>
+</details>
+
+<details>
+  <summary>Unit testing</summary>
+
+Tests use [Vitest](https://vitest.dev/) and [Testing Library](https://testing-library.com/docs/react-testing-library/intro), running against [jsdom](https://github.com/jsdom/jsdom). Shared setup lives in `src/test`, which stubs the browser APIs jsdom lacks and stands in for react-three-fiber, so that scene code can be rendered and asserted on without a WebGL context.
 
 ### `yarn test`
 
@@ -154,6 +128,10 @@ Launches the test runner in the interactive watch mode.<br>
 ### `yarn test:coverage`
 
 Runs all tests and prints out code covfefe.<br>
+</details>
+
+<details>
+  <summary>Linting and formatting</summary>
 
 ### `yarn lint`
 
@@ -172,6 +150,10 @@ Type checks the project without emitting anything.<br>
 ### `yarn format`
 
 Formats the project using [Prettier](https://prettier.io/). Use `yarn format:check` to report on formatting without writing any changes.<br>
+</details>
+
+<details>
+  <summary>Building</summary>
 
 ### `yarn build`
 
@@ -181,25 +163,49 @@ The build is minified and the filenames include the hashes.<br>
 
 ### `yarn preview`
 
-Serves the built `dist` folder locally, to check a production build before it ships.<br>
+Serves the built `dist` folder locally, to check a production build before it ships.
+</details>
 
-### `yarn orbitals`
+<details>
+  <summary>Maintaining ephemerides</summary>
 
-Runs the compilation script for the orbital data json.
+### Ephemerides
 
-### `yarn ephemeris`
+Ephemerides are all of the orbital characteristic data points used to aid in the computation of celestial positions of orbital bodies.
 
-Takes all orbital JSONs, probes the [NASA/JPL HORIZONS database](<>) for ephemeris data, and updates each JSON accordingly. For more information on this script, and on the prerequisite data format, please see [this wiki page](https://github.com/jshor/tycho2/wiki/Orbital-JSONs#nasa-jpl-horizons).
+For information on the file structure for these JSON files, please see the [Wiki](https://github.com/jshor/tycho2/wiki/Orbital-JSONs).
 
-## Deployment
+The maintainable versions of all orbital data (including their ephemerides) are stored in `public/static/data/orbitals/{heliocentric-system}/{satellite-or-barycentric-orbital}.json`.
+
+### Example folder structure
+
+- `public/static/data/orbitals/`
+  - `earth/`
+    - `earth.json`
+    - `moon.json`
+
+### Updating ephemerides
+
+**`yarn ephemerides`**
+
+Takes all orbital JSONs, probes the [JPL Horizons database](https://horizons.jpl.nasa.gov/) for ephemerides, and updates each JSON accordingly. For more information on this script, and on the prerequisite data format, please see [this wiki page](https://github.com/jshor/tycho2/wiki/Orbital-JSONs#nasa-jpl-horizons).
+
+## Building the main orbitals file
+
+The main `orbitals.json` file in `public/static/data` is a compilation of all the orbital JSONs. It is a flat array of all the orbitals in the Solar System scene, including all planets and satellites.
+
+**`yarn ephemerides:build`**
+
+Compiles the `orbitals.json` file. This is also run as part of `yarn build`.
+</details>
+
+<details>
+  <summary>Deployment</summary>
+
+### Deployment
 
 Deployment is handled by [GitHub Actions](https://github.com/jshor/tycho/actions), defined in `.github/workflows/merge.yml`. On every push to `main`, the workflow lints the project, runs the tests with coverage, reports that coverage to [Codecov](https://app.codecov.io/gh/jshor/tycho.io/tree/main), and builds the app. The resulting `dist` folder is then published to the `gh-pages` branch, along with a `CNAME` pointing at [tycho.io](https://tycho.io).
-
-## Language Features
-
-This project is written in [TypeScript](https://www.typescriptlang.org/) targeting ES2020, and supports [JSX](https://react.dev/learn/writing-markup-with-jsx). Vite transpiles and bundles the sources, so the syntax available is whatever the compiler supports rather than a set of proposal plugins.
-
-No polyfills are shipped: the app targets evergreen browsers, and needs [WebGL](https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API) to render the scene at all.
+</details>
 
 ## Credits
 

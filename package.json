@@ -13,7 +13,7 @@
   "license": "MIT",
   "scripts": {
     "start": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "tsc --noEmit && vite build && yarn ephemerides:build",
     "preview": "vite preview",
     "test": "NODE_OPTIONS=--no-webstorage vitest run",
     "test:watch": "NODE_OPTIONS=--no-webstorage vitest",
@@ -23,19 +23,22 @@
     "lint:fix": "eslint --fix 'src/**/*.{ts,tsx}'",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "ephemeris": "tycho-scripts -m ephemeris",
-    "orbitals": "tycho-scripts -m orbitals"
+    "ephemerides": "tsx ./src/ephemerides/index.ts --ephemerides",
+    "ephemerides:build": "tsx ./src/ephemerides/index.ts --build"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.1",
     "@tweenjs/tween.js": "^25.0.0",
+    "glob": "^13.0.6",
+    "moment": "^2.30.1",
     "react": "^19.2.8",
     "react-datepicker": "^9.1.0",
     "react-dom": "^19.2.8",
     "react-markdown": "^9.0.0",
     "react-slider": "^2.0.6",
     "three": "^0.185.1",
+    "ts-node": "^10.9.2",
     "webgl-detect": "^0.0.1",
     "zustand": "^5.0.0"
   },
@@ -66,7 +69,7 @@
     "jsdom": "^30.0.1",
     "prettier": "^3.9.6",
     "sass": "^1.102.0",
-    "tycho-scripts": "^1.0.3",
+    "tsx": "^4.23.11",
     "typescript": "^7.0.2",
     "typescript-6": "npm:typescript@6.0.3",
     "vite": "^8.1.5",

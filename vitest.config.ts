@@ -8,6 +8,12 @@ export default defineConfig({
     include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
     css: false,
     coverage: {
+      thresholds: {
+        lines: 90,
+        functions: 90,
+        branches: 90,
+        statements: 90
+      },
       exclude: [
         '**/__tests__/**',
         'src/test/**',

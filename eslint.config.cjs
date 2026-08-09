@@ -29,7 +29,7 @@ const importPlugin = require('eslint-plugin-import')
 const prettier = require('eslint-config-prettier/flat')
 
 module.exports = [
-  { ignores: ['dist/**', 'build/**', 'coverage/**'] },
+  { ignores: ['dist/**', 'build/**', 'coverage/**', 'src/nasa'] },
 
   js.configs.recommended,
   ...typescriptPlugin.configs['flat/recommended'],
