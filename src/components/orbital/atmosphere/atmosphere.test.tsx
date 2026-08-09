@@ -53,7 +53,7 @@ describe('Atmosphere Component', () => {
   })
 
   describe('createAtmosphereMaterial()', () => {
-    it('should scatter the light into the colour the body is given', () => {
+    it('should scatter the light into the color the body is given', () => {
       const { uniforms } = createAtmosphereMaterial('#5DA9E9', SURFACE, SHELL)
 
       expect(uniforms.color.value).toEqual(new THREE.Color('#5DA9E9'))

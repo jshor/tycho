@@ -40,8 +40,6 @@ describe('Texture Module', () => {
     const result = renderInScene(<Texture textures={textures} {...props} />)
     const element = result.container.querySelector('meshPhongMaterial') as Element
 
-    // the ref lands on the rendered element rather than on a material of three's own, so the
-    // colours the module reaches for are stood up on it
     Object.assign(element, {
       emissive: { set: vi.fn() },
       specular: { set: vi.fn() },
@@ -129,7 +127,7 @@ describe('Texture Module', () => {
       expect(material.needsUpdate).toBe(true)
     })
 
-    it('should hang an unplaced texture on the colour map', () => {
+    it('should hang an unplaced texture on the color map', () => {
       const { material } = renderModule([{ url: 'earth.jpg' } as TextureMap])
       const texture = deliver()
 

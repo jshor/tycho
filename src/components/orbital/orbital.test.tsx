@@ -121,7 +121,7 @@ describe('Orbital Component', () => {
     expect(shells(container)).toHaveLength(0)
   })
 
-  it('should leave an orbital given a height but no colour bare, having nothing to scatter', () => {
+  it('should leave an orbital given a height but no color bare, having nothing to scatter', () => {
     const { container } = renderInScene(<Orbital {...props} atmosphereHeightKm={100} />)
 
     expect(shells(container)).toHaveLength(0)

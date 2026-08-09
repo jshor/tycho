@@ -10,7 +10,7 @@ interface Props {
   radius: number
   /** How far this body's atmosphere reaches above its surface, in km. */
   height: number
-  /** Colour the scattered light takes on — the orbital's `atmosphereColor`. */
+  /** Color the scattered light takes on. */
   color: string
 }
 
@@ -30,7 +30,7 @@ export const getShellRadius = (radius: number, height: number): number => {
 export const getSurfaceRadius = (radius: number): number => Scale(getVisibleRadius(radius))
 
 /**
- * Returns the material the shell is drawn with, scattering into the given colour.
+ * Returns the material the shell is drawn with, scattering into the given color.
  */
 export const createAtmosphereMaterial = (
   color: string,

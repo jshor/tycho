@@ -25,7 +25,7 @@ float getDepthThroughAtmosphere() {
   vec3 sight = normalize(vViewPosition);
   vec3 toCenter = vViewCenter;
 
-  // how far along the sight line the body's centre lies, and how wide of it the line passes
+  // how far along the sight line the body's center lies, and how wide of it the line passes
   float closest = dot(toCenter, sight);
   float offset = dot(toCenter, toCenter) - closest * closest;
 
@@ -78,7 +78,7 @@ void main() {
 
   // Near the terminator, sunlight grazes through far more atmosphere before reaching the eye
   // than it does at local noon, and blue wavelengths scatter out of that longer path — the same
-  // reason sunsets are orange. Blend towards the warm dusk colour in proportion to how close to
+  // reason sunsets are orange. Blend towards the warm dusk color in proportion to how close to
   // the terminator this point is (squared so the band stays tucked around the terminator rather
   // than bleeding deep into full daylight), gated by the day/night term so it never tints the
   // night side.

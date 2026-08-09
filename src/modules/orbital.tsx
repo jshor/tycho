@@ -151,7 +151,7 @@ export function Rings({
   maps,
   barycenterTilt
 }: {
-  /** The distance from the body's centre to the outer edge of the rings, in km. */
+  /** The distance from the body's center to the outer edge of the rings, in km. */
   outerRadius: number
   /** The texture maps applied to the rings' material. */
   maps: TextureMap[]

@@ -4,12 +4,13 @@ import { useThree, useFrame } from '@react-three/fiber'
 import { PerspectiveCamera } from '@react-three/drei'
 import { useStore } from '../store'
 import {
-  CAMERA_INITIAL_POSITION,
   attachToGyroscope,
   attachToWorld,
   getMinDistance,
   getPivotTween,
-  getWorldPosition
+  getSunlitHeading,
+  getWorldPosition,
+  turnHeading
 } from '../utils/camera'
 import { Controls } from '../elements/controls'
 import { Ambience } from '../elements/ambience'
@@ -36,6 +37,15 @@ export const focusCameraImmediately = (
 ): void => {
   controls?.cancelTween()
   attachToGyroscope(target, pivot, () => {})
+
+  if (controls) {
+    const position = controls.camera.position
+    const heading = getSunlitHeading(getWorldPosition(target), position)
+
+    // move the camera to the sunlit side of the orbital
+    position.copy(heading.multiplyScalar(position.length()))
+  }
+
   controls?.resetLook()
   controls?.zoom(Constants.WebGL.Zoom.MIN)
   controls?.startAutoRotate(Constants.WebGL.Camera.AUTOROTATE_SPEED)
@@ -133,6 +143,9 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
 
     const controls = controlsRef.current
     const fromDistance = controls?.camera.position.length() ?? Constants.WebGL.Camera.MIN_DISTANCE
+    const fromHeading = (controls?.camera.position ?? Constants.WebGL.CAMERA_INITIAL_POSITION)
+      .clone()
+      .normalize()
     const toDistance = getMinDistance(radius, ratio)
     const worldPosiiton = getWorldPosition(pivot)
 
@@ -151,7 +164,7 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
       target,
       pivot,
       toDistance,
-      turnToward.bind(null, { target, fromDistance, toDistance }),
+      turnToward.bind(null, { target, fromDistance, toDistance, fromHeading }),
       endTween.bind(null, toDistance)
     )
   }, [targetId, animateTargetChange]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -173,14 +186,17 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
     {
       target,
       fromDistance,
-      toDistance
+      toDistance,
+      fromHeading
     }: {
       /** The target object to turn the camera toward. */
       target: THREE.Object3D
-      /** Distance from the pivot the camera was framed when it set off. */
+      /** Distance from the pivot the camera was framed from where it departed. */
       fromDistance: number
       /** Distance from the pivot the camera ought to be framed once it arrives. */
       toDistance: number
+      /** The previous direction of the camera. */
+      fromHeading: THREE.Vector3
     },
     progress: number
   ) => {
@@ -189,12 +205,13 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
 
     if (!pivot || !controls) return
 
-    pivot.updateMatrixWorld()
-    controls.lookToward(pivot.worldToLocal(getWorldPosition(target)), progress)
-
+    const position = getWorldPosition(target)
     const distance = getGeometricStep(fromDistance, toDistance, progress)
+    const heading = turnHeading(fromHeading, getSunlitHeading(position, fromHeading), progress)
 
-    controls.camera.position.copy(controls.getZoomVector(controls.camera.position, distance))
+    pivot.updateMatrixWorld()
+    controls.lookToward(pivot.worldToLocal(position.clone()), progress)
+    controls.camera.position.copy(heading.multiplyScalar(distance))
   }
 
   /**
@@ -242,7 +259,7 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
         fov={Constants.WebGL.Camera.FOV}
         near={Constants.WebGL.Camera.NEAR}
         far={Constants.WebGL.Camera.FAR}
-        position={CAMERA_INITIAL_POSITION}
+        position={Constants.WebGL.CAMERA_INITIAL_POSITION}
       />
     </group>
   )

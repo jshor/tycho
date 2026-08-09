@@ -146,7 +146,7 @@ describe('Ellipse', () => {
       expect(alphas).toEqual([...alphas].sort((a, b) => b - a))
     })
 
-    it('should dress the trail in the colour the orbital wears elsewhere', () => {
+    it('should dress the trail in the color the orbital wears elsewhere', () => {
       const { r, g, b } = new Color('#0089bc')
 
       ellipse = new Ellipse({ ...data[0], labelColor: '#0089bc' })

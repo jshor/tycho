@@ -1,4 +1,4 @@
-import { Vector3, Object3D, Scene } from 'three'
+import { Vector3, Object3D, Scene, MathUtils } from 'three'
 import { Tween } from '@tweenjs/tween.js'
 import {
   attachToGyroscope,
@@ -6,8 +6,10 @@ import {
   getApproach,
   getMinDistance,
   getPivotTween,
+  getSunlitHeading,
   getWorldPosition,
-  setPivotPosition
+  setPivotPosition,
+  turnHeading
 } from '../camera'
 import { Gyroscope } from '../../elements/gyroscope'
 import { tweens } from '../tween'
@@ -157,6 +159,66 @@ describe('Camera Service', () => {
 
       expect(result).toBeGreaterThan(0)
       expect(result).toBeLessThan(1)
+    })
+  })
+
+  describe('getSunlitHeading()', () => {
+    const target = new Vector3(100, 0, 0)
+    const fallback = new Vector3(0, 0, 4)
+    const sunward = new Vector3(-1, 0, 0)
+
+    it('should watch the orbital from the side the sun shines on', () => {
+      expect(getSunlitHeading(target, fallback).angleTo(sunward)).toBeLessThan(Math.PI / 2)
+    })
+
+    it('should stand off the sun-facing line, so the orbital reads as a sphere', () => {
+      const heading = getSunlitHeading(target, fallback)
+      const tilt = MathUtils.degToRad(Constants.WebGL.Camera.SUNLIT_TILT)
+
+      expect(heading.angleTo(sunward)).toBeCloseTo(tilt)
+      expect(tilt).toBeGreaterThan(0)
+    })
+
+    it('should hand back a heading of unit length, whatever the orbital sits at', () => {
+      expect(getSunlitHeading(new Vector3(0, 300, -400), fallback).length()).toBeCloseTo(1)
+    })
+
+    it('should keep to the heading it was given for an orbital sat on the sun itself', () => {
+      const heading = getSunlitHeading(new Vector3(), fallback)
+
+      expect(heading.z).toBeCloseTo(1)
+      expect(heading.length()).toBeCloseTo(1)
+    })
+  })
+
+  describe('turnHeading()', () => {
+    const from = new Vector3(0, 0, 1)
+    const to = new Vector3(-1, 0, 0)
+
+    it('should stay where it set off from before the turn has begun', () => {
+      expect(turnHeading(from, to, 0).angleTo(from)).toBeCloseTo(0)
+    })
+
+    it('should arrive on the heading it was turning onto', () => {
+      expect(turnHeading(from, to, 1).angleTo(to)).toBeCloseTo(0)
+    })
+
+    it('should turn evenly along the arc between the two', () => {
+      const halfway = turnHeading(from, to, 0.5)
+
+      expect(halfway.angleTo(from)).toBeCloseTo(from.angleTo(to) / 2)
+      expect(halfway.angleTo(to)).toBeCloseTo(from.angleTo(to) / 2)
+    })
+
+    it('should hold its unit length the whole way round', () => {
+      expect(turnHeading(new Vector3(0, 0, 9), to, 0.3).length()).toBeCloseTo(1)
+    })
+
+    it('should leave the headings it was handed alone', () => {
+      turnHeading(from, to, 0.5)
+
+      expect(from).toEqual(new Vector3(0, 0, 1))
+      expect(to).toEqual(new Vector3(-1, 0, 0))
     })
   })
 

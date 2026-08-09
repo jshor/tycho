@@ -53,6 +53,8 @@ export const Camera = {
   SATELLITE_LABEL_RANGE: 7,
   /** Speed of the camera's auto-rotation. */
   AUTOROTATE_SPEED: 0.2,
+  /** Distance of the camera to show the target's gibbous phase. */
+  SUNLIT_TILT: 30,
   /** Inertia of to orbit drag. */
   DAMPING_FACTOR: 0.08
 }
@@ -110,7 +112,7 @@ export interface AtmosphereEntry {
   INTENSITY: number
   /** Width of the day/night terminator fade (0-1). */
   TERMINATOR_SOFTNESS: number
-  /** Warm colour blended in near the terminator (i.e., dusk/dawn). */
+  /** Warm color blended in near the terminator (i.e., dusk/dawn). */
   DUSK_COLOR: number
   /** How steeply the air thins with height, in scale heights across the whole shell. */
   DENSITY_FALLOFF: number
@@ -123,7 +125,7 @@ export interface AtmosphereEntry {
 }
 
 export const Atmosphere: AtmosphereEntry = {
-  // TODO: make these configurable in JSON too, as the height and colour now are
+  // TODO: make these configurable in JSON too, as the height and color now are
   POWER: 3,
   INTENSITY: 1.4,
   TERMINATOR_SOFTNESS: 0.1,
@@ -143,6 +145,16 @@ export const Clouds = {
   /** How far toward the camera the deck's depth is nudged, in depth-buffer units. */
   DEPTH_BIAS: 8
 }
+
+/** Initial world position of the camera. */
+export const CAMERA_INITIAL_POSITION: THREE.Vector3 = new THREE.Vector3(
+  Camera.X,
+  Camera.Y,
+  Camera.Z
+)
+
+/** The axis the camera swings around to hold a newly focused orbital's terminator in frame. */
+export const SUNLIT_TILT_AXIS = new THREE.Vector3(0, 1, 0)
 
 /**
  * The THREE.js material used for the label text.

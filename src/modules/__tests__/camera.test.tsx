@@ -1,7 +1,7 @@
 import React from 'react'
 import { act } from '@testing-library/react'
 import { useFrame } from '@react-three/fiber'
-import { Group, Vector3 } from 'three'
+import { Group, Vector3, MathUtils } from 'three'
 import { renderInScene } from '../../test/helpers'
 import { useStore } from '../../store'
 import { Constants } from '../../constants'
@@ -67,7 +67,12 @@ vi.mock('../../elements/controls', () => ({
   })
 }))
 
-vi.mock('../../utils/camera', () => cameraService)
+vi.mock('../../utils/camera', async (importOriginal) => {
+  const { getSunlitHeading, turnHeading } =
+    await importOriginal<typeof import('../../utils/camera')>()
+
+  return { ...cameraService, getSunlitHeading, turnHeading }
+})
 
 vi.mock('@react-three/fiber', async () => {
   const React = (await import('react')).default
@@ -103,6 +108,12 @@ const [TARGET, OTHER_TARGET] = orbitalData
 
 /** The distance the camera is framed at once it arrives, from `cameraService.getMinDistance`. */
 const MIN_DISTANCE = 9
+
+/** Vector representing a sun ray. */
+const SUNWARD = new Vector3(-1, 0, 0)
+
+/** Distance of the camera to show the target's gibbous phase. */
+const TILT = MathUtils.degToRad(Constants.WebGL.Camera.SUNLIT_TILT)
 
 describe('Camera Module', () => {
   /** The tween the pivot travels on, which the module holds on to so it can stop it. */
@@ -426,6 +437,47 @@ describe('Camera Module', () => {
         expect(halfway).toBeLessThan(Math.max(justSetOff, arrived))
       })
 
+      it('should swing the camera round onto the side of the target the sun shines on', () => {
+        cameraService.getWorldPosition.mockReturnValue(new Vector3(100, 0, 0))
+
+        renderOnTarget()
+        travel().turnTo(1)
+
+        const heading = controls.camera.position.clone().normalize()
+
+        // stood off the sun's own line for a gibbous phase, but well within the lit half
+        expect(heading.angleTo(SUNWARD)).toBeCloseTo(TILT)
+        expect(heading.angleTo(SUNWARD)).toBeLessThan(Math.PI / 2)
+      })
+
+      it('should swing round over the course of the flight rather than at a stroke', () => {
+        cameraService.getWorldPosition.mockReturnValue(new Vector3(100, 0, 0))
+
+        renderOnTarget()
+
+        const { turnTo } = travel()
+        const heading = () => controls.camera.position.clone().normalize()
+
+        turnTo(1)
+        const arrived = heading()
+
+        turnTo(0)
+        const whole = heading().angleTo(arrived)
+
+        turnTo(0.5)
+
+        expect(whole).toBeGreaterThan(0)
+        expect(heading().angleTo(arrived)).toBeCloseTo(whole / 2)
+      })
+
+      it('should stay where it is for a target sat on the sun itself', () => {
+        renderOnTarget()
+
+        travel().turnTo(1)
+
+        expect(controls.camera.position.clone().normalize().z).toBeCloseTo(1)
+      })
+
       it('should not turn a camera that has left the scene', () => {
         const { unmount } = renderOnTarget()
         const { turnTo } = travel()
@@ -501,6 +553,22 @@ describe('Camera Module', () => {
       expect(controls.startAutoRotate).toHaveBeenCalledWith(Constants.WebGL.Camera.AUTOROTATE_SPEED)
       expect(changeZoom).toHaveBeenCalledWith(Constants.WebGL.Zoom.MIN)
       expect(cameraService.getPivotTween).not.toHaveBeenCalled()
+    })
+
+    it('should land on the side of the target the sun shines on', () => {
+      const target = new Group()
+      const pivot = new Group()
+
+      // the target sits out along -z, so the sun on the origin lights the face turned back at it
+      cameraService.getWorldPosition.mockReturnValue(new Vector3(0, 0, -100))
+      three.camera.position.set(8, 0, 0)
+
+      focusCameraImmediately(target, pivot, controls as unknown as Controls, vi.fn())
+
+      const heading = three.camera.position.clone().normalize()
+
+      expect(heading.angleTo(new Vector3(0, 0, 1))).toBeCloseTo(TILT)
+      expect(three.camera.position.length()).toBeCloseTo(8)
     })
 
     it('should get by without controls or a zoom to report to', () => {

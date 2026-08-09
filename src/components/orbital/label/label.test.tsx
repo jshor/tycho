@@ -50,13 +50,13 @@ describe('Orbital Label Component', () => {
   })
 
   describe('how the text is set up', () => {
-    it('should dress the text in the colour the orbital wears elsewhere', () => {
+    it('should dress the text in the color the orbital wears elsewhere', () => {
       render(<Label text="Earth" color={0x0089bc} />)
 
       expect(textProps().color).toEqual(0x0089bc)
     })
 
-    it('should leave the text white when the orbital has no colour of its own', () => {
+    it('should leave the text white when the orbital has no color of its own', () => {
       render(<Label text="Earth" />)
 
       expect(textProps().color).toEqual('white')

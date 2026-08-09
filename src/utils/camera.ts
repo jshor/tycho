@@ -1,16 +1,9 @@
 import { Easing, Tween } from '@tweenjs/tween.js'
-import { Vector3, Object3D, Scene as ThreeScene, MathUtils } from 'three'
+import { Vector3, Object3D, Quaternion, Scene as ThreeScene, MathUtils } from 'three'
 import { Constants } from '../constants'
 import { Gyroscope } from '../elements/gyroscope'
 import { tweens } from './tween'
 import { Scale, getVisibleRadius } from './scale'
-
-/** Initial world position of the camera. */
-export const CAMERA_INITIAL_POSITION: Vector3 = new Vector3(
-  Constants.WebGL.Camera.X,
-  Constants.WebGL.Camera.Y,
-  Constants.WebGL.Camera.Z
-)
 
 /**
  * Returns the minimum distance the camera may get to the given orbital.
@@ -21,6 +14,30 @@ export function getMinDistance(radius: number, aspect: number): number {
   const field = Math.min(vertical, 2 * Math.atan(Math.tan(vertical / 2) * aspect))
 
   return Scale(extent) / Math.sin((field * Constants.WebGL.Camera.FOCUS_FILL) / 2)
+}
+
+/**
+ * Returns the direction an orbital's sunlit face is watched from as a unit vector.
+ */
+export function getSunlitHeading(target: Vector3, fallback: Vector3): Vector3 {
+  const heading = Constants.WebGL.ORIGIN_POINT.clone().sub(target)
+  const tilt = MathUtils.degToRad(Constants.WebGL.Camera.SUNLIT_TILT)
+
+  if (heading.lengthSq() === 0) {
+    return fallback.clone().normalize()
+  }
+
+  return heading.normalize().applyAxisAngle(Constants.WebGL.SUNLIT_TILT_AXIS, tilt)
+}
+
+/**
+ * Turns the given heading the given percentage of the way onto another, along the shortest arc.
+ */
+export function turnHeading(from: Vector3, to: Vector3, progress: number): Vector3 {
+  const start = from.clone().normalize()
+  const turn = new Quaternion().setFromUnitVectors(start, to.clone().normalize())
+
+  return start.applyQuaternion(new Quaternion().slerp(turn, progress))
 }
 
 /**
