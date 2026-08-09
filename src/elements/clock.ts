@@ -5,16 +5,30 @@ import { getUnixTime } from '../utils/time'
 import { tweens, updateTweens } from '../utils/tween'
 
 export class Clock {
+  /** Current scene timer. */
   timer: Timer
+
   /** The simulation time that the timer's own elapsed time counts up from. */
   offset: number
+
+  /** The speed multiplier for the simulation (1 = real-time, 2 = twice as fast, etc.). */
   scale: number
+
+  /** Whether or not the clock is stopped. */
   stopped: boolean = false
+
+  /** The elapsed time since the clock started, in seconds. */
   elapsedTime: number = 0
+
+  /** The current tween instance for time manipulation. */
   tween?: Tween
+
+  /** Data for the current time tween. */
   tweenData: {
     time: number
   }
+
+  /** The goal time to tween the current time to. */
   destinationTime: number
 
   constructor() {
@@ -25,6 +39,9 @@ export class Clock {
     this.start()
   }
 
+  /**
+   * Returns the current time offset.
+   */
   getOffset = (time?: number): number => {
     if (time) {
       return time
@@ -87,6 +104,9 @@ export class Clock {
     this.start()
   }
 
+  /**
+   * Stops the simulation clock, and freezes the time at its current value.
+   */
   stop = (): void => {
     this.stopped = true
   }
@@ -98,6 +118,9 @@ export class Clock {
     this.timer.dispose()
   }
 
+  /**
+   * Pauses the simulation clock, freezing the time at its current value.
+   */
   stopTween = (): void => {
     if (this.tween) {
       this.tween.stop()
@@ -107,10 +130,20 @@ export class Clock {
     }
   }
 
+  /**
+   * Updates the simulation time to the current tween's time.
+   *
+   * This should be called on scene tick.
+   */
   updateTweenTime = (): void => {
     this.setTime(this.tweenData.time)
   }
 
+  /**
+   * Sets the simulation time to the given time over a tween.
+   *
+   * This will resume the clock tween.
+   */
   setOffset = (time: number): void => {
     this.stop()
     this.stopTween()

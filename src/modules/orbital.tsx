@@ -8,7 +8,7 @@ import { OrbitalData, TextureMap } from '../types'
 import { DoubleSide, Euler, Vector3Like } from 'three'
 import { Constants } from '../constants'
 import { Scale, getVisibleRadius } from '../utils/scale'
-import { MathService } from '../utils/math'
+import { toRadians } from '../utils/math'
 
 export interface Props extends OrbitalData {
   /** The ID of the orbital this one orbits, if it is a satellite. */
@@ -37,7 +37,7 @@ export function Orbital(props: Props) {
     /** Degrees tp radians. */
     const rad = (v?: number): number => {
       if (v) {
-        return MathService.toRadians(v)
+        return toRadians(v)
       }
       return 0
     }
@@ -158,7 +158,7 @@ export function Rings({
   /** The axial tilt of the body the rings encircle, in degrees. */
   barycenterTilt: number
 }) {
-  const tilt = MathService.toRadians(barycenterTilt)
+  const tilt = toRadians(barycenterTilt)
   const size = Scale(outerRadius * 2)
   const rotation = new Euler(tilt, 0, 0)
 

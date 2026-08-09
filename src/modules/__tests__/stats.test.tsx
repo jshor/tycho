@@ -2,10 +2,12 @@ import { act } from '@testing-library/react'
 import { renderWithStore } from '../../test/helpers'
 import { useStore } from '../../store'
 import { Stats } from '../stats'
-import { PhysicsService } from '../../utils/physics'
+import { getDistanceFromAttractingBody, orbitalEnergyConservation } from '../../utils/physics'
 import { formatUnixTime } from '../../utils/time'
 import data from './__fixtures__/orbitals.json'
 import { OrbitalData, Store } from '../../types'
+
+vi.mock('../../utils/physics', { spy: true })
 
 const orbitalData = data as OrbitalData[]
 
@@ -24,11 +26,11 @@ describe('Stats Module', () => {
 
   /** Renders the readout of an orbital whose statistics work out to the given figures. */
   const renderReadout = (distance: number, trueAnomaly: number, energy: number) => {
-    vi.spyOn(PhysicsService, 'getDistanceFromAttractingBody').mockReturnValue({
+    vi.mocked(getDistanceFromAttractingBody).mockReturnValue({
       distance,
       trueAnomaly
     })
-    vi.spyOn(PhysicsService, 'orbitalEnergyConservation').mockReturnValue(energy)
+    vi.mocked(orbitalEnergyConservation).mockReturnValue(energy)
 
     return renderModule({ targetId: target.id, target })
   }
@@ -50,7 +52,7 @@ describe('Stats Module', () => {
     it('should read the statistics off the orbital at the moment the clock stands at', () => {
       renderReadout(1, 2, 3)
 
-      expect(PhysicsService.getDistanceFromAttractingBody).toHaveBeenCalledWith(
+      expect(getDistanceFromAttractingBody).toHaveBeenCalledWith(
         target.eccentricity,
         1,
         target.periapses,

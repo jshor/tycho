@@ -1,9 +1,10 @@
 import { env } from '../utils/Environment'
 
 /**
- * A short sound the UI plays on demand, held ready so that it sounds the moment it is asked for.
+ * The controller for the short "clink" sound effect that's played when the pointer hovers on a label.
  */
 export class Sound {
+  /** The audio element to play the sound effect. */
   element: HTMLAudioElement
 
   constructor(path: string) {

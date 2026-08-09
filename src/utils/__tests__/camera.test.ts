@@ -1,6 +1,14 @@
 import { Vector3, Object3D, Scene } from 'three'
 import { Tween } from '@tweenjs/tween.js'
-import { CameraService } from '../camera'
+import {
+  attachToGyroscope,
+  attachToWorld,
+  getApproach,
+  getMinDistance,
+  getPivotTween,
+  getWorldPosition,
+  setPivotPosition
+} from '../camera'
 import { Gyroscope } from '../../elements/gyroscope'
 import { tweens } from '../tween'
 import { Scale } from '../scale'
@@ -15,14 +23,7 @@ describe('Camera Service', () => {
     let target: Object3D
 
     const movePosition = (onMovePosition = vi.fn(), onDone = vi.fn()) => {
-      return CameraService.getPivotTween(
-        new Vector3(),
-        target,
-        pivot,
-        offset,
-        onMovePosition,
-        onDone
-      )
+      return getPivotTween(new Vector3(), target, pivot, offset, onMovePosition, onDone)
         .stop()
         .start(0)
     }
@@ -123,12 +124,11 @@ describe('Camera Service', () => {
     const distance = 1000
     const offset = 0.01
 
-    const left = (progress: number) =>
-      distance * (1 - CameraService.getApproach(distance, offset, progress))
+    const left = (progress: number) => distance * (1 - getApproach(distance, offset, progress))
 
     it('should set out with all of the ground ahead of it and end up on the target', () => {
-      expect(CameraService.getApproach(distance, offset, 0)).toBeCloseTo(0)
-      expect(CameraService.getApproach(distance, offset, 1)).toEqual(1) // exactly, so it lands
+      expect(getApproach(distance, offset, 0)).toBeCloseTo(0)
+      expect(getApproach(distance, offset, 1)).toEqual(1) // exactly, so it lands
     })
 
     it('should draw the target in at a steady rate rather than in a rush at the end', () => {
@@ -143,17 +143,17 @@ describe('Camera Service', () => {
     })
 
     it('should even out again once nearer than the camera means to come to rest', () => {
-      const near = distance * (1 - CameraService.getApproach(distance, distance, 0.5))
+      const near = distance * (1 - getApproach(distance, distance, 0.5))
 
       expect(near / distance).toBeGreaterThan(0.4) // no magnifying left to do, so no rush to slow
     })
 
     it('should stay put when there is nowhere to go', () => {
-      expect(CameraService.getApproach(0, offset, 0.5)).toEqual(1)
+      expect(getApproach(0, offset, 0.5)).toEqual(1)
     })
 
     it('should cope with a camera that may come to rest on the target itself', () => {
-      const result = CameraService.getApproach(distance, 0, 0.5)
+      const result = getApproach(distance, 0, 0.5)
 
       expect(result).toBeGreaterThan(0)
       expect(result).toBeLessThan(1)
@@ -168,7 +168,7 @@ describe('Camera Service', () => {
       const pivot = new Object3D()
       const spy = vi.spyOn(pivot.position, 'set')
 
-      CameraService.setPivotPosition(pivot, { x, y, z })
+      setPivotPosition(pivot, { x, y, z })
 
       expect(spy).toHaveBeenCalled()
       expect(spy).toHaveBeenCalledTimes(1)
@@ -187,13 +187,13 @@ describe('Camera Service', () => {
     })
 
     it('should be an instance of Vector3', () => {
-      const result = CameraService.getWorldPosition(object)
+      const result = getWorldPosition(object)
 
       expect(result).toBeInstanceOf(Vector3)
     })
 
     it('should return the world position of a given object', () => {
-      const result = CameraService.getWorldPosition(object)
+      const result = getWorldPosition(object)
 
       expect(result).toEqual(position)
     })
@@ -212,23 +212,23 @@ describe('Camera Service', () => {
     it('should frame the orbital to fill the given portion of the camera field', () => {
       const radius = MINIMUM_RADIUS * 5
 
-      expect(CameraService.getMinDistance(radius, 1)).toBeCloseTo(framing(radius))
+      expect(getMinDistance(radius, 1)).toBeCloseTo(framing(radius))
     })
 
     it('should floor a small orbital to the minimum radius so the camera clears its inflated body', () => {
-      expect(CameraService.getMinDistance(1, 1)).toBeCloseTo(framing(MINIMUM_RADIUS))
+      expect(getMinDistance(1, 1)).toBeCloseTo(framing(MINIMUM_RADIUS))
     })
 
     it('should show a large orbital at the same size on screen as a small one', () => {
-      const near = CameraService.getMinDistance(MINIMUM_RADIUS, 1)
-      const far = CameraService.getMinDistance(MINIMUM_RADIUS * 11, 1)
+      const near = getMinDistance(MINIMUM_RADIUS, 1)
+      const far = getMinDistance(MINIMUM_RADIUS * 11, 1)
 
       expect(far / near).toBeCloseTo(11)
     })
 
     it('should stand further off on a screen narrower than the camera field', () => {
-      const wide = CameraService.getMinDistance(MINIMUM_RADIUS, 16 / 9)
-      const tall = CameraService.getMinDistance(MINIMUM_RADIUS, 9 / 16)
+      const wide = getMinDistance(MINIMUM_RADIUS, 16 / 9)
+      const tall = getMinDistance(MINIMUM_RADIUS, 9 / 16)
 
       expect(tall).toBeGreaterThan(wide)
     })
@@ -240,7 +240,7 @@ describe('Camera Service', () => {
     const position = new Vector3(1, 2, 3)
 
     beforeEach(() => {
-      CameraService.attachToWorld(scene, pivot, position)
+      attachToWorld(scene, pivot, position)
     })
 
     it('should add the given pivot to the scene', () => {
@@ -258,7 +258,7 @@ describe('Camera Service', () => {
     const callback = vi.fn()
 
     beforeEach(() => {
-      CameraService.attachToGyroscope(target, pivot, callback)
+      attachToGyroscope(target, pivot, callback)
     })
 
     it('should add a gyroscope to the given target', () => {

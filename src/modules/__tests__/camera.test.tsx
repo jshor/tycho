@@ -65,7 +65,7 @@ vi.mock('../../elements/controls', () => ({
   })
 }))
 
-vi.mock('../../utils/camera', () => ({ CameraService: cameraService }))
+vi.mock('../../utils/camera', () => cameraService)
 
 vi.mock('@react-three/fiber', async () => {
   const React = (await import('react')).default

@@ -5,9 +5,11 @@ import { useStore } from '../../store'
 import data from './__fixtures__/orbitals.json'
 import { Orbital } from '../orbital'
 import { Constants } from '../../constants'
-import { MathService } from '../../utils/math'
+import { toRadians } from '../../utils/math'
 import { Ellipse } from '../../elements/ellipse'
 import { OrbitalData, Store } from '../../types'
+
+vi.mock('../../utils/math', { spy: true })
 
 const orbital = data[0] as OrbitalData
 const ASCENSION = 90
@@ -67,7 +69,7 @@ describe('Orbital Module', () => {
 
   describe('eclipticGroupRotation', () => {
     it('should negate the ascension as the x rotation for non-satellites', () => {
-      const spy = vi.spyOn(MathService, 'toRadians')
+      const spy = vi.mocked(toRadians)
 
       renderModule({}, { isSatellite: false })
 
@@ -75,7 +77,7 @@ describe('Orbital Module', () => {
     })
 
     it('should apply no x rotation for satellites', () => {
-      const spy = vi.spyOn(MathService, 'toRadians')
+      const spy = vi.mocked(toRadians)
 
       renderModule({}, { isSatellite: true })
 
@@ -83,7 +85,7 @@ describe('Orbital Module', () => {
     })
 
     it('should apply longitudeOfAscendingNode offset to the z rotation', () => {
-      const spy = vi.spyOn(MathService, 'toRadians')
+      const spy = vi.mocked(toRadians)
       const longitudeOfAscendingNode = 15
 
       renderModule({}, { longitudeOfAscendingNode })
@@ -94,7 +96,7 @@ describe('Orbital Module', () => {
 
   describe('orbitalGroupRotation', () => {
     it('should apply inclination as the x rotation', () => {
-      const spy = vi.spyOn(MathService, 'toRadians')
+      const spy = vi.mocked(toRadians)
       const inclination = 10
 
       renderModule({}, { inclination })
@@ -103,7 +105,7 @@ describe('Orbital Module', () => {
     })
 
     it('should apply argumentOfPeriapsis offset to the z rotation', () => {
-      const spy = vi.spyOn(MathService, 'toRadians')
+      const spy = vi.mocked(toRadians)
       const argumentOfPeriapsis = 10
 
       renderModule({}, { argumentOfPeriapsis })
@@ -114,7 +116,7 @@ describe('Orbital Module', () => {
 
   describe('orbitalRotation', () => {
     it('should apply ASCENSION + axialTilt as the x rotation', () => {
-      const spy = vi.spyOn(MathService, 'toRadians')
+      const spy = vi.mocked(toRadians)
       const axialTilt = 10
 
       renderModule({}, { axialTilt })
@@ -123,7 +125,7 @@ describe('Orbital Module', () => {
     })
 
     it('should not call toRadians for the z axis', () => {
-      const spy = vi.spyOn(MathService, 'toRadians')
+      const spy = vi.mocked(toRadians)
       const axialTilt = 10
 
       renderModule({}, { axialTilt })

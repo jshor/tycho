@@ -3,11 +3,18 @@ import * as THREE from 'three'
 import { useThree, useFrame } from '@react-three/fiber'
 import { PerspectiveCamera } from '@react-three/drei'
 import { useStore } from '../store'
-import { CameraService } from '../utils/camera'
+import {
+  CAMERA_INITIAL_POSITION,
+  attachToGyroscope,
+  attachToWorld,
+  getMinDistance,
+  getPivotTween,
+  getWorldPosition
+} from '../utils/camera'
 import { Controls } from '../elements/controls'
 import { Ambience } from '../elements/ambience'
 import { Constants } from '../constants'
-import { MathService } from '../utils/math'
+import { getGeometricStep } from '../utils/math'
 
 interface Props {
   /** The aspect ratio the camera renders at. */
@@ -28,7 +35,7 @@ export const focusCameraImmediately = (
   changeZoom?: (level: number) => void
 ): void => {
   controls?.cancelTween()
-  CameraService.attachToGyroscope(target, pivot, () => {})
+  attachToGyroscope(target, pivot, () => {})
   controls?.resetLook()
   controls?.zoom(Constants.WebGL.Zoom.MIN)
   changeZoom?.(Constants.WebGL.Zoom.MIN)
@@ -123,10 +130,10 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
 
     const controls = controlsRef.current
     const fromDistance = controls?.camera.position.length() ?? Constants.WebGL.Camera.MIN_DISTANCE
-    const toDistance = CameraService.getMinDistance(radius, ratio)
-    const worldPosiiton = CameraService.getWorldPosition(pivot)
+    const toDistance = getMinDistance(radius, ratio)
+    const worldPosiiton = getWorldPosition(pivot)
 
-    CameraService.attachToWorld(scene, pivot, worldPosiiton)
+    attachToWorld(scene, pivot, worldPosiiton)
 
     setInteractivity(false)
     cancelTween()
@@ -136,7 +143,7 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
       controls.minDistance = 0
     }
 
-    tweenBaseRef.current = CameraService.getPivotTween(
+    tweenBaseRef.current = getPivotTween(
       worldPosiiton,
       target,
       pivot,
@@ -180,9 +187,9 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
     if (!pivot || !controls) return
 
     pivot.updateMatrixWorld()
-    controls.lookToward(pivot.worldToLocal(CameraService.getWorldPosition(target)), progress)
+    controls.lookToward(pivot.worldToLocal(getWorldPosition(target)), progress)
 
-    const distance = MathService.getGeometricStep(fromDistance, toDistance, progress)
+    const distance = getGeometricStep(fromDistance, toDistance, progress)
 
     controls.camera.position.copy(controls.getZoomVector(controls.camera.position, distance))
   }
@@ -233,7 +240,7 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
         fov={Constants.WebGL.Camera.FOV}
         near={Constants.WebGL.Camera.NEAR}
         far={Constants.WebGL.Camera.FAR}
-        position={CameraService.CAMERA_INITIAL_POSITION.toArray() as [number, number, number]}
+        position={CAMERA_INITIAL_POSITION}
       />
     </group>
   )

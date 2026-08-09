@@ -5,20 +5,31 @@ import { Constants } from '../constants'
 import { tweens } from '../utils/tween'
 
 export class Controls extends OrbitControls {
+  /** The active camera instance. */
   camera: THREE.Camera
+
+  /** The current zoom level of the camera [0, 1]. */
   level: number
+
+  /** Data for the current zoom tween. */
   tweenData: { level: number }
+
+  /** The base tween for zooming. */
   tweenBase?: Tween
+
+  /** Callback for when the zoom tween is done. */
   tweenDone: ((level: number) => void) | undefined
+
+  /** Matrix used for `lookAt()` calculations. */
   lookMatrix: THREE.Matrix4 = new THREE.Matrix4()
 
-  /** Current matrix rotation of the lookAt target. */
+  /** Current matrix rotation of the `lookAt()` target. */
   lookRotation: THREE.Quaternion = new THREE.Quaternion()
 
   /** The active focus point of the camera. */
   focus: THREE.Vector3 = new THREE.Vector3()
 
-  /** The point at which the camera was previously looking (i.e., the previous target's lookAt). */
+  /** The point at which the camera was previously looking (i.e., the previous target's `lookAt()` target). */
   lookOrigin: THREE.Vector3 = new THREE.Vector3()
 
   /** Percentage of completion [0, 1] of the camera's turn from the previous target to its next focus. */
@@ -92,6 +103,9 @@ export class Controls extends OrbitControls {
     this.lookPercentCompleted = 0
   }
 
+  /**
+   * Zooms to the given level.
+   */
   zoom = (level: number): void => {
     if (this.level !== level) {
       this.pan(level)
@@ -131,36 +145,60 @@ export class Controls extends OrbitControls {
     position.copy(this.getZoomVector(position, this.getZoomDistance(level)))
   }
 
+  /**
+   * Returns the vector from the camera to the origin of its pivot, scaled to the given length.
+   */
   getZoomVector = (vector: THREE.Vector3, scalar: number): THREE.Vector3 => {
     return vector.clone().normalize().multiplyScalar(scalar)
   }
 
+  /**
+   * Returns the distance between the camera and the origin of its pivot, in WebGL units.
+   */
   getDistance = (): number => {
     return this.maxDistance - this.minDistance
   }
 
+  /**
+   * Enables the camera controls.
+   */
   enable = (): void => {
     this.enabled = true
   }
 
+  /**
+   * Disables the camera controls.
+   */
   disable = (): void => {
     this.enabled = false
   }
 
+  /**
+   * Starts auto-rotating the camera at the given speed.
+   */
   startAutoRotate = (speed: number): void => {
     this.autoRotate = true
     this.autoRotateSpeed = speed
   }
 
+  /**
+   * Stops auto-rotating the camera.
+   */
   stopAutoRotate = (): void => {
     this.autoRotate = false
   }
 
+  /**
+   * Stops the current zoom tween.
+   */
   endTween = (): void => {
     delete this.tweenData
     delete this.tweenBase
   }
 
+  /**
+   * Cancels the current zoom tween instance.
+   */
   cancelTween = (): void => {
     if (this.tweenBase) {
       this.tweenBase.stop()
@@ -168,10 +206,18 @@ export class Controls extends OrbitControls {
     }
   }
 
+  /**
+   * Updates the zoom level of the camera to the current tween's level.
+   *
+   * This should be called on scene tick.
+   */
   updateTween = (): void => {
     this.zoom(this.tweenData.level)
   }
 
+  /**
+   * Completes the current zoom tween.
+   */
   completeTween = (): void => {
     if (this.tweenDone) {
       this.tweenDone(this.level)

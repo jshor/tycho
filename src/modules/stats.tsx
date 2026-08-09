@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useStore } from '../store'
-import { PhysicsService } from '../utils/physics'
+import { getDistanceFromAttractingBody, orbitalEnergyConservation } from '../utils/physics'
 import { formatUnixTime } from '../utils/time'
 import { Stats as StatsView } from '../components/stats/stats'
 import { OrbitalStats } from '../types'
@@ -36,7 +36,7 @@ export function Stats() {
     }
 
     const { eccentricity, periapses, centralMass, semimajor } = target
-    const { distance, trueAnomaly } = PhysicsService.getDistanceFromAttractingBody(
+    const { distance, trueAnomaly } = getDistanceFromAttractingBody(
       eccentricity,
       time,
       periapses,
@@ -45,7 +45,7 @@ export function Stats() {
 
     return {
       magnitude: format(distance),
-      velocity: format(PhysicsService.orbitalEnergyConservation(centralMass, distance, semimajor)),
+      velocity: format(orbitalEnergyConservation(centralMass, distance, semimajor)),
       trueAnomaly: format(trueAnomaly)
     }
   }, [target, time])

@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { Constants } from '../constants'
-import { PhysicsService } from '../utils/physics'
-import { MathService } from '../utils/math'
+import { ellipticPercent } from '../utils/physics'
+import { getFocus } from '../utils/math'
 import { Scale } from '../utils/scale'
 import { Periapses } from '../types'
 
@@ -59,7 +59,7 @@ export class Ellipse {
   getEllipseCurve = (): THREE.EllipseCurve => {
     const semimajor = Scale(this.semimajor)
     const semiminor = Scale(this.semiminor)
-    const focus = MathService.getFocus(semimajor, semiminor)
+    const focus = getFocus(semimajor, semiminor)
 
     return new THREE.EllipseCurve(
       0,
@@ -114,7 +114,7 @@ export class Ellipse {
    * Returns the current position of the body (in 2D-vector space) along the elliptical path
    */
   getPosition = (): THREE.Vector3 => {
-    const percent = PhysicsService.ellipticPercent(this.eccentricity, this.time, this.periapses)
+    const percent = ellipticPercent(this.eccentricity, this.time, this.periapses)
     const vector2d = this.path.getPoint(percent)
 
     return new THREE.Vector3(vector2d.x, vector2d.y)
@@ -124,7 +124,7 @@ export class Ellipse {
    * Returns the percentage of travel along the elliptical path [0, 1] to its periapsis.
    */
   getVertexPercent = (): number => {
-    const percent = PhysicsService.ellipticPercent(this.eccentricity, this.time, this.periapses)
+    const percent = ellipticPercent(this.eccentricity, this.time, this.periapses)
 
     return this.ellipse.getUtoTmapping(percent, 0)
   }
