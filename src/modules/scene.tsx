@@ -100,28 +100,40 @@ export function Scene({ onAnimate, width, height, children }: Props) {
   const cameraRef = useRef<CameraHandle>(null)
 
   /**
-   * Zooms the camera by however far the user scrolled.
+   * Invokes the given callback with the new computed zoom level for the given delta.
    */
-  const onWheel: React.WheelEventHandler<HTMLDivElement> = (ev) => {
+  const computeZoom = (delta: number, callback: (zoom: number) => void) => {
     const controls = cameraRef.current?.controls
 
     if (!controls) return
 
-    const zoom = controls.getZoomDelta(ev.deltaY)
+    const zoom = controls.getZoomDelta(delta)
     const current = Math.round(controls.level * 100)
 
     if (current !== zoom) {
-      changeZoomLevel(zoom)
+      callback(zoom)
     }
+  }
+
+  /**
+   * Tweens the camera to the given zoom level.
+   */
+  const tweenZoom = (zoom: number) => {
+    cameraRef.current?.controls.tweenZoom(zoom, changeZoomLevel, Constants.WebGL.Tween.ZOOM)
+  }
+
+  /**
+   * Zooms the camera by however far the user scrolled.
+   */
+  const onWheel: React.WheelEventHandler<HTMLDivElement> = (ev) => {
+    computeZoom(ev.deltaY, tweenZoom)
   }
 
   /**
    * Zooms the camera by however far the user pinched.
    */
   const onPinch = (separationDelta: number) => {
-    onWheel({
-      deltaY: -separationDelta * Constants.UI.PINCH_DELTA_SCALE
-    } as React.WheelEvent<HTMLDivElement>)
+    computeZoom(-separationDelta * Constants.UI.PINCH_DELTA_SCALE, tweenZoom)
   }
 
   return (

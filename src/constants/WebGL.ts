@@ -26,6 +26,7 @@ export const Ellipse = {
 }
 
 export const Tween = {
+  ZOOM: 300,
   FAST: 1000,
   NORMAL: 2000,
   SLOW: 5000

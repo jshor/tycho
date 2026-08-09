@@ -74,25 +74,22 @@ describe('Scene Module', () => {
       fireEvent.wheel(container.firstElementChild as HTMLElement, { deltaY: -10 })
 
       expect(controls.getZoomDelta).toHaveBeenCalledWith(-10)
-      expect(changeZoom).toHaveBeenCalledTimes(1)
-      expect(changeZoom).toHaveBeenCalledWith(newZoom)
+      expect(controls.tweenZoom).toHaveBeenCalledTimes(1)
+      expect(controls.tweenZoom).toHaveBeenCalledWith(newZoom, expect.any(Function), Constants.WebGL.Tween.ZOOM)
     })
 
     it('should leave the zoom alone when the level has not changed', () => {
-      const newZoom = 20
-      const changeZoom = vi.fn()
       const { container } = renderWithStore(<Scene {...baseProps} />, {
         orbitalData,
-        time: 1,
-        changeZoom
+        time: 1
       })
 
-      controls.getZoomDelta.mockReturnValue(newZoom)
-      controls.level = newZoom / 100
+      controls.getZoomDelta.mockReturnValue(20)
+      controls.level = 20 / 100
 
       fireEvent.wheel(container.firstElementChild as HTMLElement, { deltaY: -10 })
 
-      expect(changeZoom).not.toHaveBeenCalled()
+      expect(controls.tweenZoom).not.toHaveBeenCalled()
     })
   })
 
@@ -107,11 +104,9 @@ describe('Scene Module', () => {
 
     it('should zoom the camera by however far the user pinched', () => {
       const newZoom = 20
-      const changeZoom = vi.fn()
       const { container } = renderWithStore(<Scene {...baseProps} />, {
         orbitalData,
-        time: 1,
-        changeZoom
+        time: 1
       })
       const scene = container.firstElementChild as HTMLElement
 
@@ -122,8 +117,8 @@ describe('Scene Module', () => {
 
       // the fingers spread 60px apart, which zooms in by the steps the wheel zooms in
       expect(controls.getZoomDelta).toHaveBeenCalledWith(-60 * Constants.UI.PINCH_DELTA_SCALE)
-      expect(changeZoom).toHaveBeenCalledTimes(1)
-      expect(changeZoom).toHaveBeenCalledWith(newZoom)
+      expect(controls.tweenZoom).toHaveBeenCalledTimes(1)
+      expect(controls.tweenZoom).toHaveBeenCalledWith(newZoom, expect.any(Function), Constants.WebGL.Tween.ZOOM)
     })
   })
 })

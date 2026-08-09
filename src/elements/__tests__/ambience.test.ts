@@ -44,13 +44,13 @@ describe('Ambience Utility', () => {
     })
   })
 
-  describe('loaded()', () => {
+  describe('onLoaded()', () => {
     const buffer = new ArrayBuffer() as unknown as AudioBuffer
 
     it('should call setBuffer with the given buffer', () => {
       const spy = vi.spyOn(ambience.sound, 'setBuffer')
 
-      ambience.loaded(buffer)
+      ambience.onLoaded(buffer)
 
       expect(spy).toHaveBeenCalled()
       expect(spy).toHaveBeenCalledWith(buffer)
@@ -59,7 +59,7 @@ describe('Ambience Utility', () => {
     it('should call setLoop with `true`', () => {
       const spy = vi.spyOn(ambience.sound, 'setLoop')
 
-      ambience.loaded(buffer)
+      ambience.onLoaded(buffer)
 
       expect(spy).toHaveBeenCalled()
       expect(spy).toHaveBeenCalledWith(true)
