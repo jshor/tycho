@@ -1,14 +1,15 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useRef, useState } from 'react'
 import { useStore } from '../store'
 import { Ellipse } from '../elements/ellipse'
 import { Orbital as OrbitalView } from '../components/orbital/orbital'
 import { Clouds } from '../components/orbital/clouds/clouds'
 import { Texture } from './texture'
 import { OrbitalData, TextureMap } from '../types'
-import { DoubleSide, Euler, Vector3Like } from 'three'
+import { DoubleSide, Euler, Mesh, Vector3, Vector3Like } from 'three'
 import { Constants } from '../constants'
 import { Scale, getVisibleRadius } from '../utils/scale'
 import { toRadians } from '../utils/math'
+import { useFrame } from '@react-three/fiber'
 
 export interface Props extends OrbitalData {
   /** The ID of the orbital this one orbits, if it is a satellite. */
@@ -158,14 +159,23 @@ export function Rings({
   /** The axial tilt of the body the rings encircle, in degrees. */
   barycenterTilt: number
 }) {
+  const meshRef = useRef<Mesh>(null)
   const tilt = toRadians(barycenterTilt)
   const size = Scale(outerRadius * 2)
-  const rotation = new Euler(tilt, 0, 0)
+  const worldPos = useMemo(() => new Vector3(), [])
+
+  useFrame(() => {
+    const mesh = meshRef.current
+    if (!mesh) return
+
+    mesh.getWorldPosition(worldPos)
+    mesh.rotation.set(tilt, 0, Math.atan2(worldPos.x, worldPos.z))
+  })
 
   return (
-    <mesh rotation={rotation}>
+    <mesh ref={meshRef} name="rings">
       <planeGeometry args={[size, size]} />
-      <Texture transparent={true} side={DoubleSide} textures={maps} />
+      <Texture textures={maps} transparent side={DoubleSide} />
     </mesh>
   )
 }
