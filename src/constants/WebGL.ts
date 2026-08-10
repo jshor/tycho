@@ -55,6 +55,8 @@ export const Camera = {
   AUTOROTATE_SPEED: 0.2,
   /** Distance of the camera to show the target's gibbous phase. */
   SUNLIT_TILT: 30,
+  /** Percentage of camera travel time is spent turning toward the target. */
+  TURN_FRACTION: 0.2,
   /** Inertia of to orbit drag. */
   DAMPING_FACTOR: 0.08
 }

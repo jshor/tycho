@@ -208,9 +208,10 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
     const position = getWorldPosition(target)
     const distance = getGeometricStep(fromDistance, toDistance, progress)
     const heading = turnHeading(fromHeading, getSunlitHeading(position, fromHeading), progress)
+    const turned = progress / Constants.WebGL.Camera.TURN_FRACTION
 
     pivot.updateMatrixWorld()
-    controls.lookToward(pivot.worldToLocal(position.clone()), progress)
+    controls.lookToward(pivot.worldToLocal(position.clone()), turned)
     controls.camera.position.copy(heading.multiplyScalar(distance))
   }
 

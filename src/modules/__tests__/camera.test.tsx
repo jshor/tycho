@@ -409,11 +409,39 @@ describe('Camera Module', () => {
 
       it('should turn the camera toward the target as it travels', () => {
         const { pivot } = renderOnTarget()
+        const { TURN_FRACTION } = Constants.WebGL.Camera
 
-        travel().turnTo(0.5)
+        travel().turnTo(TURN_FRACTION / 2)
 
         expect(controls.lookToward).toHaveBeenCalledWith(expect.anything(), 0.5)
         expect(pivot).toHaveProperty('worldToLocal')
+      })
+
+      it('should finish its turn early on, so the target stays in shot the rest of the way', () => {
+        renderOnTarget()
+
+        const { turnTo } = travel()
+        const asked = () => vi.mocked(controls.lookToward).mock.calls.at(-1)?.[1] as number
+
+        turnTo(Constants.WebGL.Camera.TURN_FRACTION)
+        const turned = asked()
+
+        turnTo(0.5)
+        const midway = asked()
+
+        turnTo(1)
+
+        expect(turned).toBeGreaterThanOrEqual(1)
+        expect(midway).toBeGreaterThanOrEqual(1)
+        expect(asked()).toBeGreaterThanOrEqual(1)
+      })
+
+      it('should still be turning when it has only just set off', () => {
+        renderOnTarget()
+
+        travel().turnTo(0)
+
+        expect(vi.mocked(controls.lookToward).mock.calls.at(-1)?.[1]).toEqual(0)
       })
 
       it('should close the camera in on the new target gradually, not at a stroke', () => {
