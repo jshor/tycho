@@ -7,6 +7,7 @@ import {
   attachToGyroscope,
   attachToWorld,
   getMinDistance,
+  getNearPlane,
   getPivotTween,
   getSunlitHeading,
   getWorldPosition,
@@ -176,8 +177,25 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
   useFrame(() => {
     controlsRef.current?.update()
     controlsRef.current?.faceTarget()
+    drawInNearPlane()
     scene.updateMatrixWorld()
   })
+
+  /**
+   * Draws the near clip plane in as the camera closes in on its target.
+   */
+  const drawInNearPlane = () => {
+    const perspective = camera as THREE.PerspectiveCamera
+
+    if (!perspective.isPerspectiveCamera) return
+
+    const near = getNearPlane(perspective.position.length(), radius)
+
+    if (near !== perspective.near) {
+      perspective.near = near
+      perspective.updateProjectionMatrix()
+    }
+  }
 
   /**
    * Returns a function that turns the camera toward the new target.

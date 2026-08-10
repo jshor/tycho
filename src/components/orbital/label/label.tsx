@@ -2,7 +2,7 @@ import React from 'react'
 import * as THREE from 'three'
 import { Constants } from '../../../constants'
 import { CameraText } from './cameraText'
-import { Scale, getVisibleRadius } from '../../../utils/scale'
+import { Scale } from '../../../utils/scale'
 
 interface Props {
   /** The text to display in the label. */
@@ -55,7 +55,7 @@ export const Label = React.memo(
         font={Constants.WebGL.LABEL_FONT_PATH}
         barycenterId={isSatellite ? parentId : undefined}
         maxDistance={maxDistance}
-        standoff={Scale(getVisibleRadius(radius)) * Constants.WebGL.LABEL_STANDOFF}
+        standoff={Scale(radius) * Constants.WebGL.LABEL_STANDOFF}
         onClick={() => onFocus?.()}
         onPointerOver={() => onHover?.()}
         onPointerOut={() => onLeave?.()}

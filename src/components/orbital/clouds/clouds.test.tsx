@@ -37,13 +37,11 @@ describe('Clouds Component', () => {
       expect(getCloudRadius(EARTH.radius)).toBeCloseTo(Scale(EARTH.radius * (1 + HEIGHT_SCALE)))
     })
 
-    it('should stand off a body drawn inflated by the size it is drawn at', () => {
-      const { MINIMUM_RADIUS } = Constants.WebGL
+    it('should stand off a tiny body by its own true size', () => {
       const { HEIGHT_SCALE } = Constants.WebGL.Clouds
+      const tiny = 100
 
-      expect(getCloudRadius(MINIMUM_RADIUS / 10)).toBeCloseTo(
-        Scale(MINIMUM_RADIUS * (1 + HEIGHT_SCALE))
-      )
+      expect(getCloudRadius(tiny)).toBeCloseTo(Scale(tiny * (1 + HEIGHT_SCALE)))
     })
   })
 

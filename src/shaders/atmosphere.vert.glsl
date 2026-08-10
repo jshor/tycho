@@ -21,7 +21,6 @@ void main() {
   // where the body this shell is wrapped around sits, which the sight line is measured against
   vViewCenter = (modelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
 
-  // The shell is only ever uniformly scaled (see Scale() / getVisibleRadius()), so the normal
   // matrix carries the normal into view space without the inverse-transpose correction that
   // non-uniform scaling would otherwise require.
   vViewNormal = normalize(normalMatrix * normal);

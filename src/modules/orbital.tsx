@@ -7,7 +7,7 @@ import { Texture } from './texture'
 import { OrbitalData, TextureMap } from '../types'
 import { DoubleSide, Euler, Mesh, Vector3, Vector3Like } from 'three'
 import { Constants } from '../constants'
-import { Scale, getVisibleRadius } from '../utils/scale'
+import { Scale } from '../utils/scale'
 import { toRadians } from '../utils/math'
 import { useFrame } from '@react-three/fiber'
 
@@ -123,7 +123,7 @@ export function Orbital(props: Props) {
         <mesh rotation={orbitalRotation}>
           <sphereGeometry
             args={[
-              Scale(getVisibleRadius(props.radius)),
+              Scale(props.radius),
               Constants.WebGL.SPHERE_SEGMENTS,
               Constants.WebGL.SPHERE_SEGMENTS
             ]}

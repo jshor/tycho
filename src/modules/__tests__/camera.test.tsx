@@ -6,12 +6,20 @@ import { renderInScene } from '../../test/helpers'
 import { useStore } from '../../store'
 import { Constants } from '../../constants'
 import { Camera, CameraHandle, focusCameraImmediately } from '../camera'
+import { getNearPlane } from '../../utils/camera'
+import { Scale } from '../../utils/scale'
 import { Controls } from '../../elements/controls'
 import { Ambience } from '../../elements/ambience'
 import { OrbitalData, Store } from '../../types'
 
 const three = vi.hoisted(() => ({
-  camera: { name: 'camera' } as { name: string; position: Vector3 },
+  camera: { name: 'camera', isPerspectiveCamera: true, near: 0, updateProjectionMatrix: vi.fn() } as {
+    name: string
+    position: Vector3
+    near: number
+    isPerspectiveCamera: boolean
+    updateProjectionMatrix: ReturnType<typeof vi.fn>
+  },
   scene: { getObjectByName: vi.fn(), updateMatrixWorld: vi.fn() },
   gl: { domElement: { nodeName: 'CANVAS' } }
 }))
@@ -68,10 +76,10 @@ vi.mock('../../elements/controls', () => ({
 }))
 
 vi.mock('../../utils/camera', async (importOriginal) => {
-  const { getSunlitHeading, turnHeading } =
+  const { getNearPlane, getSunlitHeading, turnHeading } =
     await importOriginal<typeof import('../../utils/camera')>()
 
-  return { ...cameraService, getSunlitHeading, turnHeading }
+  return { ...cameraService, getNearPlane, getSunlitHeading, turnHeading }
 })
 
 vi.mock('@react-three/fiber', async () => {
@@ -127,6 +135,7 @@ describe('Camera Module', () => {
     controls.minDistance = 7
     controls.level = 50
     three.camera.position.set(0, 0, 1)
+    three.camera.near = 0
 
     tween = { stop: vi.fn() }
 
@@ -298,6 +307,61 @@ describe('Camera Module', () => {
       expect(controls.update).toHaveBeenCalledTimes(1)
       expect(controls.faceTarget).toHaveBeenCalledTimes(1)
       expect(three.scene.updateMatrixWorld).toHaveBeenCalled()
+    })
+
+    describe('near plane', () => {
+      const { NEAR } = Constants.WebGL.Camera
+      const TINY_RADIUS = 11.2667
+      const frameAt = (distance: number, radius = TARGET_RADIUS) => {
+        renderModule({ target: { radius } as OrbitalData })
+        three.camera.position.set(0, 0, distance)
+        advanceFrame()
+      }
+
+      it('should hold the plane at its default while the camera is far out', () => {
+        frameAt(Constants.WebGL.Camera.MAX_DISTANCE)
+
+        expect(three.camera.near).toBe(NEAR)
+      })
+
+      it('should draw the plane in as the camera closes on a tiny target', () => {
+        frameAt(Scale(TINY_RADIUS) * 3, TINY_RADIUS)
+
+        expect(three.camera.near).toBeLessThan(NEAR)
+        expect(three.camera.near).toBe(getNearPlane(Scale(TINY_RADIUS) * 3, TINY_RADIUS))
+      })
+
+      it('should keep the plane clear of a tiny target it has closed right in on', () => {
+        const distance = Scale(TINY_RADIUS) * 1.5
+
+        frameAt(distance, TINY_RADIUS)
+
+        expect(three.camera.near).toBeLessThan(distance - Scale(TINY_RADIUS))
+      })
+
+      it('should rebuild the projection when the plane moves', () => {
+        frameAt(Scale(TINY_RADIUS) * 3, TINY_RADIUS)
+
+        expect(three.camera.updateProjectionMatrix).toHaveBeenCalled()
+      })
+
+      it('should leave the projection alone while the camera holds still', () => {
+        frameAt(Scale(TINY_RADIUS) * 3, TINY_RADIUS)
+        three.camera.updateProjectionMatrix.mockClear()
+
+        advanceFrame()
+
+        expect(three.camera.updateProjectionMatrix).not.toHaveBeenCalled()
+      })
+
+      it('should hold the plane at its default until a target is chosen', () => {
+        renderModule()
+        three.camera.position.set(0, 0, Constants.WebGL.Camera.MAX_DISTANCE)
+
+        advanceFrame()
+
+        expect(three.camera.near).toBe(NEAR)
+      })
     })
   })
 

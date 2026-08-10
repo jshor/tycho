@@ -43,12 +43,10 @@ describe('Atmosphere Component', () => {
       expect(getShellRadius(EARTH.radius, 0)).toBeCloseTo(Scale(EARTH.radius))
     })
 
-    it('should inflate the atmosphere of a body drawn inflated, so it clears the surface', () => {
-      const { MINIMUM_RADIUS } = Constants.WebGL
-      const tiny = MINIMUM_RADIUS / 10
+    it('should raise the shell off a tiny body by its own true size', () => {
+      const tiny = 100
 
-      // the body is drawn ten times over to be seen at all, so its atmosphere is too
-      expect(getShellRadius(tiny, 50)).toBeCloseTo(Scale(MINIMUM_RADIUS + 500 * HEIGHT_SCALE))
+      expect(getShellRadius(tiny, 50)).toBeCloseTo(Scale(tiny + 50 * HEIGHT_SCALE))
     })
   })
 

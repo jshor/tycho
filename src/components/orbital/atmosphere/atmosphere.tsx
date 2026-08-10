@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import * as THREE from 'three'
-import { Scale, getVisibleRadius } from '../../../utils/scale'
+import { Scale } from '../../../utils/scale'
 import { Constants } from '../../../constants'
 import VERTEX_SHADER from '../../../shaders/atmosphere.vert.glsl?raw'
 import FRAGMENT_SHADER from '../../../shaders/atmosphere.frag.glsl?raw'
@@ -18,16 +18,15 @@ interface Props {
  * Returns the radius of the shell drawn around a body of the given radius, in scene units.
  */
 export const getShellRadius = (radius: number, height: number): number => {
-  const visible = getVisibleRadius(radius)
   const raised = height * Constants.WebGL.Atmosphere.HEIGHT_SCALE
 
-  return Scale(visible + raised * (visible / radius))
+  return Scale(radius + raised)
 }
 
 /**
  * Returns the radius of the body itself, in scene units: where its atmosphere stops.
  */
-export const getSurfaceRadius = (radius: number): number => Scale(getVisibleRadius(radius))
+export const getSurfaceRadius = (radius: number): number => Scale(radius)
 
 /**
  * Returns the material the shell is drawn with, scattering into the given color.

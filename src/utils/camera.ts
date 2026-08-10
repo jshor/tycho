@@ -3,17 +3,26 @@ import { Vector3, Object3D, Quaternion, Scene as ThreeScene, MathUtils } from 't
 import { Constants } from '../constants'
 import { Gyroscope } from '../elements/gyroscope'
 import { tweens } from './tween'
-import { Scale, getVisibleRadius } from './scale'
+import { Scale } from './scale'
 
 /**
  * Returns the minimum distance the camera may get to the given orbital.
  */
 export function getMinDistance(radius: number, aspect: number): number {
-  const extent = getVisibleRadius(radius)
   const vertical = MathUtils.degToRad(Constants.WebGL.Camera.FOV)
   const field = Math.min(vertical, 2 * Math.atan(Math.tan(vertical / 2) * aspect))
 
-  return Scale(extent) / Math.sin((field * Constants.WebGL.Camera.FOCUS_FILL) / 2)
+  return Scale(radius) / Math.sin((field * Constants.WebGL.Camera.FOCUS_FILL) / 2)
+}
+
+/**
+ * Returns how near the camera may clip, given its distance to the target.
+ */
+export function getNearPlane(distance: number, radius = 0): number {
+  const gap = Math.max(distance - Scale(radius), 0)
+  const { NEAR, NEAR_MIN, NEAR_RATIO } = Constants.WebGL.Camera
+
+  return Math.min(Math.max(gap * NEAR_RATIO, NEAR_MIN), NEAR)
 }
 
 /**

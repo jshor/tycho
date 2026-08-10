@@ -3,10 +3,3 @@ import { Constants } from '../constants'
 export const Scale = (radius: number): number => {
   return radius / Constants.WebGL.UNIT_SCALE
 }
-
-/**
- * Returns the radius (in km) threshold for a celestial body to be visible in the scene.
- */
-export const getVisibleRadius = (radius: number): number => {
-  return Math.max(radius, Constants.WebGL.MINIMUM_RADIUS)
-}

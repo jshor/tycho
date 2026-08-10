@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react'
 import * as THREE from 'three'
-import { Scale, getVisibleRadius } from '../../../utils/scale'
+import { Scale } from '../../../utils/scale'
 import { Constants } from '../../../constants'
 import { env } from '../../../utils/Environment'
 
@@ -17,7 +17,7 @@ interface Props {
  * Returns the radius of the cloud deck drawn over a body of the given radius, in scene units.
  */
 export const getCloudRadius = (radius: number): number => {
-  return Scale(getVisibleRadius(radius) * (1 + Constants.WebGL.Clouds.HEIGHT_SCALE))
+  return Scale(radius * (1 + Constants.WebGL.Clouds.HEIGHT_SCALE))
 }
 
 /**

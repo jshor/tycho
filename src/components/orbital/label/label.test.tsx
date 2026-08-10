@@ -73,14 +73,11 @@ describe('Orbital Label Component', () => {
       expect(textProps().standoff).toBeCloseTo(drawn * Constants.WebGL.LABEL_STANDOFF, 8)
     })
 
-    it('should stand off a small orbital by the size it is inflated to, not its own', () => {
+    it('should stand off a small orbital by its own true size', () => {
       render(<Label text="Halley" radius={15} />)
 
       expect(textProps().standoff).toBeGreaterThan(Scale(15))
-      expect(textProps().standoff).toBeCloseTo(
-        Scale(Constants.WebGL.MINIMUM_RADIUS) * Constants.WebGL.LABEL_STANDOFF,
-        8
-      )
+      expect(textProps().standoff).toBeCloseTo(Scale(15) * Constants.WebGL.LABEL_STANDOFF, 8)
     })
 
     it('should measure a satellite from the orbital it orbits, so it is culled with it', () => {

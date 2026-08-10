@@ -5,6 +5,7 @@ import {
   attachToWorld,
   getApproach,
   getMinDistance,
+  getNearPlane,
   getPivotTween,
   getSunlitHeading,
   getWorldPosition,
@@ -262,8 +263,11 @@ describe('Camera Service', () => {
   })
 
   describe('getMinDistance()', () => {
-    const { MINIMUM_RADIUS } = Constants.WebGL
     const { FOV, FOCUS_FILL } = Constants.WebGL.Camera
+
+    /** A mid-sized body to frame against, in km. */
+    const RADIUS = 1000
+
     const framing = (radius: number, aspect = 1) => {
       const vertical = (FOV * Math.PI) / 180
       const field = Math.min(vertical, 2 * Math.atan(Math.tan(vertical / 2) * aspect))
@@ -272,27 +276,103 @@ describe('Camera Service', () => {
     }
 
     it('should frame the orbital to fill the given portion of the camera field', () => {
-      const radius = MINIMUM_RADIUS * 5
+      const radius = RADIUS * 5
 
       expect(getMinDistance(radius, 1)).toBeCloseTo(framing(radius))
     })
 
-    it('should floor a small orbital to the minimum radius so the camera clears its inflated body', () => {
-      expect(getMinDistance(1, 1)).toBeCloseTo(framing(MINIMUM_RADIUS))
+    it('should frame the smallest orbital at its own size, without a floor beneath it', () => {
+      expect(getMinDistance(1, 1)).toBeCloseTo(framing(1))
+    })
+
+    it('should close right in on a tiny moon rather than standing off its inflated body', () => {
+      expect(getMinDistance(11.2667, 1)).toBeLessThan(getMinDistance(RADIUS, 1))
     })
 
     it('should show a large orbital at the same size on screen as a small one', () => {
-      const near = getMinDistance(MINIMUM_RADIUS, 1)
-      const far = getMinDistance(MINIMUM_RADIUS * 11, 1)
+      const near = getMinDistance(RADIUS, 1)
+      const far = getMinDistance(RADIUS * 11, 1)
 
       expect(far / near).toBeCloseTo(11)
     })
 
+    it('should hold that proportion right down to the smallest bodies', () => {
+      const moon = getMinDistance(6.2, 1)
+      const planet = getMinDistance(62, 1)
+
+      expect(planet / moon).toBeCloseTo(10)
+    })
+
     it('should stand further off on a screen narrower than the camera field', () => {
-      const wide = getMinDistance(MINIMUM_RADIUS, 16 / 9)
-      const tall = getMinDistance(MINIMUM_RADIUS, 9 / 16)
+      const wide = getMinDistance(RADIUS, 16 / 9)
+      const tall = getMinDistance(RADIUS, 9 / 16)
 
       expect(tall).toBeGreaterThan(wide)
+    })
+  })
+
+  describe('getNearPlane()', () => {
+    const { FOCUS_FILL, FOV, NEAR, NEAR_MIN, NEAR_RATIO } = Constants.WebGL.Camera
+    const PHOBOS_RADIUS = 11.2667
+    const frameOn = (radius: number) => {
+      const field = MathUtils.degToRad(FOV)
+
+      return Scale(radius) / Math.sin((field * FOCUS_FILL) / 2)
+    }
+
+    it('should hold at the default when the camera is far from its target', () => {
+      expect(getNearPlane(Constants.WebGL.Camera.MAX_DISTANCE, PHOBOS_RADIUS)).toBe(NEAR)
+    })
+
+    it('should never reach further out than the default', () => {
+      expect(getNearPlane(Number.MAX_SAFE_INTEGER, PHOBOS_RADIUS)).toBe(NEAR)
+    })
+
+    it('should draw in proportionally as the camera closes on the surface', () => {
+      const distance = Scale(PHOBOS_RADIUS) * 3
+      const gap = distance - Scale(PHOBOS_RADIUS)
+
+      expect(getNearPlane(distance, PHOBOS_RADIUS)).toBeCloseTo(gap * NEAR_RATIO, 12)
+    })
+
+    it('should measure the gap from the surface rather than the center', () => {
+      const distance = Scale(PHOBOS_RADIUS) * 3
+
+      expect(getNearPlane(distance, PHOBOS_RADIUS)).toBeLessThan(getNearPlane(distance))
+    })
+
+    it('should clear a tiny moon at true scale that the default plane would clip away', () => {
+      const distance = frameOn(PHOBOS_RADIUS)
+      const nearestSurface = distance - Scale(PHOBOS_RADIUS)
+
+      // the default plane stands off further than the whole moon, so it would swallow it
+      expect(NEAR).toBeGreaterThan(nearestSurface)
+      expect(getNearPlane(distance, PHOBOS_RADIUS)).toBeLessThan(nearestSurface)
+    })
+
+    it('should not collapse below the floor that protects depth precision', () => {
+      expect(getNearPlane(0, PHOBOS_RADIUS)).toBe(NEAR_MIN)
+    })
+
+    it('should hold at the floor when the camera is inside the body', () => {
+      expect(getNearPlane(Scale(PHOBOS_RADIUS) / 2, PHOBOS_RADIUS)).toBe(NEAR_MIN)
+    })
+
+    it('should treat a target of no given radius as a point', () => {
+      const distance = Scale(1000)
+
+      expect(getNearPlane(distance)).toBeCloseTo(distance * NEAR_RATIO, 12)
+    })
+
+    it('should stay within the near plane bounds at every distance', () => {
+      const distances = [0, 1e-8, 1e-5, 1e-3, 1, 100, Constants.WebGL.Camera.FAR]
+
+      distances.forEach((distance) => {
+        const near = getNearPlane(distance, PHOBOS_RADIUS)
+
+        expect(near).toBeGreaterThanOrEqual(NEAR_MIN)
+        expect(near).toBeLessThanOrEqual(NEAR)
+      })
     })
   })
 

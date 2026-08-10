@@ -16,9 +16,6 @@ export const PLANET_SIZE_SCALE = 1
 
 export const UNIT_SCALE = 1000000
 
-/** Minimum threshold (in km) that the camera may be in to inflate the size of a body for visibility. */
-export const MINIMUM_RADIUS = 1000
-
 export const Ellipse = {
   POINTS: 512,
   START: -Math.PI / 2,
@@ -39,7 +36,15 @@ export const Zoom = {
 }
 
 export const Camera = {
+  /** The furthest out the near clip plane is ever drawn, used whenever nothing is closer. */
   NEAR: 0.001,
+  /**
+   * Fraction of the gap between the camera and the focused body's surface that the
+   * near plane is drawn in to as the camera closes on it.
+   */
+  NEAR_RATIO: 0.1,
+  /** The closest the near plane may be drawn in to, past which depth precision suffers. */
+  NEAR_MIN: 0.000001,
   FAR: 18000,
   FOV: 50,
   X: 10000,
