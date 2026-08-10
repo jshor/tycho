@@ -140,7 +140,13 @@ export function Scene({ onAnimate, width, height, children }: Props) {
 
   return (
     <Event onWheel={onWheel} onPinch={onPinch}>
-      <Canvas gl={{ antialias: true, alpha: true }}>
+      <Canvas
+        gl={{
+          antialias: true,
+          alpha: false,
+          powerPreference: 'high-performance'
+        }}
+      >
         <CanvasContent ratio={width / height} cameraRef={cameraRef} onAnimate={onAnimate}>
           {children}
         </CanvasContent>

@@ -305,10 +305,7 @@ export function CameraText({
 
   return (
     <group ref={groupRef} onPointerDown={onPress} onPointerUp={onRelease}>
-      <mesh
-        ref={backgroundRef}
-        material={Constants.WebGL.LABEL_BACKGROUND_MATERIAL}
-      >
+      <mesh ref={backgroundRef} material={Constants.WebGL.LABEL_BACKGROUND_MATERIAL}>
         <planeGeometry args={[1, 1]} />
       </mesh>
 

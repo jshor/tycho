@@ -231,7 +231,11 @@ export class Controls extends OrbitControls {
   /**
    * Dollies the camera to the given zoom level (with easing).
    */
-  tweenZoom = (level: number, onDone: (level: number) => void, duration = Constants.WebGL.Tween.SLOW): void => {
+  tweenZoom = (
+    level: number,
+    onDone: (level: number) => void,
+    duration = Constants.WebGL.Tween.SLOW
+  ): void => {
     this.cancelTween()
 
     this.tweenDone = onDone

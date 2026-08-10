@@ -76,7 +76,11 @@ describe('Scene Module', () => {
 
       expect(controls.getZoomDelta).toHaveBeenCalledWith(-10)
       expect(controls.tweenZoom).toHaveBeenCalledTimes(1)
-      expect(controls.tweenZoom).toHaveBeenCalledWith(newZoom, expect.any(Function), Constants.WebGL.Tween.ZOOM)
+      expect(controls.tweenZoom).toHaveBeenCalledWith(
+        newZoom,
+        expect.any(Function),
+        Constants.WebGL.Tween.ZOOM
+      )
     })
 
     it('should leave the zoom alone when the level has not changed', () => {
