@@ -1,5 +1,30 @@
 [
     {
+        "name": "Sun",
+        "symbol": "2609",
+        "albedo": 1,
+        "sidereal": 0,
+        "radius": 695500,
+        "mass": 0,
+        "centralMass": 0,
+        "axialTilt": 0,
+        "inclination": 0,
+        "labelColor": 16751872,
+        "satellites": [],
+        "maps": [],
+        "argumentOfPeriapsis": 0,
+        "eccentricity": 0,
+        "longitudeOfAscendingNode": 0,
+        "semimajor": 0,
+        "semiminor": 0,
+        "periapses": {
+            "last": 0,
+            "next": 0
+        },
+        "description": "The Sun is the star located at the center of the Solar System. It is a massive sphere of hot plasma, heated to incandescence by nuclear fusion reactions in its core, radiating the energy from its surface mainly as visible light and infrared radiation with 10% at ultraviolet energies. It is the main source of energy for life on Earth. The Sun has been an object of veneration in many cultures and a central subject of astronomical research since antiquity.\n\nExcerpt via [Wikipedia](https://en.wikipedia.org/wiki/Sun).",
+        "id": "sun"
+    },
+    {
         "name": "Earth",
         "symbol": "1f728",
         "albedo": 0.367,
@@ -10,7 +35,6 @@
         "axialTilt": 23.4392811,
         "inclination": 7.155,
         "labelColor": 35260,
-        "atmosphereHeightKm": 100,
         "atmosphereColor": "#5DA9E9",
         "satellites": [
             {
@@ -126,7 +150,6 @@
         "axialTilt": 3.13,
         "inclination": 1.303,
         "labelColor": 9996148,
-        "atmosphereHeightKm": 3000,
         "atmosphereColor": "#D8C3A5",
         "satellites": [
             {
@@ -139,7 +162,6 @@
                 "axialTilt": 0,
                 "inclination": 0.05,
                 "labelColor": 10521177,
-                "atmosphereHeightKm": 120,
                 "atmosphereColor": "#E9D36B",
                 "ephemeris": {
                     "nasaOrbitalCode": "501",
@@ -301,7 +323,6 @@
         "axialTilt": 25.19,
         "inclination": 5.65,
         "labelColor": 12746585,
-        "atmosphereHeightKm": 80,
         "atmosphereColor": "#D88C63",
         "satellites": [
             {
@@ -439,7 +460,6 @@
         "axialTilt": 28.32,
         "inclination": 1.767975,
         "labelColor": 4871817,
-        "atmosphereHeightKm": 1500,
         "atmosphereColor": "#3F6FE5",
         "satellites": [
             {
@@ -452,7 +472,6 @@
                 "axialTilt": 0,
                 "inclination": 156.885,
                 "labelColor": 4871817,
-                "atmosphereHeightKm": 100,
                 "atmosphereColor": "#8EAFC8",
                 "ephemeris": {
                     "nasaOrbitalCode": "801",
@@ -513,7 +532,6 @@
         "axialTilt": 119.591,
         "inclination": 17.151394,
         "labelColor": 13872777,
-        "atmosphereHeightKm": 200,
         "atmosphereColor": "#8CAAC7",
         "satellites": [
             {
@@ -584,7 +602,6 @@
         "axialTilt": 26.73,
         "inclination": 2.485,
         "labelColor": 9931069,
-        "atmosphereHeightKm": 2500,
         "atmosphereColor": "#E6D3A3",
         "satellites": [
             {
@@ -762,7 +779,6 @@
                 "axialTilt": 0,
                 "inclination": 0.34854,
                 "labelColor": 16634447,
-                "atmosphereHeightKm": 600,
                 "atmosphereColor": "#D9984C",
                 "ephemeris": {
                     "nasaOrbitalCode": "606",
@@ -870,7 +886,6 @@
         "axialTilt": 97.77,
         "inclination": 0.77,
         "labelColor": 5804449,
-        "atmosphereHeightKm": 1500,
         "atmosphereColor": "#83D8E8",
         "satellites": [
             {
@@ -1073,7 +1088,6 @@
         "axialTilt": 2.64,
         "inclination": 3.86,
         "labelColor": 16052641,
-        "atmosphereHeightKm": 150,
         "atmosphereColor": "#F4D6A0",
         "ephemeris": {
             "nasaOrbitalCode": "2",

@@ -8,8 +8,7 @@
     "centralMass": 1.989e+30,
     "axialTilt": 23.4392811,
     "inclination": 7.155,
-    "atmosphereHeightKm": 100,
-    "atmosphereColor": "#5DA9E9",
+    "atmosphereColor": "#74ABFF",
     "labelColor": 35260,
     "satellites": [
         "moon"
