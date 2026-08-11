@@ -139,7 +139,7 @@ describe('Texture Module', () => {
 
       deliver()
 
-      expect(material.emissive.set).toHaveBeenCalledWith(0x555555)
+      expect(material.emissive.set).toHaveBeenCalledWith(0x222222)
     })
 
     it('should raise a shine once a specular map arrives', () => {
@@ -156,7 +156,7 @@ describe('Texture Module', () => {
 
       deliver()
 
-      expect(material.normalScale.set).toHaveBeenCalledWith(10, 10)
+      expect(material.normalScale.set).toHaveBeenCalledWith(5, 5)
     })
 
     it('should leave the other slots alone', () => {

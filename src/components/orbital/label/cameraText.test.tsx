@@ -87,13 +87,23 @@ describe('Camera Text Component', () => {
    * jsdom renders r3f's primitives as plain elements, so the pieces of a THREE.Object3D that the
    * frame loop reads off them and writes back are grafted on here.
    */
-  const asObject3D = (element: Element | null) =>
-    Object.assign(element as object, {
-      visible: true,
-      position: new THREE.Vector3(),
-      scale: new THREE.Vector3(1, 1, 1),
-      quaternion: new THREE.Quaternion()
-    }) as unknown as THREE.Group
+  const asObject3D = (element: Element | null) => {
+    const graft = (node: Element) => {
+      if ((node as unknown as THREE.Object3D).position) return
+
+      Object.assign(node, {
+        visible: true,
+        position: new THREE.Vector3(),
+        scale: new THREE.Vector3(1, 1, 1),
+        quaternion: new THREE.Quaternion()
+      })
+    }
+
+    graft(element as Element)
+    element?.querySelectorAll('group, mesh').forEach(graft)
+
+    return element as unknown as THREE.Group
+  }
 
   /** Waits out the moment a departure is given to be seen through before it is called. */
   const settleDeparture = () => act(() => new Promise((resolve) => setTimeout(resolve)))
@@ -338,7 +348,8 @@ describe('Camera Text Component', () => {
       maxDistance,
       bodyAt = new THREE.Vector3(),
       cameraAt = new THREE.Vector3(0, 0, 10),
-      barycenterName
+      barycenterName,
+      marker
     }: {
       standoff?: number
       barycenterId?: string
@@ -346,9 +357,15 @@ describe('Camera Text Component', () => {
       bodyAt?: THREE.Vector3
       cameraAt?: THREE.Vector3
       barycenterName?: string
+      marker?: (hovered: boolean) => React.ReactNode
     } = {}) => {
       const { container } = renderInScene(
-        <CameraText standoff={standoff} barycenterId={barycenterId} maxDistance={maxDistance}>
+        <CameraText
+          standoff={standoff}
+          barycenterId={barycenterId}
+          maxDistance={maxDistance}
+          marker={marker}
+        >
           Earth
         </CameraText>
       )
@@ -363,6 +380,7 @@ describe('Camera Text Component', () => {
 
       const group = asObject3D(container.querySelector('group'))
       const background = asObject3D(container.querySelector('mesh'))
+      const textGroup = asObject3D(container.querySelectorAll('group')[1])
 
       group.parent = body
 
@@ -371,7 +389,7 @@ describe('Camera Text Component', () => {
 
       advanceFrame()
 
-      return { group, background, body }
+      return { group, background, body, text: textGroup }
     }
 
     it('should leave everything alone until the label is hung off a body', () => {
@@ -452,6 +470,72 @@ describe('Camera Text Component', () => {
       expect(background.scale.x).toBeCloseTo(4 + padding * 2)
       expect(background.scale.y).toBeCloseTo(1 + padding * 2)
       expect(background.position.x).toBeCloseTo(0)
+    })
+
+    describe('the marker it carries', () => {
+      const { GAP, RADIUS } = Constants.WebGL.Marker
+      const clearance = RADIUS + GAP
+      const [MIN_X, MIN_Y] = [-2, -0.5]
+
+      it('should leave the marker on the group origin, which sits on the body', () => {
+        const { container } = renderInScene(
+          <CameraText marker={() => <mesh name="marker" />}>Earth</CameraText>
+        )
+        const marker = asObject3D(container.querySelector('mesh[name="marker"]'))
+
+        expect(marker.position.length()).toEqual(0)
+      })
+
+      it('should hang the text off the top right of the marker', () => {
+        const { text } = runFrame()
+
+        expect(text.position.x).toBeCloseTo(clearance - MIN_X)
+        expect(text.position.y).toBeCloseTo(clearance - MIN_Y)
+      })
+
+      it('should carry the block by its own bottom left corner', () => {
+        const { text } = runFrame()
+
+        // wherever the text laid itself out, that corner lands clear of the marker
+        expect(text.position.x + MIN_X).toBeCloseTo(clearance)
+        expect(text.position.y + MIN_Y).toBeCloseTo(clearance)
+      })
+
+      it('should keep the text in the same plane as the marker', () => {
+        expect(runFrame().text.position.z).toEqual(0)
+      })
+
+      it('should leave the text alone until it reports its bounds', () => {
+        scene.hasBounds = false
+
+        expect(runFrame().text.position.length()).toEqual(0)
+      })
+
+      it('should carry whatever marker it is handed inside the label', () => {
+        const { container } = renderInScene(
+          <CameraText marker={() => <mesh name="marker" />}>Earth</CameraText>
+        )
+
+        expect(container.querySelector('group mesh[name="marker"]')).not.toBeNull()
+      })
+
+      it('should tell the marker when the pointer is resting on the label', async () => {
+        const seen: boolean[] = []
+
+        renderInScene(
+          <CameraText
+            {...handlers}
+            marker={(hovered) => {
+              seen.push(hovered)
+              return <mesh name="marker" />
+            }}
+          >
+            Earth
+          </CameraText>
+        )
+
+        expect(seen).toEqual([false])
+      })
     })
 
     it('should leave the backing plane alone until the text reports its bounds', () => {

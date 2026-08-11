@@ -15,6 +15,8 @@ interface TroikaText extends THREE.Mesh {
 interface Props {
   /** Children elements to be rendered inside the text. */
   children?: React.ReactNode
+  /** The visual circle that pinpoints the orbital body. */
+  marker?: (hovered: boolean) => React.ReactNode
   /** Size of the text. */
   fontSize?: number
   /** Name of the ancestor to measure distance from, when culling a satellite's label. */
@@ -40,6 +42,7 @@ interface Props {
  */
 export function CameraText({
   children,
+  marker,
   fontSize = 1,
   barycenterId,
   maxDistance,
@@ -52,6 +55,7 @@ export function CameraText({
 }: Props) {
   const ref = useRef<TroikaText>(null)
   const groupRef = useRef<THREE.Group>(null)
+  const textRef = useRef<THREE.Group>(null)
   const backgroundRef = useRef<THREE.Mesh>(null)
   const { camera, size, raycaster, pointer } = useThree()
   const isVisible = useRef(true)
@@ -197,6 +201,23 @@ export function CameraText({
   }
 
   /**
+   * Hangs the text off the top right corner of the marker, which holds the body's own center.
+   */
+  const placeText = (text: TroikaText): void => {
+    const group = textRef.current
+    const bounds = text.textRenderInfo?.blockBounds
+
+    if (!group || !bounds) return
+
+    const [minX, minY] = bounds
+    const { GAP, RADIUS } = Constants.WebGL.Marker
+    const clearance = RADIUS + GAP
+
+    // the block's own bottom left corner is brought out to the marker's top right
+    group.position.set(clearance - minX, clearance - minY, 0)
+  }
+
+  /**
    * Highlights the label while the pointer rests anywhere on the plane it is drawn on.
    */
   const applyPointerHoverState = (): void => {
@@ -209,8 +230,6 @@ export function CameraText({
     raycaster.setFromCamera(pointer, camera)
 
     if (!raycaster.intersectObject(background, false).length) {
-      // the pointer can skim an edge, or fall through the label for a frame as it re-lays itself
-      // out, so a departure is given a moment to be seen through before it is called
       if (isHovered.current && leaving.current === null) {
         leaving.current = setTimeout(releaseHover)
       }
@@ -236,10 +255,8 @@ export function CameraText({
 
     if (!text || !group || !parent) return
 
-    // where the camera is and how it is turned, which everything below is placed against
     camera.matrixWorld.decompose(cameraPosition, cameraQuaternion, cameraScale)
 
-    // nothing to place while out of range
     if (!applyRangeHoverState(group)) return
 
     readBodyTransformations(parent)
@@ -253,6 +270,7 @@ export function CameraText({
     scaleLabelToScreen(group, distance)
     faceCamera(group)
     applyBackgroundPlane(text)
+    placeText(text)
     applyPointerHoverState()
   })
 
@@ -305,24 +323,29 @@ export function CameraText({
 
   return (
     <group ref={groupRef} onPointerDown={onPress} onPointerUp={onRelease}>
-      <mesh ref={backgroundRef} material={Constants.WebGL.LABEL_BACKGROUND_MATERIAL}>
-        <planeGeometry args={[1, 1]} />
-      </mesh>
+      {/* the marker keeps the group's own origin, which sits on the body itself */}
+      {marker?.(hovered)}
 
-      <Text
-        ref={ref}
-        fontSize={fontSize}
-        material={Constants.WebGL.LABEL_MATERIAL}
-        renderOrder={1} // render on top of the mesh
-        color={color}
-        outlineColor={color}
-        outlineWidth={hovered ? Constants.WebGL.LABEL_GLOW.WIDTH : 0}
-        outlineBlur={hovered ? Constants.WebGL.LABEL_GLOW.BLUR : 0}
-        outlineOpacity={hovered ? Constants.WebGL.LABEL_GLOW.OPACITY : 0}
-        {...props}
-      >
-        {children}
-      </Text>
+      <group ref={textRef}>
+        <mesh ref={backgroundRef} material={Constants.WebGL.LABEL_BACKGROUND_MATERIAL}>
+          <planeGeometry args={[1, 1]} />
+        </mesh>
+
+        <Text
+          ref={ref}
+          fontSize={fontSize}
+          material={Constants.WebGL.LABEL_MATERIAL}
+          renderOrder={1} // render on top of the mesh
+          color={color}
+          outlineColor={color}
+          outlineWidth={hovered ? Constants.WebGL.LABEL_GLOW.WIDTH : 0}
+          outlineBlur={hovered ? Constants.WebGL.LABEL_GLOW.BLUR : 0}
+          outlineOpacity={hovered ? Constants.WebGL.LABEL_GLOW.OPACITY : 0}
+          {...props}
+        >
+          {children}
+        </Text>
+      </group>
     </group>
   )
 }

@@ -73,6 +73,34 @@ describe('Orbital Label Component', () => {
       expect(textProps().standoff).toBeCloseTo(drawn * Constants.WebGL.LABEL_STANDOFF, 8)
     })
 
+    /** The marker the label handed the text, drawn for the given hover state. */
+    const markerProps = (hovered = false) =>
+      (textProps().marker?.(hovered) as React.ReactElement<{
+        radius: number
+        color: unknown
+        hovered: boolean
+      }>) ?? undefined
+
+    it('should hand the text a marker to stand in for the body it names', () => {
+      render(<Label text="Phobos" radius={11.2667} />)
+
+      expect(markerProps()).toBeDefined()
+      expect(markerProps()?.props.radius).toEqual(11.2667)
+    })
+
+    it('should dress the marker in the same color as the text beside it', () => {
+      render(<Label text="Phobos" radius={11.2667} color={0x0089bc} />)
+
+      expect(markerProps()?.props.color).toEqual(0x0089bc)
+    })
+
+    it('should pass the hover on to the marker, so it lights up with the text', () => {
+      render(<Label text="Phobos" radius={11.2667} />)
+
+      expect(markerProps(false)?.props.hovered).toBe(false)
+      expect(markerProps(true)?.props.hovered).toBe(true)
+    })
+
     it('should stand off a small orbital by its own true size', () => {
       render(<Label text="Halley" radius={15} />)
 

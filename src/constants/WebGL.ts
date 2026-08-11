@@ -174,6 +174,26 @@ export const LABEL_MATERIAL = new THREE.MeshBasicMaterial({
   depthWrite: false
 })
 
+/**
+ * Settings for the open ring drawn at the bottom left of an orbital label.
+ */
+export const Marker = {
+  /** Radius of the ring. */
+  RADIUS: 2,
+  /** Ring thickness. */
+  THICKNESS: 0.1,
+  /** Gap between the ring and the left edge of the text beside it. */
+  GAP: 0.6,
+  /** Apparent body radius (in px) at or above which the marker is gone entirely. */
+  FADE_OUT: 6,
+  /** Apparent body radius (in px) at or below which the marker is drawn in full. */
+  FADE_IN: 2,
+  /** Spread of the halo when the label is hovered. */
+  GLOW_SPREAD: 0.35,
+  /** Number of ring segments. */
+  SEGMENTS: 32
+}
+
 /** The glow effect when the text is hovered, which takes the color of the text it surrounds. */
 export const LABEL_GLOW = {
   WIDTH: '2%',

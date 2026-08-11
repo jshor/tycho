@@ -38,6 +38,24 @@ export class Gyroscope extends THREE.Object3D {
   }
 
   /**
+   * Rebuilds the world matrix.
+   */
+  updateWorldMatrix = (updateParents?: boolean, updateChildren?: boolean): void => {
+    if (updateParents && this.parent) {
+      this.parent.updateWorldMatrix(true, false)
+    }
+
+    this.maybeAutoUpdateMatrix()
+    this.assignMatrixWorld()
+
+    if (updateChildren) {
+      for (let i = 0; i < this.children.length; i++) {
+        this.children[i].updateWorldMatrix(false, true)
+      }
+    }
+  }
+
+  /**
    * Refreshes the local matrix when this object is set to keep it up to date itself.
    */
   maybeAutoUpdateMatrix = (): void => {

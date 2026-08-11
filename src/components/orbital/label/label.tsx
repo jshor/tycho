@@ -2,6 +2,7 @@ import React from 'react'
 import * as THREE from 'three'
 import { Constants } from '../../../constants'
 import { CameraText } from './cameraText'
+import { Marker } from '../marker/marker'
 import { Scale } from '../../../utils/scale'
 
 interface Props {
@@ -56,6 +57,7 @@ export const Label = React.memo(
         barycenterId={isSatellite ? parentId : undefined}
         maxDistance={maxDistance}
         standoff={Scale(radius) * Constants.WebGL.LABEL_STANDOFF}
+        marker={(hovered) => <Marker radius={radius} color={color} hovered={hovered} />}
         onClick={() => onFocus?.()}
         onPointerOver={() => onHover?.()}
         onPointerOut={() => onLeave?.()}
