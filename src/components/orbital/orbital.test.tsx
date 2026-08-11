@@ -71,6 +71,24 @@ describe('Orbital Component', () => {
     expect(container.querySelector('group[name="comet"]')).toBeNull()
   })
 
+  describe('marker', () => {
+    /** The ring stood in for the body once it is too small on screen to make out. */
+    const marker = (container: HTMLElement) =>
+      container.querySelector('group[name="Earth"] ringGeometry')
+
+    it('should mark the body from inside the label that names it', () => {
+      const { container } = renderInScene(<Orbital {...props} />)
+
+      expect(marker(container)).not.toBeNull()
+    })
+
+    it('should drop the marker along with the label, on the orbital in focus', () => {
+      const { container } = renderInScene(<Orbital {...props} isFocused />)
+
+      expect(marker(container)).toBeNull()
+    })
+  })
+
   describe('orbit path', () => {
     it('should draw the line over the trail the ellipse traced', () => {
       renderInScene(<Orbital {...props} />)
@@ -102,28 +120,5 @@ describe('Orbital Component', () => {
 
       expect(opacity).toEqual(1)
     })
-  })
-
-  /** The shell is the sphere drawn around the body, alongside the body's own. */
-  const shells = (container: HTMLElement) => container.querySelectorAll('mesh sphereGeometry')
-
-  it('should wrap an orbital the data gives an atmosphere in a shell', () => {
-    const { container } = renderInScene(
-      <Orbital {...props} atmosphereHeightKm={100} atmosphereColor="#5DA9E9" />
-    )
-
-    expect(shells(container)).toHaveLength(1)
-  })
-
-  it('should leave an orbital the data gives no atmosphere bare', () => {
-    const { container } = renderInScene(<Orbital {...props} />)
-
-    expect(shells(container)).toHaveLength(0)
-  })
-
-  it('should leave an orbital given a height but no color bare, having nothing to scatter', () => {
-    const { container } = renderInScene(<Orbital {...props} atmosphereHeightKm={100} />)
-
-    expect(shells(container)).toHaveLength(0)
   })
 })

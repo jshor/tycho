@@ -67,7 +67,7 @@ export function Texture({ textures, transparent, side = THREE.FrontSide }: Props
         mat[key] = texture
 
         if (key === 'emissiveMap') {
-          mat.emissive.set(0x555555) // TODO: probably ought to be related to albedo, not a constant
+          mat.emissive.set(0x222222) // TODO: probably ought to be related to albedo, not a constant
         }
 
         if (key === 'specularMap') {
@@ -76,7 +76,7 @@ export function Texture({ textures, transparent, side = THREE.FrontSide }: Props
         }
 
         if (key === 'normalMap') {
-          mat.normalScale.set(10, 10)
+          mat.normalScale.set(5, 5)
         }
 
         mat.needsUpdate = true

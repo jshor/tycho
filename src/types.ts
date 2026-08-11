@@ -48,8 +48,6 @@ export interface OrbitalData {
   axialTilt: number
   sidereal: number
   centralMass: number
-  /** How far the body's atmosphere reaches above its surface, in km. */
-  atmosphereHeightKm?: number
   /** The color that atmosphere scatters the sunlight into, as CSS hex (e.g. `#5DA9E9`). */
   atmosphereColor?: string
   /** The texture of the cloud deck drawn over the body. */

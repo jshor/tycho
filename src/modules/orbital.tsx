@@ -104,7 +104,6 @@ export function Orbital(props: Props) {
       orbitalGroupRotation={orbitalGroupRotation}
       ellipse={ellipse}
       pathOpacity={pathOpacity}
-      atmosphereHeightKm={props.atmosphereHeightKm}
       atmosphereColor={props.atmosphereColor}
       maxDistance={maxDistance}
       tail={props.tail}

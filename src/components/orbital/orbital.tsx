@@ -22,8 +22,6 @@ export interface Props {
   isSatellite?: boolean
   /** The text to display on the orbital label. */
   text: string
-  /** How far the body's atmosphere reaches above its surface, in km. */
-  atmosphereHeightKm?: number
   /** The color that atmosphere scatters the sunlight into. */
   atmosphereColor?: string
   /** The color of the label and its visual orbital path ellipse. */
@@ -54,7 +52,6 @@ export function Orbital(props: Props) {
     eclipticGroupRotation,
     orbitalGroupRotation,
     ellipse,
-    atmosphereHeightKm,
     atmosphereColor,
     pathOpacity,
     id,
@@ -63,16 +60,14 @@ export function Orbital(props: Props) {
     children
   } = props
 
-  const hasAtmosphere = !!atmosphereHeightKm && !!atmosphereColor
-
   return (
     <group rotation={eclipticGroupRotation}>
       <group rotation={orbitalGroupRotation}>
         <group position={ellipse.getPosition()} name={id}>
-          {hasAtmosphere && (
+          {!!atmosphereColor && (
             <Atmosphere
               radius={radius}
-              height={atmosphereHeightKm as number}
+              height={radius * 0.015}
               color={atmosphereColor as string}
             />
           )}
