@@ -2,7 +2,7 @@ import { useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { useFrame, useThree } from '@react-three/fiber'
 import { Constants } from '../../../constants'
-import { Scale } from '../../../utils/scale'
+import { getApparentRadius } from '../../../utils/camera'
 
 interface Props {
   /** The radius of the orbital marker (in km). */
@@ -11,24 +11,6 @@ interface Props {
   color?: THREE.ColorRepresentation
   /** Whether or not the pointer is resting on the label the marker. */
   hovered?: boolean
-}
-
-/**
- * Returns the apparent radius, w.r.t. the viewport, of a given orbital within the FOV.
- */
-export const getApparentRadius = (
-  radius: number,
-  distance: number,
-  fov: number,
-  viewportHeight: number
-): number => {
-  if (distance <= 0) {
-    return Infinity
-  }
-
-  const visibleHeight = 2 * distance * Math.tan(THREE.MathUtils.degToRad(fov) / 2)
-
-  return (Scale(radius) / visibleHeight) * viewportHeight
 }
 
 /**

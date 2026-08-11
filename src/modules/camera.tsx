@@ -4,7 +4,6 @@ import { useThree, useFrame } from '@react-three/fiber'
 import { PerspectiveCamera } from '@react-three/drei'
 import { useStore } from '../store'
 import {
-  attachToGyroscope,
   attachToWorld,
   getMinDistance,
   getNearPlane,
@@ -25,32 +24,6 @@ interface Props {
 
 export interface CameraHandle {
   controls: Controls | null
-}
-
-/**
- * Dollies the camera in to the minimum distance allowed without tween animation.
- */
-export const focusCameraImmediately = (
-  target: THREE.Object3D,
-  pivot: THREE.Object3D,
-  controls: Controls | null,
-  changeZoom?: (level: number) => void
-): void => {
-  controls?.cancelTween()
-  attachToGyroscope(target, pivot, () => {})
-
-  if (controls) {
-    const position = controls.camera.position
-    const heading = getSunlitHeading(getWorldPosition(target), position)
-
-    // move the camera to the sunlit side of the orbital
-    position.copy(heading.multiplyScalar(position.length()))
-  }
-
-  controls?.resetLook()
-  controls?.zoom(Constants.WebGL.Zoom.MIN)
-  controls?.startAutoRotate(Constants.WebGL.Camera.AUTOROTATE_SPEED)
-  changeZoom?.(Constants.WebGL.Zoom.MIN)
 }
 
 /**
@@ -136,12 +109,6 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
 
     controlsRef.current?.stopAutoRotate()
 
-    if (animateTargetChange === false) {
-      cancelTween() // TODO: is this necessary? cancelTween() will happen twice?
-      focusCameraImmediately(target, pivot, controlsRef.current, changeZoom)
-      return
-    }
-
     const controls = controlsRef.current
     const fromDistance = controls?.camera.position.length() ?? Constants.WebGL.Camera.MIN_DISTANCE
     const fromHeading = (controls?.camera.position ?? Constants.WebGL.CAMERA_INITIAL_POSITION)
@@ -151,7 +118,6 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
     const worldPosiiton = getWorldPosition(pivot)
 
     attachToWorld(scene, pivot, worldPosiiton)
-
     setInteractivity(false)
     cancelTween()
 
@@ -160,14 +126,19 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
       controls.minDistance = 0
     }
 
-    tweenBaseRef.current = getPivotTween(
-      worldPosiiton,
-      target,
-      pivot,
-      toDistance,
-      turnToward.bind(null, { target, fromDistance, toDistance, fromHeading }),
-      endTween.bind(null, toDistance)
-    )
+    if (animateTargetChange) {
+      tweenBaseRef.current = getPivotTween(
+        worldPosiiton,
+        target,
+        pivot,
+        toDistance,
+        turnToward.bind(null, { target, fromDistance, toDistance, fromHeading }),
+        endTween.bind(null, toDistance)
+      )
+    } else {
+      turnToward({ target, fromDistance, toDistance, fromHeading }, 1)
+      endTween(toDistance)
+    }
   }, [targetId, animateTargetChange]) // eslint-disable-line react-hooks/exhaustive-deps
 
   /**

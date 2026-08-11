@@ -141,7 +141,7 @@ export interface Store {
   /** Fetches the translated page text for the app. */
   requestPageText: () => Promise<void>
   /** Focuses the camera on the given orbital. */
-  setActiveOrbitalId: (targetId: string) => void
+  setActiveOrbitalId: (targetId: string, animateTargetChange?: boolean) => void
   /** Highlights the given orbital's path (or null to un-highlight). */
   setHighlightedId: (id?: string) => void
   /** Records how far through loading its assets the scene is. */

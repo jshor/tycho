@@ -5,7 +5,7 @@ import { Group, Vector3, MathUtils } from 'three'
 import { renderInScene } from '../../test/helpers'
 import { useStore } from '../../store'
 import { Constants } from '../../constants'
-import { Camera, CameraHandle, focusCameraImmediately } from '../camera'
+import { Camera, CameraHandle } from '../camera'
 import { getNearPlane } from '../../utils/camera'
 import { Scale } from '../../utils/scale'
 import { Controls } from '../../elements/controls'
@@ -13,7 +13,12 @@ import { Ambience } from '../../elements/ambience'
 import { OrbitalData, Store } from '../../types'
 
 const three = vi.hoisted(() => ({
-  camera: { name: 'camera', isPerspectiveCamera: true, near: 0, updateProjectionMatrix: vi.fn() } as {
+  camera: {
+    name: 'camera',
+    isPerspectiveCamera: true,
+    near: 0,
+    updateProjectionMatrix: vi.fn()
+  } as {
     name: string
     position: Vector3
     near: number
@@ -155,15 +160,26 @@ describe('Camera Module', () => {
     three.scene.getObjectByName.mockReturnValue(target)
 
     const result = renderModule()
-
-    vi.clearAllMocks()
-    act(() => useStore.setState({ targetId: TARGET_ID, target: TARGET, ...state }))
-
     const pivot = result.container.querySelector('group') as Element
 
-    // the pivot is the rendered element rather than three's own group, and the travel reads
-    // the target's place out of it
-    Object.assign(pivot, { worldToLocal: vi.fn((point: unknown) => point) })
+    // The pivot is the rendered element rather than three's own group, and the turn onto the
+    // target reads the target's place out of it. It is stood up before the target is set, because
+    // a change the camera takes without animation turns onto it there and then.
+    Object.assign(pivot, {
+      updateMatrixWorld: vi.fn(),
+      worldToLocal: vi.fn((point: unknown) => point)
+    })
+
+    vi.clearAllMocks()
+    act(() =>
+      useStore.setState({
+        targetId: TARGET_ID,
+        target: TARGET,
+        // the store hands one over on every target it sets, so the module never sees it unset
+        animateTargetChange: true,
+        ...state
+      })
+    )
 
     return { ...result, target, pivot }
   }
@@ -381,32 +397,73 @@ describe('Camera Module', () => {
     })
 
     describe('without animation', () => {
-      it('should dolly straight in on the target', () => {
-        const { target, pivot } = renderOnTarget({ animateTargetChange: false })
+      const focusImmediately = (state: Partial<Store> = {}) =>
+        renderOnTarget({ animateTargetChange: false, ...state })
 
-        expect(cameraService.attachToGyroscope).toHaveBeenCalledWith(
-          target,
-          pivot,
-          expect.any(Function)
-        )
-        expect(controls.zoom).toHaveBeenCalledWith(Constants.WebGL.Zoom.MIN)
+      it('should arrive on the target at a stroke, rather than flying there', () => {
+        focusImmediately()
+
         expect(cameraService.getPivotTween).not.toHaveBeenCalled()
+        expect(controls.lookToward).toHaveBeenCalledTimes(1)
+      })
+
+      it('should land at the framing the target asks for', () => {
+        focusImmediately()
+
+        expect(three.camera.position.length()).toBeCloseTo(MIN_DISTANCE)
+      })
+
+      it('should land on the side of the target the sun shines on', () => {
+        // the target sits out along -z, so the sun on the origin lights the face turned back at it
+        cameraService.getWorldPosition.mockReturnValue(new Vector3(0, 0, -100))
+        three.camera.position.set(8, 0, 0)
+
+        focusImmediately()
+
+        const heading = three.camera.position.clone().normalize()
+
+        expect(heading.angleTo(new Vector3(0, 0, 1))).toBeCloseTo(TILT)
+      })
+
+      it('should finish its turn onto the target rather than leaving it partway round', () => {
+        focusImmediately()
+
+        // the turn is spread over the opening fraction of a flight, so arriving at a stroke has
+        // to carry it the whole way rather than the sliver of it that fraction would allow
+        const [, turned] = controls.lookToward.mock.calls[0]
+
+        expect(turned).toBeGreaterThanOrEqual(1)
       })
 
       it('should report the new zoom level to the store', () => {
         const changeZoom = vi.fn()
 
-        renderOnTarget({ animateTargetChange: false, changeZoom })
+        focusImmediately({ changeZoom })
 
         expect(changeZoom).toHaveBeenCalledWith(Constants.WebGL.Zoom.MIN)
       })
 
+      it("should take on the target's own framing", () => {
+        focusImmediately()
+
+        expect(controls.minDistance).toEqual(MIN_DISTANCE)
+        expect(controls.level).toEqual(Constants.WebGL.Zoom.MIN)
+      })
+
       it('should orbit the target it lands on', () => {
-        renderOnTarget({ animateTargetChange: false })
+        focusImmediately()
 
         expect(controls.startAutoRotate).toHaveBeenCalledWith(
           Constants.WebGL.Camera.AUTOROTATE_SPEED
         )
+        expect(controls.lockCameraOntoTarget).toHaveBeenCalledTimes(1)
+      })
+
+      it('should hand control back to the viewer straight away', () => {
+        focusImmediately()
+
+        expect(useStore.getState().controlsEnabled).toBe(true)
+        expect(controls.enabled).toBe(true)
       })
     })
 
@@ -623,52 +680,6 @@ describe('Camera Module', () => {
         expect(controls.level).toEqual(Constants.WebGL.Zoom.MIN)
         expect(changeZoom).toHaveBeenCalledWith(Constants.WebGL.Zoom.MIN)
       })
-    })
-  })
-
-  describe('focusCameraImmediately()', () => {
-    it('should attach to the target and zoom fully in without a tween', () => {
-      const target = new Group()
-      const pivot = new Group()
-      const changeZoom = vi.fn()
-
-      focusCameraImmediately(target, pivot, controls as unknown as Controls, changeZoom)
-
-      expect(controls.cancelTween).toHaveBeenCalledTimes(1)
-      expect(cameraService.attachToGyroscope).toHaveBeenCalledWith(
-        target,
-        pivot,
-        expect.any(Function)
-      )
-      expect(controls.resetLook).toHaveBeenCalledTimes(1)
-      expect(controls.zoom).toHaveBeenCalledWith(Constants.WebGL.Zoom.MIN)
-      expect(controls.startAutoRotate).toHaveBeenCalledWith(Constants.WebGL.Camera.AUTOROTATE_SPEED)
-      expect(changeZoom).toHaveBeenCalledWith(Constants.WebGL.Zoom.MIN)
-      expect(cameraService.getPivotTween).not.toHaveBeenCalled()
-    })
-
-    it('should land on the side of the target the sun shines on', () => {
-      const target = new Group()
-      const pivot = new Group()
-
-      // the target sits out along -z, so the sun on the origin lights the face turned back at it
-      cameraService.getWorldPosition.mockReturnValue(new Vector3(0, 0, -100))
-      three.camera.position.set(8, 0, 0)
-
-      focusCameraImmediately(target, pivot, controls as unknown as Controls, vi.fn())
-
-      const heading = three.camera.position.clone().normalize()
-
-      expect(heading.angleTo(new Vector3(0, 0, 1))).toBeCloseTo(TILT)
-      expect(three.camera.position.length()).toBeCloseTo(8)
-    })
-
-    it('should get by without controls or a zoom to report to', () => {
-      const target = new Group()
-      const pivot = new Group()
-
-      expect(() => focusCameraImmediately(target, pivot, null)).not.toThrow()
-      expect(cameraService.attachToGyroscope).toHaveBeenCalledTimes(1)
     })
   })
 })

@@ -1,0 +1,23 @@
+{
+  "name": "Sun",
+  "symbol": "2609",
+  "albedo": 1,
+  "sidereal": 0,
+  "radius": 695500,
+  "mass": 0,
+  "centralMass": 0,
+  "axialTilt": 0,
+  "inclination": 0,
+  "labelColor": 16751872,
+  "maps": [],
+  "argumentOfPeriapsis": 0,
+  "eccentricity": 0,
+  "longitudeOfAscendingNode": 0,
+  "semimajor": 0,
+  "semiminor": 0,
+  "periapses": {
+    "last": 0,
+    "next": 0
+  },
+  "description": "The Sun is the star located at the center of the Solar System. It is a massive sphere of hot plasma, heated to incandescence by nuclear fusion reactions in its core, radiating the energy from its surface mainly as visible light and infrared radiation with 10% at ultraviolet energies. It is the main source of energy for life on Earth. The Sun has been an object of veneration in many cultures and a central subject of astronomical research since antiquity.\n\nExcerpt via [Wikipedia](https://en.wikipedia.org/wiki/Sun)."
+}

@@ -18,7 +18,6 @@ export function UIControls() {
   const zoom = useStore((state) => state.zoom)
   const controlsEnabled = useStore((state) => state.controlsEnabled)
   const targetName = useStore((state) => state.targetName)
-  // the sign is the one thing about the target that has to be looked up in the data
   const targetSymbol = useStore((state) => state.target?.symbol)
   const changeZoom = useStore((state) => state.changeZoom)
   const playing = useStore((state) => state.playing)

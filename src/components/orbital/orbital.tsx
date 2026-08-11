@@ -65,11 +65,7 @@ export function Orbital(props: Props) {
       <group rotation={orbitalGroupRotation}>
         <group position={ellipse.getPosition()} name={id}>
           {!!atmosphereColor && (
-            <Atmosphere
-              radius={radius}
-              height={radius * 0.015}
-              color={atmosphereColor as string}
-            />
+            <Atmosphere radius={radius} height={radius * 0.015} color={atmosphereColor as string} />
           )}
           {tail && (
             <Comet

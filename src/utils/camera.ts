@@ -16,6 +16,24 @@ export function getMinDistance(radius: number, aspect: number): number {
 }
 
 /**
+ * Returns the apparent radius, w.r.t. the viewport, of a given orbital within the FOV.
+ */
+export function getApparentRadius(
+  radius: number,
+  distance: number,
+  fov: number,
+  viewportHeight: number
+): number {
+  if (distance <= 0) {
+    return Infinity
+  }
+
+  const visibleHeight = 2 * distance * Math.tan(MathUtils.degToRad(fov) / 2)
+
+  return (Scale(radius) / visibleHeight) * viewportHeight
+}
+
+/**
  * Returns how near the camera may clip, given its distance to the target.
  */
 export function getNearPlane(distance: number, radius = 0): number {

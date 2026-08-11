@@ -10,7 +10,7 @@ export function Loader() {
   const percent = useStore((state) => state.percent)
   const pageText = useStore((state) => state.pageText)
   const setPercentLoaded = useStore((state) => state.setPercentLoaded)
-
+  const setActiveOrbitalId = useStore((state) => state.setActiveOrbitalId)
   const [hasEntered, setHasEntered] = useState(false)
 
   /**
@@ -37,6 +37,8 @@ export function Loader() {
   const enterScene = () => {
     useStore.setState({ playing: true, volume: 1 })
     setHasEntered(true)
+    setActiveOrbitalId('sun', false)
+    setTimeout(() => useStore.setState({ zoom: 100 }))
   }
 
   return (

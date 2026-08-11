@@ -3,6 +3,7 @@ import { Tween } from '@tweenjs/tween.js'
 import {
   attachToGyroscope,
   attachToWorld,
+  getApparentRadius,
   getApproach,
   getMinDistance,
   getNearPlane,
@@ -410,6 +411,54 @@ describe('Camera Service', () => {
 
     it('should set the position of the pivot to <0>', () => {
       expect(pivot.position).toEqual(new Vector3(0, 0, 0))
+    })
+  })
+
+  describe('getApparentRadius()', () => {
+    const PHOBOS_RADIUS = 11.2667
+    const JUPITER_RADIUS = 69911
+    const FOV = Constants.WebGL.Camera.FOV
+    const HEIGHT = 800
+
+    it('should read a body as a share of the viewport it covers', () => {
+      const distance = 1
+      const visibleHeight = 2 * distance * Math.tan(MathUtils.degToRad(FOV) / 2)
+
+      expect(getApparentRadius(JUPITER_RADIUS, distance, FOV, HEIGHT)).toBeCloseTo(
+        (Scale(JUPITER_RADIUS) / visibleHeight) * HEIGHT
+      )
+    })
+
+    it('should shrink a body as the camera pulls away from it', () => {
+      const near = getApparentRadius(PHOBOS_RADIUS, 1, FOV, HEIGHT)
+      const far = getApparentRadius(PHOBOS_RADIUS, 10, FOV, HEIGHT)
+
+      expect(far).toBeCloseTo(near / 10)
+    })
+
+    it('should read a larger body larger from the same distance', () => {
+      const moon = getApparentRadius(PHOBOS_RADIUS, 1, FOV, HEIGHT)
+      const planet = getApparentRadius(JUPITER_RADIUS, 1, FOV, HEIGHT)
+
+      expect(planet / moon).toBeCloseTo(JUPITER_RADIUS / PHOBOS_RADIUS)
+    })
+
+    it('should spread a body over more of a shorter viewport', () => {
+      const tall = getApparentRadius(PHOBOS_RADIUS, 1, FOV, HEIGHT)
+      const short = getApparentRadius(PHOBOS_RADIUS, 1, FOV, HEIGHT / 2)
+
+      expect(short).toBeCloseTo(tall / 2)
+    })
+
+    it('should read a body as boundless to a camera sat on it', () => {
+      expect(getApparentRadius(PHOBOS_RADIUS, 0, FOV, HEIGHT)).toBe(Infinity)
+      expect(getApparentRadius(PHOBOS_RADIUS, -1, FOV, HEIGHT)).toBe(Infinity)
+    })
+
+    it('should put a tiny moon under a pixel from across the system', () => {
+      const acrossTheSystem = Constants.WebGL.Camera.MAX_DISTANCE
+
+      expect(getApparentRadius(PHOBOS_RADIUS, acrossTheSystem, FOV, HEIGHT)).toBeLessThan(1)
     })
   })
 })

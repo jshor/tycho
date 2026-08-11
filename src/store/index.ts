@@ -24,7 +24,7 @@ export const useStore = create<Store>()((set, get) => ({
   /**
    * Sets the active orbital target.
    */
-  setActiveOrbitalId: (targetId: string) => {
+  setActiveOrbitalId: (targetId: string, animateTargetChange = true) => {
     /**
      * Returns a target of the given system having the given name.
      */
@@ -46,13 +46,11 @@ export const useStore = create<Store>()((set, get) => ({
 
     const target = getTargetByName(targetId, get().orbitalData)
 
-    console.log('CHANGING TARGET TO: ', targetId, target?.name)
-
     set({
       target,
       targetId,
       targetName: target?.name,
-      animateTargetChange: true,
+      animateTargetChange,
       activeModal: null
     })
   },

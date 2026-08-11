@@ -85,17 +85,17 @@ export const LENS_FLARES: LensFlareEntry[] = [
   {
     url: '0.png',
     distance: 0.0,
-    diameter: 100
+    diameter: 40
   },
   {
     url: '1.png',
     distance: 0.3,
-    diameter: 60
+    diameter: 30
   },
   {
     url: '1.png',
     distance: 0.5,
-    diameter: 30
+    diameter: 20
   },
   {
     url: '2.png',
@@ -110,6 +110,28 @@ export const Sunlight = {
   COLOR: 0xffffff,
   INTENSITY: 0.95,
   DISTANCE: 20000
+}
+
+/** Configuration for the sun. */
+export const Sun = {
+  /** Sun's radius. */
+  RADIUS: 695500,
+  /** Tint color of the sun and its corona. */
+  COLOR: 0xffeccc,
+  /** Intensity of the sun's corona. */
+  INTENSITY: 1.3,
+  /** Brightness of the sun's corona. */
+  BRIGHTNESS: 0.45,
+  /** How detailed the sun's rays are. */
+  RAY_DETAIL: 8,
+  /** Distance of the corona's crown reaches, in multiples of the disc's radius. */
+  CORONA_SPREAD: 4,
+  /** How hard the crown is masked against the rays (higher confines them to its brightest side). */
+  CORONA_CONTRAST: 0.6,
+  /** Speed of the rays writhe (in noise units per second). */
+  DRIFT: 0.06,
+  /** Draw order on top of the labels. */
+  RENDER_ORDER: 100
 }
 
 export interface AtmosphereEntry {
