@@ -10,7 +10,7 @@
     "inclination": 0.77,
     "atmosphereColor": "#83D8E8",
     "labelColor": 5804449,
-    "satellites": [
+    "satelliteIds": [
         "ariel",
         "miranda",
         "oberon",

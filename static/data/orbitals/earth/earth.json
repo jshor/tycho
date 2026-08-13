@@ -10,7 +10,7 @@
     "inclination": 7.155,
     "atmosphereColor": "#74ABFF",
     "labelColor": 35260,
-    "satellites": [
+    "satelliteIds": [
         "moon"
     ],
     "ephemeris": {

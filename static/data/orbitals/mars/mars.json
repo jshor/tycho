@@ -10,7 +10,7 @@
     "inclination": 5.65,
     "atmosphereColor": "#D88C63",
     "labelColor": 12746585,
-    "satellites": [
+    "satelliteIds": [
         "phobos",
         "deimos"
     ],

@@ -10,7 +10,7 @@
     "inclination": 1.767975,
     "atmosphereColor": "#3F6FE5",
     "labelColor": 4871817,
-    "satellites": [
+    "satelliteIds": [
         "triton"
     ],
     "ephemeris": {

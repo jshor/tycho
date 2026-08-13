@@ -10,7 +10,7 @@
     "inclination": 1.303,
     "atmosphereColor": "#D8C3A5",
     "labelColor": 9996148,
-    "satellites": [
+    "satelliteIds": [
         "io",
         "callisto",
         "europa",

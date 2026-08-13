@@ -10,7 +10,7 @@
     "inclination": 2.485,
     "atmosphereColor": "#E6D3A3",
     "labelColor": 9931069,
-    "satellites": [
+    "satelliteIds": [
         "dione",
         "enceladus",
         "mimas",
