@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import { useStore } from '../store'
 import { Constants } from '../constants'
 import { Modal as ModalView } from '../components/modal/modal'
@@ -23,6 +23,7 @@ export function Modal({ type, children }: Props) {
   const aboutTitle = useStore((state) => state.pageText?.aboutTitle)
   // the sign is the one thing about the target that has to be looked up in the data
   const targetSymbol = useStore((state) => state.target?.symbol)
+  const modalRef = useRef<HTMLDivElement>(null)
 
   /** Whether or not this module's modal is the one currently open. */
   const isModalActive = (): boolean => activeModal === type
@@ -36,6 +37,25 @@ export function Modal({ type, children }: Props) {
   const closeModal = useCallback(() => {
     useStore.setState({ activeModal: null, controlsEnabled: true })
   }, [])
+
+  /**
+   * Caches the width of the modal in the store (0 if closed).
+   */
+  useEffect(() => {
+    if (activeModal !== type) return
+
+    const setModalWidth = () => {
+      useStore.setState({ modalWidth: modalRef.current?.offsetWidth ?? 0 })
+    }
+
+    setModalWidth()
+    window.addEventListener('resize', setModalWidth)
+
+    return () => {
+      window.removeEventListener('resize', setModalWidth)
+      useStore.setState({ modalWidth: 0 })
+    }
+  }, [activeModal, type])
 
   /**
    * Dismisses the modal when escape is pressed while it is open.
@@ -54,6 +74,7 @@ export function Modal({ type, children }: Props) {
 
   return (
     <ModalView
+      ref={modalRef}
       modalActive={isModalActive()}
       title={
         isStatsModal ? (

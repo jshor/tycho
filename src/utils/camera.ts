@@ -1,5 +1,12 @@
 import { Easing, Tween } from '@tweenjs/tween.js'
-import { Vector3, Object3D, Quaternion, Scene as ThreeScene, MathUtils } from 'three'
+import {
+  Vector3,
+  Object3D,
+  PerspectiveCamera,
+  Quaternion,
+  Scene as ThreeScene,
+  MathUtils
+} from 'three'
 import { Constants } from '../constants'
 import { Gyroscope } from '../elements/gyroscope'
 import { tweens } from './tween'
@@ -41,6 +48,58 @@ export function getNearPlane(distance: number, radius = 0): number {
   const { NEAR, NEAR_MIN, NEAR_RATIO } = Constants.WebGL.Camera
 
   return Math.min(Math.max(gap * NEAR_RATIO, NEAR_MIN), NEAR)
+}
+
+/**
+ * Returns how far left the scene's center is (in px).
+ */
+export function getViewShift(modalWidth = 0, viewportWidth: number): number {
+  if (modalWidth <= 0 || modalWidth >= viewportWidth) {
+    return 0
+  }
+  return modalWidth / 2
+}
+
+/**
+ * Returns how far left the given camera currently renders the scene (in px).
+ */
+export function getViewOffset(camera: PerspectiveCamera): number {
+  return camera.view?.enabled ? camera.view.offsetX : 0
+}
+
+/**
+ * Renders the scene the given distance (in px) to the left of where the camera looks.
+ */
+export function setViewShift(
+  camera: PerspectiveCamera,
+  shift: number,
+  width: number,
+  height: number
+): void {
+  if (shift === 0) {
+    camera.clearViewOffset()
+  } else {
+    camera.setViewOffset(width, height, shift, 0, width, height)
+  }
+}
+
+/**
+ * Returns the tween that slides the scene from where it is rendered onto the given shift.
+ */
+export function getViewShiftTween(
+  camera: PerspectiveCamera,
+  shift: number,
+  width: number,
+  height: number
+): Tween {
+  const view = { shift: getViewOffset(camera) }
+
+  return new Tween(view)
+    .group(tweens)
+    .to({ shift }, Constants.WebGL.Tween.FAST)
+    .easing(Easing.Quadratic.InOut)
+    .onUpdate(() => setViewShift(camera, view.shift, width, height))
+    .start()
 }
 
 /**

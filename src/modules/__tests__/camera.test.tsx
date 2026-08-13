@@ -7,6 +7,7 @@ import { useStore } from '../../store'
 import { Constants } from '../../constants'
 import { Camera, CameraHandle } from '../camera'
 import { getNearPlane } from '../../utils/camera'
+import { tweens } from '../../utils/tween'
 import { Scale } from '../../utils/scale'
 import { Controls } from '../../elements/controls'
 import { Ambience } from '../../elements/ambience'
@@ -17,16 +18,23 @@ const three = vi.hoisted(() => ({
     name: 'camera',
     isPerspectiveCamera: true,
     near: 0,
-    updateProjectionMatrix: vi.fn()
+    view: null,
+    updateProjectionMatrix: vi.fn(),
+    setViewOffset: vi.fn(),
+    clearViewOffset: vi.fn()
   } as {
     name: string
     position: Vector3
     near: number
     isPerspectiveCamera: boolean
+    view: { enabled: boolean; offsetX: number } | null
     updateProjectionMatrix: ReturnType<typeof vi.fn>
+    setViewOffset: ReturnType<typeof vi.fn>
+    clearViewOffset: ReturnType<typeof vi.fn>
   },
   scene: { getObjectByName: vi.fn(), updateMatrixWorld: vi.fn() },
-  gl: { domElement: { nodeName: 'CANVAS' } }
+  gl: { domElement: { nodeName: 'CANVAS' } },
+  size: { width: 1000, height: 500 }
 }))
 
 three.camera.position = new Vector3(0, 0, 1)
@@ -81,10 +89,26 @@ vi.mock('../../elements/controls', () => ({
 }))
 
 vi.mock('../../utils/camera', async (importOriginal) => {
-  const { getNearPlane, getSunlitHeading, turnHeading } =
-    await importOriginal<typeof import('../../utils/camera')>()
+  const {
+    getNearPlane,
+    getSunlitHeading,
+    getViewOffset,
+    getViewShift,
+    getViewShiftTween,
+    setViewShift,
+    turnHeading
+  } = await importOriginal<typeof import('../../utils/camera')>()
 
-  return { ...cameraService, getNearPlane, getSunlitHeading, turnHeading }
+  return {
+    ...cameraService,
+    getNearPlane,
+    getSunlitHeading,
+    getViewOffset,
+    getViewShift,
+    getViewShiftTween,
+    setViewShift,
+    turnHeading
+  }
 })
 
 vi.mock('@react-three/fiber', async () => {
@@ -311,6 +335,105 @@ describe('Camera Module', () => {
       renderModule({ volume: Infinity })
 
       expect(ambience.setVolume).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('modalWidth', () => {
+    const MODAL_WIDTH = 400
+    const duration = Constants.WebGL.Tween.FAST
+    const shift = () => (three.camera.view?.enabled ? three.camera.view.offsetX : 0)
+    const slide = (part = 1) => {
+      act(() => {
+        tweens.update(performance.now() + duration * part)
+      })
+    }
+    const openModal = (modalWidth = MODAL_WIDTH) => {
+      const result = renderModule({ modalWidth: 0 })
+
+      act(() => useStore.setState({ modalWidth }))
+
+      return result
+    }
+
+    beforeEach(() => {
+      tweens.removeAll()
+
+      three.camera.view = null
+      three.camera.setViewOffset.mockImplementation(
+        (fullWidth: number, fullHeight: number, offsetX: number) => {
+          three.camera.view = { enabled: true, offsetX }
+        }
+      )
+      three.camera.clearViewOffset.mockImplementation(() => {
+        three.camera.view = null
+      })
+    })
+
+    it('should draw the scene in the middle of the screen while no modal is open', () => {
+      renderModule({ modalWidth: 0 })
+      slide()
+
+      expect(three.camera.setViewOffset).not.toHaveBeenCalled()
+      expect(shift()).toEqual(0)
+    })
+
+    it('should carry the scene into the middle of the room an open modal leaves it', () => {
+      openModal()
+      slide()
+
+      expect(three.camera.setViewOffset).toHaveBeenCalledWith(
+        three.size.width,
+        three.size.height,
+        MODAL_WIDTH / 2,
+        0,
+        three.size.width,
+        three.size.height
+      )
+      expect(shift()).toEqual(MODAL_WIDTH / 2)
+    })
+
+    it('should slide the scene aside rather than jumping it there', () => {
+      openModal()
+      slide(0.5)
+
+      expect(shift()).toBeGreaterThan(0)
+      expect(shift()).toBeLessThan(MODAL_WIDTH / 2)
+    })
+
+    it('should carry the scene back onto the middle of the screen once the modal closes', () => {
+      openModal()
+      slide()
+
+      act(() => useStore.setState({ modalWidth: 0 }))
+      slide(0.5)
+
+      expect(shift()).toBeGreaterThan(0)
+      expect(shift()).toBeLessThan(MODAL_WIDTH / 2)
+
+      slide()
+
+      expect(shift()).toEqual(0)
+    })
+
+    it('should hold the scene still for a modal with the whole screen to itself', () => {
+      openModal(three.size.width)
+      slide()
+
+      expect(three.camera.setViewOffset).not.toHaveBeenCalled()
+      expect(shift()).toEqual(0)
+    })
+
+    it('should leave off shifting the scene once the camera leaves', () => {
+      const { unmount } = openModal()
+
+      slide(0.5)
+      unmount()
+
+      const left = shift()
+
+      slide()
+
+      expect(shift()).toEqual(left)
     })
   })
 

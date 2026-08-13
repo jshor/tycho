@@ -10,6 +10,8 @@ interface Props {
   closeModal: () => void
   /** The title shown in the modal header. */
   title?: React.ReactNode
+  /** Modal reference. */
+  ref?: React.Ref<HTMLDivElement>
   /** The contents of the modal. */
   children?: React.ReactNode
 }
@@ -17,11 +19,12 @@ interface Props {
 /**
  * A titled, dismissible overlay panel.
  */
-export function Modal({ modalActive, closeModal, title, children }: Props) {
+export function Modal({ modalActive, closeModal, title, ref, children }: Props) {
   return (
     <>
       {modalActive && <div className="modal__overlay" aria-hidden="true" onClick={closeModal} />}
       <div
+        ref={ref}
         className={`modal modal--${cx({
           open: modalActive,
           closed: !modalActive

@@ -1,4 +1,4 @@
-import { fireEvent } from '@testing-library/react'
+import { act, fireEvent } from '@testing-library/react'
 import { renderWithStore } from '../../test/helpers'
 import { useStore } from '../../store'
 import { Modal } from '../modal'
@@ -75,6 +75,69 @@ describe('Modal Module', () => {
 
       expect(activeModal).toBeNull()
       expect(controlsEnabled).toBe(true)
+    })
+  })
+
+  describe('modalWidth', () => {
+    const MODAL_WIDTH = 480
+    const widen = (width: number) => {
+      vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(width)
+    }
+
+    beforeEach(() => {
+      widen(MODAL_WIDTH)
+      useStore.setState({ modalWidth: 0 })
+    })
+
+    afterEach(() => {
+      vi.restoreAllMocks()
+    })
+
+    it('should report how much of the screen it covers as it opens', () => {
+      renderModule({ activeModal: 'TEST_MODAL' })
+
+      expect(useStore.getState().modalWidth).toEqual(MODAL_WIDTH)
+    })
+
+    it('should cover none of the screen while another modal is the one open', () => {
+      renderModule({ activeModal: 'OTHER_MODAL' })
+
+      expect(useStore.getState().modalWidth).toEqual(0)
+    })
+
+    it('should hand the screen back once it closes', () => {
+      renderModule({ activeModal: 'TEST_MODAL' })
+
+      act(() => useStore.setState({ activeModal: null }))
+
+      expect(useStore.getState().modalWidth).toEqual(0)
+    })
+
+    it('should hand the screen back once it leaves', () => {
+      const { unmount } = renderModule({ activeModal: 'TEST_MODAL' })
+
+      unmount()
+
+      expect(useStore.getState().modalWidth).toEqual(0)
+    })
+
+    it('should report itself anew as the window is resized under it', () => {
+      renderModule({ activeModal: 'TEST_MODAL' })
+
+      widen(MODAL_WIDTH / 2)
+      fireEvent(window, new Event('resize'))
+
+      expect(useStore.getState().modalWidth).toEqual(MODAL_WIDTH / 2)
+    })
+
+    it('should stop measuring itself once it closes', () => {
+      renderModule({ activeModal: 'TEST_MODAL' })
+
+      act(() => useStore.setState({ activeModal: null }))
+      widen(MODAL_WIDTH / 2)
+      fireEvent(window, new Event('resize'))
+
+      expect(useStore.getState().modalWidth).toEqual(0)
     })
   })
 

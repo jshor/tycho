@@ -9,7 +9,11 @@ import {
   getNearPlane,
   getPivotTween,
   getSunlitHeading,
+  getViewOffset,
+  getViewShift,
+  getViewShiftTween,
   getWorldPosition,
+  setViewShift,
   turnHeading
 } from '../utils/camera'
 import { Controls } from '../elements/controls'
@@ -36,13 +40,15 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
   const volume = useStore((state) => state.volume)
   const isAutoOrbitEnabled = useStore((state) => state.isAutoOrbitEnabled)
   const radius = useStore((state) => state.target?.radius)
+  const modalWidth = useStore((state) => state.modalWidth)
   const changeZoom = useStore((state) => state.changeZoom)
   const pivotRef = useRef<THREE.Group>(null)
   const controlsRef = useRef<Controls>(null)
   const ambienceRef = useRef<Ambience>(null)
   const tweenBaseRef = useRef<{ stop(): void } | null>(null)
-
-  const { scene, camera, gl } = useThree()
+  const viewShiftRef = useRef<{ stop(): void } | null>(null)
+  const { scene, camera, gl, size } = useThree()
+  const { width, height } = size
 
   useImperativeHandle(ref, () => ({
     get controls() {
@@ -97,6 +103,23 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
       controlsRef.current.autoRotate = !!isAutoOrbitEnabled
     }
   }, [isAutoOrbitEnabled])
+
+  /**
+   * Slides the scene to the left such that its center is in the remaining space after the modal is open.
+   */
+  useEffect(() => {
+    const perspective = camera as THREE.PerspectiveCamera
+    const shift = getViewShift(modalWidth, width)
+
+    if (shift === getViewOffset(perspective)) {
+      viewShiftRef.current = null
+      setViewShift(perspective, shift, width, height)
+    } else {
+      viewShiftRef.current = getViewShiftTween(perspective, shift, width, height)
+    }
+
+    return () => viewShiftRef.current?.stop()
+  }, [modalWidth, width, height, camera])
 
   /**
    * Moves the camera pivot when the target changes.

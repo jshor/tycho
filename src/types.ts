@@ -143,6 +143,8 @@ export interface Store {
   controlsEnabled?: boolean
   /** The type of the modal currently open, if any. */
   activeModal?: string | null
+  /** Width of the modal in pixels (0 if not open). */
+  modalWidth?: number
   /** The volume of the scene's ambience [0, 1]. */
   volume?: number
   /** The currently-focused target orbital. */

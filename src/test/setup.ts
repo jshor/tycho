@@ -45,7 +45,10 @@ vi.mock('@react-three/fiber', () => ({
   useThree: () => ({
     camera: {
       add: vi.fn(),
-      position: new Vector3(0, 0, 1000)
+      position: new Vector3(0, 0, 1000),
+      view: null as { enabled: boolean; offsetX: number } | null,
+      setViewOffset: vi.fn(),
+      clearViewOffset: vi.fn()
     },
     scene: {
       getObjectByName: vi.fn(),
@@ -54,7 +57,8 @@ vi.mock('@react-three/fiber', () => ({
     },
     gl: {
       domElement: document.createElement('canvas')
-    }
+    },
+    size: { width: 1024, height: 768 }
   }),
 
   useFrame: vi.fn()

@@ -1,4 +1,4 @@
-import { Vector3, Object3D, Scene, MathUtils } from 'three'
+import { Vector3, Object3D, PerspectiveCamera, Scene, MathUtils } from 'three'
 import { Tween } from '@tweenjs/tween.js'
 import {
   attachToGyroscope,
@@ -9,8 +9,12 @@ import {
   getNearPlane,
   getPivotTween,
   getSunlitHeading,
+  getViewOffset,
+  getViewShift,
+  getViewShiftTween,
   getWorldPosition,
   setPivotPosition,
+  setViewShift,
   turnHeading
 } from '../camera'
 import { Gyroscope } from '../../elements/gyroscope'
@@ -161,6 +165,137 @@ describe('Camera Service', () => {
 
       expect(result).toBeGreaterThan(0)
       expect(result).toBeLessThan(1)
+    })
+  })
+
+  describe('getViewShift()', () => {
+    const VIEWPORT_WIDTH = 1000
+
+    it('should leave the scene centered on the screen while no modal is open', () => {
+      expect(getViewShift(0, VIEWPORT_WIDTH)).toEqual(0)
+    })
+
+    it('should leave the scene where it is when nothing reported a modal at all', () => {
+      expect(getViewShift(undefined, VIEWPORT_WIDTH)).toEqual(0)
+    })
+
+    it('should take the scene half the modal over, onto the middle of what it leaves', () => {
+      const shift = getViewShift(400, VIEWPORT_WIDTH)
+
+      expect(shift).toEqual(200)
+      expect(VIEWPORT_WIDTH / 2 - shift).toEqual((VIEWPORT_WIDTH - 400) / 2)
+    })
+
+    it('should hold the scene still for a modal with the whole screen to itself', () => {
+      expect(getViewShift(VIEWPORT_WIDTH, VIEWPORT_WIDTH)).toEqual(0)
+    })
+
+    it('should hold the scene still for a modal wider than the screen it is drawn on', () => {
+      expect(getViewShift(VIEWPORT_WIDTH + 1, VIEWPORT_WIDTH)).toEqual(0)
+    })
+  })
+
+  describe('setViewShift()', () => {
+    const WIDTH = 1000
+    const HEIGHT = 500
+    let camera: PerspectiveCamera
+
+    beforeEach(() => {
+      camera = new PerspectiveCamera(50, WIDTH / HEIGHT)
+    })
+
+    it('should render the scene the given distance to the left', () => {
+      setViewShift(camera, 200, WIDTH, HEIGHT)
+
+      expect(camera.view?.enabled).toBe(true)
+      expect(camera.view?.offsetX).toEqual(200)
+      expect(camera.view?.fullWidth).toEqual(WIDTH)
+      expect(camera.view?.fullHeight).toEqual(HEIGHT)
+    })
+
+    it('should hand the scene the whole screen back once nothing shifts it', () => {
+      setViewShift(camera, 200, WIDTH, HEIGHT)
+      setViewShift(camera, 0, WIDTH, HEIGHT)
+
+      expect(camera.view?.enabled).toBe(false)
+      expect(getViewOffset(camera)).toEqual(0)
+    })
+
+    it('should shift what the camera sees rather than narrowing it', () => {
+      const { elements } = camera.projectionMatrix.clone()
+
+      setViewShift(camera, 200, WIDTH, HEIGHT)
+
+      expect(camera.projectionMatrix.elements[0]).toBeCloseTo(elements[0])
+      expect(camera.projectionMatrix.elements[5]).toBeCloseTo(elements[5])
+      expect(camera.projectionMatrix.elements[8]).not.toBeCloseTo(elements[8])
+    })
+
+    it('should carry the scene toward the side the modal leaves free', () => {
+      const point = new Vector3(0, 0, -10)
+
+      camera.updateMatrixWorld()
+      setViewShift(camera, 200, WIDTH, HEIGHT)
+      expect(point.clone().project(camera).x).toBeLessThan(0)
+    })
+  })
+
+  describe('getViewShiftTween()', () => {
+    const duration = Constants.WebGL.Tween.FAST
+    const WIDTH = 1000
+    const HEIGHT = 500
+    let camera: PerspectiveCamera
+
+    beforeEach(() => {
+      tweens.removeAll()
+
+      camera = new PerspectiveCamera(50, WIDTH / HEIGHT)
+    })
+
+    it('should hand the tween to the group that drives them, or it would never run', () => {
+      const tween = getViewShiftTween(camera, 200, WIDTH, HEIGHT)
+
+      expect(tween).toBeInstanceOf(Tween)
+      expect(tweens.getAll()).toContain(tween)
+    })
+
+    it('should slide the scene over rather than jumping it aside', () => {
+      const tween = getViewShiftTween(camera, 200, WIDTH, HEIGHT).stop().start(0)
+
+      tween.update(duration / 2)
+
+      expect(getViewOffset(camera)).toBeGreaterThan(0)
+      expect(getViewOffset(camera)).toBeLessThan(200)
+    })
+
+    it('should land the scene on the shift it was sent to', () => {
+      const tween = getViewShiftTween(camera, 200, WIDTH, HEIGHT).stop().start(0)
+
+      tween.update(duration)
+
+      expect(getViewOffset(camera)).toEqual(200)
+    })
+
+    it('should set off from wherever the scene already sits', () => {
+      setViewShift(camera, 200, WIDTH, HEIGHT)
+
+      const tween = getViewShiftTween(camera, 0, WIDTH, HEIGHT).stop().start(0)
+
+      tween.update(duration / 2)
+
+      expect(getViewOffset(camera)).toBeGreaterThan(0)
+      expect(getViewOffset(camera)).toBeLessThan(200)
+    })
+
+    it('should hand the whole screen back to a scene sliding home', () => {
+      setViewShift(camera, 200, WIDTH, HEIGHT)
+
+      const tween = getViewShiftTween(camera, 0, WIDTH, HEIGHT).stop().start(0)
+
+      tween.update(duration)
+
+      expect(camera.view?.enabled).toBe(false)
+      expect(getViewOffset(camera)).toEqual(0)
     })
   })
 
