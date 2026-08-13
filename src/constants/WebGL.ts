@@ -130,6 +130,10 @@ export const Sun = {
   CORONA_CONTRAST: 0.6,
   /** Speed of the rays writhe (in noise units per second). */
   DRIFT: 0.06,
+  /** Max number of bodies that can occlude the sun at once. */
+  MAX_OCCLUDERS: 4,
+  /** Position of occluder when not in use. */
+  PARKED_OCCLUDER: 4,
   /** Draw order on top of the labels. */
   RENDER_ORDER: 100
 }

@@ -6,12 +6,30 @@ import { Corona } from './corona/corona'
 
 export function Sun() {
   const groupRef = useRef<THREE.Group>(null)
+  const flareRef = useRef<LensFlareHelper | null>(null)
 
   useEffect(() => {
-    if (groupRef.current) {
-      groupRef.current.add(new LensFlareHelper())
+    const group = groupRef.current
+
+    if (!group) return
+
+    const flare = new LensFlareHelper()
+
+    flareRef.current = flare
+    group.add(flare)
+
+    return () => {
+      group.remove(flare)
+      flareRef.current = null
     }
   }, [])
+
+  /**
+   * Dims the flare by the given occlusion (i.e., how much sun hiding behind a planet).
+   */
+  const onOcclude = (occlusion: number) => {
+    flareRef.current?.setOcclusion(occlusion)
+  }
 
   return (
     <group ref={groupRef}>
@@ -21,7 +39,7 @@ export function Sun() {
         distance={Constants.WebGL.Sunlight.DISTANCE}
         decay={0}
       />
-      <Corona />
+      <Corona onOcclude={onOcclude} />
     </group>
   )
 }

@@ -143,7 +143,7 @@ export function Comet({ settings, pathVertices, bodyPercent }: Props) {
       .negate()
 
     if (getPlumeOrientation(trailing, worldPosition, camera.position, orientation)) {
-      // the comet hangs under rotated orbital groups, so undo their turn to land on world axes
+      // the comet is attached to a rotated orbital group
       group.quaternion.copy(parentQuaternion).invert().multiply(orientation)
     }
 

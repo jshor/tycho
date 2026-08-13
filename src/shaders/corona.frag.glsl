@@ -1,3 +1,5 @@
+#define MAX_OCCLUDERS 4
+
 uniform float aspectRatio;
 uniform vec2 sunPosition;
 uniform float sunSize;
@@ -8,10 +10,13 @@ uniform float brightness;
 uniform float rayDetail;
 uniform float coronaSpread;
 uniform float coronaContrast;
+uniform vec3 occluders[MAX_OCCLUDERS];
 
 varying vec2 vScreenPosition;
 
 const float NO_DISTANCE = 1e-4;
+const float LIMB_INNER = 0.99;
+const float LIMB_OUTER = 1.01;
 const float DISC_INNER = 0.9;
 const float DISC_OUTER = 1.1;
 const float NO_CROWN = 1e-6;
@@ -97,6 +102,23 @@ float snoise(vec3 v) {
   return 42.0 * dot(m * m, vec4(dot(p0, x0), dot(p1, x1), dot(p2, x2), dot(p3, x3)));
 }
 
+/**
+ * Returns how much of the light reaching the given point on screen escapes the occlusion.
+ */
+float getVisibility(vec2 screen) {
+  float visible = 1.0;
+
+  for (int i = 0; i < MAX_OCCLUDERS; i++) {
+    vec3 body = occluders[i];
+    vec2 center = vec2(body.x * aspectRatio, body.y);
+    float limb = max(body.z, NO_DISTANCE);
+
+    visible *= smoothstep(limb * LIMB_INNER, limb * LIMB_OUTER, length(screen - center));
+  }
+
+  return visible;
+}
+
 void main() {
   vec2 screen = vec2(vScreenPosition.x * aspectRatio, vScreenPosition.y);
   vec2 sun = vec2(sunPosition.x * aspectRatio, sunPosition.y);
@@ -117,7 +139,7 @@ void main() {
   );
   float total =
     raysA * RAYS_CROWNED * pow(max(corona, NO_CROWN), coronaContrast) + raysB * RAYS_BED;
-  vec3 color = (vec3(total) + disc) * tint;
+  vec3 color = (vec3(total) + disc) * tint * getVisibility(screen);
 
   gl_FragColor = vec4(color, color.r);
 }

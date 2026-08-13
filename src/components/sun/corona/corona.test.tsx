@@ -3,11 +3,13 @@ import { useFrame } from '@react-three/fiber'
 import { renderInScene } from '../../../test/helpers'
 import { Constants } from '../../../constants'
 import { getScreenRadius } from '../../../utils/sun'
+import { OrbitalData } from '../../../types'
 import { Corona, SCREEN_QUAD, createCoronaMaterial } from './corona'
 import FRAGMENT_SHADER from '../../../shaders/corona.frag.glsl?raw'
 
 const three = vi.hoisted(() => ({
   camera: null as unknown as THREE.PerspectiveCamera,
+  scene: null as unknown as THREE.Scene,
   size: { width: 1200, height: 800 }
 }))
 
@@ -36,6 +38,7 @@ describe('Sun Corona Component', () => {
     vi.clearAllMocks()
 
     three.camera = new THREE.PerspectiveCamera(FOV, three.size.width / three.size.height)
+    three.scene = new THREE.Scene()
   })
 
   describe('createCoronaMaterial()', () => {
@@ -68,6 +71,15 @@ describe('Sun Corona Component', () => {
       expect(tint.value.r).toBeGreaterThan(1)
     })
 
+    it('should hand the shader a slot for every body it may mask, parked off screen', () => {
+      const { MAX_OCCLUDERS, PARKED_OCCLUDER } = Constants.WebGL.Sun
+      const { occluders } = createCoronaMaterial().uniforms
+
+      expect(occluders.value).toHaveLength(MAX_OCCLUDERS)
+      expect(occluders.value.every(({ z }: THREE.Vector3) => z === 0)).toBe(true)
+      expect(occluders.value[0].x).toEqual(PARKED_OCCLUDER)
+    })
+
     it('should hand the shape of the effect to the shader as it is tuned', () => {
       const { brightness, rayDetail, coronaSpread, coronaContrast } =
         createCoronaMaterial().uniforms
@@ -80,9 +92,9 @@ describe('Sun Corona Component', () => {
   })
 
   describe('the shader it feeds', () => {
-    const declared = Array.from(FRAGMENT_SHADER.matchAll(/^uniform\s+\w+\s+(\w+)\s*;/gm)).map(
-      ([, name]) => name
-    )
+    const declared = Array.from(
+      FRAGMENT_SHADER.matchAll(/^uniform\s+\w+\s+(\w+)(?:\[\w+\])?\s*;/gm)
+    ).map(([, name]) => name)
     const constant = (name: string) =>
       Number(FRAGMENT_SHADER.match(new RegExp(`const float ${name} = ([\\d.e-]+);`))?.[1])
 
@@ -93,6 +105,21 @@ describe('Sun Corona Component', () => {
     it('should draw the edge of the disc at the radius it is handed', () => {
       expect(constant('DISC_INNER')).toBeLessThan(1)
       expect(constant('DISC_OUTER')).toBeGreaterThan(1)
+    })
+
+    it('should mask out as many bodies as the material gathers slots for', () => {
+      const defined = Number(FRAGMENT_SHADER.match(/#define MAX_OCCLUDERS (\d+)/)?.[1])
+
+      expect(defined).toEqual(Constants.WebGL.Sun.MAX_OCCLUDERS)
+    })
+
+    it('should take the bodies in front of the sun out of the light it draws', () => {
+      expect(FRAGMENT_SHADER).toContain('* getVisibility(screen)')
+    })
+
+    it('should cut the corona off at the limb of the body rather than fading it out', () => {
+      expect(constant('LIMB_INNER')).toBeLessThan(1)
+      expect(constant('LIMB_OUTER')).toBeGreaterThan(1)
     })
 
     it('should hold the crown off zero before raising it to a power', () => {
@@ -121,9 +148,15 @@ describe('Sun Corona Component', () => {
   describe('useFrame()', () => {
     const advance = (
       distance: number,
-      { elapsed = 0, lookingAt = new THREE.Vector3(), bearing = 0 } = {}
+      {
+        elapsed = 0,
+        lookingAt = new THREE.Vector3(),
+        bearing = 0,
+        orbitalData = undefined as OrbitalData[] | undefined,
+        onOcclude = undefined as ((occlusion: number) => void) | undefined
+      } = {}
     ) => {
-      const { container } = renderInScene(<Corona />)
+      const { container } = renderInScene(<Corona onOcclude={onOcclude} />, { orbitalData })
       const mesh = container.querySelector('mesh') as unknown as {
         visible: boolean
         material: THREE.ShaderMaterial
@@ -236,6 +269,90 @@ describe('Sun Corona Component', () => {
 
     it('should hold the same face of the star as the camera dollies straight in', () => {
       expect(advance(20).uniforms.camAngle.value).toBeCloseTo(advance(200).uniforms.camAngle.value)
+    })
+
+    describe('the bodies in front of the sun', () => {
+      const EARTH_RADIUS = 6371
+      const orbitalData = [{ id: 'earth', radius: EARTH_RADIUS }] as OrbitalData[]
+      const standInFront = (gap: number, offset = 0) => {
+        const body = new THREE.Mesh()
+
+        body.name = 'earth'
+        body.position.set(offset, 0, EARTH_ORBIT - gap)
+        three.scene.add(body)
+        three.scene.updateMatrixWorld()
+      }
+      const masking = (occluders: { value: THREE.Vector3[] }) =>
+        occluders.value.filter(({ z }) => z > 0)
+
+      it('should park every slot off screen while nothing stands in front of the sun', () => {
+        const { uniforms } = advance(EARTH_ORBIT, { orbitalData })
+
+        expect(masking(uniforms.occluders)).toEqual([])
+      })
+
+      it('should mask out the body the camera is watching the sun from behind', () => {
+        standInFront(0.05)
+
+        const { uniforms } = advance(EARTH_ORBIT, { orbitalData })
+        const [earth] = masking(uniforms.occluders)
+
+        expect(earth.x).toBeCloseTo(uniforms.sunPosition.value.x)
+        expect(earth.y).toBeCloseTo(uniforms.sunPosition.value.y)
+        expect(earth.z).toBeGreaterThan(uniforms.sunSize.value)
+      })
+
+      it('should mask the body wherever it has drifted off the line to the sun', () => {
+        standInFront(0.05, 0.02)
+
+        const [earth] = masking(advance(EARTH_ORBIT, { orbitalData }).uniforms.occluders)
+
+        expect(earth.x).toBeGreaterThan(0)
+      })
+
+      it('should leave the slots the bodies do not fill parked off screen', () => {
+        standInFront(0.05)
+
+        const { uniforms } = advance(EARTH_ORBIT, { orbitalData })
+        const { MAX_OCCLUDERS, PARKED_OCCLUDER } = Constants.WebGL.Sun
+
+        expect(uniforms.occluders.value).toHaveLength(MAX_OCCLUDERS)
+        expect(masking(uniforms.occluders)).toHaveLength(1)
+        expect(uniforms.occluders.value[1].x).toEqual(PARKED_OCCLUDER)
+      })
+
+      it('should ignore a body that has yet to be drawn into the scene', () => {
+        const { uniforms } = advance(EARTH_ORBIT, { orbitalData })
+
+        expect(masking(uniforms.occluders)).toEqual([])
+      })
+
+      it('should report the sun covered by the body standing over it', () => {
+        const onOcclude = vi.fn()
+
+        standInFront(0.05)
+        advance(EARTH_ORBIT, { orbitalData, onOcclude })
+
+        expect(onOcclude).toHaveBeenCalledWith(1)
+      })
+
+      it('should report the sun clear while nothing covers it', () => {
+        const onOcclude = vi.fn()
+
+        advance(EARTH_ORBIT, { orbitalData, onOcclude })
+
+        expect(onOcclude).toHaveBeenCalledWith(0)
+      })
+
+      it('should leave the sun uncovered while the camera is turned away from it', () => {
+        const onOcclude = vi.fn()
+        const away = new THREE.Vector3(0, 0, EARTH_ORBIT * 2)
+
+        standInFront(0.05)
+        advance(EARTH_ORBIT, { orbitalData, onOcclude, lookingAt: away })
+
+        expect(onOcclude).not.toHaveBeenCalled()
+      })
     })
   })
 })

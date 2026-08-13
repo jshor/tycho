@@ -38,7 +38,7 @@ export const createCloudMaterial = (): THREE.MeshPhongMaterial => {
 }
 
 /**
- * Hangs the given texture on a cloud material, as both what to draw and what to see through.
+ * Attaches the given texture to the cloud material.
  */
 export const applyCloudTexture = (
   material: THREE.MeshPhongMaterial,

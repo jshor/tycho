@@ -38,7 +38,6 @@ object3dMethods.forEach((method) => {
 })
 
 vi.mock('@react-three/fiber', () => ({
-  // the scene hangs off an SVG root, which is where the DOM stops and three's elements start
   Canvas: ({ children }: { children?: React.ReactNode }): React.ReactNode =>
     React.createElement('svg', null, children),
 

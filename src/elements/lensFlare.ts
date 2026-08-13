@@ -13,6 +13,9 @@ export class LensFlareHelper extends Lensflare {
   /** The color every element of the flare is tinted, taken from the sunlight itself. */
   color: THREE.Color = new THREE.Color(Constants.WebGL.Sunlight.COLOR)
 
+  /** The elements of the flare. */
+  flares: LensflareElement[] = []
+
   constructor() {
     super()
     this.position.set(0, 0, 0)
@@ -24,7 +27,21 @@ export class LensFlareHelper extends Lensflare {
    */
   addEntry = ({ url, diameter, distance }: LensFlareEntry): void => {
     this.textureLoader.load(`/static/textures/lensflares/${url}`, (texture: THREE.Texture) => {
-      this.addElement(new LensflareElement(texture, diameter, distance, this.color))
+      const element = new LensflareElement(texture, diameter, distance, this.color.clone())
+
+      this.flares.push(element)
+      this.addElement(element)
     })
+  }
+
+  /**
+   * Dims the flare by the given occlusion percentage [0, 1].
+   */
+  setOcclusion = (occlusion: number): void => {
+    const showing = THREE.MathUtils.clamp(1 - occlusion, 0, 1)
+
+    this.visible = showing > 0
+
+    this.flares.forEach((flare) => flare.color.copy(this.color).multiplyScalar(showing))
   }
 }

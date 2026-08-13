@@ -7,9 +7,9 @@ import './datePicker.scss'
 interface DisplayProps {
   /** The current user-friendly simulation time. */
   uxTime?: string
-  /** Opens the calendar. Handed down by the calendar this readout stands in for. */
+  /** Click event handler. */
   onClick?: React.MouseEventHandler<HTMLButtonElement>
-  /** Likewise: what the calendar hangs itself off, and hands focus back to when it closes. */
+  /** Reference to the picker element. */
   ref?: React.Ref<HTMLButtonElement>
 }
 
