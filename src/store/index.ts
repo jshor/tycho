@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { OrbitalData, PageText, Store } from '../types'
 import { env } from '../utils/Environment'
+import { Constants } from '../constants'
 
 export const useStore = create<Store>()((set, get) => ({
   /**
@@ -68,5 +69,17 @@ export const useStore = create<Store>()((set, get) => ({
   /**
    * Changes the zoom level.
    */
-  changeZoom: (zoom) => set({ zoom })
+  changeZoom: (zoom) => set({ zoom }),
+
+  /**
+   * Records the time delta since last user interaction.
+   */
+  recordInteraction: () => {
+    const now = Date.now()
+    const delta = now - (get().interacted ?? 0)
+
+    if (delta < Constants.UI.INTERACTION_INTERVAL) return
+
+    set({ interacted: now })
+  }
 }))

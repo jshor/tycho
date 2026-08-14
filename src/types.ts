@@ -113,8 +113,8 @@ export interface Store {
   orbitalData?: OrbitalData[]
   /** The translated page text for the app. */
   pageText?: PageText
-  /** When the user last began interacting with the scene. */
-  touched?: number
+  /** Time the user last interacted with the scene. */
+  interacted?: number
   /** The ID of the orbital the camera is focused on. */
   targetId?: string
   /** The ID of the orbital whose path+label are highlighted. */
@@ -131,6 +131,8 @@ export interface Store {
   url?: string
   /** Whether or not the camera is orbiting its target on its own. */
   isAutoOrbitEnabled?: boolean
+  /** Whether or not the scene is currently idle. */
+  isIdle?: boolean
   /** Whether or not the tour has finished playing. */
   isComplete?: boolean
   /** The current zoom level. */
@@ -162,6 +164,8 @@ export interface Store {
   setPercentLoaded: (count: number, total: number) => void
   /** Applies a new zoom level. */
   changeZoom: (zoom: number) => void
+  /** Records the moment the user interacted with the scene. */
+  recordInteraction: () => void
 }
 
 export interface TourLabelItem {

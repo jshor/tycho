@@ -1,4 +1,5 @@
 import { useStore } from '../'
+import { Constants } from '../../constants'
 import orbitalFixtures from './__fixtures__/orbitals.json'
 import pageTextFixtures from './__fixtures__/pageText.json'
 import { OrbitalData } from '../../types'
@@ -141,6 +142,37 @@ describe('Store', () => {
       useStore.getState().changeZoom(50)
 
       expect(useStore.getState().zoom).toEqual(50)
+    })
+  })
+
+  describe('recordInteraction()', () => {
+    it('should record the moment the user reached for the scene', () => {
+      const now = 12345
+      vi.spyOn(Date, 'now').mockReturnValue(now)
+
+      useStore.getState().recordInteraction()
+
+      expect(useStore.getState().interacted).toEqual(now)
+    })
+
+    it('should record a gesture already underway no more than once an interval', () => {
+      const now = vi.spyOn(Date, 'now').mockReturnValue(12345)
+
+      useStore.getState().recordInteraction()
+      now.mockReturnValue(12345 + Constants.UI.INTERACTION_INTERVAL - 1)
+      useStore.getState().recordInteraction()
+
+      expect(useStore.getState().interacted).toEqual(12345)
+    })
+
+    it('should record the gesture again once the interval is up', () => {
+      const now = vi.spyOn(Date, 'now').mockReturnValue(12345)
+
+      useStore.getState().recordInteraction()
+      now.mockReturnValue(12345 + Constants.UI.INTERACTION_INTERVAL)
+      useStore.getState().recordInteraction()
+
+      expect(useStore.getState().interacted).toEqual(12345 + Constants.UI.INTERACTION_INTERVAL)
     })
   })
 

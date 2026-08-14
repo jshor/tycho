@@ -12,7 +12,7 @@ import { OrbitalSymbol } from '../components/orbitalSymbol/orbitalSymbol'
 import { formatDateTime, getUnixTime } from '../utils/time'
 
 /**
- * Connects the heads-up display to the store.
+ * Connects the UI controls to the store.
  */
 export function UIControls() {
   const zoom = useStore((state) => state.zoom)
@@ -22,6 +22,7 @@ export function UIControls() {
   const changeZoom = useStore((state) => state.changeZoom)
   const playing = useStore((state) => state.playing)
   const volume = useStore((state) => state.volume)
+  const recordInteraction = useStore((state) => state.recordInteraction)
   const speed = useStore((state) => state.speed) ?? Constants.UI.Speed.MIN
 
   /**
@@ -136,6 +137,7 @@ export function UIControls() {
   return (
     <UIControlsLayout
       controlsEnabled={controlsEnabled}
+      onInteract={recordInteraction}
       label={
         <>
           <OrbitalSymbol symbol={targetSymbol} />

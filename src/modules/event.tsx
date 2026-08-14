@@ -14,18 +14,27 @@ interface Props {
 const PINCH_TOUCH_COUNT = 2
 
 /**
- * Records when the user begins interacting with the scene.
+ * Records when the user is interacting with the scene, for as long as they keep at it.
  */
 export function Event({ onWheel, onPinch, children }: Props) {
-  // the separation the last touch was measured at, kept in a ref because a pinch is reported as
-  // the change since the previous frame rather than as a total
   const separation = useRef<number | null>(null)
+  const onInteract = useStore((state) => state.recordInteraction)
 
   /**
-   * Records the moment the user reached for the scene.
+   * Scrollwheel event handler.
    */
-  const onTouched = () => {
-    useStore.setState({ touched: Date.now() })
+  const onSceneWheel = (ev: React.WheelEvent<HTMLDivElement>) => {
+    onInteract()
+    onWheel?.(ev)
+  }
+
+  /**
+   * Mouse dragging event handler.
+   */
+  const onMouseMove = (ev: React.MouseEvent<HTMLDivElement>) => {
+    if (ev.buttons > 0) {
+      onInteract()
+    }
   }
 
   /**
@@ -42,7 +51,7 @@ export function Event({ onWheel, onPinch, children }: Props) {
    * Starts a pinch once a second finger lands, and notes where it began.
    */
   const onTouchStart = (ev: React.TouchEvent<HTMLDivElement>) => {
-    onTouched()
+    onInteract()
 
     if (ev.touches.length === PINCH_TOUCH_COUNT) {
       separation.current = getSeparation(ev)
@@ -53,6 +62,8 @@ export function Event({ onWheel, onPinch, children }: Props) {
    * Reports how much further apart the fingers moved since they were last measured.
    */
   const onTouchMove = (ev: React.TouchEvent<HTMLDivElement>) => {
+    onInteract()
+
     if (ev.touches.length !== PINCH_TOUCH_COUNT) return
 
     const current = getSeparation(ev)
@@ -68,18 +79,21 @@ export function Event({ onWheel, onPinch, children }: Props) {
    * Ends the pinch, so that the next one is measured from where it starts.
    */
   const onTouchEnd = () => {
+    onInteract()
     separation.current = null
   }
 
   return (
     <div
       role="presentation"
-      onWheel={onWheel}
+      onWheel={onSceneWheel}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
       onTouchCancel={onTouchEnd}
-      onMouseDown={onTouched}
+      onMouseDown={onInteract}
+      onMouseMove={onMouseMove}
+      onMouseUp={onInteract}
       style={{
         width: '100%',
         height: '100%',

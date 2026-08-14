@@ -5,6 +5,7 @@ import { Clock } from '../elements/clock'
 import { SplashScreen } from '../components/splashScreen/splashScreen'
 import { Markdown } from '../components/markdown/markdown'
 import { Constants } from '../constants'
+import { Idle } from './idle'
 import { Loader } from './loader'
 import { Modal } from './modal'
 import { Tour } from './tour'
@@ -108,6 +109,7 @@ export function App() {
       <>
         <Scene onAnimate={onAnimate} width={window.innerWidth} height={window.innerHeight} />
         <UIControls />
+        <Idle />
         <Loader />
         <Tour labels={Constants.Tour.LABELS} />
         <Modal type={Constants.UI.ModalTypes.STATS_MODAL}>

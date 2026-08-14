@@ -15,6 +15,8 @@ interface Props {
   label?: React.ReactNode
   /** Callback when the label is clicked. */
   onLabelClick?: () => void
+  /** Callback when the user interacts with the scene. */
+  onInteract?: () => void
 }
 
 /**
@@ -24,17 +26,32 @@ export function UIControlsLayout({
   controlsEnabled,
   label,
   onLabelClick,
+  onInteract,
   left,
   bottom,
   right
 }: Props) {
+  /**
+   * Mouse pointer event handler.
+   */
+  const onPointerMove = (ev: React.PointerEvent<HTMLDivElement>) => {
+    if (ev.buttons > 0) {
+      onInteract?.()
+    }
+  }
+
   return (
     <div
+      // the frame carries no meaning of its own, and listens only to hear the controls it holds
+      role="presentation"
       className={cx({
         'ui-controls-layout': true,
         'ui-controls-layout--enabled': controlsEnabled,
         'ui-controls-layout--disabled': !controlsEnabled
       })}
+      onPointerDown={onInteract}
+      onPointerMove={onPointerMove}
+      onKeyDown={onInteract}
     >
       <div className="ui-controls-layout__left">{left}</div>
       <div className="ui-controls-layout__middle">

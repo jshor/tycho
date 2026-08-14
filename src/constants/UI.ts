@@ -48,6 +48,12 @@ export const FAT_FINGER = 12
 /** Value of one increment of a pinch gesture. */
 export const PINCH_DELTA_SCALE = 10
 
+/** Amount of time at which the scene idles, in ms. */
+export const IDLE_INTERVAL = 5000
+
+/** Amount of time between interactions, in ms. */
+export const INTERACTION_INTERVAL = 250
+
 export const HOVER_OPACITY_ON = 1
 
 export const HOVER_OPACITY_OFF = 0.4

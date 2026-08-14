@@ -8,13 +8,8 @@ const visible = { isComplete: true, isAutoOrbitEnabled: true }
 
 describe('Spin Label Module', () => {
   const renderModule = (state: Partial<Store> = {}) => {
-    return renderWithStore(<SpinLabel />, { touched: 0, controlsEnabled: false, ...state })
+    return renderWithStore(<SpinLabel />, { controlsEnabled: false, ...state })
   }
-
-  /**
-   * Reaches for the scene, the way the event module does.
-   */
-  const touchScene = () => act(() => useStore.setState({ touched: 1 }))
 
   describe('isVisible()', () => {
     it('should show the prompt once the tour completes and the camera is orbiting', () => {
@@ -34,32 +29,19 @@ describe('Spin Label Module', () => {
 
       expect(container.querySelector('.spin-container--hide')).not.toBeNull()
     })
-  })
 
-  describe('maybeStopSpinPrompt()', () => {
-    it('should hand the camera to the user when they reach for the visible scene', () => {
-      renderModule(visible)
-      touchScene()
+    it('should hide the prompt while the scene is idling', () => {
+      const { container } = renderModule({ ...visible, isIdle: true })
 
-      const { isAutoOrbitEnabled, controlsEnabled } = useStore.getState()
-
-      expect(isAutoOrbitEnabled).toBe(false)
-      expect(controlsEnabled).toBe(true)
+      expect(container.querySelector('.spin-container--hide')).not.toBeNull()
     })
 
-    it('should do nothing while the user has not reached for the scene', () => {
-      renderModule(visible)
+    it('should take the prompt away as soon as the scene idles', () => {
+      const { container } = renderModule(visible)
 
-      act(() => useStore.setState({ touched: 0 }))
+      act(() => useStore.setState({ isIdle: true, isAutoOrbitEnabled: true }))
 
-      expect(useStore.getState().isAutoOrbitEnabled).toBe(true)
-    })
-
-    it('should do nothing when the prompt is not on screen', () => {
-      renderModule({ isComplete: false, isAutoOrbitEnabled: true })
-      touchScene()
-
-      expect(useStore.getState().isAutoOrbitEnabled).toBe(true)
+      expect(container.querySelector('.spin-container--hide')).not.toBeNull()
     })
   })
 })

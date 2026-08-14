@@ -157,6 +157,17 @@ describe('UI Controls Module', () => {
 
       expect(useStore.getState().zoom).toEqual(25)
     })
+
+    it('should count working the display as reaching for the scene', () => {
+      const now = 12345
+      vi.spyOn(Date, 'now').mockReturnValue(now)
+
+      const { container } = renderModule()
+
+      fireEvent.pointerDown(controls(container).playPause)
+
+      expect(useStore.getState().interacted).toEqual(now)
+    })
   })
 
   describe('the date picker', () => {

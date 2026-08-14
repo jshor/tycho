@@ -1,5 +1,6 @@
 import { createEvent, fireEvent, render } from '@testing-library/react'
 import { useStore } from '../../store'
+import { Constants } from '../../constants'
 import { Event } from '../event'
 
 /** Two fingers the given distance apart, along the x axis. */
@@ -24,23 +25,82 @@ describe('Event Module', () => {
     return container.firstElementChild as HTMLElement
   }
 
-  describe('onTouched()', () => {
+  describe('onInteract()', () => {
     it('should record the timestamp when the scene is pressed', () => {
       const now = 12345
       vi.spyOn(Date, 'now').mockReturnValue(now)
 
       fireEvent.mouseDown(renderModule())
 
-      expect(useStore.getState().touched).toEqual(now)
+      expect(useStore.getState().interacted).toEqual(now)
     })
 
-    it('should record the timestamp when the scene is touched', () => {
+    it('should record the timestamp when a finger lands on the scene', () => {
       const now = 12345
       vi.spyOn(Date, 'now').mockReturnValue(now)
 
       fireEvent.touchStart(renderModule())
 
-      expect(useStore.getState().touched).toEqual(now)
+      expect(useStore.getState().interacted).toEqual(now)
+    })
+
+    it('should record the timestamp when the scene is scrolled over', () => {
+      const now = 12345
+      vi.spyOn(Date, 'now').mockReturnValue(now)
+
+      fireEvent.wheel(renderModule())
+
+      expect(useStore.getState().interacted).toEqual(now)
+    })
+
+    it('should record the timestamp when the scene is released', () => {
+      const now = 12345
+      vi.spyOn(Date, 'now').mockReturnValue(now)
+
+      fireEvent.mouseUp(renderModule())
+
+      expect(useStore.getState().interacted).toEqual(now)
+    })
+
+    it('should record the timestamp when a finger moves across the scene', () => {
+      const now = 12345
+      vi.spyOn(Date, 'now').mockReturnValue(now)
+
+      fireEvent.touchMove(renderModule(), finger)
+
+      expect(useStore.getState().interacted).toEqual(now)
+    })
+
+    it('should keep recording while the scene is dragged', () => {
+      const scene = renderModule()
+      const start = 12345
+      const now = vi.spyOn(Date, 'now').mockReturnValue(start)
+
+      fireEvent.mouseDown(scene)
+      now.mockReturnValue(start + Constants.UI.INTERACTION_INTERVAL)
+      fireEvent.mouseMove(scene, { buttons: 1 })
+
+      expect(useStore.getState().interacted).toEqual(start + Constants.UI.INTERACTION_INTERVAL)
+    })
+
+    it('should ignore a pointer that merely passes over the scene', () => {
+      const scene = renderModule()
+
+      fireEvent.mouseMove(scene, { buttons: 0 })
+
+      expect(useStore.getState().interacted).toBeUndefined()
+    })
+
+    it('should record a gesture already underway no more than once an interval', () => {
+      const scene = renderModule()
+      const start = 12345
+      const now = vi.spyOn(Date, 'now').mockReturnValue(start)
+
+      fireEvent.mouseDown(scene)
+      now.mockReturnValue(start + Constants.UI.INTERACTION_INTERVAL - 1)
+      fireEvent.mouseMove(scene, { buttons: 1 })
+
+      expect(useStore.getState().interacted).toEqual(start)
     })
   })
 
