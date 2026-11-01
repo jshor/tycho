@@ -37,6 +37,16 @@ interface Props {
   font?: string
 }
 
+interface Placed {
+  /** The group containing the label's draw order. */
+  group: THREE.Group
+  /** The plane the label is drawn on. */
+  background: THREE.Mesh
+}
+
+/** The set of all labels placed in the scene. */
+const placed = new Set<Placed>()
+
 /**
  * A WebGL text element that always faces the camera.
  */
@@ -218,9 +228,26 @@ export function CameraText({
   }
 
   /**
-   * Highlights the label while the pointer rests anywhere on the plane it is drawn on.
+   * Returns true if the pointer is on another label drawn over this one.
    */
-  const applyPointerHoverState = (): void => {
+  const isCovered = (group: THREE.Group): boolean => {
+    for (const other of placed) {
+      if (
+        other.group !== group &&
+        other.group.visible &&
+        other.group.renderOrder > group.renderOrder &&
+        raycaster.intersectObject(other.background, false).length
+      ) {
+        return true
+      }
+    }
+    return false
+  }
+
+  /**
+   * Highlights the label when hovered.
+   */
+  const applyPointerHoverState = (group: THREE.Group): void => {
     const background = backgroundRef.current
 
     if (!background) return
@@ -229,7 +256,7 @@ export function CameraText({
     background.updateWorldMatrix(true, false)
     raycaster.setFromCamera(pointer, camera)
 
-    if (!raycaster.intersectObject(background, false).length) {
+    if (!raycaster.intersectObject(background, false).length || isCovered(group)) {
       if (isHovered.current && leaving.current === null) {
         leaving.current = setTimeout(releaseHover)
       }
@@ -263,15 +290,20 @@ export function CameraText({
     offsetFromOrbital(group)
 
     const distance = cameraPosition.distanceTo(textPosition)
+    // the hovered label is drawn after all the rest, so that none of it is hidden
+    const order = isHovered.current
+      ? Constants.WebGL.LABEL_RENDER_ORDER
+      : Constants.WebGL.LABEL_RENDER_ORDER - distance
 
-    // nearer labels are drawn last, so that they come out on top of the ones further off
-    group.renderOrder = Constants.WebGL.LABEL_RENDER_ORDER - distance
+    group.renderOrder = order
+
+    if (textRef.current) textRef.current.renderOrder = order
 
     scaleLabelToScreen(group, distance)
     faceCamera(group)
     applyBackgroundPlane(text)
     placeText(text)
-    applyPointerHoverState()
+    applyPointerHoverState(group)
   })
 
   /**
@@ -311,6 +343,21 @@ export function CameraText({
 
   // a label that goes away mid-departure would otherwise leave the timer to fire into nothing
   useEffect(() => cancelLeaving, [])
+
+  useEffect(() => {
+    const group = groupRef.current
+    const background = backgroundRef.current
+
+    if (!group || !background) return
+
+    const entry = { group, background }
+
+    placed.add(entry)
+
+    return () => {
+      placed.delete(entry)
+    }
+  }, [])
 
   /**
    * Plays a "clink" sound when the pointer hovers over the label.

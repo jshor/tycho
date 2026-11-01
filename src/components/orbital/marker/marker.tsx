@@ -84,7 +84,7 @@ export function Marker({ radius = 0, color = 'white', hovered }: Props) {
   })
 
   return (
-    <group>
+    <>
       {/* the halo when hovered */}
       <mesh ref={glowRef} material={glowMaterial} renderOrder={1} visible={false}>
         <ringGeometry args={[inner - GLOW_SPREAD, RADIUS + GLOW_SPREAD, SEGMENTS]} />
@@ -98,6 +98,6 @@ export function Marker({ radius = 0, color = 'white', hovered }: Props) {
       >
         <ringGeometry args={[inner, RADIUS, SEGMENTS]} />
       </mesh>
-    </group>
+    </>
   )
 }

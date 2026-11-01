@@ -1,5 +1,4 @@
 import * as THREE from 'three'
-import { HOVER_OPACITY_OFF } from './UI'
 
 /** The origin (0, 0, 0). */
 export const ORIGIN_POINT = new THREE.Vector3(0, 0, 0)
@@ -232,7 +231,7 @@ export const LABEL_BACKGROUND_MATERIAL = new THREE.MeshBasicMaterial({
   color: 0x000000,
   side: THREE.FrontSide,
   transparent: true,
-  opacity: HOVER_OPACITY_OFF,
+  opacity: 1,
   // hidden by the same bodies that hide the text it sits behind, or it would blank them out
   depthTest: true,
   depthWrite: false
@@ -241,7 +240,7 @@ export const LABEL_BACKGROUND_MATERIAL = new THREE.MeshBasicMaterial({
 /** Padding for the background overlay (in px?). */
 export const LABEL_BACKGROUND_PADDING = 0.3
 
-/** The order labels are drawn in, before the distance to each is taken off it. */
+/** The order labels are drawn in, before the distance to each is taken off it (or the hovered one's). */
 export const LABEL_RENDER_ORDER = 1000000
 
 /** Scalar multiple of how far a label should stand off from the orbital. */
