@@ -119,6 +119,8 @@ export interface Store {
   targetId?: string
   /** The ID of the orbital whose path+label are highlighted. */
   highlightedId?: string
+  /** The ID of the orbital having keyboard focus. */
+  focusedLabelId?: string
   /** The name of the orbital the camera is focused on. */
   targetName?: string
   /** Whether or not the camera animates its way to a newly focused orbital. */
@@ -160,6 +162,8 @@ export interface Store {
   setActiveOrbitalId: (targetId: string, animateTargetChange?: boolean) => void
   /** Highlights the given orbital's path (or null to un-highlight). */
   setHighlightedId: (id?: string) => void
+  /** Records the orbital whose having keyboard focus. */
+  setFocusedLabelId: (id?: string) => void
   /** Records how far through loading its assets the scene is. */
   setPercentLoaded: (count: number, total: number) => void
   /** Applies a new zoom level. */

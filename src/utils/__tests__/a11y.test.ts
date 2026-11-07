@@ -1,49 +1,80 @@
-import React from 'react'
-import { onActivate } from '../a11y'
-
-/** A key press carrying only what the handler reads of it. */
-const press = (key: string) =>
-  ({ key, preventDefault: vi.fn() }) as unknown as React.KeyboardEvent & {
-    preventDefault: ReturnType<typeof vi.fn>
-  }
+import { describeSpeed, focusById, prefersReducedMotion, recoverFocus } from '../a11y'
+import { Constants } from '../../constants'
 
 describe('a11y', () => {
-  describe('onActivate()', () => {
-    it('should press the control on Enter', () => {
-      const onClick = vi.fn()
-      const ev = press('Enter')
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    document.body.innerHTML = ''
+  })
 
-      onActivate(onClick)(ev)
-
-      expect(onClick).toHaveBeenCalledTimes(1)
-      expect(ev.preventDefault).toHaveBeenCalledTimes(1)
+  const stubFrame = () =>
+    vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
+      callback(0)
+      return 0
     })
 
-    it('should press the control on Space', () => {
-      const onClick = vi.fn()
-      const ev = press(' ')
+  describe('prefersReducedMotion()', () => {
+    it('should report the motion preference the system holds', () => {
+      vi.stubGlobal('matchMedia', (query: string) => ({ matches: query.includes('reduce') }))
 
-      onActivate(onClick)(ev)
-
-      expect(onClick).toHaveBeenCalledTimes(1)
-      expect(ev.preventDefault).toHaveBeenCalledTimes(1)
+      expect(prefersReducedMotion()).toBe(true)
     })
 
-    it('should leave every other key to the browser', () => {
-      const onClick = vi.fn()
-      const ev = press('Tab')
+    it('should report no preference where the system cannot be asked', () => {
+      vi.stubGlobal('matchMedia', undefined)
 
-      onActivate(onClick)(ev)
+      expect(prefersReducedMotion()).toBe(false)
+    })
+  })
 
-      expect(onClick).not.toHaveBeenCalled()
-      expect(ev.preventDefault).not.toHaveBeenCalled()
+  describe('describeSpeed()', () => {
+    it('should read real time out as such', () => {
+      expect(describeSpeed(0)).toEqual('1× real time')
     })
 
-    it('should do nothing when there is nothing to press', () => {
-      const ev = press('Enter')
+    it('should read out the power of ten in full, grouped in thousands', () => {
+      expect(describeSpeed(5)).toEqual('100,000× real time')
+    })
+  })
 
-      expect(() => onActivate()(ev)).not.toThrow()
-      expect(ev.preventDefault).not.toHaveBeenCalled()
+  describe('focusById()', () => {
+    it('should hand the focus to the element having the given ID once the frame has drawn', () => {
+      stubFrame()
+      document.body.innerHTML = '<button id="there">There</button>'
+
+      focusById('there')
+
+      expect(document.activeElement?.id).toEqual('there')
+    })
+
+    it('should do nothing when there is no such element', () => {
+      stubFrame()
+
+      expect(() => focusById('nowhere')).not.toThrow()
+    })
+  })
+
+  describe('recoverFocus()', () => {
+    beforeEach(() => {
+      stubFrame()
+      document.body.innerHTML = `
+        <div id="${Constants.UI.SCENE_ID}" tabindex="0"></div>
+        <button id="elsewhere">Elsewhere</button>
+      `
+    })
+
+    it('should hand a focus that dropped out of the page to the scene', () => {
+      recoverFocus()
+
+      expect(document.activeElement?.id).toEqual(Constants.UI.SCENE_ID)
+    })
+
+    it('should leave a focus that something else has taken where it is', () => {
+      document.getElementById('elsewhere')?.focus()
+
+      recoverFocus()
+
+      expect(document.activeElement?.id).toEqual('elsewhere')
     })
   })
 })

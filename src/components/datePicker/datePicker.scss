@@ -14,11 +14,20 @@
     transition: all var(--transition-speed-fast) ease-in-out;
     cursor: pointer;
     font-family: var(--font-family-mono);
-    opacity: 0.5;
+    opacity: 0.7;
+    text-shadow: 0 0 4px var(--brand-secondary);
 
     &:hover {
       text-shadow: var(--text-shadow);
       opacity: 1;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    padding-right: 0;
+
+    &__display {
+      font-size: 0.85em;
     }
   }
 
@@ -66,7 +75,11 @@
         color: var(--brand-primary);
       }
 
-      &__day--outside-month,
+      // the days of the months either side can still be picked, so must still be read
+      &__day--outside-month {
+        color: var(--text-muted);
+      }
+
       &__time-list-item--disabled {
         color: var(--brand-tertiary);
       }

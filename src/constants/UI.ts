@@ -58,5 +58,30 @@ export const HOVER_OPACITY_ON = 1
 
 export const HOVER_OPACITY_OFF = 0.4
 
-/** The keys that press a button, per the ARIA button pattern. */
-export const A11Y_ACTIVATION_KEYS = ['Enter', ' ']
+/** ID of the scene. */
+export const SCENE_ID = 'scene'
+
+/** ID of the heads-up display overlaying the scene. */
+export const CONTROLS_ID = 'controls'
+
+/** ID of the button naming the orbital the camera is focused on. */
+export const TARGET_LABEL_ID = 'target-label'
+
+/** The angle the camera turns through for each press of an arrow key, in radians. */
+export const KEYBOARD_ROTATE_STEP = Math.PI / 36
+
+/** The keys that turn the camera, as the [left, up] angles each one turns it by. */
+export const KEYBOARD_ROTATE_KEYS: Record<string, [number, number]> = {
+  ArrowLeft: [KEYBOARD_ROTATE_STEP, 0],
+  ArrowRight: [-KEYBOARD_ROTATE_STEP, 0],
+  ArrowUp: [0, KEYBOARD_ROTATE_STEP],
+  ArrowDown: [0, -KEYBOARD_ROTATE_STEP]
+}
+
+/** The keys that zoom the camera. */
+export const KEYBOARD_ZOOM_KEYS: Record<string, number> = {
+  '+': -WHEEL_DELTA_DIVISOR,
+  '=': -WHEEL_DELTA_DIVISOR,
+  '-': WHEEL_DELTA_DIVISOR,
+  _: WHEEL_DELTA_DIVISOR
+}

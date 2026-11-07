@@ -27,35 +27,24 @@ export function Stats({ description, velocity, magnitude, trueAnomaly, time, pag
         <Markdown text={description || ''} />
       </div>
 
-      <div className="stats__footer">
-        <div className="stats__info">
-          <span>{pageText && pageText.stats && pageText.stats.currentEarthTime}</span>
-          <br />
-          <span>{pageText && pageText.stats && pageText.stats.velocityAtVector}</span>
-          <br />
-          <span>{pageText && pageText.stats && pageText.stats.distanceToSun}</span>
-          <br />
-          <span>{pageText && pageText.stats && pageText.stats.trueAnomaly}</span>
-          <br />
-        </div>
-        <div className="stats__info">
-          <span>{time}</span>
-          <br />
-          <span>
-            {velocity}&nbsp;
-            {pageText && pageText.abbreviations && pageText.abbreviations.kilometers}/
-            {pageText && pageText.abbreviations && pageText.abbreviations.seconds}
-          </span>
-          <br />
-          <span>
-            {magnitude} {pageText && pageText.abbreviations && pageText.abbreviations.kilometers}
-          </span>
-          <br />
-          <span>
-            {trueAnomaly} {pageText && pageText.abbreviations && pageText.abbreviations.theta}
-          </span>
-        </div>
-      </div>
+      {/* each reading is paired with what it is, so the two are read out together */}
+      <dl className="stats__footer">
+        <dt>{pageText?.stats?.currentEarthTime}</dt>
+        <dd>{time}</dd>
+        <dt>{pageText?.stats?.velocityAtVector}</dt>
+        <dd>
+          {velocity}&nbsp;
+          {pageText?.abbreviations?.kilometers}/{pageText?.abbreviations?.seconds}
+        </dd>
+        <dt>{pageText?.stats?.distanceToSun}</dt>
+        <dd>
+          {magnitude} {pageText?.abbreviations?.kilometers}
+        </dd>
+        <dt>{pageText?.stats?.trueAnomaly}</dt>
+        <dd>
+          {trueAnomaly} {pageText?.abbreviations?.theta}
+        </dd>
+      </dl>
     </div>
   )
 }

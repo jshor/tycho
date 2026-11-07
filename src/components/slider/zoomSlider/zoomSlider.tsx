@@ -17,9 +17,12 @@ export function ZoomSlider({ value, onChange }: Props) {
   return (
     <div className="slider slider--vertical">
       <Slider
+        label="Zoom"
+        valueText={(level) => `${Math.round(level)}% zoomed out`}
         orientation="vertical"
         invert={true}
         step={Constants.WebGL.Zoom.STEP}
+        keyboardStep={Constants.WebGL.Zoom.KEYBOARD_STEP}
         min={Constants.WebGL.Zoom.MIN}
         max={Constants.WebGL.Zoom.MAX}
         value={level}

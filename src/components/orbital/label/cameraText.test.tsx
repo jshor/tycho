@@ -1,11 +1,13 @@
-import { act, fireEvent, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, fireEvent, screen, waitFor } from '@testing-library/react'
 import { renderInScene } from '../../../test/helpers'
 import userEvent from '@testing-library/user-event'
 import * as THREE from 'three'
 import { CameraText } from './cameraText'
 import { Constants } from '../../../constants'
 import { clink } from '../../../elements/sound'
-import { Store } from '../../../types'
+import { OrbitalData, Store } from '../../../types'
+import { useStore } from '../../../store'
+import { labelPlacements } from '../../../utils/labels'
 
 vi.mock('../../../elements/sound', () => ({
   clink: {
@@ -22,6 +24,7 @@ const scene = vi.hoisted(() => ({
   frame: undefined as undefined | (() => void),
   three: {
     camera: undefined as unknown,
+    scene: undefined as unknown,
     size: { width: 800, height: 600 },
     pointer: { x: 0, y: 0 },
     /** Stands in for the ray cast from the pointer, which decides what it is resting on. */
@@ -70,6 +73,7 @@ describe('Camera Text Component', () => {
     scene.frame = undefined
     scene.hasBounds = true
     scene.three.raycaster.intersectObject.mockReturnValue([])
+    scene.three.scene = new THREE.Scene()
     scene.three.camera = new THREE.PerspectiveCamera(
       Constants.WebGL.Camera.FOV,
       4 / 3,
@@ -349,8 +353,12 @@ describe('Camera Text Component', () => {
       bodyAt = new THREE.Vector3(),
       cameraAt = new THREE.Vector3(0, 0, 10),
       barycenterName,
-      marker
+      marker,
+      id,
+      focused
     }: {
+      id?: string
+      focused?: boolean
       standoff?: number
       barycenterId?: string
       maxDistance?: number
@@ -361,6 +369,8 @@ describe('Camera Text Component', () => {
     } = {}) => {
       const { container } = renderInScene(
         <CameraText
+          id={id}
+          focused={focused}
           standoff={standoff}
           barycenterId={barycenterId}
           maxDistance={maxDistance}
@@ -381,6 +391,9 @@ describe('Camera Text Component', () => {
       const group = asObject3D(container.querySelector('group'))
       const background = asObject3D(container.querySelector('mesh'))
       const textGroup = asObject3D(container.querySelectorAll('group')[1])
+
+      // the plane is projected onto the screen from where it sits in the world, which is the body
+      Object.assign(background, { matrixWorld: new THREE.Matrix4().setPosition(bodyAt) })
 
       group.parent = body
 
@@ -449,6 +462,122 @@ describe('Camera Text Component', () => {
       const far = runFrame({ cameraAt: new THREE.Vector3(0, 0, 500) }).group.renderOrder
 
       expect(near).toBeGreaterThan(far)
+    })
+
+    it('should draw the label holding the keyboard focus over all the rest, as if hovered', () => {
+      const { group } = runFrame({ focused: true, cameraAt: new THREE.Vector3(0, 0, 5) })
+
+      expect(group.renderOrder).toEqual(Constants.WebGL.LABEL_RENDER_ORDER)
+    })
+
+    describe('where it is drawn on screen', () => {
+      beforeEach(() => labelPlacements.clear())
+
+      it('should report where it drew the label, for the DOM to stand a button in for it', () => {
+        runFrame({ id: 'earth' })
+
+        const placement = labelPlacements.get('earth')
+
+        expect(placement?.visible).toBe(true)
+        expect(placement?.width).toBeGreaterThan(0)
+        expect(placement?.height).toBeGreaterThan(0)
+      })
+
+      it('should report the order it drew the label in, which the DOM stacks its buttons by', () => {
+        const { group } = runFrame({ id: 'earth' })
+
+        expect(labelPlacements.get('earth')?.order).toEqual(group.renderOrder)
+      })
+
+      it('should report nothing drawn until the text is laid out', () => {
+        scene.hasBounds = false
+
+        runFrame({ id: 'earth' })
+
+        expect(labelPlacements.get('earth')?.visible).toBeFalsy()
+      })
+
+      it('should report nothing drawn for a label behind the camera', () => {
+        runFrame({
+          id: 'earth',
+          bodyAt: new THREE.Vector3(0, 0, 20),
+          cameraAt: new THREE.Vector3(0, 0, 10)
+        })
+
+        expect(labelPlacements.get('earth')?.visible).toBe(false)
+      })
+
+      describe('behind another body', () => {
+        /** Stands a body of the given radius (in scene units) at the given place in the scene. */
+        const standBody = (at: THREE.Vector3, radius: number) => {
+          const body = new THREE.Group()
+
+          body.name = 'blocker'
+          body.position.copy(at)
+          ;(scene.three.scene as THREE.Scene).add(body)
+          useStore.setState({
+            orbitalData: [
+              { id: 'blocker', radius: radius * Constants.WebGL.UNIT_SCALE } as OrbitalData
+            ]
+          })
+        }
+
+        afterEach(() => useStore.setState({ orbitalData: undefined }))
+
+        it('should report nothing drawn for a label hidden behind a body', () => {
+          standBody(new THREE.Vector3(0, 0, 5), 1)
+
+          runFrame({ id: 'earth', cameraAt: new THREE.Vector3(0, 0, 10) })
+
+          expect(labelPlacements.get('earth')?.visible).toBe(false)
+        })
+
+        it('should report a label drawn when the body stands off to one side', () => {
+          standBody(new THREE.Vector3(5, 0, 5), 1)
+
+          runFrame({ id: 'earth', cameraAt: new THREE.Vector3(0, 0, 10) })
+
+          expect(labelPlacements.get('earth')?.visible).toBe(true)
+        })
+
+        it('should report a label drawn when the body stands behind it', () => {
+          standBody(new THREE.Vector3(0, 0, -5), 1)
+
+          runFrame({ id: 'earth', cameraAt: new THREE.Vector3(0, 0, 10) })
+
+          expect(labelPlacements.get('earth')?.visible).toBe(true)
+        })
+      })
+
+      it('should report nothing drawn for a label whose barycenter fell out of range', () => {
+        runFrame({ id: 'earth' })
+        runFrame({
+          id: 'earth',
+          barycenterId: 'system',
+          barycenterName: 'system',
+          maxDistance: 1,
+          cameraAt: new THREE.Vector3(0, 0, 500)
+        })
+
+        expect(labelPlacements.get('earth')?.visible).toBe(false)
+      })
+
+      it('should report nothing at all once the label goes away', () => {
+        const { container } = renderInScene(<CameraText id="earth">Earth</CameraText>)
+
+        labelPlacements.set('earth', {
+          visible: true,
+          left: 0,
+          top: 0,
+          width: 1,
+          height: 1,
+          order: 1
+        })
+        cleanup()
+
+        expect(container.childElementCount).toEqual(0)
+        expect(labelPlacements.has('earth')).toBe(false)
+      })
     })
 
     it('should hold the label at the same size on screen however far off it is', () => {

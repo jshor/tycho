@@ -30,6 +30,8 @@ export interface Props {
   pathOpacity?: number
   /** Whether or not the camera is focused on this orbital itself. */
   isFocused?: boolean
+  /** Whether or not the orbital's label is keyboard focus. */
+  isLabelFocused?: boolean
   /** The maximum distance at which the camera can be zoomed out to. */
   maxDistance?: number
   /** Orbital tail settings (i.e., for comets). */
@@ -76,6 +78,7 @@ export function Orbital(props: Props) {
             />
           )}
           <Label
+            id={id}
             text={props.text}
             color={ellipse.color}
             radius={radius}
@@ -83,6 +86,7 @@ export function Orbital(props: Props) {
             onHover={props.onHover}
             onLeave={props.onLeave}
             isFocused={props.isFocused}
+            isLabelFocused={props.isLabelFocused}
             parentId={props.parentId}
             isSatellite={props.isSatellite}
             maxDistance={props.maxDistance}

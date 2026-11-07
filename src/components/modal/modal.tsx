@@ -1,6 +1,5 @@
-import React from 'react'
+import React, { useId } from 'react'
 import cx from 'classnames'
-import { onActivate } from '../../utils/a11y'
 import './modal.scss'
 
 interface Props {
@@ -12,6 +11,8 @@ interface Props {
   title?: React.ReactNode
   /** Modal reference. */
   ref?: React.Ref<HTMLDivElement>
+  /** Close HTML button reference. */
+  closeRef?: React.Ref<HTMLButtonElement>
   /** The contents of the modal. */
   children?: React.ReactNode
 }
@@ -19,7 +20,9 @@ interface Props {
 /**
  * A titled, dismissible overlay panel.
  */
-export function Modal({ modalActive, closeModal, title, ref, children }: Props) {
+export function Modal({ modalActive, closeModal, title, ref, closeRef, children }: Props) {
+  const titleId = useId()
+
   return (
     <>
       {modalActive && <div className="modal__overlay" aria-hidden="true" onClick={closeModal} />}
@@ -29,18 +32,24 @@ export function Modal({ modalActive, closeModal, title, ref, children }: Props) 
           open: modalActive,
           closed: !modalActive
         })}`}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        inert={!modalActive}
       >
         <div className="modal__header">
-          <span>{title}</span>
-          <span
+          <h2 id={titleId} className="modal__title">
+            {title}
+          </h2>
+          <button
+            ref={closeRef}
+            type="button"
             className="modal__close"
-            role="button"
-            tabIndex={0}
+            aria-label="Close"
             onClick={closeModal}
-            onKeyDown={onActivate(closeModal)}
           >
-            &times;
-          </span>
+            <span aria-hidden="true">&times;</span>
+          </button>
         </div>
 
         <div className="modal__content">{children}</div>

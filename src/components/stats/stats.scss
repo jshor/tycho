@@ -11,16 +11,17 @@
     overflow-y: auto;
   }
 
-  &__info {
-    line-height: var(--font-line-height);
-    flex: 1;
-  }
-
   &__footer {
     flex: 0 0 auto;
     padding-top: var(--base-spacing);
-    margin-top: var(--base-spacing);
+    margin: var(--base-spacing) 0 0;
     border-top: var(--dotted-border);
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    line-height: var(--font-line-height);
+
+    dd {
+      margin: 0;
+    }
   }
 }

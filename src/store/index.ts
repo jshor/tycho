@@ -62,6 +62,11 @@ export const useStore = create<Store>()((set, get) => ({
   setHighlightedId: (highlightedId) => set({ highlightedId }),
 
   /**
+   * Sets the ID of the active orbital.
+   */
+  setFocusedLabelId: (focusedLabelId) => set({ focusedLabelId }),
+
+  /**
    * Sets the percentage of assets loaded, based on the count and total.
    */
   setPercentLoaded: (count, total) => set({ percent: (count / total) * 100 }),
@@ -83,3 +88,8 @@ export const useStore = create<Store>()((set, get) => ({
     set({ interacted: now })
   }
 }))
+
+// the end-to-end tests drive the scene into states (like a fixed time) a user would take ages to reach
+if ('Cypress' in window) {
+  Object.assign(window, { __TYCHO_STORE__: useStore })
+}

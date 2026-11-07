@@ -31,7 +31,9 @@ export const Tween = {
 export const Zoom = {
   MIN: 0,
   MAX: 100,
-  STEP: 0.005
+  STEP: 0.005,
+  /** The zoom level increment for each arrow key press. */
+  KEYBOARD_STEP: 5
 }
 
 export const Camera = {

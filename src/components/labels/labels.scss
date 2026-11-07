@@ -1,0 +1,42 @@
+.labels {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  overflow: clip;
+  pointer-events: none;
+  isolation: isolate;
+
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  &__item {
+    position: absolute;
+
+    &[hidden] {
+      display: none;
+    }
+  }
+
+  &__button {
+    display: block;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    pointer-events: none;
+
+    &:focus-visible {
+      outline: var(--focus-ring-width) solid var(--brand-primary);
+      outline-offset: var(--focus-ring-width);
+      box-shadow: 0 0 0 var(--focus-ring-width) var(--brand-secondary);
+    }
+  }
+}

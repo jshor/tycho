@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://tycho.io"><img src="https://raw.githubusercontent.com/jshor/tycho2/master/public/static/img/logo-gradient-dark.png" width="450" height="88" /></a>
+  <a href="https://tycho.io"><img src="https://raw.githubusercontent.com/jshor/tycho/master/public/static/img/logo-gradient-dark.png" width="450" height="88" /></a>
 </p>
 
 <p align="center">
@@ -173,7 +173,7 @@ Serves the built `dist` folder locally, to check a production build before it sh
 
 Ephemerides are all of the orbital characteristic data points used to aid in the computation of celestial positions of orbital bodies.
 
-For information on the file structure for these JSON files, please see the [Wiki](https://github.com/jshor/tycho2/wiki/Orbital-JSONs).
+For information on the file structure for these JSON files, please see the [Wiki](https://github.com/jshor/tycho/wiki/Orbital-JSONs).
 
 The maintainable versions of all orbital data (including their ephemerides) are stored in `public/static/data/orbitals/{heliocentric-system}/{satellite-or-barycentric-orbital}.json`.
 
@@ -188,7 +188,7 @@ The maintainable versions of all orbital data (including their ephemerides) are 
 
 **`yarn ephemerides`**
 
-Takes all orbital JSONs, probes the [JPL Horizons database](https://horizons.jpl.nasa.gov/) for ephemerides, and updates each JSON accordingly. For more information on this script, and on the prerequisite data format, please see [this wiki page](https://github.com/jshor/tycho2/wiki/Orbital-JSONs#nasa-jpl-horizons).
+Takes all orbital JSONs, probes the [JPL Horizons database](https://horizons.jpl.nasa.gov/) for ephemerides, and updates each JSON accordingly. For more information on this script, and on the prerequisite data format, please see [this wiki page](https://github.com/jshor/tycho/wiki/Orbital-JSONs#nasa-jpl-horizons).
 
 ## Building the main orbitals file
 

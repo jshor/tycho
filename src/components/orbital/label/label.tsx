@@ -6,14 +6,18 @@ import { Marker } from '../marker/marker'
 import { Scale } from '../../../utils/scale'
 
 interface Props {
+  /** The ID of the orbital. */
+  id?: string
   /** The text to display in the label. */
   text: string
   /** The color of the label's text, which the orbital wears elsewhere in the scene too. */
   color?: THREE.ColorRepresentation
-  /** The radius of the orbital the label names, in km. */
+  /** The radius of the orbital, in km. */
   radius?: number
   /** Whether or not the camera is focused on this orbital itself. */
   isFocused?: boolean
+  /** Whether or not the label holds is focused. */
+  isLabelFocused?: boolean
   /** The parent identifier for the label. */
   parentId?: string
   /** Whether the label is for a satellite. */
@@ -33,10 +37,12 @@ interface Props {
  */
 export const Label = React.memo(
   ({
+    id,
     text,
     color = 'white',
     radius = 0,
     isFocused,
+    isLabelFocused,
     parentId,
     isSatellite,
     maxDistance,
@@ -51,6 +57,8 @@ export const Label = React.memo(
 
     return (
       <CameraText
+        id={id}
+        focused={isLabelFocused}
         color={color}
         fontSize={Constants.WebGL.LABEL_FONT_SIZE}
         font={Constants.WebGL.LABEL_FONT_PATH}

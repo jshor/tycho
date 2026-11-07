@@ -24,7 +24,8 @@
     pointer-events: none;
     transform: translate(calc(var(--base-spacing) / 2), -50%);
     transition-property: opacity, visibility, transform;
-    transition-duration: var(--transition-speed-fast);
+    transition-duration: var(--transition-speed-fast), 0s, var(--transition-speed-fast);
+    transition-delay: 0s, var(--transition-speed-fast), 0s;
     &:before,
     &:after {
       content: '';
@@ -49,6 +50,7 @@
   &--open &__popover {
     opacity: 1;
     visibility: visible;
+    transition-delay: 0s;
     pointer-events: auto;
     transform: translate(0, -50%);
   }

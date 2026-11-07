@@ -5,8 +5,8 @@ import { Modal } from '../modal'
 import { Constants } from '../../constants'
 import { OrbitalData, Store } from '../../types'
 
-/** The key code that dismisses an open modal. */
-const ESCAPE = 27
+/** The key that dismisses an open modal. */
+const ESCAPE = 'Escape'
 
 describe('Modal Module', () => {
   const renderModule = (state: Partial<Store> = {}) => {
@@ -145,7 +145,7 @@ describe('Modal Module', () => {
     it('should close the modal when escape is pressed and the modal is open', () => {
       renderModule({ activeModal: 'TEST_MODAL', controlsEnabled: false })
 
-      fireEvent.keyDown(window, { keyCode: ESCAPE })
+      fireEvent.keyDown(window, { key: ESCAPE })
 
       const { activeModal, controlsEnabled } = useStore.getState()
 
@@ -156,7 +156,7 @@ describe('Modal Module', () => {
     it('should do nothing when escape is pressed and the modal is closed', () => {
       renderModule({ activeModal: 'OTHER_MODAL', controlsEnabled: false })
 
-      fireEvent.keyDown(window, { keyCode: ESCAPE })
+      fireEvent.keyDown(window, { key: ESCAPE })
 
       expect(useStore.getState().activeModal).toEqual('OTHER_MODAL')
     })
@@ -164,7 +164,7 @@ describe('Modal Module', () => {
     it('should do nothing when another key is pressed', () => {
       renderModule({ activeModal: 'TEST_MODAL' })
 
-      fireEvent.keyDown(window, { keyCode: 13 })
+      fireEvent.keyDown(window, { key: 'Enter' })
 
       expect(useStore.getState().activeModal).toEqual('TEST_MODAL')
     })
@@ -173,7 +173,7 @@ describe('Modal Module', () => {
       const { unmount } = renderModule({ activeModal: 'TEST_MODAL' })
 
       unmount()
-      fireEvent.keyDown(window, { keyCode: ESCAPE })
+      fireEvent.keyDown(window, { key: ESCAPE })
 
       expect(useStore.getState().activeModal).toEqual('TEST_MODAL')
     })

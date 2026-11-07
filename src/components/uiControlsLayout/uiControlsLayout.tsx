@@ -1,5 +1,5 @@
 import cx from 'classnames'
-import { onActivate } from '../../utils/a11y'
+import { Constants } from '../../constants'
 import './uiControlsLayout.scss'
 
 interface Props {
@@ -42,6 +42,7 @@ export function UIControlsLayout({
 
   return (
     <div
+      id={Constants.UI.CONTROLS_ID}
       // the frame carries no meaning of its own, and listens only to hear the controls it holds
       role="presentation"
       className={cx({
@@ -56,15 +57,15 @@ export function UIControlsLayout({
       <div className="ui-controls-layout__left">{left}</div>
       <div className="ui-controls-layout__middle">
         <div className="ui-controls-layout__top">
-          <div
+          <button
+            id={Constants.UI.TARGET_LABEL_ID}
+            type="button"
             className="ui-controls-layout__label"
-            role="button"
-            tabIndex={0}
+            aria-haspopup="dialog"
             onClick={onLabelClick}
-            onKeyDown={onActivate(onLabelClick)}
           >
             {label}
-          </div>
+          </button>
         </div>
         <div className="ui-controls-layout__center"></div>
         <div className="ui-controls-layout__bottom">{bottom}</div>

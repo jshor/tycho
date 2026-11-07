@@ -147,7 +147,10 @@ export function UIControls() {
       onLabelClick={() => openModal(Constants.UI.ModalTypes.STATS_MODAL)}
       left={
         <>
-          <ControlButton onClick={() => openModal(Constants.UI.ModalTypes.ABOUT_MODAL)}>
+          <ControlButton
+            label="About"
+            onClick={() => openModal(Constants.UI.ModalTypes.ABOUT_MODAL)}
+          >
             <span style={{ fontSize: '1.25rem' }}>i</span>
           </ControlButton>
           <ZoomSlider value={zoom} onChange={changeZoom} />

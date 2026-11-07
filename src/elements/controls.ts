@@ -3,6 +3,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { Easing, Tween } from '@tweenjs/tween.js'
 import { Constants } from '../constants'
 import { tweens } from '../utils/tween'
+import { prefersReducedMotion } from '../utils/a11y'
 
 export class Controls extends OrbitControls {
   /** The active camera instance. */
@@ -180,7 +181,7 @@ export class Controls extends OrbitControls {
    * Starts auto-rotating the camera at the given speed.
    */
   startAutoRotate = (speed: number): void => {
-    this.autoRotate = true
+    this.autoRotate = !prefersReducedMotion()
     this.autoRotateSpeed = speed
   }
 

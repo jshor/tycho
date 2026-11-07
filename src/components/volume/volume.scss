@@ -8,6 +8,10 @@
   display: flex;
   flex-direction: row;
   transform: rotateX(-180deg);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
 
   &__bar {
     width: calc(var(--icon-size) / 4);

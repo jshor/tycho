@@ -20,6 +20,7 @@ import { Controls } from '../elements/controls'
 import { Ambience } from '../elements/ambience'
 import { Constants } from '../constants'
 import { getGeometricStep } from '../utils/math'
+import { prefersReducedMotion } from '../utils/a11y'
 
 interface Props {
   /** The aspect ratio the camera renders at. */
@@ -100,7 +101,7 @@ const Camera = React.forwardRef<CameraHandle, Props>(({ ratio }, ref) => {
    */
   useEffect(() => {
     if (controlsRef.current) {
-      controlsRef.current.autoRotate = !!isAutoOrbitEnabled
+      controlsRef.current.autoRotate = !!isAutoOrbitEnabled && !prefersReducedMotion()
     }
   }, [isAutoOrbitEnabled])
 

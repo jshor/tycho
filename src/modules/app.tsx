@@ -5,6 +5,7 @@ import { Clock } from '../elements/clock'
 import { SplashScreen } from '../components/splashScreen/splashScreen'
 import { Markdown } from '../components/markdown/markdown'
 import { Constants } from '../constants'
+import { focusById } from '../utils/a11y'
 import { Idle } from './idle'
 import { Loader } from './loader'
 import { Modal } from './modal'
@@ -12,6 +13,9 @@ import { Tour } from './tour'
 import { Scene } from './scene'
 import { Stats } from './stats'
 import { UIControls } from './uiControls'
+import { Labels } from './labels'
+
+const TITLE = 'Tycho: Solar System Simulator' // TODO: move to common i18n lib
 
 /**
  * Drives the simulation clock, holding the app behind a splash screen until its data arrives.
@@ -24,6 +28,8 @@ export function App() {
   const playing = useStore((state) => state.playing)
   const requestOrbitalData = useStore((state) => state.requestOrbitalData)
   const requestPageText = useStore((state) => state.requestPageText)
+  const isComplete = useStore((state) => state.isComplete)
+  const activeModal = useStore((state) => state.activeModal)
   // the clock outlives every render, and is built the once
   const [clock] = useState(() => new Clock())
   const lastTime = useRef(0)
@@ -101,14 +107,27 @@ export function App() {
     }
   }, [timeOffset, playing, clock])
 
+  /**
+   * Hands the keyboard focus to the scene once the tour leaves it to the user.
+   */
+  useEffect(() => {
+    if (isComplete) {
+      focusById(Constants.UI.SCENE_ID)
+    }
+  }, [isComplete])
+
   if (orbitalData && pageText) {
     // if (!webglEnabled) {
     //     return <NoWebGL pageText={pageText} />;
     // }
     return (
-      <>
-        <Scene onAnimate={onAnimate} width={window.innerWidth} height={window.innerHeight} />
-        <UIControls />
+      <main className="app">
+        <h1 className="sr-only">{TITLE}</h1>
+        <div inert={!isComplete || !!activeModal}>
+          <Scene onAnimate={onAnimate} />
+          <Labels />
+          <UIControls />
+        </div>
         <Idle />
         <Loader />
         <Tour labels={Constants.Tour.LABELS} />
@@ -118,8 +137,13 @@ export function App() {
         <Modal type={Constants.UI.ModalTypes.ABOUT_MODAL}>
           <Markdown text={pageText.aboutInfo} />
         </Modal>
-      </>
+      </main>
     )
   }
-  return <SplashScreen />
+  return (
+    <main className="app">
+      <h1 className="sr-only">{TITLE}</h1>
+      <SplashScreen show />
+    </main>
+  )
 }

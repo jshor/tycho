@@ -21,6 +21,10 @@
     pointer-events: none;
     touch-action: none;
     z-index: var(--z-index-bottom);
+    visibility: hidden;
+    transition:
+      opacity var(--splash-transition-speed),
+      visibility 0s var(--splash-transition-speed);
   }
 
   &__hero {
@@ -38,6 +42,7 @@
 
   &__loading {
     width: 500px;
+    max-width: 80vw;
     height: 4px;
     background-color: #808080;
   }
@@ -56,6 +61,7 @@
   }
 
   &__button-anchor {
+    font: inherit;
     color: var(--brand-primary);
     border: 3px solid var(--brand-primary);
     padding: 0.35em 2em;

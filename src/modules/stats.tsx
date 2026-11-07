@@ -27,7 +27,8 @@ export function Stats() {
    * The statistics of the focused orbital, read out anew as the clock ticks.
    */
   const stats = useMemo<OrbitalStats>(() => {
-    if (!target || time === undefined) {
+    // the sun orbits nothing (well, technically only its barycenter)
+    if (!target || time === undefined || !target.semimajor) {
       return {
         magnitude: 'N/A',
         velocity: 'N/A',

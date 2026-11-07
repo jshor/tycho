@@ -29,7 +29,7 @@ export function SpinLabel({ show, count }: Props) {
   const modifier = show ? 'show' : 'hide'
 
   return (
-    <div className={`spin-container spin-container--${modifier}`}>
+    <div className={`spin-container spin-container--${modifier}`} aria-hidden="true">
       <div className="spin">
         {createArrowSet('left', count)}
         <div className="spin__label">Spin</div>

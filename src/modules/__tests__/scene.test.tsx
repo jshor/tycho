@@ -32,9 +32,7 @@ vi.mock('../../elements/controls', () => ({
 const orbitalData = data as OrbitalData[]
 
 const baseProps = {
-  onAnimate: vi.fn(),
-  width: 500,
-  height: 300
+  onAnimate: vi.fn()
 }
 
 describe('Scene Module', () => {

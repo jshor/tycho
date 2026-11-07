@@ -75,6 +75,14 @@ describe('Stats Module', () => {
       expect(container.querySelector('.stats__description')?.textContent).toEqual('')
     })
 
+    it('should report no statistics for an orbital that orbits nothing, like the sun', () => {
+      const sun = { ...target, semimajor: 0 }
+      const { container } = renderModule({ targetId: sun.id, target: sun })
+
+      expect(container.textContent).toContain('N/A')
+      expect(container.textContent).not.toContain('NaN')
+    })
+
     it('should display the current simulation time', () => {
       const { container } = renderModule({ time: 1000 })
 

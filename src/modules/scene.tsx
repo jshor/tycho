@@ -9,14 +9,11 @@ import { updateTweens } from '../utils/tween'
 import { Sun } from '../components/sun/sun'
 import { OrbitalData } from '../types'
 import { Orbital } from './orbital'
+import { LabelSync } from './labels'
 
 interface Props {
   /** Invoked on every animation frame of the scene. */
   onAnimate: () => void
-  /** The width of the canvas, in px. */
-  width: number
-  /** The height of the canvas, in px. */
-  height: number
   /** Anything rendered into the scene alongside the orbitals. */
   children?: React.ReactNode
 }
@@ -51,8 +48,6 @@ function AnimationTick({ onAnimate }: { onAnimate: () => void }): null {
 }
 
 interface CanvasContentProps {
-  /** The aspect ratio the camera renders at. */
-  ratio: number
   /** A handle on the camera, for the zoom the canvas captures. */
   cameraRef: React.RefObject<CameraHandle>
   /** Invoked on every animation frame of the scene. */
@@ -75,19 +70,22 @@ function getOrbitalElements(orbitals: OrbitalData[], isSatellite?: boolean, pare
 /**
  * Everything rendered inside the canvas: the camera, the skybox, and the scene itself.
  */
-function CanvasContent({ ratio, cameraRef, onAnimate, children }: CanvasContentProps) {
+function CanvasContent({ cameraRef, onAnimate, children }: CanvasContentProps) {
   const orbitalData = useStore((state) => state.orbitalData)
+  // the canvas is measured afresh as the window resizes (or the phone turns), the camera with it
+  const { size } = useThree()
 
   return (
     <>
       <SkyboxSetup />
       <AnimationTick onAnimate={onAnimate} />
-      <Camera ref={cameraRef} ratio={ratio} />
+      <Camera ref={cameraRef} ratio={size.width / size.height} />
       <group>
         {getOrbitalElements(orbitalData)}
         <Sun />
         {children}
       </group>
+      <LabelSync />
     </>
   )
 }
@@ -95,8 +93,9 @@ function CanvasContent({ ratio, cameraRef, onAnimate, children }: CanvasContentP
 /**
  * Connects the scene's canvas to the store.
  */
-export function Scene({ onAnimate, width, height, children }: Props) {
+export function Scene({ onAnimate, children }: Props) {
   const changeZoomLevel = useStore((state) => state.changeZoom)
+  const targetName = useStore((state) => state.targetName)
   const cameraRef = useRef<CameraHandle>(null)
 
   /**
@@ -138,8 +137,40 @@ export function Scene({ onAnimate, width, height, children }: Props) {
     computeZoom(-separationDelta * Constants.UI.PINCH_DELTA_SCALE, changeZoomLevel)
   }
 
+  /**
+   * Handles the arrow key presses.
+   *
+   *  - arrow keys rotate the camera
+   *  - `Ctrl`+`+` or `⌘`+`+` zooms in
+   *  - `Ctrl`+`-` or `⌘`+`-` zooms out
+   */
+  const onKeyDown = (ev: React.KeyboardEvent<HTMLDivElement>) => {
+    const controls = cameraRef.current?.controls
+    const turn = Constants.UI.KEYBOARD_ROTATE_KEYS[ev.key]
+    const scroll = Constants.UI.KEYBOARD_ZOOM_KEYS[ev.key]
+
+    if (!controls?.enabled || ev.altKey || ev.ctrlKey || ev.metaKey) return
+
+    if (turn) {
+      ev.preventDefault()
+      controls.stopAutoRotate()
+      controls.rotateLeft(turn[0])
+      controls.rotateUp(turn[1])
+    } else if (scroll) {
+      ev.preventDefault()
+      computeZoom(scroll, tweenZoom)
+    }
+  }
+
   return (
-    <Event onWheel={onWheel} onPinch={onPinch}>
+    <Event
+      id={Constants.UI.SCENE_ID}
+      label={targetName ? `Solar system, viewing ${targetName}` : 'Solar system'}
+      instructions="Use the arrow keys to turn the camera, and plus or minus to zoom it."
+      onKeyDown={onKeyDown}
+      onWheel={onWheel}
+      onPinch={onPinch}
+    >
       <Canvas
         gl={{
           antialias: true,
@@ -147,7 +178,7 @@ export function Scene({ onAnimate, width, height, children }: Props) {
           powerPreference: 'high-performance'
         }}
       >
-        <CanvasContent ratio={width / height} cameraRef={cameraRef} onAnimate={onAnimate}>
+        <CanvasContent cameraRef={cameraRef} onAnimate={onAnimate}>
           {children}
         </CanvasContent>
       </Canvas>

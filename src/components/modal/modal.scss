@@ -17,9 +17,12 @@
   opacity: 0;
   padding: var(--base-spacing);
   transform: translateX(100%);
-  transition-property: background-color, opacity, transform;
-  transition-duration: var(--transition-speed);
+  transition-property: background-color, opacity, transform, visibility;
+  transition-duration:
+    var(--transition-speed), var(--transition-speed), var(--transition-speed), 0s;
+  transition-delay: 0s, 0s, 0s, var(--transition-speed);
   z-index: var(--z-index-top);
+  visibility: hidden;
 
   @media screen and (max-width: 600px) {
     width: 100%;
@@ -29,6 +32,8 @@
   &--open {
     transform: translateX(0);
     opacity: 1;
+    visibility: visible;
+    transition-delay: 0s;
   }
 
   &__header {
@@ -36,6 +41,16 @@
     font-size: var(--font-size-large);
     padding: calc(var(--base-spacing) / 2) 0;
     flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--base-spacing);
+  }
+
+  &__title {
+    margin: 0;
+    font-size: inherit;
+    font-weight: inherit;
   }
 
   &__content {
@@ -59,9 +74,16 @@
   }
 
   &__close {
-    float: right;
+    min-width: var(--icon-size);
+    min-height: var(--icon-size);
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
     cursor: pointer;
-    transition: all var(--transition-speed-fast) ease-in-out;
+    transition: text-shadow var(--transition-speed-fast) ease-in-out;
     &:hover {
       text-shadow: var(--text-shadow);
     }

@@ -4,6 +4,10 @@ import { Text } from '@react-three/drei'
 import { useRef, useState, useMemo, useEffect } from 'react'
 import { Constants } from '../../../constants'
 import { clink } from '../../../elements/sound'
+import { labelPlacements } from '../../../utils/labels'
+import { countBodies, getOccludingBodies, OccludingBody } from '../../../utils/sun'
+import { Scale } from '../../../utils/scale'
+import { useStore } from '../../../store'
 
 interface TroikaText extends THREE.Mesh {
   textRenderInfo?: {
@@ -13,6 +17,10 @@ interface TroikaText extends THREE.Mesh {
 }
 
 interface Props {
+  /** The ID of the orbital. */
+  id?: string
+  /** Whether or not the button is keyboard focused. */
+  focused?: boolean
   /** Children elements to be rendered inside the text. */
   children?: React.ReactNode
   /** The visual circle that pinpoints the orbital body. */
@@ -47,10 +55,20 @@ interface Placed {
 /** The set of all labels placed in the scene. */
 const placed = new Set<Placed>()
 
+/** The corners of the unit plane a label is drawn on, in its own local units. */
+const PLANE_CORNERS: [number, number][] = [
+  [-0.5, -0.5],
+  [0.5, -0.5],
+  [0.5, 0.5],
+  [-0.5, 0.5]
+]
+
 /**
  * A WebGL text element that always faces the camera.
  */
 export function CameraText({
+  id,
+  focused,
   children,
   marker,
   fontSize = 1,
@@ -67,7 +85,9 @@ export function CameraText({
   const groupRef = useRef<THREE.Group>(null)
   const textRef = useRef<THREE.Group>(null)
   const backgroundRef = useRef<THREE.Mesh>(null)
-  const { camera, size, raycaster, pointer } = useThree()
+  const { camera, scene, size, raycaster, pointer } = useThree()
+  const orbitalData = useStore((state) => state.orbitalData)
+  const bodiesRef = useRef<OccludingBody[]>([])
   const isVisible = useRef(true)
   const pressedAt = useRef<{ x: number; y: number } | null>(null)
   const leaving = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -86,6 +106,12 @@ export function CameraText({
   const parentQuaternion = useMemo(() => new THREE.Quaternion(), [])
   const inverseParent = useMemo(() => new THREE.Quaternion(), [])
   const parentScale = useMemo(() => new THREE.Vector3(), [])
+  const corner = useMemo(() => new THREE.Vector3(), [])
+  const toLabel = useMemo(() => new THREE.Vector3(), [])
+  const toBody = useMemo(() => new THREE.Vector3(), [])
+
+  /** Whether the label is drawn as if hovered, which a keyboard focus does just as a pointer. */
+  const isRaised = hovered || !!focused
 
   /**
    * Abandons a departure the pointer has not seen through.
@@ -134,8 +160,9 @@ export function CameraText({
     group.visible = withinRange
 
     if (!withinRange) {
-      // there is nothing left on screen for the pointer to be on
+      // nothing is left on screen for the pointer or for a DOM button
       releaseHover()
+      hidePlacement()
     }
 
     return withinRange
@@ -273,6 +300,90 @@ export function CameraText({
   }
 
   /**
+   * Records that the label is drawn nowhere on screen.
+   */
+  const hidePlacement = (): void => {
+    if (id && labelPlacements.has(id)) {
+      labelPlacements.set(id, { ...labelPlacements.get(id), visible: false })
+    }
+  }
+
+  /**
+   * Returns the bodies that may stand between the camera and the label.
+   */
+  const getBodies = (): OccludingBody[] => {
+    if (bodiesRef.current.length < countBodies(orbitalData)) {
+      bodiesRef.current = getOccludingBodies(scene, orbitalData)
+    }
+
+    return bodiesRef.current
+  }
+
+  /**
+   * Returns true if a body stands between the camera and the point the label hangs from, which
+   * hides the label from view, as the depth test draws it.
+   */
+  const isOccluded = (): boolean => {
+    toLabel.subVectors(textPosition, cameraPosition)
+
+    const reach = toLabel.length()
+
+    toLabel.divideScalar(reach || 1)
+
+    return getBodies().some(({ object, radius }) => {
+      object.getWorldPosition(toBody).sub(cameraPosition)
+
+      // how far along the line of sight the body sits, which must be short of the label
+      const along = toBody.dot(toLabel)
+
+      return along > 0 && along < reach && toBody.lengthSq() - along * along < Scale(radius) ** 2
+    })
+  }
+
+  /**
+   * Records where on screen the label's background was drawn. Its DOM button is placed there.
+   */
+  const recordPlacement = (text: TroikaText, order: number): void => {
+    const background = backgroundRef.current
+
+    if (!id || !background) return
+
+    if (!text.textRenderInfo) {
+      // the text is not laid out yet so nothing is drawn
+      return hidePlacement()
+    }
+
+    let [left, top, right, bottom] = [Infinity, Infinity, -Infinity, -Infinity]
+    let isInFront = true
+
+    for (const [x, y] of PLANE_CORNERS) {
+      corner.set(x, y, 0).applyMatrix4(background.matrixWorld).project(camera)
+
+      // a corner past the far side of the frustum is one behind the camera
+      isInFront &&= corner.z <= 1
+
+      const screenX = ((corner.x + 1) / 2) * size.width
+      const screenY = ((1 - corner.y) / 2) * size.height
+
+      left = Math.min(left, screenX)
+      top = Math.min(top, screenY)
+      right = Math.max(right, screenX)
+      bottom = Math.max(bottom, screenY)
+    }
+
+    const isOnScreen = right > 0 && bottom > 0 && left < size.width && top < size.height
+
+    labelPlacements.set(id, {
+      visible: isInFront && isOnScreen && !isOccluded(),
+      left,
+      top,
+      width: right - left,
+      height: bottom - top,
+      order
+    })
+  }
+
+  /**
    * Updates the label's position, scale, and orientation each frame.
    */
   useFrame(() => {
@@ -290,10 +401,11 @@ export function CameraText({
     offsetFromOrbital(group)
 
     const distance = cameraPosition.distanceTo(textPosition)
-    // the hovered label is drawn after all the rest, so that none of it is hidden
-    const order = isHovered.current
-      ? Constants.WebGL.LABEL_RENDER_ORDER
-      : Constants.WebGL.LABEL_RENDER_ORDER - distance
+    // the hovered (or focused) label is drawn after all the rest, so that none of it is hidden
+    const order =
+      isHovered.current || focused
+        ? Constants.WebGL.LABEL_RENDER_ORDER
+        : Constants.WebGL.LABEL_RENDER_ORDER - distance
 
     group.renderOrder = order
 
@@ -304,6 +416,7 @@ export function CameraText({
     applyBackgroundPlane(text)
     placeText(text)
     applyPointerHoverState(group)
+    recordPlacement(text, order)
   })
 
   /**
@@ -344,6 +457,15 @@ export function CameraText({
   // a label that goes away mid-departure would otherwise leave the timer to fire into nothing
   useEffect(() => cancelLeaving, [])
 
+  // forget where the label was drawn once it goes away
+  useEffect(() => {
+    if (!id) return
+
+    return () => {
+      labelPlacements.delete(id)
+    }
+  }, [id])
+
   useEffect(() => {
     const group = groupRef.current
     const background = backgroundRef.current
@@ -371,7 +493,7 @@ export function CameraText({
   return (
     <group ref={groupRef} onPointerDown={onPress} onPointerUp={onRelease}>
       {/* the marker keeps the group's own origin, which sits on the body itself */}
-      {marker?.(hovered)}
+      {marker?.(isRaised)}
 
       <group ref={textRef}>
         <mesh ref={backgroundRef} material={Constants.WebGL.LABEL_BACKGROUND_MATERIAL}>
@@ -385,9 +507,9 @@ export function CameraText({
           renderOrder={1} // render on top of the mesh
           color={color}
           outlineColor={color}
-          outlineWidth={hovered ? Constants.WebGL.LABEL_GLOW.WIDTH : 0}
-          outlineBlur={hovered ? Constants.WebGL.LABEL_GLOW.BLUR : 0}
-          outlineOpacity={hovered ? Constants.WebGL.LABEL_GLOW.OPACITY : 0}
+          outlineWidth={isRaised ? Constants.WebGL.LABEL_GLOW.WIDTH : 0}
+          outlineBlur={isRaised ? Constants.WebGL.LABEL_GLOW.BLUR : 0}
+          outlineOpacity={isRaised ? Constants.WebGL.LABEL_GLOW.OPACITY : 0}
           {...props}
         >
           {children}

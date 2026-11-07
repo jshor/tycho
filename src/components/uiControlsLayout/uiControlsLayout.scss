@@ -43,11 +43,19 @@
   &__middle,
   &__center {
     flex: 1;
+    min-width: 0;
   }
 
   &__label {
+    max-width: 100%;
+    overflow-wrap: anywhere;
     pointer-events: all;
     touch-action: auto;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    font-family: inherit;
     font-size: var(--font-size-large);
     color: var(--color-text);
     text-align: center;

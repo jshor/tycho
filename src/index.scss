@@ -25,6 +25,8 @@
   --text-shadow: 1px 1px 10px var(--brand-primary);
   --dotted-border: 1px dotted var(--brand-primary);
   --opaque-backdrop: rgba(0, 0, 0, 0.8);
+  --focus-ring-width: 2px;
+  --text-muted: #8c8c8c;
 
   /* animations */
   --transition-speed: 1s;
@@ -75,7 +77,8 @@ body,
 #root {
   padding: 0;
   margin: 0;
-  overflow: hidden;
+  // clipped, rather than hidden, so that focusing something at the edge cannot scroll the page
+  overflow: clip;
   background-color: var(--brand-secondary);
   font-family: var(--font-family-serif);
 }
@@ -84,4 +87,51 @@ canvas {
   cursor:
     url('/static/img/cursor.png') 38 24,
     auto;
+}
+
+// read out by assistive technology, but never drawn
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+// a light ring around a dark one, so the focus reads against the scene whatever is drawn behind it
+:focus-visible {
+  outline: var(--focus-ring-width) solid var(--brand-primary);
+  outline-offset: var(--focus-ring-width);
+  box-shadow: 0 0 0 var(--focus-ring-width) var(--brand-secondary);
+}
+
+// the scene fills the screen, so its ring is drawn inside its edges, where it can be seen
+.event:focus-visible {
+  outline-offset: calc(-2 * var(--focus-ring-width));
+  box-shadow: inset 0 0 0 calc(3 * var(--focus-ring-width)) var(--brand-secondary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    // none at all, rather than a hair's breadth, which would leave a hidden element hidden for a frame
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+// the app is laid out over the viewport, with whatever slides out of view (like a closed modal)
+// clipped off, so that nothing can be scrolled to sideways
+.app {
+  position: fixed;
+  inset: 0;
+  overflow: clip;
 }

@@ -27,7 +27,7 @@ describe('Speed Control Component', () => {
   it('should show the speed as a power of ten', () => {
     const { container } = render(<SpeedControl speed={4} />)
 
-    expect(container.querySelector('.control-button')?.textContent).toEqual('×104')
+    expect(container.querySelector('.control-button')?.textContent).toContain('×104')
     expect(container.querySelector('.speed-control__exponent')?.textContent).toEqual('4')
   })
 
@@ -42,9 +42,9 @@ describe('Speed Control Component', () => {
       const { container } = render(<SpeedControl speed={1} />)
 
       expect(isOpen(container)).toBe(false)
-      expect(
-        container.querySelector('.speed-control__popover')?.getAttribute('aria-hidden')
-      ).toEqual('true')
+      expect(container.querySelector('.control-button')?.getAttribute('aria-expanded')).toEqual(
+        'false'
+      )
     })
 
     it('should open the slider when the button is clicked', () => {

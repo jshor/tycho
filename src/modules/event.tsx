@@ -1,7 +1,15 @@
-import React, { useRef } from 'react'
+import React, { useId, useRef } from 'react'
 import { useStore } from '../store'
 
 interface Props {
+  /** The ID of the element. */
+  id?: string
+  /** The label (for screen readers). */
+  label?: string
+  /** User-friendly instructions to read out (for screen readers only). */
+  instructions?: string
+  /** Invoked when the user presses a key. */
+  onKeyDown?: React.KeyboardEventHandler<HTMLDivElement>
   /** Invoked when the user scrolls over the scene. */
   onWheel?: React.WheelEventHandler<HTMLDivElement>
   /** Invoked with how many pixels further apart the user's fingers moved. */
@@ -16,9 +24,10 @@ const PINCH_TOUCH_COUNT = 2
 /**
  * Records when the user is interacting with the scene, for as long as they keep at it.
  */
-export function Event({ onWheel, onPinch, children }: Props) {
+export function Event({ id, label, instructions, onKeyDown, onWheel, onPinch, children }: Props) {
   const separation = useRef<number | null>(null)
   const onInteract = useStore((state) => state.recordInteraction)
+  const instructionsId = useId()
 
   /**
    * Scrollwheel event handler.
@@ -26,6 +35,14 @@ export function Event({ onWheel, onPinch, children }: Props) {
   const onSceneWheel = (ev: React.WheelEvent<HTMLDivElement>) => {
     onInteract()
     onWheel?.(ev)
+  }
+
+  /**
+   * Keyboard event handler.
+   */
+  const onSceneKeyDown = (ev: React.KeyboardEvent<HTMLDivElement>) => {
+    onInteract()
+    onKeyDown?.(ev)
   }
 
   /**
@@ -84,8 +101,16 @@ export function Event({ onWheel, onPinch, children }: Props) {
   }
 
   return (
+    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
     <div
-      role="presentation"
+      id={id}
+      role="application"
+      aria-label={label}
+      aria-describedby={instructions ? instructionsId : undefined}
+      // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+      tabIndex={0}
+      className="event"
+      onKeyDown={onSceneKeyDown}
       onWheel={onSceneWheel}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
@@ -103,6 +128,11 @@ export function Event({ onWheel, onPinch, children }: Props) {
         overflow: 'hidden'
       }}
     >
+      {instructions && (
+        <p id={instructionsId} className="sr-only">
+          {instructions}
+        </p>
+      )}
       {children}
     </div>
   )

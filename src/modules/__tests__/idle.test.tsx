@@ -158,4 +158,47 @@ describe('Idle Module', () => {
       expect(useStore.getState().controlsEnabled).toBe(false)
     })
   })
+
+  describe('the keyboard', () => {
+    it('should count a key press anywhere as interaction', () => {
+      vi.setSystemTime(10000)
+      renderModule({ interacted: 1 })
+
+      act(() => {
+        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab' }))
+      })
+
+      expect(useStore.getState().interacted).toEqual(10000)
+    })
+
+    it('should count the focus landing anywhere as interaction', () => {
+      vi.setSystemTime(20000)
+      renderModule({ interacted: 1 })
+
+      const button = document.createElement('button')
+
+      document.body.appendChild(button)
+      act(() => button.focus())
+
+      expect(useStore.getState().interacted).toEqual(20000)
+      button.remove()
+    })
+
+    it('should hold the controls in view while the keyboard is at them', () => {
+      const controls = document.createElement('div')
+      const button = document.createElement('button')
+
+      controls.id = Constants.UI.CONTROLS_ID
+      controls.appendChild(button)
+      document.body.appendChild(controls)
+      renderModule(held)
+      button.focus()
+      vi.spyOn(button, 'matches').mockReturnValue(true)
+
+      waitOut()
+
+      expect(useStore.getState().controlsEnabled).toBe(true)
+      controls.remove()
+    })
+  })
 })

@@ -41,8 +41,26 @@ jobs:
           name: dist
           path: dist
 
+  # e2e:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v6
+  #     - uses: actions/setup-node@v6
+  #       with:
+  #         node-version: 26
+  #     - name: Install npm dependencies
+  #       run: yarn
+  #     - name: Run end-to-end tests
+  #       run: yarn test:e2e
+  #     - name: Upload screenshots of failures
+  #       if: failure()
+  #       uses: actions/upload-artifact@v6
+  #       with:
+  #         name: cypress-screenshots
+  #         path: cypress/screenshots
+
   deploy:
-    needs: build
+    needs: [build] # , e2e]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6

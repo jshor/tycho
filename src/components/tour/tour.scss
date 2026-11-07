@@ -50,6 +50,11 @@
   }
 
   &__skip-link {
+    margin: 0;
+    padding: calc(var(--base-spacing) / 2);
+    border: 0;
+    background: none;
+    font: inherit;
     font-style: italic;
     color: var(--brand-primary);
     cursor: pointer;

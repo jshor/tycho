@@ -1,6 +1,6 @@
+import { useEffect, useRef } from 'react'
 import cx from 'classnames'
 import { PageText } from '../../types'
-import { onActivate } from '../../utils/a11y'
 import './splashScreen.scss'
 
 interface Props {
@@ -18,21 +18,32 @@ interface Props {
  * The loading screen shown until the scene is ready to enter.
  */
 export function SplashScreen({ show, pageText, percent, enterScene }: Props) {
+  const enterRef = useRef<HTMLButtonElement>(null)
+  const isLoaded = percent === 100
+
   /**
-   * Renders the anchor that enters the scene.
+   * Hands the focus to the enter button once it takes the loading bar's place.
+   */
+  useEffect(() => {
+    if (isLoaded && show) {
+      enterRef.current?.focus({ preventScroll: true })
+    }
+  }, [isLoaded, show])
+
+  /**
+   * Renders the button that enters the scene.
    */
   const renderEnterButton = () => {
     return (
       <div className="splash-screen__button">
-        <a
+        <button
+          ref={enterRef}
+          type="button"
           className="splash-screen__button-anchor"
-          role="button"
-          tabIndex={0}
           onClick={enterScene}
-          onKeyDown={onActivate(enterScene)}
         >
           {pageText && pageText.start}
-        </a>
+        </button>
       </div>
     )
   }
@@ -42,7 +53,14 @@ export function SplashScreen({ show, pageText, percent, enterScene }: Props) {
    */
   const renderLoadingBar = () => {
     return (
-      <div className="splash-screen__loading">
+      <div
+        className="splash-screen__loading"
+        role="progressbar"
+        aria-label="Loading"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={Math.round(percent ?? 0)}
+      >
         <div className="splash-screen__loading-bar" style={{ width: `${percent}%` }}></div>
       </div>
     )
@@ -52,7 +70,7 @@ export function SplashScreen({ show, pageText, percent, enterScene }: Props) {
    * Renders the enter button once loading completes, and the loading bar until then.
    */
   const renderUserPrompt = () => {
-    if (percent === 100) {
+    if (isLoaded) {
       return renderEnterButton()
     }
     return renderLoadingBar()
@@ -65,8 +83,9 @@ export function SplashScreen({ show, pageText, percent, enterScene }: Props) {
         'splash-screen--hide': !show,
         'splash-screen--show': show
       })}
+      inert={!show}
     >
-      <div className="splash-screen__hero"></div>
+      <div className="splash-screen__hero" aria-hidden="true"></div>
       <div className="splash-screen__content">{renderUserPrompt()}</div>
     </div>
   )

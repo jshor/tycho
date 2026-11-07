@@ -29,6 +29,7 @@ export function Orbital(props: Props) {
   const setActiveOrbitalId = useStore((state) => state.setActiveOrbitalId)
   const setHighlightedId = useStore((state) => state.setHighlightedId)
   const isHighlighted = useStore((state) => state.highlightedId === id)
+  const isLabelFocused = useStore((state) => state.focusedLabelId === id)
   const ASCENSION = 90
 
   /**
@@ -110,6 +111,7 @@ export function Orbital(props: Props) {
       text={props.name}
       radius={props.radius}
       isFocused={id === targetId}
+      isLabelFocused={isLabelFocused}
       parentId={parentId}
       isSatellite={isSatellite}
       id={id}

@@ -3,6 +3,7 @@ import { useStore } from '../store'
 import { Constants } from '../constants'
 import { Modal as ModalView } from '../components/modal/modal'
 import { OrbitalSymbol } from '../components/orbitalSymbol/orbitalSymbol'
+import { recoverFocus } from '../utils/a11y'
 
 interface Props {
   /** The type of modal this module renders. */
@@ -11,8 +12,8 @@ interface Props {
   children?: React.ReactNode
 }
 
-/** The key code that dismisses an open modal. */
-const ESCAPE_KEY_CODE = 27
+/** The key that dismisses an open modal. */
+const ESCAPE_KEY = 'Escape'
 
 /**
  * Connects a modal to the store, closing it on escape.
@@ -24,6 +25,7 @@ export function Modal({ type, children }: Props) {
   // the sign is the one thing about the target that has to be looked up in the data
   const targetSymbol = useStore((state) => state.target?.symbol)
   const modalRef = useRef<HTMLDivElement>(null)
+  const closeRef = useRef<HTMLButtonElement>(null)
 
   /** Whether or not this module's modal is the one currently open. */
   const isModalActive = (): boolean => activeModal === type
@@ -62,7 +64,7 @@ export function Modal({ type, children }: Props) {
    */
   useEffect(() => {
     const onKeyPressed = (evt: KeyboardEvent) => {
-      if (evt.keyCode === ESCAPE_KEY_CODE && activeModal === type) {
+      if (evt.key === ESCAPE_KEY && activeModal === type) {
         closeModal()
       }
     }
@@ -72,9 +74,31 @@ export function Modal({ type, children }: Props) {
     return () => window.removeEventListener('keydown', onKeyPressed)
   }, [activeModal, type, closeModal])
 
+  /**
+   * Focuses the modal when opening or restores focus to the original element when closing.
+   */
+  useEffect(() => {
+    if (activeModal !== type) return
+
+    const opener = document.activeElement as HTMLElement | null
+
+    // the modal was hidden until now and is only focusable once it has been drawn visible
+    requestAnimationFrame(() => closeRef.current?.focus({ preventScroll: true }))
+
+    return () => {
+      if (opener?.isConnected && opener !== document.body) {
+        // the opener sits in the scene
+        requestAnimationFrame(() => opener.focus({ preventScroll: true }))
+      } else {
+        recoverFocus()
+      }
+    }
+  }, [activeModal, type])
+
   return (
     <ModalView
       ref={modalRef}
+      closeRef={closeRef}
       modalActive={isModalActive()}
       title={
         isStatsModal ? (
